@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>社労士 過去問演習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF8F3;
+    --paper:#FFFFFF;
+    --ink:#2A2826;
+    --ink-soft:#5C5852;
+    --ink-muted:#8B867E;
+    --line:#E5DFD3;
+    --line-soft:#EEE9DD;
+    --accent:#B83A2E;
+    --accent-soft:#F4E3DF;
+    --indigo:#27496D;
+    --indigo-soft:#E1E8EF;
+    --green:#3D6E4C;
+    --amber:#C68A14;
+    --shadow:0 1px 2px rgba(42,40,38,.04),0 4px 16px rgba(42,40,38,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Noto Sans JP',sans-serif;
+    background:var(--bg);
+    background-image:radial-gradient(circle at 1px 1px,rgba(42,40,38,.04) 1px,transparent 0);
+    background-size:24px 24px;
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1200px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 280px;gap:24px}
+  @media(max-width:900px){.app{grid-template-columns:1fr;padding:16px}}
+
+  /* Header */
+  header.top{
+    grid-column:1/-1;
+    display:flex;align-items:flex-end;justify-content:space-between;
+    border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:8px;
+  }
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .brand h1{
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    font-size:26px;letter-spacing:.04em;
+  }
+  .brand .seal{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:36px;height:36px;background:var(--accent);color:#fff;
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:18px;
+    border-radius:4px;transform:rotate(-3deg);
+    box-shadow:0 2px 4px rgba(184,58,46,.25);
+  }
+  .brand .sub{color:var(--ink-muted);font-size:12px;letter-spacing:.1em}
+  nav.tabs{display:flex;gap:4px}
+  nav.tabs button{
+    background:none;border:none;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);
+    padding:8px 14px;border-radius:6px 6px 0 0;
+    border-bottom:2px solid transparent;transition:all .15s;
+  }
+  nav.tabs button:hover{color:var(--ink);background:var(--line-soft)}
+  nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+
+  /* Main panel */
+  main{min-width:0}
+  .card{
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:8px;padding:24px;box-shadow:var(--shadow);
+  }
+  .card+.card{margin-top:16px}
+
+  /* Quiz */
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+    font-size:12px;color:var(--ink-muted);margin-bottom:18px;
+  }
+  .meta-row .pill{
+    padding:3px 10px;border-radius:99px;background:var(--line-soft);
+    color:var(--ink-soft);font-size:11px;letter-spacing:.05em;
+  }
+  .meta-row .pill.accent{background:var(--accent-soft);color:var(--accent)}
+  .progress-track{
+    flex:1;min-width:120px;height:3px;background:var(--line-soft);
+    border-radius:99px;overflow:hidden;
+  }
+  .progress-fill{height:100%;background:var(--indigo);transition:width .3s}
+
+  .q-box{
+    background:var(--bg);border:1px solid var(--line);
+    border-radius:6px;padding:22px 24px;margin:18px 0;
+    font-size:16px;line-height:1.9;
+    position:relative;
+  }
+  .q-box::before{
+    content:"問";position:absolute;top:-10px;left:18px;
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    background:var(--ink);color:var(--bg);font-size:11px;
+    padding:2px 8px;border-radius:3px;letter-spacing:.1em;
+  }
+
+  .answer-row{display:flex;gap:12px;justify-content:center;margin:24px 0 8px}
+  .btn-ans{
+    flex:0 0 140px;padding:14px 0;border:1px solid var(--line);
+    background:var(--paper);cursor:pointer;border-radius:6px;
+    font-family:'Shippori Mincho',serif;font-size:20px;
+    color:var(--ink);transition:all .15s;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn-ans .label{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:300}
+  .btn-ans:hover{border-color:var(--ink);background:var(--bg);transform:translateY(-1px)}
+  .btn-ans.maru:hover{border-color:var(--indigo);color:var(--indigo)}
+  .btn-ans.batsu:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-ans .kbd{
+    background:var(--line-soft);font-family:monospace;font-size:10px;
+    padding:1px 5px;border-radius:3px;color:var(--ink-muted);
+    position:absolute;bottom:6px;right:8px;
+  }
+  .btn-ans{position:relative}
+
+  .nav-row{display:flex;gap:8px;justify-content:center;margin-top:8px}
+  .btn-nav{
+    background:none;border:1px solid var(--line);cursor:pointer;
+    padding:6px 16px;border-radius:6px;font-family:inherit;font-size:13px;
+    color:var(--ink-soft);transition:all .15s;
+  }
+  .btn-nav:hover{background:var(--line-soft);color:var(--ink)}
+  .btn-nav:disabled{opacity:.4;cursor:not-allowed}
+
+  /* Result */
+  .result{
+    margin-top:20px;padding-top:20px;border-top:1px dashed var(--line);
+    animation:fadeIn .25s ease-out;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .verdict{
+    font-family:'Shippori Mincho',serif;font-size:20px;font-weight:700;
+    margin-bottom:18px;display:flex;align-items:center;gap:10px;
+  }
+  .verdict.correct{color:var(--indigo)}
+  .verdict.wrong{color:var(--accent)}
+  .verdict .mark{
+    width:32px;height:32px;border:2.5px solid currentColor;
+    border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:18px;
+  }
+  .verdict.wrong .mark{border-radius:4px;border:none;background:currentColor;color:#fff}
+
+  .section-h{
+    font-family:'Shippori Mincho',serif;font-size:13px;font-weight:700;
+    color:var(--ink-soft);margin:18px 0 6px;
+    display:flex;align-items:center;gap:8px;letter-spacing:.08em;
+  }
+  .section-h::before{content:"";width:3px;height:14px;background:var(--accent);border-radius:2px}
+  .section-body{font-size:14px;line-height:1.8;color:var(--ink)}
+  .section-body.dim{color:var(--ink-soft);font-size:13px}
+  .article-box{
+    background:#FFFCF5;border:1px solid var(--line);
+    padding:14px 18px;border-radius:4px;font-size:13px;line-height:1.85;
+    white-space:pre-wrap;margin-top:6px;color:var(--ink-soft);
+    font-family:'Shippori Mincho',serif;
+  }
+  .article-toggle{
+    background:none;border:none;color:var(--indigo);cursor:pointer;
+    font-family:inherit;font-size:12px;text-decoration:underline;
+    text-decoration-thickness:1px;text-underline-offset:3px;
+  }
+
+  /* Bookmarks */
+  .bookmark-row{
+    display:flex;gap:8px;align-items:center;margin-top:18px;
+    padding:12px;background:var(--bg);border-radius:6px;
+  }
+  .bookmark-row .lbl{font-size:11px;color:var(--ink-muted);letter-spacing:.1em}
+  .bm{
+    width:22px;height:22px;border-radius:4px;cursor:pointer;
+    border:2px solid transparent;transition:all .15s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .bm:hover{transform:scale(1.1)}
+  .bm.r{background:#D14B3F}
+  .bm.p{background:#E8A4A4}
+  .bm.y{background:#E5B547}
+  .bm.g{background:#5E8A6A}
+  .bm.b{background:#4A6B8A}
+  .bm.active{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg)}
+  .bm.active::after{content:"✓";color:#fff;font-size:11px;font-weight:700}
+
+  /* Sidebar */
+  aside{display:flex;flex-direction:column;gap:16px}
+  .stat-card{
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:8px;padding:18px;box-shadow:var(--shadow);
+  }
+  .stat-card h3{
+    font-family:'Shippori Mincho',serif;font-size:13px;
+    color:var(--ink-soft);margin-bottom:12px;letter-spacing:.1em;
+    border-bottom:1px solid var(--line);padding-bottom:8px;
+  }
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat-item{text-align:center}
+  .stat-item .num{
+    font-family:'Shippori Mincho',serif;font-size:24px;font-weight:700;color:var(--ink);
+    line-height:1.2;
+  }
+  .stat-item .num.accent{color:var(--accent)}
+  .stat-item .num.indigo{color:var(--indigo)}
+  .stat-item .lbl{font-size:11px;color:var(--ink-muted);margin-top:2px}
+  .stat-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0}
+  .stat-row+.stat-row{border-top:1px dashed var(--line)}
+  .stat-row .v{font-weight:500;color:var(--ink)}
+
+  /* Mode selector */
+  .mode-group{display:flex;flex-direction:column;gap:4px}
+  .mode-btn{
+    background:none;border:1px solid var(--line);cursor:pointer;
+    padding:9px 12px;border-radius:5px;font-family:inherit;
+    font-size:13px;color:var(--ink-soft);text-align:left;
+    transition:all .12s;display:flex;justify-content:space-between;align-items:center;
+  }
+  .mode-btn:hover{background:var(--line-soft);color:var(--ink)}
+  .mode-btn.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .mode-btn .count{font-size:11px;opacity:.7}
+
+  select,input[type=text],textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--line);
+    border-radius:5px;font-family:inherit;font-size:13px;
+    background:var(--paper);color:var(--ink);
+  }
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+  label.field{display:block;font-size:11px;color:var(--ink-muted);margin-bottom:4px;letter-spacing:.05em}
+  .field-group+.field-group{margin-top:10px}
+
+  /* Manage view */
+  .manage-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .btn{
+    background:var(--ink);color:var(--bg);border:none;cursor:pointer;
+    padding:8px 16px;border-radius:5px;font-family:inherit;font-size:13px;
+    transition:all .15s;
+  }
+  .btn:hover{background:var(--accent)}
+  .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{background:var(--line-soft);color:var(--ink);border-color:var(--ink)}
+  .q-list{display:flex;flex-direction:column;gap:6px;max-height:600px;overflow-y:auto}
+  .q-item{
+    display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+    background:var(--bg);border:1px solid var(--line);border-radius:5px;
+    cursor:pointer;transition:all .12s;
+  }
+  .q-item:hover{border-color:var(--ink-muted);background:var(--paper)}
+  .q-item .qm{display:flex;flex-direction:column;font-size:10px;color:var(--ink-muted);gap:2px;min-width:80px}
+  .q-item .qt{font-size:13px;color:var(--ink);flex:1;line-height:1.5;
+    overflow:hidden;text-overflow:ellipsis;display:-webkit-box;
+    -webkit-line-clamp:2;-webkit-box-orient:vertical;
+  }
+  .q-item .qa{
+    font-family:'Shippori Mincho',serif;font-size:18px;font-weight:700;
+    width:24px;text-align:center;
+  }
+  .q-item .qa.o{color:var(--indigo)}
+  .q-item .qa.x{color:var(--accent)}
+
+  /* Modal */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(42,40,38,.5);
+    display:flex;align-items:center;justify-content:center;
+    z-index:50;padding:20px;
+  }
+  .modal{
+    background:var(--paper);border-radius:8px;padding:24px;
+    max-width:640px;width:100%;max-height:90vh;overflow-y:auto;
+    box-shadow:0 12px 48px rgba(0,0,0,.2);
+  }
+  .modal h2{
+    font-family:'Shippori Mincho',serif;font-size:18px;
+    margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  textarea{font-family:'Shippori Mincho',serif;line-height:1.7;resize:vertical;min-height:80px}
+
+  /* Empty state */
+  .empty{text-align:center;padding:48px 20px;color:var(--ink-muted)}
+  .empty .ico{font-size:36px;margin-bottom:8px;font-family:'Shippori Mincho',serif}
+
+  .hint{
+    font-size:11px;color:var(--ink-muted);margin-top:6px;line-height:1.6;
+  }
+  .kbd-hint{
+    text-align:center;font-size:11px;color:var(--ink-muted);margin-top:14px;
+  }
+  .kbd-hint code{
+    background:var(--line-soft);padding:1px 6px;border-radius:3px;
+    font-size:10px;margin:0 2px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <span class="seal">社</span>
+      <div>
+        <h1>過去問演習帳</h1>
+        <div class="sub">SHAROUSHI · KAKOMON</div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="quiz">問題演習</button>
+      <button class="tab-btn" data-tab="manage">問題管理</button>
+      <button class="tab-btn" data-tab="data">データ</button>
+    </nav>
+  </header>
+
+  <!-- ===== QUIZ VIEW ===== -->
+  <main id="view-quiz">
+    <div class="card" id="quiz-card">
+      <!-- filled by JS -->
+    </div>
+  </main>
+
+  <aside id="aside-quiz">
+    <div class="stat-card">
+      <h3>本日の演習</h3>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="num indigo" id="stat-today-total">0</div><div class="lbl">解答数</div></div>
+        <div class="stat-item"><div class="num accent" id="stat-today-rate">—</div><div class="lbl">正答率</div></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>通算成績</h3>
+      <div class="stat-row"><span>総解答数</span><span class="v" id="stat-all-total">0</span></div>
+      <div class="stat-row"><span>正答率</span><span class="v" id="stat-all-rate">—</span></div>
+      <div class="stat-row"><span>登録問題数</span><span class="v" id="stat-q-count">0</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>出題モード</h3>
+      <div class="mode-group">
+        <button class="mode-btn active" data-mode="seq">順番出題 <span class="count" id="mc-seq"></span></button>
+        <button class="mode-btn" data-mode="rand">ランダム <span class="count" id="mc-rand"></span></button>
+        <button class="mode-btn" data-mode="weak">弱点出題 <span class="count" id="mc-weak"></span></button>
+        <button class="mode-btn" data-mode="unseen">未解答のみ <span class="count" id="mc-unseen"></span></button>
+        <button class="mode-btn" data-mode="bm">ふせん付き <span class="count" id="mc-bm"></span></button>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>絞り込み</h3>
+      <div class="field-group">
+        <label class="field">法律</label>
+        <select id="filter-law"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
+        <label class="field">年度</label>
+        <select id="filter-year"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
+        <label class="field">ふせん色</label>
+        <select id="filter-bm">
+          <option value="">指定なし</option>
+          <option value="r">赤</option>
+          <option value="p">桃</option>
+          <option value="y">黄</option>
+          <option value="g">緑</option>
+          <option value="b">青</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MANAGE VIEW ===== -->
+  <main id="view-manage" style="display:none;grid-column:1/-1">
+    <div class="card">
+      <div class="manage-bar">
+        <button class="btn" id="btn-new-q">+ 新規問題</button>
+        <button class="btn ghost" id="btn-import">JSONインポート</button>
+        <button class="btn ghost" id="btn-export">JSONエクスポート</button>
+        <input type="text" id="search-q" placeholder="検索(問題文・年度・法律)" style="flex:1;min-width:200px;max-width:400px">
+      </div>
+      <div class="q-list" id="q-list"></div>
+    </div>
+  </main>
+
+  <!-- ===== DATA VIEW ===== -->
+  <main id="view-data" style="display:none;grid-column:1/-1">
+    <div class="card">
+      <h2 style="font-family:'Shippori Mincho',serif;font-size:18px;margin-bottom:16px">データ管理</h2>
+      <div class="section-h">バックアップ</div>
+      <p class="section-body dim">演習結果は、お使いのブラウザに自動保存されています。別のPCで使う・万一に備えるため、定期的にJSONとして書き出してください。</p>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" id="btn-backup">完全バックアップ(JSON)</button>
+        <button class="btn ghost" id="btn-restore">バックアップ復元</button>
+      </div>
+
+      <div class="section-h" style="margin-top:24px">問題データの追加方法</div>
+      <div class="section-body dim">
+        <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:12px;border-radius:5px;font-size:11px;overflow-x:auto;line-height:1.6">[
+  {
+    "year":"R3","law":"雇用保険法","qno":"問2 肢B",
+    "category":"未支給の失業等給付",
+    "text":"問題文…",
+    "answer":false,
+    "point":"ポイント…",
+    "explanation":"解説…",
+    "legalBasis":"法10条の3、1項",
+    "articleText":"(条文本文 任意)",
+    "difficulty":"C"
+  }
+]</pre>
+        <p class="hint">※ <code>answer</code> は ○=true、×=false。書籍ページを撮影してClaudeに渡せば、この形式のJSONに変換できます。</p>
+      </div>
+
+      <div class="section-h" style="margin-top:24px">注意事項</div>
+      <p class="section-body dim">データはブラウザの localStorage に保存されます。ブラウザのキャッシュ削除でデータが消える可能性があるため、定期的なバックアップを推奨します。</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- ===== EDIT MODAL ===== -->
+<div class="modal-back" id="modal-edit" style="display:none">
+  <div class="modal">
+    <h2 id="modal-title">問題を編集</h2>
+    <div class="row">
+      <div><label class="field">年度</label><input type="text" id="m-year" placeholder="H29, R3"></div>
+      <div><label class="field">法律</label><input type="text" id="m-law" placeholder="雇用保険法"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label class="field">問題番号</label><input type="text" id="m-qno" placeholder="問6 肢A"></div>
+      <div><label class="field">カテゴリ(任意)</label><input type="text" id="m-cat" placeholder="未支給の失業等給付"></div>
+    </div>
+    <div style="margin-top:10px">
+      <label class="field">問題文</label>
+      <textarea id="m-text" rows="3"></textarea>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label class="field">正解</label>
+        <select id="m-answer">
+          <option value="true">○ (正)</option>
+          <option value="false">× (誤)</option>
+        </select>
+      </div>
+      <div>
+        <label class="field">難易度</label>
+        <select id="m-diff">
+          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label class="field">ポイント(短い要約)</label>
+      <textarea id="m-point" rows="2"></textarea>
+    </div>
+    <div style="margin-top:10px">
+      <label class="field">解説</label>
+      <textarea id="m-exp" rows="4"></textarea>
+    </div>
+    <div style="margin-top:10px">
+      <label class="field">出題根拠(条番号)</label>
+      <input type="text" id="m-basis" placeholder="法10条1項">
+    </div>
+    <div style="margin-top:10px">
+      <label class="field">条文等(任意)</label>
+      <textarea id="m-article" rows="3"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="m-delete" style="margin-right:auto;color:var(--accent)">削除</button>
+      <button class="btn ghost" id="m-cancel">キャンセル</button>
+      <button class="btn" id="m-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== IMPORT MODAL ===== -->
+<div class="modal-back" id="modal-import" style="display:none">
+  <div class="modal">
+    <h2>JSONインポート</h2>
+    <p class="section-body dim" style="margin-bottom:10px">問題データのJSON配列を貼り付けてください。既存問題と重複しない問題が追加されます。</p>
+    <textarea id="import-text" rows="14" placeholder='[{"year":"R3","law":"雇用保険法",...}]'></textarea>
+    <div class="actions">
+      <button class="btn ghost" id="import-cancel">キャンセル</button>
+      <button class="btn" id="import-do">インポート実行</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ===== Sample data: フレーム11 (uploaded PDF) + スクショの問題 ===== */
+const SAMPLE_QUESTIONS = [
+  {id:"s1",year:"H18",law:"雇用保険法",qno:"問6 肢A",category:"就職促進給付",
+   text:"就職促進給付には、就業促進手当、移転費、求職活動支援費の3つがある。",
+   answer:true,
+   point:"就業促進手当、移転費、求職活動支援費の3つである。",
+   explanation:"就職促進給付の種類は、次の3つである。\n・就業促進手当\n・移転費\n・求職活動支援費\n\n(平成29年法改正)問題文中の「広域求職活動費」との文言を「求職活動支援費」に改めた。\n\nなお、求職活動支援費には次のものがある。\n・広域求職活動費\n・短期訓練受講費\n・求職活動関係役務利用費",
+   legalBasis:"法10条4項",
+   articleText:"(失業等給付) 法10条\n4 就職促進給付は、次のとおりとする。\n 一 就業促進手当\n 二 移転費\n 三 求職活動支援費",
+   difficulty:"D"
+  },
+  {id:"s2",year:"H29",law:"雇用保険法",qno:"問1 肢B",category:"受給権の保護",
+   text:"基本手当の受給資格者は、基本手当を受ける権利を契約により譲り渡すことができる。",
+   answer:false,
+   point:"基本手当を受ける権利は、譲り渡し・担保供与・差押えができない。",
+   explanation:"失業等給付(基本手当)を受ける権利は、譲り渡し、担保に供し、又は差し押さえることができない。",
+   legalBasis:"法10条1項、2項1号、法11条",
+   articleText:"(受給権の保護) 法11条\n失業等給付を受ける権利は、譲り渡し、担保に供し、又は差し押さえることができない。",
+   difficulty:"B"
+  },
+  {id:"s3",year:"H29",law:"雇用保険法",qno:"問1 肢E",category:"受給権の保護",
+   text:"政府は、基本手当の受給資格者が失業の認定に係る期間中に自己の労働によって収入を得た場合であっても、当該基本手当として支給された金銭を標準として租税を課することができない。",
+   answer:true,
+   point:"租税その他の公課は、基本手当を受けた金銭を標準として課することができない。",
+   explanation:"租税その他の公課は、失業等給付(基本手当)を受けた金銭を標準として課することができない。",
+   legalBasis:"法10条1項、1項1号、法12条",
+   articleText:"(公課の禁止) 法12条\n租税その他の公課は、失業等給付として支給を受けた金銭を標準として課することができない。",
+   difficulty:"B"
+  },
+  {id:"s4",year:"R3",law:"雇用保険法",qno:"問2 肢B",category:"未支給の失業等給付",
+   text:"失業等給付の支給を受けることができる者が死亡した場合において、未支給の失業等給付の支給を受けるべき順位にあるその者の遺族は、死亡した者の名でその未支給の失業等給付の支給を請求することができる。",
+   answer:false,
+   point:"未支給の失業等給付は、遺族が「自己の名」で請求する。",
+   explanation:"未支給の失業等給付は、遺族が「自己の名」で請求することができる。",
+   legalBasis:"法10条の3、1項",
+   articleText:"(未支給の失業等給付) 法10条の3 1項\n失業等給付の支給を受けることができる者が死亡した場合において、その死亡した者に支給すべき失業等給付でまだその者に支給していなかったものがあるときは、その者の配偶者、子、父母、孫、祖父母又は兄弟姉妹であつて、その者の死亡の当時その者と生計を同じくしていたものは、自己の名で、その未支給の失業等給付の支給を請求することができる。",
+   difficulty:"C"
+  },
+  {id:"s5",year:"R3",law:"雇用保険法",qno:"問2 肢C",category:"未支給の失業等給付",
+   text:"正当な理由がなく自己の都合によって退職したことにより基本手当を支給しないこととされた期間がある受給資格者が死亡した場合、死亡した受給資格者の遺族の請求により、当該基本手当を支給しないこととされた期間中の日に係る未支給の基本手当が支給される。",
+   answer:false,
+   point:"給付制限期間中については、未支給の基本手当は支給されない。",
+   explanation:"就職拒否等による給付制限(法32条1項・2項)又は離職理由の給付制限(正当な理由がなく自己の都合によって退職した)により基本手当を支給しないこととされた期間中については、未支給の基本手当は支給されない。",
+   legalBasis:"行政手引53103",
+   articleText:"",
+   difficulty:"C"
+  },
+  {id:"s6",year:"R3",law:"雇用保険法",qno:"問2 肢E",category:"未支給の失業等給付",
+   text:"受給資格者の死亡により未支給の失業等給付の支給を請求しようとする者は、当該受給資格者の死亡の翌日から起算して3か月以内に請求しなければならない。",
+   answer:false,
+   point:"未支給の失業等給付は死亡の翌日から「6か月以内」に請求する。",
+   explanation:"未支給の失業等給付は、当該受給資格者の死亡の翌日から起算して「6か月以内」に請求しなければならない。",
+   legalBasis:"則17条の2、1項",
+   articleText:"則17条の2 1項\n未支給の失業等給付の支給を請求しようとする者は、当該受給資格者の死亡の翌日から起算して6箇月以内に、未支給失業等給付請求書を当該受給資格者の住所地を管轄する公共職業安定所の長に提出しなければならない。",
+   difficulty:"C"
+  }
+];
+
+/* ===== State & Storage ===== */
+const STORAGE_KEY = 'sharoushi_kakomon_v1';
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const s = JSON.parse(raw);
+      if(!s.questions || !s.questions.length){
+        s.questions = SAMPLE_QUESTIONS.slice();
+      }
+      s.history ||= [];
+      s.bookmarks ||= {};
+      s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:''};
+      s.session.answered ||= false;
+      s.session.userAnswer ??= null;
+      return s;
+    }
+  }catch(e){console.warn('Load error',e)}
+  return {
+    questions: SAMPLE_QUESTIONS.slice(),
+    history: [],
+    bookmarks: {},
+    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null}
+  };
+}
+function saveState(){
+  try{localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}
+  catch(e){alert('保存に失敗しました: '+e.message)}
+}
+
+/* ===== Question filter / current pool ===== */
+function getPool(){
+  let pool = state.questions.slice();
+  const s = state.session;
+  if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
+  if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
+  if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
+
+  if(s.mode==='weak'){
+    pool = pool.filter(q=>{
+      const hist = state.history.filter(h=>h.qid===q.id);
+      if(!hist.length) return false;
+      const last = hist[hist.length-1];
+      return !last.correct;
+    });
+  }else if(s.mode==='unseen'){
+    pool = pool.filter(q=>!state.history.some(h=>h.qid===q.id));
+  }else if(s.mode==='bm'){
+    pool = pool.filter(q=>(state.bookmarks[q.id]||[]).length>0);
+  }else if(s.mode==='rand'){
+    // shuffle once, but cache order so 次へ progresses
+    if(!s._randOrder || s._randOrderPoolSig!==poolSignature(pool)){
+      pool = shuffle(pool);
+      s._randOrder = pool.map(q=>q.id);
+      s._randOrderPoolSig = poolSignature(pool);
+    }else{
+      const idMap = Object.fromEntries(pool.map(q=>[q.id,q]));
+      pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
+    }
+  }
+  return pool;
+}
+function poolSignature(pool){return pool.map(q=>q.id).sort().join(',')}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function currentQuestion(){
+  const pool = getPool();
+  if(!pool.length) return null;
+  if(state.session.currentIndex >= pool.length) state.session.currentIndex = 0;
+  return pool[state.session.currentIndex];
+}
+
+/* ===== Stats ===== */
+function todayStart(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function statTodayTotal(){return state.history.filter(h=>h.ts>=todayStart()).length}
+function statTodayRate(){
+  const h = state.history.filter(x=>x.ts>=todayStart());
+  if(!h.length) return null;
+  return h.filter(x=>x.correct).length/h.length;
+}
+function statAllRate(){
+  if(!state.history.length) return null;
+  return state.history.filter(h=>h.correct).length/state.history.length;
+}
+function questionStats(qid){
+  const h = state.history.filter(x=>x.qid===qid);
+  return {total:h.length, correct:h.filter(x=>x.correct).length, last: h[h.length-1]||null};
+}
+
+/* ===== Render: quiz ===== */
+function renderQuiz(){
+  const card = document.getElementById('quiz-card');
+  const q = currentQuestion();
+
+  if(!q){
+    card.innerHTML = `<div class="empty"><div class="ico">―</div>条件に合う問題がありません。<br>モードや絞り込みを変えてください。</div>`;
+    return;
+  }
+
+  const pool = getPool();
+  const idx = state.session.currentIndex;
+  const qs = questionStats(q.id);
+  const bms = state.bookmarks[q.id]||[];
+  const answered = state.session.answered;
+  const userAns = state.session.userAnswer;
+  const correct = answered && userAns===q.answer;
+
+  card.innerHTML = `
+    <div class="meta-row">
+      <span class="pill accent">${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
+      <span class="pill">${escapeHtml(q.qno||'')}</span>
+      ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
+      <span style="font-size:11px">[${idx+1}/${pool.length}]</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
+      ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
+    </div>
+
+    <div class="q-box">${escapeHtml(q.text)}</div>
+
+    <div class="answer-row">
+      <button class="btn-ans maru" data-ans="true" ${answered?'disabled':''}>
+        <span>○</span><span class="label">正</span><span class="kbd">1 / O</span>
+      </button>
+      <button class="btn-ans batsu" data-ans="false" ${answered?'disabled':''}>
+        <span>×</span><span class="label">誤</span><span class="kbd">2 / X</span>
+      </button>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" ${idx===0?'disabled':''}>← 前へ</button>
+      <button class="btn-nav" id="btn-next">次へ →</button>
+    </div>
+    <div class="kbd-hint">キーボード: <code>1</code>/<code>O</code>=○ &nbsp; <code>2</code>/<code>X</code>=× &nbsp; <code>←</code>=前 &nbsp; <code>→</code>=次</div>
+
+    ${answered ? renderResult(q,correct) : ''}
+
+    <div class="bookmark-row">
+      <span class="lbl">FUSEN</span>
+      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
+      <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
+    </div>
+  `;
+
+  // Wire up
+  card.querySelectorAll('.btn-ans').forEach(b=>b.addEventListener('click',()=>answerQuestion(b.dataset.ans==='true')));
+  document.getElementById('btn-prev').addEventListener('click',()=>nav(-1));
+  document.getElementById('btn-next').addEventListener('click',()=>nav(1));
+  card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBm(q.id,b.dataset.bm)));
+
+  const artBtn = card.querySelector('.article-toggle');
+  if(artBtn) artBtn.addEventListener('click',()=>{
+    const box = card.querySelector('.article-box');
+    box.style.display = box.style.display==='none' ? 'block' : 'none';
+    artBtn.textContent = box.style.display==='none' ? '>> 条文等を表示' : '>> 条文等を隠す';
+  });
+
+  renderSidebar();
+}
+
+function renderResult(q,correct){
+  return `
+    <div class="result">
+      <div class="verdict ${correct?'correct':'wrong'}">
+        <span class="mark">${correct?'○':'×'}</span>
+        ${correct?'正解しました!':'不正解です'}
+        <span style="font-size:12px;color:var(--ink-muted);font-weight:400;margin-left:auto">この肢は ${q.answer?'正しい':'誤り'}</span>
+      </div>
+      ${q.point?`<div class="section-h">ポイント</div><div class="section-body">${escapeHtml(q.point).replace(/\n/g,'<br>')}</div>`:''}
+      ${q.explanation?`<div class="section-h">解説</div><div class="section-body">${escapeHtml(q.explanation).replace(/\n/g,'<br>')}</div>`:''}
+      <div class="section-h">難易度・出題根拠</div>
+      <div class="section-body dim">
+        レベル ${escapeHtml(q.difficulty||'—')}　／　${escapeHtml(q.legalBasis||'—')}
+      </div>
+      ${q.articleText?`<div class="section-h">条文等 <button class="article-toggle">>> 条文等を隠す</button></div><div class="article-box">${escapeHtml(q.articleText)}</div>`:''}
+    </div>
+  `;
+}
+
+function answerQuestion(userAns){
+  const q = currentQuestion();
+  if(!q || state.session.answered) return;
+  const correct = userAns===q.answer;
+  state.history.push({qid:q.id,ts:Date.now(),userAns,correct});
+  state.session.answered = true;
+  state.session.userAnswer = userAns;
+  saveState();
+  renderQuiz();
+}
+
+function nav(dir){
+  const pool = getPool();
+  if(!pool.length) return;
+  state.session.currentIndex = (state.session.currentIndex + dir + pool.length) % pool.length;
+  state.session.answered = false;
+  state.session.userAnswer = null;
+  saveState();
+  renderQuiz();
+}
+
+function toggleBm(qid,color){
+  state.bookmarks[qid] ||= [];
+  const i = state.bookmarks[qid].indexOf(color);
+  if(i>=0) state.bookmarks[qid].splice(i,1);
+  else state.bookmarks[qid].push(color);
+  if(!state.bookmarks[qid].length) delete state.bookmarks[qid];
+  saveState();
+  renderQuiz();
+}
+
+/* ===== Sidebar ===== */
+function renderSidebar(){
+  document.getElementById('stat-today-total').textContent = statTodayTotal();
+  const tr = statTodayRate();
+  document.getElementById('stat-today-rate').textContent = tr===null?'—':Math.round(tr*100)+'%';
+  document.getElementById('stat-all-total').textContent = state.history.length;
+  const ar = statAllRate();
+  document.getElementById('stat-all-rate').textContent = ar===null?'—':Math.round(ar*100)+'%';
+  document.getElementById('stat-q-count').textContent = state.questions.length;
+
+  // Mode counts
+  const oldIdx = state.session.currentIndex, oldMode = state.session.mode;
+  for(const m of ['seq','rand','weak','unseen','bm']){
+    state.session.mode = m;
+    document.getElementById('mc-'+m).textContent = '('+getPool().length+')';
+  }
+  state.session.mode = oldMode;
+  state.session.currentIndex = oldIdx;
+
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode===state.session.mode);
+  });
+
+  // Filter selects
+  const laws = [...new Set(state.questions.map(q=>q.law))].sort();
+  const years = [...new Set(state.questions.map(q=>q.year))].sort();
+  fillSelect('filter-law',laws,state.session.filterLaw);
+  fillSelect('filter-year',years,state.session.filterYear);
+  document.getElementById('filter-bm').value = state.session.filterBm;
+}
+function fillSelect(id,options,current){
+  const sel = document.getElementById(id);
+  sel.innerHTML = '<option value="">すべて</option>'+options.map(o=>`<option value="${escapeHtml(o)}" ${o===current?'selected':''}>${escapeHtml(o)}</option>`).join('');
+}
+
+/* ===== Manage view ===== */
+function renderManage(){
+  const list = document.getElementById('q-list');
+  const term = document.getElementById('search-q').value.trim().toLowerCase();
+  const qs = state.questions.filter(q=>{
+    if(!term) return true;
+    return (q.text+q.year+q.law+(q.qno||'')+(q.category||'')).toLowerCase().includes(term);
+  });
+  if(!qs.length){list.innerHTML = `<div class="empty">問題がありません</div>`;return}
+  list.innerHTML = qs.map(q=>`
+    <div class="q-item" data-id="${q.id}">
+      <div class="qm">
+        <span>${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
+        <span>${escapeHtml(q.qno||'')}</span>
+        <span>Lv.${escapeHtml(q.difficulty||'-')}</span>
+      </div>
+      <div class="qt">${escapeHtml(q.text)}</div>
+      <div class="qa ${q.answer?'o':'x'}">${q.answer?'○':'×'}</div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.q-item').forEach(el=>{
+    el.addEventListener('click',()=>openEditModal(el.dataset.id));
+  });
+}
+
+/* ===== Edit modal ===== */
+let editingId = null;
+function openEditModal(id){
+  const isNew = !id;
+  editingId = id;
+  const q = id ? state.questions.find(x=>x.id===id) : {year:'',law:'雇用保険法',qno:'',category:'',text:'',answer:true,difficulty:'C',point:'',explanation:'',legalBasis:'',articleText:''};
+  if(!q) return;
+  document.getElementById('modal-title').textContent = isNew?'新規問題':'問題を編集';
+  document.getElementById('m-year').value = q.year||'';
+  document.getElementById('m-law').value = q.law||'';
+  document.getElementById('m-qno').value = q.qno||'';
+  document.getElementById('m-cat').value = q.category||'';
+  document.getElementById('m-text').value = q.text||'';
+  document.getElementById('m-answer').value = String(q.answer);
+  document.getElementById('m-diff').value = q.difficulty||'C';
+  document.getElementById('m-point').value = q.point||'';
+  document.getElementById('m-exp').value = q.explanation||'';
+  document.getElementById('m-basis').value = q.legalBasis||'';
+  document.getElementById('m-article').value = q.articleText||'';
+  document.getElementById('m-delete').style.display = isNew?'none':'inline-block';
+  document.getElementById('modal-edit').style.display='flex';
+}
+function closeEditModal(){document.getElementById('modal-edit').style.display='none';editingId=null}
+function saveEditModal(){
+  const text = document.getElementById('m-text').value.trim();
+  if(!text){alert('問題文を入力してください');return}
+  const data = {
+    year:document.getElementById('m-year').value.trim(),
+    law:document.getElementById('m-law').value.trim(),
+    qno:document.getElementById('m-qno').value.trim(),
+    category:document.getElementById('m-cat').value.trim(),
+    text,
+    answer:document.getElementById('m-answer').value==='true',
+    difficulty:document.getElementById('m-diff').value,
+    point:document.getElementById('m-point').value.trim(),
+    explanation:document.getElementById('m-exp').value.trim(),
+    legalBasis:document.getElementById('m-basis').value.trim(),
+    articleText:document.getElementById('m-article').value.trim()
+  };
+  if(editingId){
+    const i = state.questions.findIndex(q=>q.id===editingId);
+    if(i>=0) state.questions[i] = {...state.questions[i],...data};
+  }else{
+    data.id = 'q'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    state.questions.push(data);
+  }
+  saveState();
+  closeEditModal();
+  renderManage();
+  renderSidebar();
+}
+function deleteEditModal(){
+  if(!editingId) return;
+  if(!confirm('この問題を削除しますか?(履歴は残ります)')) return;
+  state.questions = state.questions.filter(q=>q.id!==editingId);
+  saveState();
+  closeEditModal();
+  renderManage();
+  renderSidebar();
+}
+
+/* ===== Import / Export ===== */
+function openImportModal(){
+  document.getElementById('import-text').value='';
+  document.getElementById('modal-import').style.display='flex';
+}
+function doImport(){
+  const raw = document.getElementById('import-text').value.trim();
+  if(!raw){alert('JSONを貼り付けてください');return}
+  let arr;
+  try{arr = JSON.parse(raw)}catch(e){alert('JSON解析エラー: '+e.message);return}
+  if(!Array.isArray(arr)){alert('配列で渡してください');return}
+  let added=0;
+  for(const q of arr){
+    if(!q.text) continue;
+    q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+    if(state.questions.some(x=>x.id===q.id)) continue;
+    state.questions.push(q);
+    added++;
+  }
+  saveState();
+  document.getElementById('modal-import').style.display='none';
+  renderManage();
+  renderSidebar();
+  alert(`${added}問を追加しました。`);
+}
+
+function exportQuestions(){
+  const blob = new Blob([JSON.stringify(state.questions,null,2)],{type:'application/json'});
+  download(blob,`sharoushi_questions_${Date.now()}.json`);
+}
+function backupAll(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  download(blob,`sharoushi_backup_${Date.now()}.json`);
+}
+function restoreBackup(){
+  const inp = document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange = e=>{
+    const f = e.target.files[0];if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=>{
+      try{
+        const s = JSON.parse(r.result);
+        if(!s.questions){throw new Error('不正な形式');}
+        if(!confirm('現在のデータをすべて置き換えます。よろしいですか?')) return;
+        state = s;
+        state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null};
+        saveState();
+        renderQuiz();renderManage();renderSidebar();
+        alert('復元しました');
+      }catch(err){alert('復元失敗: '+err.message)}
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+function download(blob,name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ===== Utility ===== */
+function escapeHtml(s){
+  if(s==null) return '';
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ===== Tabs ===== */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  document.getElementById('view-quiz').style.display = name==='quiz'?'block':'none';
+  document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
+  document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
+  document.getElementById('view-data').style.display = name==='data'?'block':'none';
+  if(name==='manage') renderManage();
+  if(name==='quiz') renderQuiz();
+}
+
+/* ===== Wire up ===== */
+function init(){
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
+    state.session.mode = b.dataset.mode;
+    state.session.currentIndex = 0;
+    state.session.answered = false;
+    state.session.userAnswer = null;
+    saveState();
+    renderQuiz();
+  }));
+
+  // Filters
+  document.getElementById('filter-law').addEventListener('change',e=>{
+    state.session.filterLaw = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+  document.getElementById('filter-year').addEventListener('change',e=>{
+    state.session.filterYear = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+  document.getElementById('filter-bm').addEventListener('change',e=>{
+    state.session.filterBm = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+
+  // Manage
+  document.getElementById('btn-new-q').addEventListener('click',()=>openEditModal(null));
+  document.getElementById('btn-import').addEventListener('click',openImportModal);
+  document.getElementById('btn-export').addEventListener('click',exportQuestions);
+  document.getElementById('search-q').addEventListener('input',renderManage);
+
+  // Edit modal
+  document.getElementById('m-cancel').addEventListener('click',closeEditModal);
+  document.getElementById('m-save').addEventListener('click',saveEditModal);
+  document.getElementById('m-delete').addEventListener('click',deleteEditModal);
+
+  // Import modal
+  document.getElementById('import-cancel').addEventListener('click',()=>document.getElementById('modal-import').style.display='none');
+  document.getElementById('import-do').addEventListener('click',doImport);
+
+  // Data tab
+  document.getElementById('btn-backup').addEventListener('click',backupAll);
+  document.getElementById('btn-restore').addEventListener('click',restoreBackup);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+    if(document.getElementById('modal-edit').style.display==='flex') return;
+    if(document.getElementById('modal-import').style.display==='flex') return;
+    if(document.getElementById('view-quiz').style.display==='none') return;
+    const k = e.key.toLowerCase();
+    if(k==='1'||k==='o'){e.preventDefault();if(!state.session.answered)answerQuestion(true)}
+    else if(k==='2'||k==='x'){e.preventDefault();if(!state.session.answered)answerQuestion(false)}
+    else if(e.key==='ArrowLeft'){e.preventDefault();nav(-1)}
+    else if(e.key==='ArrowRight'){e.preventDefault();nav(1)}
+  });
+
+  renderQuiz();
+  renderSidebar();
+}
+init();
+</script>
+</body>
+</html>
