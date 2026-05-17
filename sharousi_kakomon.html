@@ -309,6 +309,111 @@
     font-size:10px;margin:0 2px;
   }
 
+  /* ===== Select question (選択式) ===== */
+  .select-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;margin:18px 0}
+  .problem-intro{
+    font-size:11.5px;color:var(--ink-muted);margin-bottom:10px;
+    line-height:1.7;letter-spacing:.02em;
+  }
+  .problem-text{
+    background:var(--bg);border:1px solid var(--line);border-radius:6px;
+    padding:24px 26px;font-size:15.5px;line-height:2.0;
+    position:relative;font-family:'Shippori Mincho',serif;
+    color:var(--ink);
+  }
+  .problem-text::before{
+    content:"問";position:absolute;top:-10px;left:18px;
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    background:var(--ink);color:var(--bg);font-size:11px;
+    padding:2px 8px;border-radius:3px;letter-spacing:.1em;
+  }
+  .blank-marker{
+    display:inline-block;min-width:32px;padding:1px 10px;margin:0 3px;
+    background:var(--line-soft);color:var(--ink-soft);
+    border:1px dashed var(--line);border-radius:3px;
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    text-align:center;vertical-align:baseline;font-size:.95em;
+  }
+  .blank-marker.current{
+    background:var(--accent-soft);color:var(--accent);
+    border:2px solid var(--accent);
+    box-shadow:0 0 0 3px rgba(184,58,46,.1);
+    animation:pulse-blank 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-blank{
+    0%,100%{box-shadow:0 0 0 3px rgba(184,58,46,.1)}
+    50%{box-shadow:0 0 0 5px rgba(184,58,46,.18)}
+  }
+  .point-aside{
+    background:#FFFCF5;border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:4px;padding:18px;font-size:13px;line-height:1.85;
+    align-self:start;
+  }
+  .point-aside .point-title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;
+    color:var(--amber);letter-spacing:.1em;margin-bottom:10px;
+    padding-bottom:8px;border-bottom:1px dotted var(--line);
+    display:flex;align-items:center;gap:6px;
+  }
+  .point-aside .blank-tag{
+    display:inline-block;background:var(--accent);color:#fff;
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    padding:1px 7px;border-radius:3px;font-size:11px;
+  }
+  .point-aside .point-body{color:var(--ink-soft);font-size:13px}
+  .choices-section{margin-top:22px}
+  .choices-label{
+    font-family:'Shippori Mincho',serif;font-size:13px;
+    color:var(--ink-soft);margin-bottom:10px;letter-spacing:.08em;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .choices-label::before{content:"";width:3px;height:14px;background:var(--indigo);border-radius:2px}
+  .choices-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .choices-grid.single-col{grid-template-columns:1fr}
+  .choice-btn{
+    display:flex;align-items:flex-start;gap:10px;
+    background:var(--paper);border:1px solid var(--line);
+    padding:10px 14px;border-radius:5px;cursor:pointer;
+    font-family:inherit;font-size:13.5px;line-height:1.6;text-align:left;
+    transition:all .12s;color:var(--ink);width:100%;
+  }
+  .choice-btn:hover:not(:disabled){border-color:var(--ink);background:var(--bg);transform:translateY(-1px)}
+  .choice-btn:disabled{cursor:default}
+  .choice-btn .num{
+    flex:0 0 26px;height:22px;display:inline-flex;
+    align-items:center;justify-content:center;
+    background:var(--line-soft);color:var(--ink-muted);
+    font-family:monospace;font-size:11px;font-weight:600;
+    border-radius:3px;
+  }
+  .choice-btn.picked-correct{
+    background:var(--indigo-soft);border-color:var(--indigo);color:var(--indigo);
+  }
+  .choice-btn.picked-correct .num{background:var(--indigo);color:#fff}
+  .choice-btn.picked-wrong{
+    background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
+  }
+  .choice-btn.picked-wrong .num{background:var(--accent);color:#fff}
+  .choice-btn.show-correct{
+    border:2px solid var(--indigo);
+    background:var(--indigo-soft);color:var(--indigo);padding:9px 13px;
+  }
+  .choice-btn.show-correct .num{background:var(--indigo);color:#fff}
+  .choice-btn.dim{opacity:.5}
+
+  /* Select view mobile */
+  @media(max-width:640px){
+    .select-layout{grid-template-columns:1fr;gap:14px}
+    .problem-text{padding:18px 16px;font-size:14.5px;line-height:1.95}
+    .blank-marker{min-width:28px;padding:0 8px;margin:0 2px}
+    .point-aside{padding:14px;font-size:12.5px;line-height:1.8}
+    .point-aside .point-title{font-size:11px}
+    .choices-grid,.choices-grid.single-col{grid-template-columns:1fr;gap:6px}
+    .choice-btn{padding:14px;font-size:14px;min-height:46px}
+    .choice-btn .num{flex:0 0 28px;height:24px;font-size:12px}
+  }
+
   /* ===== MOBILE OPTIMIZATION (≤640px) ===== */
   @media(max-width:640px){
     body{font-size:15px;background-size:20px 20px}
@@ -453,7 +558,8 @@
       </div>
     </div>
     <nav class="tabs">
-      <button class="tab-btn active" data-tab="quiz">問題演習</button>
+      <button class="tab-btn active" data-tab="quiz">択一</button>
+      <button class="tab-btn" data-tab="select">選択式</button>
       <button class="tab-btn" data-tab="manage">問題管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
     </nav>
@@ -468,7 +574,7 @@
 
   <aside id="aside-quiz">
     <div class="stat-card">
-      <h3>本日の演習</h3>
+      <h3>本日の演習(択一)</h3>
       <div class="stat-grid">
         <div class="stat-item"><div class="num indigo" id="stat-today-total">0</div><div class="lbl">解答数</div></div>
         <div class="stat-item"><div class="num accent" id="stat-today-rate">—</div><div class="lbl">正答率</div></div>
@@ -476,7 +582,7 @@
     </div>
 
     <div class="stat-card">
-      <h3>通算成績</h3>
+      <h3>通算成績(択一)</h3>
       <div class="stat-row"><span>総解答数</span><span class="v" id="stat-all-total">0</span></div>
       <div class="stat-row"><span>正答率</span><span class="v" id="stat-all-rate">—</span></div>
       <div class="stat-row"><span>登録問題数</span><span class="v" id="stat-q-count">0</span></div>
@@ -521,6 +627,68 @@
     </div>
   </aside>
 
+  <!-- ===== SELECT QUIZ VIEW ===== -->
+  <main id="view-select" style="display:none">
+    <div class="card" id="select-card">
+      <!-- filled by JS -->
+    </div>
+  </main>
+
+  <aside id="aside-select" style="display:none">
+    <div class="stat-card">
+      <h3>本日の演習(選択式)</h3>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="num indigo" id="select-stat-today-total">0</div><div class="lbl">解答数</div></div>
+        <div class="stat-item"><div class="num accent" id="select-stat-today-rate">—</div><div class="lbl">正答率</div></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>通算成績(選択式)</h3>
+      <div class="stat-row"><span>総解答数</span><span class="v" id="select-stat-all-total">0</span></div>
+      <div class="stat-row"><span>正答率</span><span class="v" id="select-stat-all-rate">—</span></div>
+      <div class="stat-row"><span>登録空欄数</span><span class="v" id="select-stat-q-count">0</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>出題モード</h3>
+      <div class="mode-group">
+        <button class="mode-btn select-mode-btn active" data-mode="seq">順番出題 <span class="count" id="select-mc-seq"></span></button>
+        <button class="mode-btn select-mode-btn" data-mode="rand">ランダム <span class="count" id="select-mc-rand"></span></button>
+        <button class="mode-btn select-mode-btn" data-mode="weak">弱点出題 <span class="count" id="select-mc-weak"></span></button>
+        <button class="mode-btn select-mode-btn" data-mode="unseen">未解答のみ <span class="count" id="select-mc-unseen"></span></button>
+        <button class="mode-btn select-mode-btn" data-mode="bm">ふせん付き <span class="count" id="select-mc-bm"></span></button>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>絞り込み</h3>
+      <div class="field-group">
+        <label class="field">法律</label>
+        <select id="select-filter-law"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
+        <label class="field">カテゴリ</label>
+        <select id="select-filter-cat"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
+        <label class="field">年度</label>
+        <select id="select-filter-year"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
+        <label class="field">ふせん色</label>
+        <select id="select-filter-bm">
+          <option value="">指定なし</option>
+          <option value="r">赤</option>
+          <option value="p">桃</option>
+          <option value="y">黄</option>
+          <option value="g">緑</option>
+          <option value="b">青</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
   <!-- ===== MANAGE VIEW ===== -->
   <main id="view-manage" style="display:none;grid-column:1/-1">
     <div class="card">
@@ -547,7 +715,9 @@
 
       <div class="section-h" style="margin-top:24px">問題データの追加方法</div>
       <div class="section-body dim">
-        <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。</p>
+        <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。択一・選択式が混在していても自動判別します。</p>
+
+        <p style="margin-top:14px;margin-bottom:6px;font-weight:500;color:var(--ink)">■ 択一問題</p>
         <pre style="background:var(--bg);border:1px solid var(--line);padding:12px;border-radius:5px;font-size:11px;overflow-x:auto;line-height:1.6">[
   {
     "year":"R3","law":"雇用保険法","qno":"問2 肢B",
@@ -561,7 +731,28 @@
     "difficulty":"C"
   }
 ]</pre>
-        <p class="hint">※ <code>answer</code> は ○=true、×=false。書籍ページを撮影してClaudeに渡せば、この形式のJSONに変換できます。</p>
+        <p class="hint">※ <code>answer</code> は ○=true、×=false。</p>
+
+        <p style="margin-top:18px;margin-bottom:6px;font-weight:500;color:var(--ink)">■ 選択式問題 (1空欄=1レコード)</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:12px;border-radius:5px;font-size:11px;overflow-x:auto;line-height:1.6">[
+  {
+    "type":"select",
+    "year":"R7","law":"雇用保険法","qno":"選択式問1 A",
+    "category":"総則",
+    "problemSetId":"f11s_r7_q1_part1",
+    "problemIntro":"次の文中の【】の部分を…",
+    "problemText":"…【A】…【B】…",
+    "blankKey":"A",
+    "choices":["1か月","72日","78日", "…"],
+    "correctIndex":17,
+    "point":"解き方のヒント(右側に表示)…",
+    "explanation":"解説…",
+    "legalBasis":"法1条",
+    "pageRef":"プレテキ労②P4",
+    "difficulty":"B"
+  }
+]</pre>
+        <p class="hint">※ <code>problemText</code> 内の <code>【A】</code><code>【B】</code> または <code>[A]</code><code>[B]</code> がマーカー。<code>correctIndex</code> は 0始まり (1番目の選択肢=0)。書籍ページを撮影してClaudeに渡せば、この形式のJSONに変換できます。</p>
       </div>
 
       <div class="section-h" style="margin-top:24px">注意事項</div>
@@ -700,7 +891,96 @@ const SAMPLE_QUESTIONS = [
   }
 ];
 
-/* ===== State & Storage ===== */
+/* ===== Sample SELECT data: 雇用保険法 R7-選 問1の一部 ===== */
+const SAMPLE_SELECT_QUESTIONS = [
+  {
+    id:"f11s_r7_q1_a", type:"select",
+    year:"R7", law:"雇用保険法", qno:"選択式問1 A", category:"総則(目的)",
+    difficulty:"B",
+    problemSetId:"f11s_r7_q1_part1",
+    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
+    problemText:"雇用保険法第1条は、「雇用保険は、労働者が失業した場合及び労働者について雇用の継続が困難となる事由が生じた場合に必要な給付を行うほか、労働者が自ら職業に関する教育訓練を受けた場合【A】をした場合に必要な給付を行うことにより、労働者の生活及び雇用の安定を図るとともに、求職活動を容易にする等その就職を促進し、あわせて、【B】、雇用状態の是正及び雇用機会の増大、労働者の能力の開発及び向上その他労働者の福祉の増進を図ることを目的とする。」と規定している。",
+    blankKey:"A",
+    choices:[
+      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
+      "及び労働者が子を養育するための休業",
+      "求職の申込みをした上",
+      "経済的社会的地位の向上",
+      "高年齢受給資格者失業認定申告書を提出した上",
+      "雇用保険被保険者証を提出した上",
+      "産業に必要な労働力の充足",
+      "失業の予防",
+      "退職証明書を提出した上",
+      "転職の支援",
+      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
+      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
+      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
+    ],
+    correctIndex:17,
+    point:"目的条文の改正部分。育児休業等給付関連の語句が入る。「対象家族を介護」は介護休業給付の文言なので除外。育児休業給付に関連した近年の改正点を押さえていれば絞れる。",
+    explanation:"雇用保険法第1条(目的)。労働者が子を養育するための休業及び所定労働時間を短縮することによる就業をした場合の給付を行うことが、現行法の目的に組み込まれている。",
+    legalBasis:"法1条",
+    pageRef:"プレテキ労②P4"
+  },
+  {
+    id:"f11s_r7_q1_b", type:"select",
+    year:"R7", law:"雇用保険法", qno:"選択式問1 B", category:"総則(目的)",
+    difficulty:"B",
+    problemSetId:"f11s_r7_q1_part1",
+    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
+    problemText:"雇用保険法第1条は、「雇用保険は、労働者が失業した場合及び労働者について雇用の継続が困難となる事由が生じた場合に必要な給付を行うほか、労働者が自ら職業に関する教育訓練を受けた場合【A】をした場合に必要な給付を行うことにより、労働者の生活及び雇用の安定を図るとともに、求職活動を容易にする等その就職を促進し、あわせて、【B】、雇用状態の是正及び雇用機会の増大、労働者の能力の開発及び向上その他労働者の福祉の増進を図ることを目的とする。」と規定している。",
+    blankKey:"B",
+    choices:[
+      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
+      "及び労働者が子を養育するための休業",
+      "求職の申込みをした上",
+      "経済的社会的地位の向上",
+      "高年齢受給資格者失業認定申告書を提出した上",
+      "雇用保険被保険者証を提出した上",
+      "産業に必要な労働力の充足",
+      "失業の予防",
+      "退職証明書を提出した上",
+      "転職の支援",
+      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
+      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
+      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
+    ],
+    correctIndex:14,
+    point:"雇用保険二事業(雇用安定事業・能力開発事業)を通じて図る目的の冒頭部分。条文を正確に押さえていれば即答できる超基本問題。「失業の予防」は雇用安定事業の中核。",
+    explanation:"雇用保険法第1条(目的)。雇用保険二事業を通じて図るべき内容として「失業の予防」が明示されている。",
+    legalBasis:"法1条",
+    pageRef:"プレテキ労②P4"
+  },
+  {
+    id:"f11s_r7_q1_e", type:"select",
+    year:"R7", law:"雇用保険法", qno:"選択式問1 E", category:"日雇労働求職者給付金",
+    difficulty:"C",
+    problemSetId:"f11s_r7_q1_part3",
+    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
+    problemText:"雇用保険法第53条第1項は、日雇労働被保険者が失業した場合に日雇労働求職者給付金の支給を受けるための要件の1つとして、継続する6月間に当該日雇労働被保険者について印紙保険料が各月11日分以上、かつ、通算して【E】分以上納付されていることを定めている。",
+    blankKey:"E",
+    choices:[
+      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
+      "及び労働者が子を養育するための休業",
+      "求職の申込みをした上",
+      "経済的社会的地位の向上",
+      "高年齢受給資格者失業認定申告書を提出した上",
+      "雇用保険被保険者証を提出した上",
+      "産業に必要な労働力の充足",
+      "失業の予防",
+      "退職証明書を提出した上",
+      "転職の支援",
+      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
+      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
+      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
+    ],
+    correctIndex:2,
+    point:"普通給付の要件は「通算26日分以上」、特例給付はその3倍で「通算78日分以上」。数字は紛らわしいので、普通給付の3倍と関連付けて覚えるとよい。",
+    explanation:"雇用保険法第53条第1項。普通給付の要件である通算26日分の3倍にあたる78日分。",
+    legalBasis:"法53条1項",
+    pageRef:"プレテキ労②P101"
+  }
+];
 const STORAGE_KEY = 'sharoushi_kakomon_v1';
 let state = loadState();
 
@@ -718,6 +998,15 @@ function loadState(){
       s.session.answered ||= false;
       s.session.userAnswer ??= null;
       s.session.filterCat ??= '';
+      // 選択式の追加 (後方互換)
+      if(!s.selectQuestions || !s.selectQuestions.length){
+        s.selectQuestions = SAMPLE_SELECT_QUESTIONS.slice();
+      }
+      s.selectHistory ||= [];
+      s.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:''};
+      s.selectSession.answered ||= false;
+      s.selectSession.userChoice ??= null;
+      s.selectSession.filterCat ??= '';
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -725,7 +1014,10 @@ function loadState(){
     questions: SAMPLE_QUESTIONS.slice(),
     history: [],
     bookmarks: {},
-    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',answered:false,userAnswer:null}
+    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',answered:false,userAnswer:null},
+    selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
+    selectHistory: [],
+    selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null}
   };
 }
 function saveState(){
@@ -932,8 +1224,8 @@ function renderSidebar(){
   state.session.mode = oldMode;
   state.session.currentIndex = oldIdx;
 
-  // Mode buttons
-  document.querySelectorAll('.mode-btn').forEach(b=>{
+  // Mode buttons (択一のみ、選択式は除外)
+  document.querySelectorAll('.mode-btn:not(.select-mode-btn)').forEach(b=>{
     b.classList.toggle('active', b.dataset.mode===state.session.mode);
   });
 
@@ -1051,19 +1343,35 @@ function doImport(){
   let arr;
   try{arr = JSON.parse(raw)}catch(e){alert('JSON解析エラー: '+e.message);return}
   if(!Array.isArray(arr)){alert('配列で渡してください');return}
-  let added=0;
+  let addedTakuitsu=0, addedSelect=0, skipped=0;
   for(const q of arr){
-    if(!q.text) continue;
-    q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
-    if(state.questions.some(x=>x.id===q.id)) continue;
-    state.questions.push(q);
-    added++;
+    // 選択式判定: type:"select" または problemText/choices/correctIndexの存在
+    const isSelect = q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number');
+    if(isSelect){
+      if(!q.problemText || !Array.isArray(q.choices) || typeof q.correctIndex!=='number'){skipped++;continue}
+      q.type = 'select';
+      q.id = q.id || ('s'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+      if(state.selectQuestions.some(x=>x.id===q.id)){skipped++;continue}
+      state.selectQuestions.push(q);
+      addedSelect++;
+    }else{
+      if(!q.text){skipped++;continue}
+      q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+      if(state.questions.some(x=>x.id===q.id)){skipped++;continue}
+      state.questions.push(q);
+      addedTakuitsu++;
+    }
   }
   saveState();
   document.getElementById('modal-import').style.display='none';
   renderManage();
   renderSidebar();
-  alert(`${added}問を追加しました。`);
+  renderSelectSidebar();
+  let msg = '';
+  if(addedTakuitsu) msg += `択一: ${addedTakuitsu}問追加\n`;
+  if(addedSelect) msg += `選択式: ${addedSelect}問追加\n`;
+  if(skipped) msg += `(${skipped}件はスキップ ※重複ID・不完全データなど)`;
+  alert(msg || '追加された問題はありませんでした。');
 }
 
 function exportQuestions(){
@@ -1087,8 +1395,11 @@ function restoreBackup(){
         if(!confirm('現在のデータをすべて置き換えます。よろしいですか?')) return;
         state = s;
         state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null};
+        state.selectQuestions ||= [];
+        state.selectHistory ||= [];
+        state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
         saveState();
-        renderQuiz();renderManage();renderSidebar();
+        renderQuiz();renderManage();renderSidebar();renderSelectQuiz();renderSelectSidebar();
         alert('復元しました');
       }catch(err){alert('復元失敗: '+err.message)}
     };
@@ -1109,15 +1420,264 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* ===== Select question logic ===== */
+function getSelectPool(){
+  let pool = state.selectQuestions.slice();
+  const s = state.selectSession;
+  if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
+  if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
+  if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
+  if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
+
+  if(s.mode==='weak'){
+    pool = pool.filter(q=>{
+      const h = state.selectHistory.filter(x=>x.qid===q.id);
+      if(!h.length) return false;
+      return !h[h.length-1].correct;
+    });
+  }else if(s.mode==='unseen'){
+    pool = pool.filter(q=>!state.selectHistory.some(h=>h.qid===q.id));
+  }else if(s.mode==='bm'){
+    pool = pool.filter(q=>(state.bookmarks[q.id]||[]).length>0);
+  }else if(s.mode==='rand'){
+    if(!s._randOrder || s._randOrderPoolSig!==poolSignature(pool)){
+      pool = shuffle(pool);
+      s._randOrder = pool.map(q=>q.id);
+      s._randOrderPoolSig = poolSignature(pool);
+    }else{
+      const idMap = Object.fromEntries(pool.map(q=>[q.id,q]));
+      pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
+    }
+  }else{
+    // seq: 同一問題内は A→B→C... の順で
+    pool.sort((a,b)=>{
+      const aSet = (a.problemSetId||a.id);
+      const bSet = (b.problemSetId||b.id);
+      if(aSet!==bSet) return aSet.localeCompare(bSet);
+      return (a.blankKey||'').localeCompare(b.blankKey||'');
+    });
+  }
+  return pool;
+}
+
+function currentSelectQuestion(){
+  const pool = getSelectPool();
+  if(!pool.length) return null;
+  if(state.selectSession.currentIndex >= pool.length) state.selectSession.currentIndex = 0;
+  return pool[state.selectSession.currentIndex];
+}
+
+function selectStatTodayTotal(){return state.selectHistory.filter(h=>h.ts>=todayStart()).length}
+function selectStatTodayRate(){
+  const h = state.selectHistory.filter(x=>x.ts>=todayStart());
+  if(!h.length) return null;
+  return h.filter(x=>x.correct).length/h.length;
+}
+function selectStatAllRate(){
+  if(!state.selectHistory.length) return null;
+  return state.selectHistory.filter(h=>h.correct).length/state.selectHistory.length;
+}
+function selectQuestionStats(qid){
+  const h = state.selectHistory.filter(x=>x.qid===qid);
+  return {total:h.length, correct:h.filter(x=>x.correct).length};
+}
+
+/* 問題文中の【A】【B】等のマーカーをHTMLに変換 */
+function renderProblemText(text, currentBlank){
+  if(!text) return '';
+  // まずHTMLエスケープ
+  const escaped = escapeHtml(text);
+  // 【A】[A]の両方に対応
+  return escaped.replace(/[【\[]([A-Za-z])[】\]]/g, (m, letter) => {
+    const cls = letter === currentBlank ? 'blank-marker current' : 'blank-marker';
+    return `<span class="${cls}">${letter}</span>`;
+  });
+}
+
+function renderSelectQuiz(){
+  const card = document.getElementById('select-card');
+  const q = currentSelectQuestion();
+
+  if(!q){
+    card.innerHTML = `<div class="empty"><div class="ico">―</div>条件に合う選択式問題がありません。<br>モードや絞り込みを変えてください。</div>`;
+    return;
+  }
+
+  const pool = getSelectPool();
+  const idx = state.selectSession.currentIndex;
+  const qs = selectQuestionStats(q.id);
+  const bms = state.bookmarks[q.id]||[];
+  const answered = state.selectSession.answered;
+  const userChoice = state.selectSession.userChoice;
+  const isCorrect = answered && userChoice===q.correctIndex;
+  const choicesCount = (q.choices||[]).length;
+  const singleCol = choicesCount<=4;
+
+  card.innerHTML = `
+    <div class="meta-row">
+      <span class="pill accent">${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
+      <span class="pill">${escapeHtml(q.qno||'')}</span>
+      ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
+      <span class="pill" style="background:var(--accent);color:#fff;font-weight:700">空欄 ${escapeHtml(q.blankKey||'')}</span>
+      <span style="font-size:11px">[${idx+1}/${pool.length}]</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
+      ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
+    </div>
+
+    ${q.problemIntro?`<div class="problem-intro">${escapeHtml(q.problemIntro)}</div>`:''}
+
+    <div class="select-layout">
+      <div>
+        <div class="problem-text">${renderProblemText(q.problemText||'', q.blankKey)}</div>
+        <div class="choices-section">
+          <div class="choices-label">選択肢から、空欄 <strong style="color:var(--accent);margin:0 3px;font-family:'Shippori Mincho',serif">${escapeHtml(q.blankKey||'')}</strong> に当てはまる語句を選んでください</div>
+          <div class="choices-grid ${singleCol?'single-col':''}">
+            ${(q.choices||[]).map((c,i)=>{
+              let cls = 'choice-btn';
+              if(answered){
+                if(i===q.correctIndex && i===userChoice) cls += ' picked-correct';
+                else if(i===userChoice) cls += ' picked-wrong';
+                else if(i===q.correctIndex) cls += ' show-correct';
+                else cls += ' dim';
+              }
+              return `<button class="${cls}" data-idx="${i}" ${answered?'disabled':''}>
+                <span class="num">${i+1}</span>
+                <span>${escapeHtml(c)}</span>
+              </button>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      ${q.point?`<div class="point-aside">
+        <div class="point-title"><span class="blank-tag">${escapeHtml(q.blankKey||'')}</span>解き方のポイント</div>
+        <div class="point-body">${escapeHtml(q.point).replace(/\n/g,'<br>')}</div>
+      </div>`:'<div></div>'}
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="select-btn-prev" ${idx===0?'disabled':''}>← 前へ</button>
+      <button class="btn-nav" id="select-btn-next">次へ →</button>
+    </div>
+
+    ${answered ? renderSelectResult(q, isCorrect) : ''}
+
+    <div class="bookmark-row">
+      <span class="lbl">FUSEN</span>
+      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
+      <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
+    </div>
+  `;
+
+  // Wire up
+  card.querySelectorAll('.choice-btn').forEach(b=>{
+    if(!b.disabled) b.addEventListener('click',()=>answerSelectQuestion(parseInt(b.dataset.idx,10)));
+  });
+  document.getElementById('select-btn-prev').addEventListener('click',()=>navSelect(-1));
+  document.getElementById('select-btn-next').addEventListener('click',()=>navSelect(1));
+  card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBmSelect(q.id,b.dataset.bm)));
+
+  renderSelectSidebar();
+}
+
+function renderSelectResult(q, isCorrect){
+  const correctText = (q.choices && q.choices[q.correctIndex]) || '';
+  return `
+    <div class="result">
+      <div class="verdict ${isCorrect?'correct':'wrong'}">
+        <span class="mark">${isCorrect?'○':'×'}</span>
+        ${isCorrect?'正解しました!':'不正解です'}
+        <span style="font-size:12px;color:var(--ink-muted);font-weight:400;margin-left:auto">正解: ${q.correctIndex+1}番</span>
+      </div>
+      <div class="section-h">正解</div>
+      <div class="section-body"><strong>(${q.correctIndex+1})</strong>　${escapeHtml(correctText)}</div>
+      ${q.explanation?`<div class="section-h">解説</div><div class="section-body">${escapeHtml(q.explanation).replace(/\n/g,'<br>')}</div>`:''}
+      <div class="section-h">出題根拠・出典</div>
+      <div class="section-body dim">
+        ${escapeHtml(q.legalBasis||'—')}${q.pageRef?'　／　'+escapeHtml(q.pageRef):''}　／　レベル ${escapeHtml(q.difficulty||'—')}
+      </div>
+    </div>
+  `;
+}
+
+function answerSelectQuestion(choiceIdx){
+  const q = currentSelectQuestion();
+  if(!q || state.selectSession.answered) return;
+  const correct = choiceIdx===q.correctIndex;
+  state.selectHistory.push({qid:q.id, ts:Date.now(), userChoice:choiceIdx, correct});
+  state.selectSession.answered = true;
+  state.selectSession.userChoice = choiceIdx;
+  saveState();
+  renderSelectQuiz();
+}
+
+function navSelect(dir){
+  const pool = getSelectPool();
+  if(!pool.length) return;
+  state.selectSession.currentIndex = (state.selectSession.currentIndex + dir + pool.length) % pool.length;
+  state.selectSession.answered = false;
+  state.selectSession.userChoice = null;
+  saveState();
+  renderSelectQuiz();
+}
+
+function toggleBmSelect(qid, color){
+  state.bookmarks[qid] ||= [];
+  const i = state.bookmarks[qid].indexOf(color);
+  if(i>=0) state.bookmarks[qid].splice(i,1);
+  else state.bookmarks[qid].push(color);
+  if(!state.bookmarks[qid].length) delete state.bookmarks[qid];
+  saveState();
+  renderSelectQuiz();
+}
+
+function renderSelectSidebar(){
+  document.getElementById('select-stat-today-total').textContent = selectStatTodayTotal();
+  const tr = selectStatTodayRate();
+  document.getElementById('select-stat-today-rate').textContent = tr===null?'—':Math.round(tr*100)+'%';
+  document.getElementById('select-stat-all-total').textContent = state.selectHistory.length;
+  const ar = selectStatAllRate();
+  document.getElementById('select-stat-all-rate').textContent = ar===null?'—':Math.round(ar*100)+'%';
+  document.getElementById('select-stat-q-count').textContent = state.selectQuestions.length;
+
+  // Mode counts
+  const oldIdx = state.selectSession.currentIndex, oldMode = state.selectSession.mode;
+  for(const m of ['seq','rand','weak','unseen','bm']){
+    state.selectSession.mode = m;
+    document.getElementById('select-mc-'+m).textContent = '('+getSelectPool().length+')';
+  }
+  state.selectSession.mode = oldMode;
+  state.selectSession.currentIndex = oldIdx;
+
+  // Mode buttons
+  document.querySelectorAll('.select-mode-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode===state.selectSession.mode);
+  });
+
+  // Filter selects
+  const laws = [...new Set(state.selectQuestions.map(q=>q.law))].sort();
+  const years = [...new Set(state.selectQuestions.map(q=>q.year))].sort();
+  let catSource = state.selectQuestions;
+  if(state.selectSession.filterLaw) catSource = catSource.filter(q=>q.law===state.selectSession.filterLaw);
+  const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
+  fillSelect('select-filter-law',laws,state.selectSession.filterLaw);
+  fillSelect('select-filter-cat',cats,state.selectSession.filterCat);
+  fillSelect('select-filter-year',years,state.selectSession.filterYear);
+  document.getElementById('select-filter-bm').value = state.selectSession.filterBm;
+}
+
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   document.getElementById('view-quiz').style.display = name==='quiz'?'block':'none';
   document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
+  document.getElementById('view-select').style.display = name==='select'?'block':'none';
+  document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
   document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
   document.getElementById('view-data').style.display = name==='data'?'block':'none';
   if(name==='manage') renderManage();
   if(name==='quiz') renderQuiz();
+  if(name==='select') renderSelectQuiz();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1126,8 +1686,8 @@ function init(){
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 
-  // Mode buttons
-  document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
+  // Mode buttons (択一のみ)
+  document.querySelectorAll('.mode-btn:not(.select-mode-btn)').forEach(b=>b.addEventListener('click',()=>{
     state.session.mode = b.dataset.mode;
     state.session.currentIndex = 0;
     state.session.answered = false;
@@ -1154,6 +1714,35 @@ function init(){
   });
   document.getElementById('filter-bm').addEventListener('change',e=>{
     state.session.filterBm = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+
+  // ===== Select tab: mode buttons =====
+  document.querySelectorAll('.select-mode-btn').forEach(b=>b.addEventListener('click',()=>{
+    state.selectSession.mode = b.dataset.mode;
+    state.selectSession.currentIndex = 0;
+    state.selectSession.answered = false;
+    state.selectSession.userChoice = null;
+    saveState();
+    renderSelectQuiz();
+  }));
+
+  // ===== Select tab: filters =====
+  document.getElementById('select-filter-law').addEventListener('change',e=>{
+    state.selectSession.filterLaw = e.target.value;
+    if(state.selectSession.filterCat){
+      const available = state.selectQuestions.filter(q=>!state.selectSession.filterLaw||q.law===state.selectSession.filterLaw).map(q=>q.category);
+      if(!available.includes(state.selectSession.filterCat)) state.selectSession.filterCat='';
+    }
+    state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
+  });
+  document.getElementById('select-filter-cat').addEventListener('change',e=>{
+    state.selectSession.filterCat = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
+  });
+  document.getElementById('select-filter-year').addEventListener('change',e=>{
+    state.selectSession.filterYear = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
+  });
+  document.getElementById('select-filter-bm').addEventListener('change',e=>{
+    state.selectSession.filterBm = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
   });
 
   // Manage
