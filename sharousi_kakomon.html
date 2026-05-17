@@ -341,6 +341,13 @@
   }
   .prog-sub{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em}
   .prog-desc{font-size:13px;color:var(--ink-soft);line-height:1.8}
+  .diag-line{
+    font-size:12px;color:var(--ink-soft);
+    background:var(--bg);border:1px solid var(--line);
+    padding:8px 12px;border-radius:5px;margin-bottom:12px;
+  }
+  .diag-line b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .diag-warn{color:var(--accent);margin-left:8px;font-weight:500}
   .prog-chapter{margin-bottom:14px;padding:18px 22px}
   .prog-law{
     font-family:'Shippori Mincho',serif;font-size:18px;font-weight:700;
@@ -955,12 +962,28 @@ function loadState(){
       s.session.frameMode ??= null;
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
+      // Phase 1: 文字列のframeNoを数値に変換
       for(const q of s.questions){
-        if(q.frameNo == null){
-          if(q.id && q.id.startsWith('f11_')){q.law='雇用保険法';q.frameNo=11;migrated++}
-          else if(q.id && q.id.startsWith('knf10_')){q.law='厚生年金保険法';q.frameNo=10;migrated++}
-          else if(q.id==='s1'){q.frameNo=7;migrated++}
-          else if(['s2','s3','s4','s5','s6'].includes(q.id)){q.frameNo=11;migrated++}
+        if(typeof q.frameNo === 'string'){
+          const n = parseInt(q.frameNo, 10);
+          if(!isNaN(n)){q.frameNo = n; migrated++}
+        }
+      }
+      // Phase 2: frameNoが未設定なら、IDパターンから推定
+      for(const q of s.questions){
+        if(q.frameNo != null) continue;
+        if(!q.id){continue}
+        // 既知のID(法律情報も補完)
+        if(q.id.startsWith('f11_')){q.law=q.law||'雇用保険法';q.frameNo=11;migrated++;continue}
+        if(q.id.startsWith('knf10_')){q.law=q.law||'厚生年金保険法';q.frameNo=10;migrated++;continue}
+        if(q.id==='s1'){q.law=q.law||'雇用保険法';q.frameNo=7;migrated++;continue}
+        if(['s2','s3','s4','s5','s6'].includes(q.id)){q.law=q.law||'雇用保険法';q.frameNo=11;migrated++;continue}
+        // 汎用パターン: [プレフィックス]f<数字>_xxx 形式
+        // 例: kohf2_x, senf2_x, dckf3_x, jdtf2_x など
+        const m = q.id.match(/^[a-z]*f(\d+)[_-]/i);
+        if(m){
+          q.frameNo = parseInt(m[1], 10);
+          migrated++;
         }
       }
       if(migrated>0) console.log(`Migrated ${migrated} questions with frameNo`);
@@ -1530,8 +1553,27 @@ function switchTab(name){
 /* ===== Progress view ===== */
 function renderProgress(){
   const root = document.getElementById('progress-content');
+  // === データ概要(診断) ===
+  const total = state.questions.length;
+  const noFrame = state.questions.filter(q=>q.frameNo==null).length;
+  const subjCount = {};
+  const unknownLaws = new Set();
+  for(const q of state.questions){
+    const subj = lawToSubject(q.law);
+    if(subj){
+      subjCount[subj] = (subjCount[subj]||0) + 1;
+      // 既知の科目リストにないかチェック
+      if(!SUBJECTS_ORDER.includes(subj)) unknownLaws.add(q.law);
+    }
+  }
+  let summary = `<div class="diag-line">登録総数 <b>${total}問</b>`;
+  if(noFrame>0) summary += ` <span class="diag-warn">⚠ フレーム番号未設定: ${noFrame}問</span>`;
+  if(unknownLaws.size>0) summary += ` <span class="diag-warn">⚠ 未登録の法律: ${[...unknownLaws].join('、')}</span>`;
+  summary += `</div>`;
+
   let html = `<div class="card progress-intro">
     <h2 class="prog-h2">進捗管理 <span class="prog-sub">フレーム別演習の達成状況</span></h2>
+    ${summary}
     <p class="prog-desc">各フレームの右にある「演習開始」ボタンから、フレーム単位で問題演習をスタートできます。フレーム内の全問題を解き終えると1回分が完了となり、最大10回まで記録されます。<br><span style="color:var(--ink-muted)">※「問題演習」タブから絞り込み・ランダム出題などで個別に解いた解答は、ここの進捗には反映されません(フレーム演習モードで解いたもののみ対象です)。</span></p>
   </div>`;
 
