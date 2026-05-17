@@ -369,6 +369,11 @@
     letter-spacing:.04em;
   }
   .pf-q{font-size:11px;color:var(--ink-muted);font-weight:400}
+  .pf-laws{
+    font-size:10.5px;color:var(--ink-muted);font-weight:400;
+    background:var(--line-soft);padding:2px 8px;border-radius:99px;
+    display:inline-block;margin-left:4px;letter-spacing:.02em;
+  }
   .pf-slots{
     display:grid;grid-template-columns:repeat(10,1fr);gap:4px;
     margin-bottom:8px;max-width:420px;
@@ -873,6 +878,54 @@ const SUBJECTS_ORDER = [
   "健康保険法","国民年金法","厚生年金保険法","社会保険に関する一般常識"
 ];
 
+/* 個別法律名 → 試験科目(章)名 のマッピング.
+   ここに登録されていない法律は、その法律名自体が科目名となる(例:雇用保険法→雇用保険法)。
+   一般常識(労一・社一)は複数の個別法律を内包するので、ここで明示的にマップする。 */
+const LAW_TO_SUBJECT = {
+  /* === 労務管理その他の労働に関する一般常識(労一) === */
+  "労働組合法":"労務管理その他の労働に関する一般常識",
+  "労働関係調整法":"労務管理その他の労働に関する一般常識",
+  "労働契約法":"労務管理その他の労働に関する一般常識",
+  "最低賃金法":"労務管理その他の労働に関する一般常識",
+  "賃金支払確保法":"労務管理その他の労働に関する一般常識",
+  "賃金の支払の確保等に関する法律":"労務管理その他の労働に関する一般常識",
+  "個別労働関係紛争解決促進法":"労務管理その他の労働に関する一般常識",
+  "個別労働関係紛争の解決の促進に関する法律":"労務管理その他の労働に関する一般常識",
+  "男女雇用機会均等法":"労務管理その他の労働に関する一般常識",
+  "育児・介護休業法":"労務管理その他の労働に関する一般常識",
+  "育児介護休業法":"労務管理その他の労働に関する一般常識",
+  "次世代育成支援対策推進法":"労務管理その他の労働に関する一般常識",
+  "労働施策総合推進法":"労務管理その他の労働に関する一般常識",
+  "高年齢者雇用安定法":"労務管理その他の労働に関する一般常識",
+  "障害者雇用促進法":"労務管理その他の労働に関する一般常識",
+  "職業安定法":"労務管理その他の労働に関する一般常識",
+  "労働者派遣法":"労務管理その他の労働に関する一般常識",
+  "短時間・有期雇用労働者法":"労務管理その他の労働に関する一般常識",
+  "パートタイム・有期雇用労働法":"労務管理その他の労働に関する一般常識",
+  "求職者支援法":"労務管理その他の労働に関する一般常識",
+  "若者雇用促進法":"労務管理その他の労働に関する一般常識",
+  "青少年の雇用の促進等に関する法律":"労務管理その他の労働に関する一般常識",
+  "女性活躍推進法":"労務管理その他の労働に関する一般常識",
+  "中小企業退職金共済法":"労務管理その他の労働に関する一般常識",
+  "中退共法":"労務管理その他の労働に関する一般常識",
+  /* === 社会保険に関する一般常識(社一) === */
+  "社会保険労務士法":"社会保険に関する一般常識",
+  "国民健康保険法":"社会保険に関する一般常識",
+  "船員保険法":"社会保険に関する一般常識",
+  "高齢者の医療の確保に関する法律":"社会保険に関する一般常識",
+  "高齢者医療確保法":"社会保険に関する一般常識",
+  "高確法":"社会保険に関する一般常識",
+  "介護保険法":"社会保険に関する一般常識",
+  "児童手当法":"社会保険に関する一般常識",
+  "確定拠出年金法":"社会保険に関する一般常識",
+  "確定給付企業年金法":"社会保険に関する一般常識"
+};
+
+function lawToSubject(law){
+  if(!law) return '';
+  return LAW_TO_SUBJECT[law] || law;
+}
+
 function frameTitle(law, n){
   const fr = (FRAMES[law]||[]).find(f=>f.n===n);
   return fr ? `フレーム${n} ${fr.t}` : `フレーム${n}`;
@@ -933,7 +986,8 @@ function getPool(){
   const s = state.session;
   // フレーム演習モードが有効なら、そのフレームの問題に強制限定
   if(s.frameMode){
-    pool = pool.filter(q=>q.law===s.frameMode.law && q.frameNo===s.frameMode.frameNo);
+    const subj = s.frameMode.subject || s.frameMode.law; // 後方互換
+    pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo);
     return pool; // モード中は他フィルタ無効
   }
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
@@ -1004,8 +1058,10 @@ function renderQuiz(){
   // フレーム演習中バナー(問題があってもなくても表示)
   const fmBanner = (()=>{
     if(!state.session.frameMode) return '';
-    const {law, frameNo} = state.session.frameMode;
-    const k = frameKey(law, frameNo);
+    const fm = state.session.frameMode;
+    const subject = fm.subject || fm.law;
+    const frameNo = fm.frameNo;
+    const k = frameKey(subject, frameNo);
     const fa = state.frameAttempts[k];
     const cur = fa && fa.current;
     if(!cur) return '';
@@ -1015,7 +1071,7 @@ function renderQuiz(){
     return `<div class="frame-banner">
       <div class="fb-head">
         <span class="fb-mark">演習中</span>
-        <span class="fb-title">${escapeHtml(law)} ${escapeHtml(frameTitle(law,frameNo))} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
+        <span class="fb-title">${escapeHtml(subject)} ${escapeHtml(frameTitle(subject,frameNo))} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
       </div>
       <div class="fb-prog"><div class="fb-bar"><div class="fb-fill" style="width:${pct}%"></div></div><span class="fb-pct">${done}/${tot}問 (${pct}%)</span></div>
       <div class="fb-actions">
@@ -1125,7 +1181,9 @@ function answerQuestion(userAns){
   state.session.userAnswer = userAns;
   // フレーム演習中なら、その演習の解答記録に追加
   if(state.session.frameMode){
-    const k = frameKey(state.session.frameMode.law, state.session.frameMode.frameNo);
+    const fm = state.session.frameMode;
+    const subj = fm.subject || fm.law;
+    const k = frameKey(subj, fm.frameNo);
     const fa = state.frameAttempts[k];
     if(fa && fa.current && !fa.current.answeredIds.includes(q.id)){
       fa.current.answeredIds.push(q.id);
@@ -1157,15 +1215,16 @@ function toggleBm(qid,color){
 }
 
 /* ===== Frame study mode (フレーム演習) ===== */
-function startFrameAttempt(law, frameNo){
-  const k = frameKey(law, frameNo);
+/* 引数 subject: 試験科目名(章名)。例:"雇用保険法"、"社会保険に関する一般常識" */
+function startFrameAttempt(subject, frameNo){
+  const k = frameKey(subject, frameNo);
   state.frameAttempts[k] ||= {history:[], current:null};
   const fa = state.frameAttempts[k];
   // 現在進行中の演習があれば確認
   if(fa.current){
     if(!confirm(`このフレームには進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
       // 継続
-      enterFrameMode(law, frameNo);
+      enterFrameMode(subject, frameNo);
       return;
     }
     // 中止して新規
@@ -1174,8 +1233,8 @@ function startFrameAttempt(law, frameNo){
   if(fa.history.length >= 10){
     if(!confirm('このフレームは既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)')) return;
   }
-  // 現在のフレームに属する問題のIDを取得
-  const qids = state.questions.filter(q=>q.law===law && q.frameNo===frameNo).map(q=>q.id);
+  // 該当フレームに属する問題のIDを取得(科目=章でフィルタ)
+  const qids = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===frameNo).map(q=>q.id);
   if(!qids.length){alert('このフレームには問題が登録されていません。');return}
   fa.current = {
     attemptNo: fa.history.length + 1,
@@ -1184,11 +1243,11 @@ function startFrameAttempt(law, frameNo){
     answeredIds: []
   };
   saveState();
-  enterFrameMode(law, frameNo);
+  enterFrameMode(subject, frameNo);
 }
 
-function enterFrameMode(law, frameNo){
-  state.session.frameMode = {law, frameNo};
+function enterFrameMode(subject, frameNo){
+  state.session.frameMode = {subject, frameNo};
   state.session.mode = 'seq';
   state.session.currentIndex = 0;
   state.session.answered = false;
@@ -1209,7 +1268,9 @@ function exitFrameMode(){
 function abandonFrameAttempt(){
   if(!state.session.frameMode) return;
   if(!confirm('現在のフレーム演習を破棄しますか?\n(これまで解答した記録は通算成績には残りますが、進捗管理表からは消えます)')) return;
-  const k = frameKey(state.session.frameMode.law, state.session.frameMode.frameNo);
+  const fm = state.session.frameMode;
+  const subj = fm.subject || fm.law;
+  const k = frameKey(subj, fm.frameNo);
   if(state.frameAttempts[k]) state.frameAttempts[k].current = null;
   exitFrameMode();
   switchTab('progress');
@@ -1217,8 +1278,10 @@ function abandonFrameAttempt(){
 
 function checkFrameComplete(){
   if(!state.session.frameMode) return;
-  const {law, frameNo} = state.session.frameMode;
-  const k = frameKey(law, frameNo);
+  const fm = state.session.frameMode;
+  const subject = fm.subject || fm.law;
+  const frameNo = fm.frameNo;
+  const k = frameKey(subject, frameNo);
   const fa = state.frameAttempts[k];
   if(!fa || !fa.current) return;
   // 全問解答済みかチェック
@@ -1234,7 +1297,7 @@ function checkFrameComplete(){
     state.session.frameMode = null;
     saveState();
     setTimeout(()=>{
-      alert(`🎉 フレーム完了!\n${frameTitle(law, frameNo)} の${fa.history.length}回目の演習が終わりました。`);
+      alert(`🎉 フレーム完了!\n${subject} ${frameTitle(subject, frameNo)} の${fa.history.length}回目の演習が終わりました。`);
       switchTab('progress');
     }, 300);
   }
@@ -1277,11 +1340,12 @@ function renderSidebar(){
   if(state.session.filterFrame) catSource = catSource.filter(q=>q.frameNo===parseInt(state.session.filterFrame,10));
   const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
   fillSelect('filter-law',laws,state.session.filterLaw);
-  // フレームは表示テキストを「F11 通則…」形式にする
+  // フレームは表示テキストを「F11 通則…」形式にする(科目=章のマップを利用)
   const frameSel = document.getElementById('filter-frame');
   frameSel.innerHTML = '<option value="">すべて</option>'+frames.map(n=>{
     const law = state.session.filterLaw;
-    const fr = law && FRAMES[law] ? FRAMES[law].find(f=>f.n===n) : null;
+    const subj = law ? lawToSubject(law) : null;
+    const fr = subj && FRAMES[subj] ? FRAMES[subj].find(f=>f.n===n) : null;
     const label = fr ? `F${n} ${fr.t}` : `F${n}`;
     return `<option value="${n}" ${String(n)===String(state.session.filterFrame)?'selected':''}>${escapeHtml(label)}</option>`;
   }).join('');
@@ -1471,16 +1535,21 @@ function renderProgress(){
     <p class="prog-desc">各フレームの右にある「演習開始」ボタンから、フレーム単位で問題演習をスタートできます。フレーム内の全問題を解き終えると1回分が完了となり、最大10回まで記録されます。<br><span style="color:var(--ink-muted)">※「問題演習」タブから絞り込み・ランダム出題などで個別に解いた解答は、ここの進捗には反映されません(フレーム演習モードで解いたもののみ対象です)。</span></p>
   </div>`;
 
-  for(const law of SUBJECTS_ORDER){
-    const frames = FRAMES[law] || [];
+  for(const subject of SUBJECTS_ORDER){
+    const frames = FRAMES[subject] || [];
     if(!frames.length) continue;
     html += `<div class="card prog-chapter">
-      <h3 class="prog-law">${escapeHtml(law)}</h3>
+      <h3 class="prog-law">${escapeHtml(subject)}</h3>
       <div class="prog-frames">`;
     for(const fr of frames){
-      const qs = state.questions.filter(q=>q.law===law && q.frameNo===fr.n);
+      // 該当フレームの問題(科目=章でフィルタ。複数の個別法律にまたがる場合あり)
+      const qs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n);
       const total = qs.length;
-      const k = frameKey(law, fr.n);
+      // 内訳:この科目内の複数法律にまたがる場合、内訳を表示
+      const lawsInFrame = [...new Set(qs.map(q=>q.law))];
+      const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
+        ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
+      const k = frameKey(subject, fr.n);
       const fa = state.frameAttempts[k] || {history:[], current:null};
       const completed = fa.history.length;
       const cur = fa.current;
@@ -1517,13 +1586,13 @@ function renderProgress(){
       if(total===0){
         btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
       }else if(cur){
-        btn = `<button class="btn btn-sm" data-law="${escapeHtml(law)}" data-fno="${fr.n}" data-act="resume">演習を再開</button>`;
+        btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="resume">演習を再開</button>`;
       }else{
-        btn = `<button class="btn btn-sm" data-law="${escapeHtml(law)}" data-fno="${fr.n}" data-act="start">演習開始</button>`;
+        btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="start">演習開始</button>`;
       }
       html += `<div class="prog-frame">
         <div class="pf-head">
-          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
+          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span>${lawBreakdown}</div>
           ${btn}
         </div>
         <div class="pf-slots">${slots}</div>
@@ -1537,9 +1606,9 @@ function renderProgress(){
   // ボタンのイベント
   root.querySelectorAll('button[data-act]').forEach(b=>{
     b.addEventListener('click', ()=>{
-      const law = b.dataset.law;
+      const subj = b.dataset.subj;
       const fno = parseInt(b.dataset.fno, 10);
-      startFrameAttempt(law, fno);
+      startFrameAttempt(subj, fno);
     });
   });
 }
