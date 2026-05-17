@@ -309,110 +309,93 @@
     font-size:10px;margin:0 2px;
   }
 
-  /* ===== Select question (選択式) ===== */
-  .select-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;margin:18px 0}
-  .problem-intro{
-    font-size:11.5px;color:var(--ink-muted);margin-bottom:10px;
-    line-height:1.7;letter-spacing:.02em;
+  /* ===== Frame study banner (フレーム演習中) ===== */
+  .frame-banner{
+    background:linear-gradient(135deg,#1B2942 0%,#27496D 100%);
+    color:#F5F2EC;padding:14px 18px;border-radius:8px;margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(27,41,66,.25);
   }
-  .problem-text{
+  .frame-banner .fb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .frame-banner .fb-mark{
+    background:#C68A14;color:#fff;font-size:10px;padding:3px 10px;
+    border-radius:99px;letter-spacing:.1em;font-weight:500;flex-shrink:0;
+  }
+  .frame-banner .fb-title{font-family:'Shippori Mincho',serif;font-size:14px;line-height:1.5}
+  .frame-banner .fb-att{font-size:11px;opacity:.7;margin-left:4px}
+  .frame-banner .fb-prog{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .frame-banner .fb-bar{flex:1;height:6px;background:rgba(245,242,236,.15);border-radius:99px;overflow:hidden}
+  .frame-banner .fb-fill{height:100%;background:#E5B547;transition:width .3s}
+  .frame-banner .fb-pct{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .frame-banner .fb-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .frame-banner .fb-actions button{
+    background:rgba(245,242,236,.12);color:#F5F2EC;border:1px solid rgba(245,242,236,.25);
+    font-size:11px;padding:6px 12px;border-radius:4px;
+  }
+  .frame-banner .fb-actions button:hover{background:rgba(245,242,236,.2);color:#fff;border-color:rgba(245,242,236,.4)}
+
+  /* ===== Progress view ===== */
+  .progress-intro{margin-bottom:14px}
+  .prog-h2{
+    font-family:'Shippori Mincho',serif;font-size:20px;font-weight:700;
+    color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:12px;
+  }
+  .prog-sub{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em}
+  .prog-desc{font-size:13px;color:var(--ink-soft);line-height:1.8}
+  .prog-chapter{margin-bottom:14px;padding:18px 22px}
+  .prog-law{
+    font-family:'Shippori Mincho',serif;font-size:18px;font-weight:700;
+    color:var(--ink);padding-bottom:10px;margin-bottom:14px;
+    border-bottom:2px solid var(--accent);display:flex;align-items:center;
+  }
+  .prog-law::before{
+    content:"";width:8px;height:18px;background:var(--accent);
+    margin-right:10px;border-radius:2px;
+  }
+  .prog-frames{display:flex;flex-direction:column;gap:12px}
+  .prog-frame{
     background:var(--bg);border:1px solid var(--line);border-radius:6px;
-    padding:24px 26px;font-size:15.5px;line-height:2.0;
-    position:relative;font-family:'Shippori Mincho',serif;
-    color:var(--ink);
+    padding:12px 16px;
   }
-  .problem-text::before{
-    content:"問";position:absolute;top:-10px;left:18px;
-    font-family:'Shippori Mincho',serif;font-weight:700;
-    background:var(--ink);color:var(--bg);font-size:11px;
-    padding:2px 8px;border-radius:3px;letter-spacing:.1em;
+  .pf-head{
+    display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap;
   }
-  .blank-marker{
-    display:inline-block;min-width:32px;padding:1px 10px;margin:0 3px;
-    background:var(--line-soft);color:var(--ink-soft);
-    border:1px dashed var(--line);border-radius:3px;
-    font-family:'Shippori Mincho',serif;font-weight:700;
-    text-align:center;vertical-align:baseline;font-size:.95em;
-  }
-  .blank-marker.current{
-    background:var(--accent-soft);color:var(--accent);
-    border:2px solid var(--accent);
-    box-shadow:0 0 0 3px rgba(184,58,46,.1);
-    animation:pulse-blank 1.6s ease-in-out infinite;
-  }
-  @keyframes pulse-blank{
-    0%,100%{box-shadow:0 0 0 3px rgba(184,58,46,.1)}
-    50%{box-shadow:0 0 0 5px rgba(184,58,46,.18)}
-  }
-  .point-aside{
-    background:#FFFCF5;border:1px solid var(--line);
-    border-left:3px solid var(--amber);
-    border-radius:4px;padding:18px;font-size:13px;line-height:1.85;
-    align-self:start;
-  }
-  .point-aside .point-title{
-    font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;
-    color:var(--amber);letter-spacing:.1em;margin-bottom:10px;
-    padding-bottom:8px;border-bottom:1px dotted var(--line);
-    display:flex;align-items:center;gap:6px;
-  }
-  .point-aside .blank-tag{
-    display:inline-block;background:var(--accent);color:#fff;
-    font-family:'Shippori Mincho',serif;font-weight:700;
-    padding:1px 7px;border-radius:3px;font-size:11px;
-  }
-  .point-aside .point-body{color:var(--ink-soft);font-size:13px}
-  .choices-section{margin-top:22px}
-  .choices-label{
-    font-family:'Shippori Mincho',serif;font-size:13px;
-    color:var(--ink-soft);margin-bottom:10px;letter-spacing:.08em;
+  .pf-title{
+    flex:1;font-size:14px;color:var(--ink);min-width:180px;
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   }
-  .choices-label::before{content:"";width:3px;height:14px;background:var(--indigo);border-radius:2px}
-  .choices-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .choices-grid.single-col{grid-template-columns:1fr}
-  .choice-btn{
-    display:flex;align-items:flex-start;gap:10px;
-    background:var(--paper);border:1px solid var(--line);
-    padding:10px 14px;border-radius:5px;cursor:pointer;
-    font-family:inherit;font-size:13.5px;line-height:1.6;text-align:left;
-    transition:all .12s;color:var(--ink);width:100%;
+  .pf-n{
+    background:var(--indigo);color:var(--paper);font-family:'Shippori Mincho',serif;
+    font-weight:700;font-size:11px;padding:3px 9px;border-radius:4px;flex-shrink:0;
+    letter-spacing:.04em;
   }
-  .choice-btn:hover:not(:disabled){border-color:var(--ink);background:var(--bg);transform:translateY(-1px)}
-  .choice-btn:disabled{cursor:default}
-  .choice-btn .num{
-    flex:0 0 26px;height:22px;display:inline-flex;
-    align-items:center;justify-content:center;
+  .pf-q{font-size:11px;color:var(--ink-muted);font-weight:400}
+  .pf-slots{
+    display:grid;grid-template-columns:repeat(10,1fr);gap:4px;
+    margin-bottom:8px;max-width:420px;
+  }
+  .slot{
+    aspect-ratio:1;border-radius:4px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:10px;
     background:var(--line-soft);color:var(--ink-muted);
-    font-family:monospace;font-size:11px;font-weight:600;
-    border-radius:3px;
+    transition:transform .12s;cursor:default;position:relative;
   }
-  .choice-btn.picked-correct{
-    background:var(--indigo-soft);border-color:var(--indigo);color:var(--indigo);
+  .slot .slot-n{font-size:9px;line-height:1;opacity:.6}
+  .slot.empty{background:var(--paper);border:1px dashed var(--line)}
+  .slot.empty .slot-n{opacity:.4}
+  .slot.done{background:var(--green);color:#fff}
+  .slot.done .slot-n{opacity:.85}
+  .slot.done .slot-mark{font-size:13px;font-weight:700;line-height:1}
+  .slot.prog{background:var(--amber);color:#fff;animation:pulseSlot 1.6s infinite}
+  .slot.prog .slot-pct{font-size:9px;font-weight:600;line-height:1}
+  @keyframes pulseSlot{
+    0%,100%{box-shadow:0 0 0 0 rgba(198,138,20,.5)}
+    50%{box-shadow:0 0 0 4px rgba(198,138,20,0)}
   }
-  .choice-btn.picked-correct .num{background:var(--indigo);color:#fff}
-  .choice-btn.picked-wrong{
-    background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
-  }
-  .choice-btn.picked-wrong .num{background:var(--accent);color:#fff}
-  .choice-btn.show-correct{
-    border:2px solid var(--indigo);
-    background:var(--indigo-soft);color:var(--indigo);padding:9px 13px;
-  }
-  .choice-btn.show-correct .num{background:var(--indigo);color:#fff}
-  .choice-btn.dim{opacity:.5}
-
-  /* Select view mobile */
-  @media(max-width:640px){
-    .select-layout{grid-template-columns:1fr;gap:14px}
-    .problem-text{padding:18px 16px;font-size:14.5px;line-height:1.95}
-    .blank-marker{min-width:28px;padding:0 8px;margin:0 2px}
-    .point-aside{padding:14px;font-size:12.5px;line-height:1.8}
-    .point-aside .point-title{font-size:11px}
-    .choices-grid,.choices-grid.single-col{grid-template-columns:1fr;gap:6px}
-    .choice-btn{padding:14px;font-size:14px;min-height:46px}
-    .choice-btn .num{flex:0 0 28px;height:24px;font-size:12px}
-  }
+  .pf-status{font-size:12px;color:var(--ink-muted)}
+  .prog-status.done{color:var(--green);font-weight:500}
+  .prog-status.inprog{color:var(--amber);font-weight:500}
+  .prog-status.empty{color:var(--ink-muted);opacity:.6;font-style:italic}
+  .btn-sm{font-size:12px;padding:7px 14px;border-radius:5px}
 
   /* ===== MOBILE OPTIMIZATION (≤640px) ===== */
   @media(max-width:640px){
@@ -429,13 +412,13 @@
     .brand .seal{width:30px;height:30px;font-size:15px}
     .brand .sub{display:none}
 
-    /* Tabs: full-width 3-col, big touch targets */
+    /* Tabs: full-width 4-col, big touch targets */
     nav.tabs{
-      display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;
+      display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px;
       background:var(--line-soft);padding:3px;border-radius:8px;
     }
     nav.tabs button{
-      font-size:14px;padding:11px 4px;border-radius:6px;
+      font-size:13px;padding:11px 2px;border-radius:6px;
       border-bottom:none;color:var(--ink-soft);min-height:44px;
     }
     nav.tabs button.active{
@@ -529,6 +512,18 @@
     /* Data view code block */
     #view-data pre{font-size:10.5px !important;padding:10px !important}
 
+    /* Progress view on mobile */
+    .prog-chapter{padding:14px}
+    .prog-h2{font-size:17px;flex-direction:column;gap:4px;align-items:flex-start}
+    .prog-law{font-size:15px}
+    .pf-head{flex-direction:column;align-items:stretch;gap:8px}
+    .pf-head .btn{align-self:flex-end}
+    .pf-slots{max-width:none}
+    .slot .slot-mark{font-size:10px}
+    .slot .slot-pct{font-size:8px}
+    .frame-banner{padding:12px 14px}
+    .frame-banner .fb-title{font-size:13px}
+
     /* Safe area for iPhone notch/home indicator */
     .app{
       padding-left:max(12px,env(safe-area-inset-left));
@@ -558,8 +553,8 @@
       </div>
     </div>
     <nav class="tabs">
-      <button class="tab-btn active" data-tab="quiz">択一</button>
-      <button class="tab-btn" data-tab="select">選択式</button>
+      <button class="tab-btn active" data-tab="quiz">問題演習</button>
+      <button class="tab-btn" data-tab="progress">進捗管理</button>
       <button class="tab-btn" data-tab="manage">問題管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
     </nav>
@@ -574,7 +569,7 @@
 
   <aside id="aside-quiz">
     <div class="stat-card">
-      <h3>本日の演習(択一)</h3>
+      <h3>本日の演習</h3>
       <div class="stat-grid">
         <div class="stat-item"><div class="num indigo" id="stat-today-total">0</div><div class="lbl">解答数</div></div>
         <div class="stat-item"><div class="num accent" id="stat-today-rate">—</div><div class="lbl">正答率</div></div>
@@ -582,7 +577,7 @@
     </div>
 
     <div class="stat-card">
-      <h3>通算成績(択一)</h3>
+      <h3>通算成績</h3>
       <div class="stat-row"><span>総解答数</span><span class="v" id="stat-all-total">0</span></div>
       <div class="stat-row"><span>正答率</span><span class="v" id="stat-all-rate">—</span></div>
       <div class="stat-row"><span>登録問題数</span><span class="v" id="stat-q-count">0</span></div>
@@ -606,6 +601,10 @@
         <select id="filter-law"><option value="">すべて</option></select>
       </div>
       <div class="field-group">
+        <label class="field">フレーム</label>
+        <select id="filter-frame"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
         <label class="field">カテゴリ</label>
         <select id="filter-cat"><option value="">すべて</option></select>
       </div>
@@ -627,67 +626,10 @@
     </div>
   </aside>
 
-  <!-- ===== SELECT QUIZ VIEW ===== -->
-  <main id="view-select" style="display:none">
-    <div class="card" id="select-card">
-      <!-- filled by JS -->
-    </div>
+  <!-- ===== PROGRESS VIEW ===== -->
+  <main id="view-progress" style="display:none;grid-column:1/-1">
+    <div id="progress-content"></div>
   </main>
-
-  <aside id="aside-select" style="display:none">
-    <div class="stat-card">
-      <h3>本日の演習(選択式)</h3>
-      <div class="stat-grid">
-        <div class="stat-item"><div class="num indigo" id="select-stat-today-total">0</div><div class="lbl">解答数</div></div>
-        <div class="stat-item"><div class="num accent" id="select-stat-today-rate">—</div><div class="lbl">正答率</div></div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <h3>通算成績(選択式)</h3>
-      <div class="stat-row"><span>総解答数</span><span class="v" id="select-stat-all-total">0</span></div>
-      <div class="stat-row"><span>正答率</span><span class="v" id="select-stat-all-rate">—</span></div>
-      <div class="stat-row"><span>登録空欄数</span><span class="v" id="select-stat-q-count">0</span></div>
-    </div>
-
-    <div class="stat-card">
-      <h3>出題モード</h3>
-      <div class="mode-group">
-        <button class="mode-btn select-mode-btn active" data-mode="seq">順番出題 <span class="count" id="select-mc-seq"></span></button>
-        <button class="mode-btn select-mode-btn" data-mode="rand">ランダム <span class="count" id="select-mc-rand"></span></button>
-        <button class="mode-btn select-mode-btn" data-mode="weak">弱点出題 <span class="count" id="select-mc-weak"></span></button>
-        <button class="mode-btn select-mode-btn" data-mode="unseen">未解答のみ <span class="count" id="select-mc-unseen"></span></button>
-        <button class="mode-btn select-mode-btn" data-mode="bm">ふせん付き <span class="count" id="select-mc-bm"></span></button>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <h3>絞り込み</h3>
-      <div class="field-group">
-        <label class="field">法律</label>
-        <select id="select-filter-law"><option value="">すべて</option></select>
-      </div>
-      <div class="field-group">
-        <label class="field">カテゴリ</label>
-        <select id="select-filter-cat"><option value="">すべて</option></select>
-      </div>
-      <div class="field-group">
-        <label class="field">年度</label>
-        <select id="select-filter-year"><option value="">すべて</option></select>
-      </div>
-      <div class="field-group">
-        <label class="field">ふせん色</label>
-        <select id="select-filter-bm">
-          <option value="">指定なし</option>
-          <option value="r">赤</option>
-          <option value="p">桃</option>
-          <option value="y">黄</option>
-          <option value="g">緑</option>
-          <option value="b">青</option>
-        </select>
-      </div>
-    </div>
-  </aside>
 
   <!-- ===== MANAGE VIEW ===== -->
   <main id="view-manage" style="display:none;grid-column:1/-1">
@@ -715,9 +657,7 @@
 
       <div class="section-h" style="margin-top:24px">問題データの追加方法</div>
       <div class="section-body dim">
-        <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。択一・選択式が混在していても自動判別します。</p>
-
-        <p style="margin-top:14px;margin-bottom:6px;font-weight:500;color:var(--ink)">■ 択一問題</p>
+        <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。</p>
         <pre style="background:var(--bg);border:1px solid var(--line);padding:12px;border-radius:5px;font-size:11px;overflow-x:auto;line-height:1.6">[
   {
     "year":"R3","law":"雇用保険法","qno":"問2 肢B",
@@ -731,28 +671,7 @@
     "difficulty":"C"
   }
 ]</pre>
-        <p class="hint">※ <code>answer</code> は ○=true、×=false。</p>
-
-        <p style="margin-top:18px;margin-bottom:6px;font-weight:500;color:var(--ink)">■ 選択式問題 (1空欄=1レコード)</p>
-        <pre style="background:var(--bg);border:1px solid var(--line);padding:12px;border-radius:5px;font-size:11px;overflow-x:auto;line-height:1.6">[
-  {
-    "type":"select",
-    "year":"R7","law":"雇用保険法","qno":"選択式問1 A",
-    "category":"総則",
-    "problemSetId":"f11s_r7_q1_part1",
-    "problemIntro":"次の文中の【】の部分を…",
-    "problemText":"…【A】…【B】…",
-    "blankKey":"A",
-    "choices":["1か月","72日","78日", "…"],
-    "correctIndex":17,
-    "point":"解き方のヒント(右側に表示)…",
-    "explanation":"解説…",
-    "legalBasis":"法1条",
-    "pageRef":"プレテキ労②P4",
-    "difficulty":"B"
-  }
-]</pre>
-        <p class="hint">※ <code>problemText</code> 内の <code>【A】</code><code>【B】</code> または <code>[A]</code><code>[B]</code> がマーカー。<code>correctIndex</code> は 0始まり (1番目の選択肢=0)。書籍ページを撮影してClaudeに渡せば、この形式のJSONに変換できます。</p>
+        <p class="hint">※ <code>answer</code> は ○=true、×=false。書籍ページを撮影してClaudeに渡せば、この形式のJSONに変換できます。</p>
       </div>
 
       <div class="section-h" style="margin-top:24px">注意事項</div>
@@ -835,7 +754,7 @@
 
 /* ===== Sample data: フレーム11 (uploaded PDF) + スクショの問題 ===== */
 const SAMPLE_QUESTIONS = [
-  {id:"s1",year:"H18",law:"雇用保険法",qno:"問6 肢A",category:"就職促進給付",
+  {id:"s1",year:"H18",law:"雇用保険法",frameNo:7,qno:"問6 肢A",category:"就職促進給付",
    text:"就職促進給付には、就業促進手当、移転費、求職活動支援費の3つがある。",
    answer:true,
    point:"就業促進手当、移転費、求職活動支援費の3つである。",
@@ -844,7 +763,7 @@ const SAMPLE_QUESTIONS = [
    articleText:"(失業等給付) 法10条\n4 就職促進給付は、次のとおりとする。\n 一 就業促進手当\n 二 移転費\n 三 求職活動支援費",
    difficulty:"D"
   },
-  {id:"s2",year:"H29",law:"雇用保険法",qno:"問1 肢B",category:"受給権の保護",
+  {id:"s2",year:"H29",law:"雇用保険法",frameNo:11,qno:"問1 肢B",category:"受給権の保護",
    text:"基本手当の受給資格者は、基本手当を受ける権利を契約により譲り渡すことができる。",
    answer:false,
    point:"基本手当を受ける権利は、譲り渡し・担保供与・差押えができない。",
@@ -853,7 +772,7 @@ const SAMPLE_QUESTIONS = [
    articleText:"(受給権の保護) 法11条\n失業等給付を受ける権利は、譲り渡し、担保に供し、又は差し押さえることができない。",
    difficulty:"B"
   },
-  {id:"s3",year:"H29",law:"雇用保険法",qno:"問1 肢E",category:"受給権の保護",
+  {id:"s3",year:"H29",law:"雇用保険法",frameNo:11,qno:"問1 肢E",category:"受給権の保護",
    text:"政府は、基本手当の受給資格者が失業の認定に係る期間中に自己の労働によって収入を得た場合であっても、当該基本手当として支給された金銭を標準として租税を課することができない。",
    answer:true,
    point:"租税その他の公課は、基本手当を受けた金銭を標準として課することができない。",
@@ -862,7 +781,7 @@ const SAMPLE_QUESTIONS = [
    articleText:"(公課の禁止) 法12条\n租税その他の公課は、失業等給付として支給を受けた金銭を標準として課することができない。",
    difficulty:"B"
   },
-  {id:"s4",year:"R3",law:"雇用保険法",qno:"問2 肢B",category:"未支給の失業等給付",
+  {id:"s4",year:"R3",law:"雇用保険法",frameNo:11,qno:"問2 肢B",category:"未支給の失業等給付",
    text:"失業等給付の支給を受けることができる者が死亡した場合において、未支給の失業等給付の支給を受けるべき順位にあるその者の遺族は、死亡した者の名でその未支給の失業等給付の支給を請求することができる。",
    answer:false,
    point:"未支給の失業等給付は、遺族が「自己の名」で請求する。",
@@ -871,7 +790,7 @@ const SAMPLE_QUESTIONS = [
    articleText:"(未支給の失業等給付) 法10条の3 1項\n失業等給付の支給を受けることができる者が死亡した場合において、その死亡した者に支給すべき失業等給付でまだその者に支給していなかったものがあるときは、その者の配偶者、子、父母、孫、祖父母又は兄弟姉妹であつて、その者の死亡の当時その者と生計を同じくしていたものは、自己の名で、その未支給の失業等給付の支給を請求することができる。",
    difficulty:"C"
   },
-  {id:"s5",year:"R3",law:"雇用保険法",qno:"問2 肢C",category:"未支給の失業等給付",
+  {id:"s5",year:"R3",law:"雇用保険法",frameNo:11,qno:"問2 肢C",category:"未支給の失業等給付",
    text:"正当な理由がなく自己の都合によって退職したことにより基本手当を支給しないこととされた期間がある受給資格者が死亡した場合、死亡した受給資格者の遺族の請求により、当該基本手当を支給しないこととされた期間中の日に係る未支給の基本手当が支給される。",
    answer:false,
    point:"給付制限期間中については、未支給の基本手当は支給されない。",
@@ -880,7 +799,7 @@ const SAMPLE_QUESTIONS = [
    articleText:"",
    difficulty:"C"
   },
-  {id:"s6",year:"R3",law:"雇用保険法",qno:"問2 肢E",category:"未支給の失業等給付",
+  {id:"s6",year:"R3",law:"雇用保険法",frameNo:11,qno:"問2 肢E",category:"未支給の失業等給付",
    text:"受給資格者の死亡により未支給の失業等給付の支給を請求しようとする者は、当該受給資格者の死亡の翌日から起算して3か月以内に請求しなければならない。",
    answer:false,
    point:"未支給の失業等給付は死亡の翌日から「6か月以内」に請求する。",
@@ -891,96 +810,76 @@ const SAMPLE_QUESTIONS = [
   }
 ];
 
-/* ===== Sample SELECT data: 雇用保険法 R7-選 問1の一部 ===== */
-const SAMPLE_SELECT_QUESTIONS = [
-  {
-    id:"f11s_r7_q1_a", type:"select",
-    year:"R7", law:"雇用保険法", qno:"選択式問1 A", category:"総則(目的)",
-    difficulty:"B",
-    problemSetId:"f11s_r7_q1_part1",
-    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
-    problemText:"雇用保険法第1条は、「雇用保険は、労働者が失業した場合及び労働者について雇用の継続が困難となる事由が生じた場合に必要な給付を行うほか、労働者が自ら職業に関する教育訓練を受けた場合【A】をした場合に必要な給付を行うことにより、労働者の生活及び雇用の安定を図るとともに、求職活動を容易にする等その就職を促進し、あわせて、【B】、雇用状態の是正及び雇用機会の増大、労働者の能力の開発及び向上その他労働者の福祉の増進を図ることを目的とする。」と規定している。",
-    blankKey:"A",
-    choices:[
-      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
-      "及び労働者が子を養育するための休業",
-      "求職の申込みをした上",
-      "経済的社会的地位の向上",
-      "高年齢受給資格者失業認定申告書を提出した上",
-      "雇用保険被保険者証を提出した上",
-      "産業に必要な労働力の充足",
-      "失業の予防",
-      "退職証明書を提出した上",
-      "転職の支援",
-      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
-      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
-      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
-    ],
-    correctIndex:17,
-    point:"目的条文の改正部分。育児休業等給付関連の語句が入る。「対象家族を介護」は介護休業給付の文言なので除外。育児休業給付に関連した近年の改正点を押さえていれば絞れる。",
-    explanation:"雇用保険法第1条(目的)。労働者が子を養育するための休業及び所定労働時間を短縮することによる就業をした場合の給付を行うことが、現行法の目的に組み込まれている。",
-    legalBasis:"法1条",
-    pageRef:"プレテキ労②P4"
-  },
-  {
-    id:"f11s_r7_q1_b", type:"select",
-    year:"R7", law:"雇用保険法", qno:"選択式問1 B", category:"総則(目的)",
-    difficulty:"B",
-    problemSetId:"f11s_r7_q1_part1",
-    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
-    problemText:"雇用保険法第1条は、「雇用保険は、労働者が失業した場合及び労働者について雇用の継続が困難となる事由が生じた場合に必要な給付を行うほか、労働者が自ら職業に関する教育訓練を受けた場合【A】をした場合に必要な給付を行うことにより、労働者の生活及び雇用の安定を図るとともに、求職活動を容易にする等その就職を促進し、あわせて、【B】、雇用状態の是正及び雇用機会の増大、労働者の能力の開発及び向上その他労働者の福祉の増進を図ることを目的とする。」と規定している。",
-    blankKey:"B",
-    choices:[
-      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
-      "及び労働者が子を養育するための休業",
-      "求職の申込みをした上",
-      "経済的社会的地位の向上",
-      "高年齢受給資格者失業認定申告書を提出した上",
-      "雇用保険被保険者証を提出した上",
-      "産業に必要な労働力の充足",
-      "失業の予防",
-      "退職証明書を提出した上",
-      "転職の支援",
-      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
-      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
-      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
-    ],
-    correctIndex:14,
-    point:"雇用保険二事業(雇用安定事業・能力開発事業)を通じて図る目的の冒頭部分。条文を正確に押さえていれば即答できる超基本問題。「失業の予防」は雇用安定事業の中核。",
-    explanation:"雇用保険法第1条(目的)。雇用保険二事業を通じて図るべき内容として「失業の予防」が明示されている。",
-    legalBasis:"法1条",
-    pageRef:"プレテキ労②P4"
-  },
-  {
-    id:"f11s_r7_q1_e", type:"select",
-    year:"R7", law:"雇用保険法", qno:"選択式問1 E", category:"日雇労働求職者給付金",
-    difficulty:"C",
-    problemSetId:"f11s_r7_q1_part3",
-    problemIntro:"次の文中の【】の部分を選択肢の中の最も適切な語句で埋め、完全な文章とせよ。",
-    problemText:"雇用保険法第53条第1項は、日雇労働被保険者が失業した場合に日雇労働求職者給付金の支給を受けるための要件の1つとして、継続する6月間に当該日雇労働被保険者について印紙保険料が各月11日分以上、かつ、通算して【E】分以上納付されていることを定めている。",
-    blankKey:"E",
-    choices:[
-      "1か月","72日","78日","84日","90日","4か月","6か月","1年",
-      "及び労働者が子を養育するための休業",
-      "求職の申込みをした上",
-      "経済的社会的地位の向上",
-      "高年齢受給資格者失業認定申告書を提出した上",
-      "雇用保険被保険者証を提出した上",
-      "産業に必要な労働力の充足",
-      "失業の予防",
-      "退職証明書を提出した上",
-      "転職の支援",
-      "並びに労働者が子を養育するための休業及び所定労働時間を短縮することによる就業",
-      "並びに労働者が子を養育するための休業及び対象家族を介護するための休業",
-      "並びに労働者が子を養育するため若しくは対象家族を介護するための休業及び所定労働時間を短縮することによる就業"
-    ],
-    correctIndex:2,
-    point:"普通給付の要件は「通算26日分以上」、特例給付はその3倍で「通算78日分以上」。数字は紛らわしいので、普通給付の3倍と関連付けて覚えるとよい。",
-    explanation:"雇用保険法第53条第1項。普通給付の要件である通算26日分の3倍にあたる78日分。",
-    legalBasis:"法53条1項",
-    pageRef:"プレテキ労②P101"
-  }
+/* ===== Master FRAMES data (10科目・全フレーム一覧) ===== */
+const FRAMES = {
+  "労働基準法":[
+    {n:1,t:"労働基準法の基本理念等"},{n:2,t:"労働契約等"},{n:3,t:"賃金"},
+    {n:4,t:"労働時間、休憩、休日"},{n:5,t:"変形労働時間制"},{n:6,t:"時間外労働・休日労働"},
+    {n:7,t:"みなし労働時間制"},{n:8,t:"年次有給休暇"},{n:9,t:"年少者、妊産婦等"},
+    {n:10,t:"就業規則、監督等その他"}
+  ],
+  "労働安全衛生法":[
+    {n:1,t:"目的等"},{n:2,t:"安全衛生管理体制"},{n:3,t:"危険又は健康障害を防止するための措置"},
+    {n:4,t:"機械等に関する規制"},{n:5,t:"危険・有害物に関する規制"},{n:6,t:"安全衛生教育、就業制限等"},
+    {n:7,t:"作業環境管理・作業管理・健康管理"},{n:8,t:"健康診断"},{n:9,t:"面接指導等"},
+    {n:10,t:"監督等その他"}
+  ],
+  "労働者災害補償保険法":[
+    {n:1,t:"目的等及び適用"},{n:2,t:"業務災害、複数業務要因災害及び通勤災害"},{n:3,t:"給付基礎日額"},
+    {n:4,t:"保険給付Ⅰ"},{n:5,t:"保険給付Ⅱ"},{n:6,t:"保険給付Ⅲ"},
+    {n:7,t:"通則等"},{n:8,t:"社会復帰促進等事業"},{n:9,t:"特別加入"},
+    {n:10,t:"不服申立て及び雑則等"}
+  ],
+  "雇用保険法":[
+    {n:1,t:"総則・適用事業"},{n:2,t:"被保険者等"},{n:3,t:"失業等給付、求職者給付Ⅰ"},
+    {n:4,t:"求職者給付Ⅱ"},{n:5,t:"求職者給付Ⅲ"},{n:6,t:"求職者給付Ⅳ"},
+    {n:7,t:"就職促進給付"},{n:8,t:"教育訓練給付"},{n:9,t:"雇用継続給付"},
+    {n:10,t:"育児休業等給付"},{n:11,t:"通則、不服申立て、雑則その他"}
+  ],
+  "労働保険徴収法":[
+    {n:1,t:"総則、保険関係の成立及び消滅等"},{n:2,t:"保険関係の一括"},{n:3,t:"労働保険料の種類等"},
+    {n:4,t:"概算保険料"},{n:5,t:"確定保険料等"},{n:6,t:"メリット制"},
+    {n:7,t:"印紙保険料"},{n:8,t:"特別納付保険料"},{n:9,t:"督促等、不服申立て、雑則その他"},
+    {n:10,t:"労働保険事務組合"}
+  ],
+  "労務管理その他の労働に関する一般常識":[
+    {n:1,t:"集団的労使関係法"},{n:2,t:"個別的労働関係法"},{n:3,t:"労働市場法"}
+  ],
+  "健康保険法":[
+    {n:1,t:"目的等、保険者"},{n:2,t:"適用事業所、被保険者等"},{n:3,t:"保険医療機関等"},
+    {n:4,t:"標準報酬"},{n:5,t:"保険給付Ⅰ"},{n:6,t:"保険給付Ⅱ"},
+    {n:7,t:"費用の負担等"},{n:8,t:"日雇特例被保険者に関する保険給付等"},{n:9,t:"通則等"},
+    {n:10,t:"保健事業及び福祉事業、不服申立て、雑則等"}
+  ],
+  "国民年金法":[
+    {n:1,t:"目的等"},{n:2,t:"被保険者等"},{n:3,t:"費用の負担等"},
+    {n:4,t:"老齢基礎年金"},{n:5,t:"障害基礎年金"},{n:6,t:"遺族基礎年金"},
+    {n:7,t:"独自給付等"},{n:8,t:"年金額の調整等"},{n:9,t:"通則等、不服申立て、雑則等"},
+    {n:10,t:"国民年金基金等"}
+  ],
+  "厚生年金保険法":[
+    {n:1,t:"総則"},{n:2,t:"被保険者等"},{n:3,t:"標準報酬、費用負担"},
+    {n:4,t:"本来の老齢厚生年金"},{n:5,t:"特別支給の老齢厚生年金"},{n:6,t:"障害厚生年金等"},
+    {n:7,t:"遺族厚生年金等"},{n:8,t:"離婚時の年金分割"},{n:9,t:"保険給付の通則等"},
+    {n:10,t:"不服申立て、雑則、基金等"}
+  ],
+  "社会保険に関する一般常識":[
+    {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"}
+  ]
+};
+
+const SUBJECTS_ORDER = [
+  "労働基準法","労働安全衛生法","労働者災害補償保険法","雇用保険法","労働保険徴収法","労務管理その他の労働に関する一般常識",
+  "健康保険法","国民年金法","厚生年金保険法","社会保険に関する一般常識"
 ];
+
+function frameTitle(law, n){
+  const fr = (FRAMES[law]||[]).find(f=>f.n===n);
+  return fr ? `フレーム${n} ${fr.t}` : `フレーム${n}`;
+}
+function frameKey(law, n){return `${law}|${n}`}
+
+/* ===== State & Storage ===== */
 const STORAGE_KEY = 'sharoushi_kakomon_v1';
 let state = loadState();
 
@@ -994,19 +893,24 @@ function loadState(){
       }
       s.history ||= [];
       s.bookmarks ||= {};
-      s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:''};
+      s.frameAttempts ||= {};
+      s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:''};
       s.session.answered ||= false;
       s.session.userAnswer ??= null;
       s.session.filterCat ??= '';
-      // 選択式の追加 (後方互換)
-      if(!s.selectQuestions || !s.selectQuestions.length){
-        s.selectQuestions = SAMPLE_SELECT_QUESTIONS.slice();
+      s.session.filterFrame ??= '';
+      s.session.frameMode ??= null;
+      // === Migration: 既存問題にframeNoを自動付与 ===
+      let migrated = 0;
+      for(const q of s.questions){
+        if(q.frameNo == null){
+          if(q.id && q.id.startsWith('f11_')){q.law='雇用保険法';q.frameNo=11;migrated++}
+          else if(q.id && q.id.startsWith('knf10_')){q.law='厚生年金保険法';q.frameNo=10;migrated++}
+          else if(q.id==='s1'){q.frameNo=7;migrated++}
+          else if(['s2','s3','s4','s5','s6'].includes(q.id)){q.frameNo=11;migrated++}
+        }
       }
-      s.selectHistory ||= [];
-      s.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:''};
-      s.selectSession.answered ||= false;
-      s.selectSession.userChoice ??= null;
-      s.selectSession.filterCat ??= '';
+      if(migrated>0) console.log(`Migrated ${migrated} questions with frameNo`);
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -1014,10 +918,8 @@ function loadState(){
     questions: SAMPLE_QUESTIONS.slice(),
     history: [],
     bookmarks: {},
-    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',answered:false,userAnswer:null},
-    selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
-    selectHistory: [],
-    selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null}
+    frameAttempts: {},
+    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null}
   };
 }
 function saveState(){
@@ -1029,7 +931,16 @@ function saveState(){
 function getPool(){
   let pool = state.questions.slice();
   const s = state.session;
+  // フレーム演習モードが有効なら、そのフレームの問題に強制限定
+  if(s.frameMode){
+    pool = pool.filter(q=>q.law===s.frameMode.law && q.frameNo===s.frameMode.frameNo);
+    return pool; // モード中は他フィルタ無効
+  }
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
+  if(s.filterFrame){
+    const fn = parseInt(s.filterFrame,10);
+    if(!isNaN(fn)) pool = pool.filter(q=>q.frameNo===fn);
+  }
   if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
   if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
   if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
@@ -1090,8 +1001,34 @@ function renderQuiz(){
   const card = document.getElementById('quiz-card');
   const q = currentQuestion();
 
+  // フレーム演習中バナー(問題があってもなくても表示)
+  const fmBanner = (()=>{
+    if(!state.session.frameMode) return '';
+    const {law, frameNo} = state.session.frameMode;
+    const k = frameKey(law, frameNo);
+    const fa = state.frameAttempts[k];
+    const cur = fa && fa.current;
+    if(!cur) return '';
+    const done = cur.answeredIds.length;
+    const tot = cur.questionIds.length;
+    const pct = tot ? Math.round(done/tot*100) : 0;
+    return `<div class="frame-banner">
+      <div class="fb-head">
+        <span class="fb-mark">演習中</span>
+        <span class="fb-title">${escapeHtml(law)} ${escapeHtml(frameTitle(law,frameNo))} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
+      </div>
+      <div class="fb-prog"><div class="fb-bar"><div class="fb-fill" style="width:${pct}%"></div></div><span class="fb-pct">${done}/${tot}問 (${pct}%)</span></div>
+      <div class="fb-actions">
+        <button class="btn ghost btn-sm" id="fm-abandon">演習を破棄</button>
+        <button class="btn ghost btn-sm" id="fm-exit">中断して通常に戻る</button>
+      </div>
+    </div>`;
+  })();
+
   if(!q){
-    card.innerHTML = `<div class="empty"><div class="ico">―</div>条件に合う問題がありません。<br>モードや絞り込みを変えてください。</div>`;
+    card.innerHTML = fmBanner + `<div class="empty"><div class="ico">―</div>条件に合う問題がありません。<br>モードや絞り込みを変えてください。</div>`;
+    const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
+    const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
     return;
   }
 
@@ -1103,9 +1040,10 @@ function renderQuiz(){
   const userAns = state.session.userAnswer;
   const correct = answered && userAns===q.answer;
 
-  card.innerHTML = `
+  card.innerHTML = fmBanner + `
     <div class="meta-row">
       <span class="pill accent">${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
+      ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
       <span style="font-size:11px">[${idx+1}/${pool.length}]</span>
@@ -1152,6 +1090,10 @@ function renderQuiz(){
     artBtn.textContent = box.style.display==='none' ? '>> 条文等を表示' : '>> 条文等を隠す';
   });
 
+  // フレーム演習バナーのボタン
+  const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
+  const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
+
   renderSidebar();
 }
 
@@ -1181,8 +1123,17 @@ function answerQuestion(userAns){
   state.history.push({qid:q.id,ts:Date.now(),userAns,correct});
   state.session.answered = true;
   state.session.userAnswer = userAns;
+  // フレーム演習中なら、その演習の解答記録に追加
+  if(state.session.frameMode){
+    const k = frameKey(state.session.frameMode.law, state.session.frameMode.frameNo);
+    const fa = state.frameAttempts[k];
+    if(fa && fa.current && !fa.current.answeredIds.includes(q.id)){
+      fa.current.answeredIds.push(q.id);
+    }
+  }
   saveState();
   renderQuiz();
+  checkFrameComplete();
 }
 
 function nav(dir){
@@ -1205,6 +1156,90 @@ function toggleBm(qid,color){
   renderQuiz();
 }
 
+/* ===== Frame study mode (フレーム演習) ===== */
+function startFrameAttempt(law, frameNo){
+  const k = frameKey(law, frameNo);
+  state.frameAttempts[k] ||= {history:[], current:null};
+  const fa = state.frameAttempts[k];
+  // 現在進行中の演習があれば確認
+  if(fa.current){
+    if(!confirm(`このフレームには進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
+      // 継続
+      enterFrameMode(law, frameNo);
+      return;
+    }
+    // 中止して新規
+    fa.current = null;
+  }
+  if(fa.history.length >= 10){
+    if(!confirm('このフレームは既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)')) return;
+  }
+  // 現在のフレームに属する問題のIDを取得
+  const qids = state.questions.filter(q=>q.law===law && q.frameNo===frameNo).map(q=>q.id);
+  if(!qids.length){alert('このフレームには問題が登録されていません。');return}
+  fa.current = {
+    attemptNo: fa.history.length + 1,
+    startedAt: Date.now(),
+    questionIds: qids,
+    answeredIds: []
+  };
+  saveState();
+  enterFrameMode(law, frameNo);
+}
+
+function enterFrameMode(law, frameNo){
+  state.session.frameMode = {law, frameNo};
+  state.session.mode = 'seq';
+  state.session.currentIndex = 0;
+  state.session.answered = false;
+  state.session.userAnswer = null;
+  // 他のフィルタはクリア(モード優先)
+  saveState();
+  switchTab('quiz');
+}
+
+function exitFrameMode(){
+  state.session.frameMode = null;
+  state.session.answered = false;
+  state.session.userAnswer = null;
+  saveState();
+  renderQuiz();
+}
+
+function abandonFrameAttempt(){
+  if(!state.session.frameMode) return;
+  if(!confirm('現在のフレーム演習を破棄しますか?\n(これまで解答した記録は通算成績には残りますが、進捗管理表からは消えます)')) return;
+  const k = frameKey(state.session.frameMode.law, state.session.frameMode.frameNo);
+  if(state.frameAttempts[k]) state.frameAttempts[k].current = null;
+  exitFrameMode();
+  switchTab('progress');
+}
+
+function checkFrameComplete(){
+  if(!state.session.frameMode) return;
+  const {law, frameNo} = state.session.frameMode;
+  const k = frameKey(law, frameNo);
+  const fa = state.frameAttempts[k];
+  if(!fa || !fa.current) return;
+  // 全問解答済みかチェック
+  const required = new Set(fa.current.questionIds);
+  const answered = new Set(fa.current.answeredIds);
+  let allDone = true;
+  for(const id of required){if(!answered.has(id)){allDone=false;break}}
+  if(allDone){
+    fa.current.completedAt = Date.now();
+    fa.history.push(fa.current);
+    if(fa.history.length > 10) fa.history.shift(); // 最新10件保持
+    fa.current = null;
+    state.session.frameMode = null;
+    saveState();
+    setTimeout(()=>{
+      alert(`🎉 フレーム完了!\n${frameTitle(law, frameNo)} の${fa.history.length}回目の演習が終わりました。`);
+      switchTab('progress');
+    }, 300);
+  }
+}
+
 /* ===== Sidebar ===== */
 function renderSidebar(){
   document.getElementById('stat-today-total').textContent = statTodayTotal();
@@ -1224,19 +1259,32 @@ function renderSidebar(){
   state.session.mode = oldMode;
   state.session.currentIndex = oldIdx;
 
-  // Mode buttons (択一のみ、選択式は除外)
-  document.querySelectorAll('.mode-btn:not(.select-mode-btn)').forEach(b=>{
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.mode===state.session.mode);
   });
 
   // Filter selects
   const laws = [...new Set(state.questions.map(q=>q.law))].sort();
   const years = [...new Set(state.questions.map(q=>q.year))].sort();
+  // フレーム: 法律が指定されていれば、その法律のフレームに絞る
+  let frameSource = state.questions.filter(q=>q.frameNo!=null);
+  if(state.session.filterLaw) frameSource = frameSource.filter(q=>q.law===state.session.filterLaw);
+  const frames = [...new Set(frameSource.map(q=>q.frameNo))].sort((a,b)=>a-b);
   // カテゴリは現在の法律フィルタを考慮して絞る(法律=すべての場合は全カテゴリ)
   let catSource = state.questions;
   if(state.session.filterLaw) catSource = catSource.filter(q=>q.law===state.session.filterLaw);
+  if(state.session.filterFrame) catSource = catSource.filter(q=>q.frameNo===parseInt(state.session.filterFrame,10));
   const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
   fillSelect('filter-law',laws,state.session.filterLaw);
+  // フレームは表示テキストを「F11 通則…」形式にする
+  const frameSel = document.getElementById('filter-frame');
+  frameSel.innerHTML = '<option value="">すべて</option>'+frames.map(n=>{
+    const law = state.session.filterLaw;
+    const fr = law && FRAMES[law] ? FRAMES[law].find(f=>f.n===n) : null;
+    const label = fr ? `F${n} ${fr.t}` : `F${n}`;
+    return `<option value="${n}" ${String(n)===String(state.session.filterFrame)?'selected':''}>${escapeHtml(label)}</option>`;
+  }).join('');
   fillSelect('filter-cat',cats,state.session.filterCat);
   fillSelect('filter-year',years,state.session.filterYear);
   document.getElementById('filter-bm').value = state.session.filterBm;
@@ -1343,35 +1391,19 @@ function doImport(){
   let arr;
   try{arr = JSON.parse(raw)}catch(e){alert('JSON解析エラー: '+e.message);return}
   if(!Array.isArray(arr)){alert('配列で渡してください');return}
-  let addedTakuitsu=0, addedSelect=0, skipped=0;
+  let added=0;
   for(const q of arr){
-    // 選択式判定: type:"select" または problemText/choices/correctIndexの存在
-    const isSelect = q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number');
-    if(isSelect){
-      if(!q.problemText || !Array.isArray(q.choices) || typeof q.correctIndex!=='number'){skipped++;continue}
-      q.type = 'select';
-      q.id = q.id || ('s'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
-      if(state.selectQuestions.some(x=>x.id===q.id)){skipped++;continue}
-      state.selectQuestions.push(q);
-      addedSelect++;
-    }else{
-      if(!q.text){skipped++;continue}
-      q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
-      if(state.questions.some(x=>x.id===q.id)){skipped++;continue}
-      state.questions.push(q);
-      addedTakuitsu++;
-    }
+    if(!q.text) continue;
+    q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+    if(state.questions.some(x=>x.id===q.id)) continue;
+    state.questions.push(q);
+    added++;
   }
   saveState();
   document.getElementById('modal-import').style.display='none';
   renderManage();
   renderSidebar();
-  renderSelectSidebar();
-  let msg = '';
-  if(addedTakuitsu) msg += `択一: ${addedTakuitsu}問追加\n`;
-  if(addedSelect) msg += `選択式: ${addedSelect}問追加\n`;
-  if(skipped) msg += `(${skipped}件はスキップ ※重複ID・不完全データなど)`;
-  alert(msg || '追加された問題はありませんでした。');
+  alert(`${added}問を追加しました。`);
 }
 
 function exportQuestions(){
@@ -1395,11 +1427,8 @@ function restoreBackup(){
         if(!confirm('現在のデータをすべて置き換えます。よろしいですか?')) return;
         state = s;
         state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null};
-        state.selectQuestions ||= [];
-        state.selectHistory ||= [];
-        state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
         saveState();
-        renderQuiz();renderManage();renderSidebar();renderSelectQuiz();renderSelectSidebar();
+        renderQuiz();renderManage();renderSidebar();
         alert('復元しました');
       }catch(err){alert('復元失敗: '+err.message)}
     };
@@ -1420,265 +1449,99 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* ===== Select question logic ===== */
-function getSelectPool(){
-  let pool = state.selectQuestions.slice();
-  const s = state.selectSession;
-  if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
-  if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
-  if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
-  if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
-
-  if(s.mode==='weak'){
-    pool = pool.filter(q=>{
-      const h = state.selectHistory.filter(x=>x.qid===q.id);
-      if(!h.length) return false;
-      return !h[h.length-1].correct;
-    });
-  }else if(s.mode==='unseen'){
-    pool = pool.filter(q=>!state.selectHistory.some(h=>h.qid===q.id));
-  }else if(s.mode==='bm'){
-    pool = pool.filter(q=>(state.bookmarks[q.id]||[]).length>0);
-  }else if(s.mode==='rand'){
-    if(!s._randOrder || s._randOrderPoolSig!==poolSignature(pool)){
-      pool = shuffle(pool);
-      s._randOrder = pool.map(q=>q.id);
-      s._randOrderPoolSig = poolSignature(pool);
-    }else{
-      const idMap = Object.fromEntries(pool.map(q=>[q.id,q]));
-      pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
-    }
-  }else{
-    // seq: 同一問題内は A→B→C... の順で
-    pool.sort((a,b)=>{
-      const aSet = (a.problemSetId||a.id);
-      const bSet = (b.problemSetId||b.id);
-      if(aSet!==bSet) return aSet.localeCompare(bSet);
-      return (a.blankKey||'').localeCompare(b.blankKey||'');
-    });
-  }
-  return pool;
-}
-
-function currentSelectQuestion(){
-  const pool = getSelectPool();
-  if(!pool.length) return null;
-  if(state.selectSession.currentIndex >= pool.length) state.selectSession.currentIndex = 0;
-  return pool[state.selectSession.currentIndex];
-}
-
-function selectStatTodayTotal(){return state.selectHistory.filter(h=>h.ts>=todayStart()).length}
-function selectStatTodayRate(){
-  const h = state.selectHistory.filter(x=>x.ts>=todayStart());
-  if(!h.length) return null;
-  return h.filter(x=>x.correct).length/h.length;
-}
-function selectStatAllRate(){
-  if(!state.selectHistory.length) return null;
-  return state.selectHistory.filter(h=>h.correct).length/state.selectHistory.length;
-}
-function selectQuestionStats(qid){
-  const h = state.selectHistory.filter(x=>x.qid===qid);
-  return {total:h.length, correct:h.filter(x=>x.correct).length};
-}
-
-/* 問題文中の【A】【B】等のマーカーをHTMLに変換 */
-function renderProblemText(text, currentBlank){
-  if(!text) return '';
-  // まずHTMLエスケープ
-  const escaped = escapeHtml(text);
-  // 【A】[A]の両方に対応
-  return escaped.replace(/[【\[]([A-Za-z])[】\]]/g, (m, letter) => {
-    const cls = letter === currentBlank ? 'blank-marker current' : 'blank-marker';
-    return `<span class="${cls}">${letter}</span>`;
-  });
-}
-
-function renderSelectQuiz(){
-  const card = document.getElementById('select-card');
-  const q = currentSelectQuestion();
-
-  if(!q){
-    card.innerHTML = `<div class="empty"><div class="ico">―</div>条件に合う選択式問題がありません。<br>モードや絞り込みを変えてください。</div>`;
-    return;
-  }
-
-  const pool = getSelectPool();
-  const idx = state.selectSession.currentIndex;
-  const qs = selectQuestionStats(q.id);
-  const bms = state.bookmarks[q.id]||[];
-  const answered = state.selectSession.answered;
-  const userChoice = state.selectSession.userChoice;
-  const isCorrect = answered && userChoice===q.correctIndex;
-  const choicesCount = (q.choices||[]).length;
-  const singleCol = choicesCount<=4;
-
-  card.innerHTML = `
-    <div class="meta-row">
-      <span class="pill accent">${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
-      <span class="pill">${escapeHtml(q.qno||'')}</span>
-      ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
-      <span class="pill" style="background:var(--accent);color:#fff;font-weight:700">空欄 ${escapeHtml(q.blankKey||'')}</span>
-      <span style="font-size:11px">[${idx+1}/${pool.length}]</span>
-      <div class="progress-track"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
-      ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
-    </div>
-
-    ${q.problemIntro?`<div class="problem-intro">${escapeHtml(q.problemIntro)}</div>`:''}
-
-    <div class="select-layout">
-      <div>
-        <div class="problem-text">${renderProblemText(q.problemText||'', q.blankKey)}</div>
-        <div class="choices-section">
-          <div class="choices-label">選択肢から、空欄 <strong style="color:var(--accent);margin:0 3px;font-family:'Shippori Mincho',serif">${escapeHtml(q.blankKey||'')}</strong> に当てはまる語句を選んでください</div>
-          <div class="choices-grid ${singleCol?'single-col':''}">
-            ${(q.choices||[]).map((c,i)=>{
-              let cls = 'choice-btn';
-              if(answered){
-                if(i===q.correctIndex && i===userChoice) cls += ' picked-correct';
-                else if(i===userChoice) cls += ' picked-wrong';
-                else if(i===q.correctIndex) cls += ' show-correct';
-                else cls += ' dim';
-              }
-              return `<button class="${cls}" data-idx="${i}" ${answered?'disabled':''}>
-                <span class="num">${i+1}</span>
-                <span>${escapeHtml(c)}</span>
-              </button>`;
-            }).join('')}
-          </div>
-        </div>
-      </div>
-
-      ${q.point?`<div class="point-aside">
-        <div class="point-title"><span class="blank-tag">${escapeHtml(q.blankKey||'')}</span>解き方のポイント</div>
-        <div class="point-body">${escapeHtml(q.point).replace(/\n/g,'<br>')}</div>
-      </div>`:'<div></div>'}
-    </div>
-
-    <div class="nav-row">
-      <button class="btn-nav" id="select-btn-prev" ${idx===0?'disabled':''}>← 前へ</button>
-      <button class="btn-nav" id="select-btn-next">次へ →</button>
-    </div>
-
-    ${answered ? renderSelectResult(q, isCorrect) : ''}
-
-    <div class="bookmark-row">
-      <span class="lbl">FUSEN</span>
-      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
-      <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
-    </div>
-  `;
-
-  // Wire up
-  card.querySelectorAll('.choice-btn').forEach(b=>{
-    if(!b.disabled) b.addEventListener('click',()=>answerSelectQuestion(parseInt(b.dataset.idx,10)));
-  });
-  document.getElementById('select-btn-prev').addEventListener('click',()=>navSelect(-1));
-  document.getElementById('select-btn-next').addEventListener('click',()=>navSelect(1));
-  card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBmSelect(q.id,b.dataset.bm)));
-
-  renderSelectSidebar();
-}
-
-function renderSelectResult(q, isCorrect){
-  const correctText = (q.choices && q.choices[q.correctIndex]) || '';
-  return `
-    <div class="result">
-      <div class="verdict ${isCorrect?'correct':'wrong'}">
-        <span class="mark">${isCorrect?'○':'×'}</span>
-        ${isCorrect?'正解しました!':'不正解です'}
-        <span style="font-size:12px;color:var(--ink-muted);font-weight:400;margin-left:auto">正解: ${q.correctIndex+1}番</span>
-      </div>
-      <div class="section-h">正解</div>
-      <div class="section-body"><strong>(${q.correctIndex+1})</strong>　${escapeHtml(correctText)}</div>
-      ${q.explanation?`<div class="section-h">解説</div><div class="section-body">${escapeHtml(q.explanation).replace(/\n/g,'<br>')}</div>`:''}
-      <div class="section-h">出題根拠・出典</div>
-      <div class="section-body dim">
-        ${escapeHtml(q.legalBasis||'—')}${q.pageRef?'　／　'+escapeHtml(q.pageRef):''}　／　レベル ${escapeHtml(q.difficulty||'—')}
-      </div>
-    </div>
-  `;
-}
-
-function answerSelectQuestion(choiceIdx){
-  const q = currentSelectQuestion();
-  if(!q || state.selectSession.answered) return;
-  const correct = choiceIdx===q.correctIndex;
-  state.selectHistory.push({qid:q.id, ts:Date.now(), userChoice:choiceIdx, correct});
-  state.selectSession.answered = true;
-  state.selectSession.userChoice = choiceIdx;
-  saveState();
-  renderSelectQuiz();
-}
-
-function navSelect(dir){
-  const pool = getSelectPool();
-  if(!pool.length) return;
-  state.selectSession.currentIndex = (state.selectSession.currentIndex + dir + pool.length) % pool.length;
-  state.selectSession.answered = false;
-  state.selectSession.userChoice = null;
-  saveState();
-  renderSelectQuiz();
-}
-
-function toggleBmSelect(qid, color){
-  state.bookmarks[qid] ||= [];
-  const i = state.bookmarks[qid].indexOf(color);
-  if(i>=0) state.bookmarks[qid].splice(i,1);
-  else state.bookmarks[qid].push(color);
-  if(!state.bookmarks[qid].length) delete state.bookmarks[qid];
-  saveState();
-  renderSelectQuiz();
-}
-
-function renderSelectSidebar(){
-  document.getElementById('select-stat-today-total').textContent = selectStatTodayTotal();
-  const tr = selectStatTodayRate();
-  document.getElementById('select-stat-today-rate').textContent = tr===null?'—':Math.round(tr*100)+'%';
-  document.getElementById('select-stat-all-total').textContent = state.selectHistory.length;
-  const ar = selectStatAllRate();
-  document.getElementById('select-stat-all-rate').textContent = ar===null?'—':Math.round(ar*100)+'%';
-  document.getElementById('select-stat-q-count').textContent = state.selectQuestions.length;
-
-  // Mode counts
-  const oldIdx = state.selectSession.currentIndex, oldMode = state.selectSession.mode;
-  for(const m of ['seq','rand','weak','unseen','bm']){
-    state.selectSession.mode = m;
-    document.getElementById('select-mc-'+m).textContent = '('+getSelectPool().length+')';
-  }
-  state.selectSession.mode = oldMode;
-  state.selectSession.currentIndex = oldIdx;
-
-  // Mode buttons
-  document.querySelectorAll('.select-mode-btn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.mode===state.selectSession.mode);
-  });
-
-  // Filter selects
-  const laws = [...new Set(state.selectQuestions.map(q=>q.law))].sort();
-  const years = [...new Set(state.selectQuestions.map(q=>q.year))].sort();
-  let catSource = state.selectQuestions;
-  if(state.selectSession.filterLaw) catSource = catSource.filter(q=>q.law===state.selectSession.filterLaw);
-  const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
-  fillSelect('select-filter-law',laws,state.selectSession.filterLaw);
-  fillSelect('select-filter-cat',cats,state.selectSession.filterCat);
-  fillSelect('select-filter-year',years,state.selectSession.filterYear);
-  document.getElementById('select-filter-bm').value = state.selectSession.filterBm;
-}
-
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   document.getElementById('view-quiz').style.display = name==='quiz'?'block':'none';
   document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
-  document.getElementById('view-select').style.display = name==='select'?'block':'none';
-  document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
+  document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
   document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
   document.getElementById('view-data').style.display = name==='data'?'block':'none';
   if(name==='manage') renderManage();
   if(name==='quiz') renderQuiz();
-  if(name==='select') renderSelectQuiz();
+  if(name==='progress') renderProgress();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== Progress view ===== */
+function renderProgress(){
+  const root = document.getElementById('progress-content');
+  let html = `<div class="card progress-intro">
+    <h2 class="prog-h2">進捗管理 <span class="prog-sub">フレーム別演習の達成状況</span></h2>
+    <p class="prog-desc">各フレームの右にある「演習開始」ボタンから、フレーム単位で問題演習をスタートできます。フレーム内の全問題を解き終えると1回分が完了となり、最大10回まで記録されます。<br><span style="color:var(--ink-muted)">※「問題演習」タブから絞り込み・ランダム出題などで個別に解いた解答は、ここの進捗には反映されません(フレーム演習モードで解いたもののみ対象です)。</span></p>
+  </div>`;
+
+  for(const law of SUBJECTS_ORDER){
+    const frames = FRAMES[law] || [];
+    if(!frames.length) continue;
+    html += `<div class="card prog-chapter">
+      <h3 class="prog-law">${escapeHtml(law)}</h3>
+      <div class="prog-frames">`;
+    for(const fr of frames){
+      const qs = state.questions.filter(q=>q.law===law && q.frameNo===fr.n);
+      const total = qs.length;
+      const k = frameKey(law, fr.n);
+      const fa = state.frameAttempts[k] || {history:[], current:null};
+      const completed = fa.history.length;
+      const cur = fa.current;
+      // 10個のスロット表示
+      let slots = '';
+      for(let i=0;i<10;i++){
+        if(i < fa.history.length){
+          const att = fa.history[i];
+          const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+          slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
+        }else if(i === fa.history.length && cur){
+          const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
+          slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
+        }else{
+          slots += `<div class="slot empty"><span class="slot-n">${i+1}</span></div>`;
+        }
+      }
+      // ステータステキスト
+      let status = '';
+      if(total===0){
+        status = `<span class="prog-status empty">問題未登録</span>`;
+      }else if(cur){
+        const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+        status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
+      }else if(completed){
+        const lastAtt = fa.history[fa.history.length-1];
+        const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+        status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
+      }else{
+        status = `<span class="prog-status">未着手 (${total}問登録)</span>`;
+      }
+      // アクションボタン
+      let btn = '';
+      if(total===0){
+        btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
+      }else if(cur){
+        btn = `<button class="btn btn-sm" data-law="${escapeHtml(law)}" data-fno="${fr.n}" data-act="resume">演習を再開</button>`;
+      }else{
+        btn = `<button class="btn btn-sm" data-law="${escapeHtml(law)}" data-fno="${fr.n}" data-act="start">演習開始</button>`;
+      }
+      html += `<div class="prog-frame">
+        <div class="pf-head">
+          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
+          ${btn}
+        </div>
+        <div class="pf-slots">${slots}</div>
+        <div class="pf-status">${status}</div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  root.innerHTML = html;
+  // ボタンのイベント
+  root.querySelectorAll('button[data-act]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const law = b.dataset.law;
+      const fno = parseInt(b.dataset.fno, 10);
+      startFrameAttempt(law, fno);
+    });
+  });
 }
 
 /* ===== Wire up ===== */
@@ -1686,8 +1549,8 @@ function init(){
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 
-  // Mode buttons (択一のみ)
-  document.querySelectorAll('.mode-btn:not(.select-mode-btn)').forEach(b=>b.addEventListener('click',()=>{
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
     state.session.mode = b.dataset.mode;
     state.session.currentIndex = 0;
     state.session.answered = false;
@@ -1699,10 +1562,24 @@ function init(){
   // Filters
   document.getElementById('filter-law').addEventListener('change',e=>{
     state.session.filterLaw = e.target.value;
-    // 法律を切り替えた時、現在のカテゴリがその法律に存在しなければクリア
+    // 法律切り替え時、現在のフレーム/カテゴリがその法律に存在しなければクリア
+    if(state.session.filterFrame){
+      const avail = state.questions.filter(q=>!state.session.filterLaw||q.law===state.session.filterLaw).map(q=>q.frameNo);
+      if(!avail.includes(parseInt(state.session.filterFrame,10))) state.session.filterFrame='';
+    }
     if(state.session.filterCat){
       const available = state.questions.filter(q=>!state.session.filterLaw||q.law===state.session.filterLaw).map(q=>q.category);
       if(!available.includes(state.session.filterCat)) state.session.filterCat='';
+    }
+    state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+  document.getElementById('filter-frame').addEventListener('change',e=>{
+    state.session.filterFrame = e.target.value;
+    // フレーム切り替え時、現在のカテゴリがそのフレームに存在しなければクリア
+    if(state.session.filterCat && state.session.filterFrame){
+      const fn = parseInt(state.session.filterFrame,10);
+      const avail = state.questions.filter(q=>(!state.session.filterLaw||q.law===state.session.filterLaw)&&q.frameNo===fn).map(q=>q.category);
+      if(!avail.includes(state.session.filterCat)) state.session.filterCat='';
     }
     state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
   });
@@ -1714,35 +1591,6 @@ function init(){
   });
   document.getElementById('filter-bm').addEventListener('change',e=>{
     state.session.filterBm = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
-  });
-
-  // ===== Select tab: mode buttons =====
-  document.querySelectorAll('.select-mode-btn').forEach(b=>b.addEventListener('click',()=>{
-    state.selectSession.mode = b.dataset.mode;
-    state.selectSession.currentIndex = 0;
-    state.selectSession.answered = false;
-    state.selectSession.userChoice = null;
-    saveState();
-    renderSelectQuiz();
-  }));
-
-  // ===== Select tab: filters =====
-  document.getElementById('select-filter-law').addEventListener('change',e=>{
-    state.selectSession.filterLaw = e.target.value;
-    if(state.selectSession.filterCat){
-      const available = state.selectQuestions.filter(q=>!state.selectSession.filterLaw||q.law===state.selectSession.filterLaw).map(q=>q.category);
-      if(!available.includes(state.selectSession.filterCat)) state.selectSession.filterCat='';
-    }
-    state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
-  });
-  document.getElementById('select-filter-cat').addEventListener('change',e=>{
-    state.selectSession.filterCat = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
-  });
-  document.getElementById('select-filter-year').addEventListener('change',e=>{
-    state.selectSession.filterYear = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
-  });
-  document.getElementById('select-filter-bm').addEventListener('change',e=>{
-    state.selectSession.filterBm = e.target.value;state.selectSession.currentIndex=0;state.selectSession.answered=false;saveState();renderSelectQuiz();
   });
 
   // Manage
