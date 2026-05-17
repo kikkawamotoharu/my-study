@@ -500,6 +500,10 @@
         <select id="filter-law"><option value="">すべて</option></select>
       </div>
       <div class="field-group">
+        <label class="field">カテゴリ</label>
+        <select id="filter-cat"><option value="">すべて</option></select>
+      </div>
+      <div class="field-group">
         <label class="field">年度</label>
         <select id="filter-year"><option value="">すべて</option></select>
       </div>
@@ -710,9 +714,10 @@ function loadState(){
       }
       s.history ||= [];
       s.bookmarks ||= {};
-      s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:''};
+      s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:''};
       s.session.answered ||= false;
       s.session.userAnswer ??= null;
+      s.session.filterCat ??= '';
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -720,7 +725,7 @@ function loadState(){
     questions: SAMPLE_QUESTIONS.slice(),
     history: [],
     bookmarks: {},
-    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null}
+    session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',answered:false,userAnswer:null}
   };
 }
 function saveState(){
@@ -733,6 +738,7 @@ function getPool(){
   let pool = state.questions.slice();
   const s = state.session;
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
+  if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
   if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
   if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
 
@@ -934,7 +940,12 @@ function renderSidebar(){
   // Filter selects
   const laws = [...new Set(state.questions.map(q=>q.law))].sort();
   const years = [...new Set(state.questions.map(q=>q.year))].sort();
+  // カテゴリは現在の法律フィルタを考慮して絞る(法律=すべての場合は全カテゴリ)
+  let catSource = state.questions;
+  if(state.session.filterLaw) catSource = catSource.filter(q=>q.law===state.session.filterLaw);
+  const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
   fillSelect('filter-law',laws,state.session.filterLaw);
+  fillSelect('filter-cat',cats,state.session.filterCat);
   fillSelect('filter-year',years,state.session.filterYear);
   document.getElementById('filter-bm').value = state.session.filterBm;
 }
@@ -1127,7 +1138,16 @@ function init(){
 
   // Filters
   document.getElementById('filter-law').addEventListener('change',e=>{
-    state.session.filterLaw = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+    state.session.filterLaw = e.target.value;
+    // 法律を切り替えた時、現在のカテゴリがその法律に存在しなければクリア
+    if(state.session.filterCat){
+      const available = state.questions.filter(q=>!state.session.filterLaw||q.law===state.session.filterLaw).map(q=>q.category);
+      if(!available.includes(state.session.filterCat)) state.session.filterCat='';
+    }
+    state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
+  });
+  document.getElementById('filter-cat').addEventListener('change',e=>{
+    state.session.filterCat = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
   });
   document.getElementById('filter-year').addEventListener('change',e=>{
     state.session.filterYear = e.target.value;state.session.currentIndex=0;state.session.answered=false;saveState();renderQuiz();
