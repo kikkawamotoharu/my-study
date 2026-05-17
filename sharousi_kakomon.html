@@ -409,6 +409,91 @@
   .prog-status.empty{color:var(--ink-muted);opacity:.6;font-style:italic}
   .btn-sm{font-size:12px;padding:7px 14px;border-radius:5px}
 
+  /* ===== Weak problems view (弱点問題) ===== */
+  .weak-intro{margin-bottom:14px}
+  .weak-h2{
+    font-family:'Shippori Mincho',serif;font-size:20px;font-weight:700;
+    color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:12px;
+  }
+  .weak-sub{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em}
+  .weak-filters{
+    background:var(--bg);border:1px solid var(--line);border-radius:6px;
+    padding:14px 18px;display:flex;flex-direction:column;gap:10px;
+  }
+  .weak-filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+  .weak-filter-row label{
+    flex:0 0 80px;font-family:'Shippori Mincho',serif;font-weight:500;
+    color:var(--ink);font-size:13px;
+  }
+  .weak-filter-row input[type="number"],
+  .weak-filter-row input[type="date"],
+  .weak-filter-row select{
+    padding:6px 10px;border:1px solid var(--line);border-radius:4px;
+    font:inherit;font-size:13px;background:var(--paper);color:var(--ink);
+    font-family:inherit;
+  }
+  .weak-filter-row input[type="number"]{width:64px}
+  .weak-filter-row .tilde{color:var(--ink-muted);font-size:12px}
+  .weak-filter-row .btn-mini{
+    padding:5px 12px;font-size:12px;border-radius:4px;
+    background:var(--paper);border:1px solid var(--line);
+    color:var(--ink-soft);cursor:pointer;
+  }
+  .weak-filter-row .btn-mini:hover{background:var(--line-soft);color:var(--ink)}
+
+  .weak-summary{
+    padding:12px 18px;background:var(--bg);
+    border:1px solid var(--line);border-radius:6px;
+    display:flex;justify-content:space-between;align-items:center;
+    margin:14px 0;font-size:13px;flex-wrap:wrap;gap:10px;
+  }
+  .weak-summary .count{
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    color:var(--accent);font-size:15px;
+  }
+  .weak-summary .count b{font-size:20px;margin:0 3px}
+  .weak-pos{
+    font-family:'Noto Sans JP',sans-serif;font-size:12px;
+    color:var(--ink-muted);font-variant-numeric:tabular-nums;
+  }
+
+  .weak-empty{
+    padding:50px 24px;text-align:center;color:var(--ink-muted);
+    font-size:13px;background:var(--bg);border-radius:6px;
+  }
+  .weak-empty .ico{font-size:36px;color:var(--line);margin-bottom:8px}
+
+  /* 弱点バッジ・パターン表示 */
+  .weak-badge{
+    background:var(--accent);color:#fff;font-size:10px;font-weight:600;
+    padding:3px 10px;border-radius:99px;letter-spacing:.1em;
+    display:inline-flex;align-items:center;flex-shrink:0;
+  }
+  .miss-count{
+    background:#FFEEEE;color:var(--accent);font-size:11px;font-weight:600;
+    padding:2px 9px;border-radius:99px;border:1px solid #F5C0BB;
+    font-variant-numeric:tabular-nums;
+  }
+  .miss-pattern{
+    font-family:'Courier New',monospace;font-size:12px;
+    letter-spacing:.15em;background:var(--line-soft);
+    padding:3px 9px;border-radius:4px;line-height:1;
+    display:inline-block;font-weight:600;
+  }
+  .miss-pattern .o{color:var(--green)}
+  .miss-pattern .x{color:var(--accent)}
+
+  /* Mobile */
+  @media(max-width:640px){
+    .weak-filters{padding:12px}
+    .weak-filter-row{gap:6px}
+    .weak-filter-row label{flex:0 0 100%;margin-bottom:-4px}
+    .weak-filter-row input[type="number"]{width:60px}
+    .weak-filter-row input[type="date"]{flex:1;min-width:130px}
+    .weak-filter-row select{flex:1;min-width:140px}
+    .weak-summary{padding:10px 14px;flex-direction:column;align-items:flex-start}
+  }
+
   /* ===== Select question (選択式) ===== */
   .select-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;margin:18px 0}
   .problem-intro{
@@ -529,14 +614,15 @@
     .brand .seal{width:30px;height:30px;font-size:15px}
     .brand .sub{display:none}
 
-    /* Tabs: full-width 5-col, big touch targets */
+    /* Tabs: full-width 6-col, big touch targets */
     nav.tabs{
-      display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+      display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
       background:var(--line-soft);padding:3px;border-radius:8px;
     }
     nav.tabs button{
-      font-size:11.5px;padding:11px 1px;border-radius:6px;
+      font-size:10.5px;padding:11px 0;border-radius:6px;
       border-bottom:none;color:var(--ink-soft);min-height:44px;
+      letter-spacing:0;
     }
     nav.tabs button.active{
       background:var(--paper);color:var(--accent);font-weight:500;
@@ -672,6 +758,7 @@
     <nav class="tabs">
       <button class="tab-btn active" data-tab="quiz">択一</button>
       <button class="tab-btn" data-tab="select">選択式</button>
+      <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="progress">進捗管理</button>
       <button class="tab-btn" data-tab="manage">問題管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
@@ -805,6 +892,11 @@
       </div>
     </div>
   </aside>
+
+  <!-- ===== WEAK VIEW (弱点問題) ===== -->
+  <main id="view-weak" style="display:none;grid-column:1/-1">
+    <div id="weak-content"></div>
+  </main>
 
   <!-- ===== PROGRESS VIEW ===== -->
   <main id="view-progress" style="display:none;grid-column:1/-1">
@@ -1239,6 +1331,10 @@ function loadState(){
       s.selectSession.answered ||= false;
       s.selectSession.userChoice ??= null;
       s.selectSession.filterCat ??= '';
+      // 弱点問題の追加 (後方互換)
+      s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
+      s.weakSession.answered ||= false;
+      s.weakSession.userAnswer ??= null;
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -1277,7 +1373,8 @@ function loadState(){
     session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null},
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
     selectHistory: [],
-    selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null}
+    selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null},
+    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null}
   };
 }
 function saveState(){
@@ -2087,14 +2184,306 @@ function switchTab(name){
   document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
   document.getElementById('view-select').style.display = name==='select'?'block':'none';
   document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
+  document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
   document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
   document.getElementById('view-data').style.display = name==='data'?'block':'none';
   if(name==='manage') renderManage();
   if(name==='quiz') renderQuiz();
   if(name==='select') renderSelectQuiz();
+  if(name==='weak') renderWeak();
   if(name==='progress') renderProgress();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== Weak problems view (弱点問題) ===== */
+function getMistakePattern(qid){
+  const h = state.history.filter(x=>x.qid===qid).sort((a,b)=>a.ts-b.ts);
+  return h.map(x=>x.correct?'o':'x').join('');
+}
+function getMistakeCount(qid){
+  return state.history.filter(x=>x.qid===qid && !x.correct).length;
+}
+function getLastMistakeDate(qid){
+  const m = state.history.filter(x=>x.qid===qid && !x.correct);
+  if(!m.length) return null;
+  return Math.max(...m.map(x=>x.ts));
+}
+function parseQnoForSort(qno){
+  if(!qno) return [9999, ''];
+  const m = String(qno).match(/問\s*(\d+)/);
+  return [m ? parseInt(m[1],10) : 9999, String(qno)];
+}
+function getWeakPool(){
+  const s = state.weakSession;
+  // ミスのある問題のみ抽出
+  let pool = state.questions.filter(q => getMistakeCount(q.id) > 0);
+  // ミス回数フィルタ
+  pool = pool.filter(q=>{
+    const c = getMistakeCount(q.id);
+    return c >= (s.missMin||1) && c <= (s.missMax||999);
+  });
+  // 解答日範囲フィルタ
+  if(s.dateFrom){
+    const t = new Date(s.dateFrom).getTime();
+    pool = pool.filter(q=>{
+      const d = getLastMistakeDate(q.id);
+      return d!==null && d >= t;
+    });
+  }
+  if(s.dateTo){
+    const t = new Date(s.dateTo).getTime() + 86400000; // end of day
+    pool = pool.filter(q=>{
+      const d = getLastMistakeDate(q.id);
+      return d!==null && d <= t;
+    });
+  }
+  // 科目フィルタ
+  if(s.subject){
+    pool = pool.filter(q=>lawToSubject(q.law)===s.subject);
+  }
+  // ソート
+  const sort = s.sortBy || 'count-desc';
+  if(sort==='count-desc' || sort==='count-asc'){
+    pool.sort((a,b)=>{
+      const ca = getMistakeCount(a.id), cb = getMistakeCount(b.id);
+      return sort==='count-desc' ? cb-ca : ca-cb;
+    });
+  }else if(sort==='date-desc' || sort==='date-asc'){
+    pool.sort((a,b)=>{
+      const da = getLastMistakeDate(a.id)||0, db = getLastMistakeDate(b.id)||0;
+      return sort==='date-desc' ? db-da : da-db;
+    });
+  }else if(sort==='range'){
+    // 範囲順:科目→フレーム→問題番号
+    pool.sort((a,b)=>{
+      const sa = SUBJECTS_ORDER.indexOf(lawToSubject(a.law));
+      const sb = SUBJECTS_ORDER.indexOf(lawToSubject(b.law));
+      if(sa!==sb) return (sa<0?999:sa) - (sb<0?999:sb);
+      const fa = a.frameNo==null ? 999 : a.frameNo;
+      const fb = b.frameNo==null ? 999 : b.frameNo;
+      if(fa!==fb) return fa-fb;
+      const [qa,sqa] = parseQnoForSort(a.qno);
+      const [qb,sqb] = parseQnoForSort(b.qno);
+      if(qa!==qb) return qa-qb;
+      return sqa.localeCompare(sqb);
+    });
+  }
+  return pool;
+}
+
+function currentWeakQuestion(){
+  const pool = getWeakPool();
+  if(!pool.length) return null;
+  if(state.weakSession.currentIndex >= pool.length) state.weakSession.currentIndex = 0;
+  return pool[state.weakSession.currentIndex];
+}
+
+function renderWeak(){
+  const root = document.getElementById('weak-content');
+  const s = state.weakSession;
+  // 科目選択肢
+  const subjects = SUBJECTS_ORDER.filter(subj=>{
+    return state.questions.some(q=>lawToSubject(q.law)===subj);
+  });
+  const subjectOptions = '<option value="">すべて</option>' +
+    subjects.map(subj=>`<option value="${escapeHtml(subj)}" ${s.subject===subj?'selected':''}>${escapeHtml(subj)}</option>`).join('');
+  // フィルタUI
+  let html = `<div class="card weak-intro">
+    <h2 class="weak-h2">弱点問題 <span class="weak-sub">ミスした問題を集中復習</span></h2>
+    <div class="weak-filters">
+      <div class="weak-filter-row">
+        <label>ミス回数</label>
+        <input type="number" id="w-miss-min" min="1" value="${s.missMin||1}">
+        <span class="tilde">〜</span>
+        <input type="number" id="w-miss-max" min="1" value="${s.missMax||99}">
+        <span style="font-size:11px;color:var(--ink-muted)">回</span>
+      </div>
+      <div class="weak-filter-row">
+        <label>解答日</label>
+        <input type="date" id="w-date-from" value="${s.dateFrom||''}">
+        <span class="tilde">〜</span>
+        <input type="date" id="w-date-to" value="${s.dateTo||''}">
+      </div>
+      <div class="weak-filter-row">
+        <label>科目</label>
+        <select id="w-subject">${subjectOptions}</select>
+      </div>
+      <div class="weak-filter-row">
+        <label>並び順</label>
+        <select id="w-sort">
+          <option value="count-desc" ${s.sortBy==='count-desc'?'selected':''}>ミス回数 (多い順)</option>
+          <option value="count-asc" ${s.sortBy==='count-asc'?'selected':''}>ミス回数 (少ない順)</option>
+          <option value="range" ${s.sortBy==='range'?'selected':''}>範囲順 (科目→フレーム→番号)</option>
+          <option value="date-desc" ${s.sortBy==='date-desc'?'selected':''}>日付順 (最新が先)</option>
+          <option value="date-asc" ${s.sortBy==='date-asc'?'selected':''}>日付順 (古いのが先)</option>
+        </select>
+        <button class="btn-mini" id="w-reset">フィルタ初期化</button>
+      </div>
+    </div>
+  </div>`;
+
+  // 検索結果サマリ
+  const pool = getWeakPool();
+  if(!pool.length){
+    html += `<div class="weak-empty"><div class="ico">―</div>条件に合う問題がありません。<br>ミス回数や日付範囲、科目を変えてみてください。</div>`;
+    root.innerHTML = html;
+    wireWeakFilters();
+    return;
+  }
+  const idx = state.weakSession.currentIndex;
+  const q = pool[idx];
+  html += `<div class="weak-summary">
+    <div>検索結果: <span class="count"><b>${pool.length}</b>件</span></div>
+    <div class="weak-pos">現在 ${idx+1} / ${pool.length} 問目</div>
+  </div>`;
+
+  // 問題詳細(択一と同じ形式)
+  const qs = questionStats(q.id);
+  const bms = state.bookmarks[q.id]||[];
+  const answered = state.weakSession.answered;
+  const userAns = state.weakSession.userAnswer;
+  const correct = answered && userAns===q.answer;
+  const missCount = getMistakeCount(q.id);
+  const pattern = getMistakePattern(q.id);
+  const lastDate = getLastMistakeDate(q.id);
+  const lastDateStr = lastDate ? new Date(lastDate).toLocaleDateString('ja-JP') : '-';
+
+  html += `<div class="card">
+    <div class="meta-row">
+      <span class="weak-badge">弱点</span>
+      <span class="pill accent">${escapeHtml(q.year||'')} ${escapeHtml(q.law||'')}</span>
+      ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
+      <span class="pill">${escapeHtml(q.qno||'')}</span>
+      ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
+      <span class="miss-count">ミス${missCount}回</span>
+      <span class="miss-pattern">${pattern.split('').map(c=>c==='o'?'<span class="o">○</span>':'<span class="x">×</span>').join('')}</span>
+      <span style="font-size:10px;color:var(--ink-muted);margin-left:6px">最終誤答 ${lastDateStr}</span>
+      ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}%</span>`:''}
+    </div>
+    <div class="problem">${escapeHtml(q.text||'').replace(/\n/g,'<br>')}</div>
+    <div class="answers">
+      <button class="ans-btn ans-o ${answered&&userAns===true?'picked':''} ${answered&&q.answer===true?'reveal':''}" data-ans="true" ${answered?'disabled':''}>
+        <span class="mark">○</span><span class="lbl">正</span><span class="ratio">${qs.total?(state.history.filter(h=>h.qid===q.id&&h.userAns===true&&h.correct).length+' / '+state.history.filter(h=>h.qid===q.id&&h.userAns===true).length):'0 / 0'}</span>
+      </button>
+      <button class="ans-btn ans-x ${answered&&userAns===false?'picked':''} ${answered&&q.answer===false?'reveal':''}" data-ans="false" ${answered?'disabled':''}>
+        <span class="mark">×</span><span class="lbl">誤</span><span class="ratio">${qs.total?(state.history.filter(h=>h.qid===q.id&&h.userAns===false&&h.correct).length+' / '+state.history.filter(h=>h.qid===q.id&&h.userAns===false).length):'0 / 0'}</span>
+      </button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-nav" id="w-prev" ${idx===0?'disabled':''}>← 前へ</button>
+      <button class="btn-nav" id="w-next" ${idx===pool.length-1?'disabled':''}>次へ →</button>
+    </div>
+    ${answered?renderWeakResult(q,correct):''}
+    <div class="bookmark-row">
+      <span class="lbl">FUSEN</span>
+      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
+      <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
+    </div>
+  </div>`;
+
+  root.innerHTML = html;
+  wireWeakFilters();
+  // 答え・ナビ
+  root.querySelectorAll('.ans-btn').forEach(b=>{
+    if(!b.disabled) b.addEventListener('click',()=>answerWeakQuestion(b.dataset.ans==='true'));
+  });
+  const prev = document.getElementById('w-prev');
+  const next = document.getElementById('w-next');
+  if(prev) prev.addEventListener('click',()=>navWeak(-1));
+  if(next) next.addEventListener('click',()=>navWeak(1));
+  // ふせん
+  root.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBmWeak(q.id,b.dataset.bm)));
+  // 条文等トグル
+  const artBtn = root.querySelector('.article-toggle');
+  if(artBtn) artBtn.addEventListener('click',()=>{
+    const box = root.querySelector('.article-box');
+    box.style.display = box.style.display==='none' ? 'block' : 'none';
+    artBtn.textContent = box.style.display==='none' ? '>> 条文等を表示' : '>> 条文等を隠す';
+  });
+}
+
+function renderWeakResult(q, correct){
+  return `
+    <div class="result">
+      <div class="verdict ${correct?'correct':'wrong'}">
+        <span class="mark">${correct?'○':'×'}</span>
+        ${correct?'正解しました!':'不正解です'}
+        <span style="font-size:12px;color:var(--ink-muted);font-weight:400;margin-left:auto">正解: ${q.answer?'○':'×'}</span>
+      </div>
+      ${q.point?`<div class="section-h">ポイント</div><div class="section-body"><strong>${escapeHtml(q.point)}</strong></div>`:''}
+      ${q.explanation?`<div class="section-h">解説</div><div class="section-body">${escapeHtml(q.explanation).replace(/\n/g,'<br>')}</div>`:''}
+      <div class="section-h">出題根拠</div>
+      <div class="section-body">${escapeHtml(q.legalBasis||'—')}　／　難易度 ${escapeHtml(q.difficulty||'—')}</div>
+      ${q.articleText?`<button class="article-toggle">>> 条文等を表示</button><div class="article-box" style="display:none">${escapeHtml(q.articleText).replace(/\n/g,'<br>')}</div>`:''}
+    </div>
+  `;
+}
+
+function answerWeakQuestion(userAns){
+  const q = currentWeakQuestion();
+  if(!q || state.weakSession.answered) return;
+  const correct = userAns===q.answer;
+  state.history.push({qid:q.id,ts:Date.now(),userAns,correct});
+  state.weakSession.answered = true;
+  state.weakSession.userAnswer = userAns;
+  // 答えた後、ソート順で問題の位置が変わる可能性があるので、同じ問題を表示し続けるよう再計算
+  const newPool = getWeakPool();
+  const newIdx = newPool.findIndex(x=>x.id===q.id);
+  if(newIdx >= 0) state.weakSession.currentIndex = newIdx;
+  saveState();
+  renderWeak();
+}
+
+function navWeak(dir){
+  const pool = getWeakPool();
+  if(!pool.length) return;
+  const next = state.weakSession.currentIndex + dir;
+  if(next<0 || next>=pool.length) return;
+  state.weakSession.currentIndex = next;
+  state.weakSession.answered = false;
+  state.weakSession.userAnswer = null;
+  saveState();
+  renderWeak();
+}
+
+function toggleBmWeak(qid,color){
+  state.bookmarks[qid] ||= [];
+  const i = state.bookmarks[qid].indexOf(color);
+  if(i>=0) state.bookmarks[qid].splice(i,1);
+  else state.bookmarks[qid].push(color);
+  if(!state.bookmarks[qid].length) delete state.bookmarks[qid];
+  saveState();
+  renderWeak();
+}
+
+function wireWeakFilters(){
+  const onChange = (key, parseFn=String) => e=>{
+    state.weakSession[key] = parseFn(e.target.value);
+    state.weakSession.currentIndex = 0;
+    state.weakSession.answered = false;
+    saveState();
+    renderWeak();
+  };
+  const el1 = document.getElementById('w-miss-min'); if(el1) el1.addEventListener('change', onChange('missMin', v=>parseInt(v,10)||1));
+  const el2 = document.getElementById('w-miss-max'); if(el2) el2.addEventListener('change', onChange('missMax', v=>parseInt(v,10)||99));
+  const el3 = document.getElementById('w-date-from'); if(el3) el3.addEventListener('change', onChange('dateFrom'));
+  const el4 = document.getElementById('w-date-to'); if(el4) el4.addEventListener('change', onChange('dateTo'));
+  const el5 = document.getElementById('w-subject'); if(el5) el5.addEventListener('change', onChange('subject'));
+  const el6 = document.getElementById('w-sort'); if(el6) el6.addEventListener('change', onChange('sortBy'));
+  const reset = document.getElementById('w-reset');
+  if(reset) reset.addEventListener('click',()=>{
+    state.weakSession.missMin=1;
+    state.weakSession.missMax=99;
+    state.weakSession.dateFrom='';
+    state.weakSession.dateTo='';
+    state.weakSession.subject='';
+    state.weakSession.sortBy='count-desc';
+    state.weakSession.currentIndex=0;
+    state.weakSession.answered=false;
+    saveState();
+    renderWeak();
+  });
 }
 
 /* ===== Progress view ===== */
