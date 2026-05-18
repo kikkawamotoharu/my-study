@@ -460,6 +460,200 @@
     .sc-arrow{font-size:18px}
   }
 
+  /* ===== Figures view (図表) ===== */
+  .fig-intro{margin-bottom:14px}
+  .fig-h2{
+    font-family:'Shippori Mincho',serif;font-size:20px;font-weight:700;
+    color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:12px;
+  }
+  .fig-sub{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em}
+  .fig-toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    padding:14px 18px;background:var(--bg);
+    border:1px solid var(--line);border-radius:6px;margin-bottom:14px;
+  }
+  .fig-toolbar select{
+    padding:6px 10px;border:1px solid var(--line);border-radius:4px;
+    font:inherit;font-size:13px;background:var(--paper);color:var(--ink);
+  }
+  .fig-toolbar .upload-btn{
+    background:var(--indigo);color:#fff;border:none;
+    padding:8px 16px;border-radius:5px;font-family:inherit;font-size:13px;
+    font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+    transition:all .12s;
+  }
+  .fig-toolbar .upload-btn:hover{background:#1a2466;transform:translateY(-1px)}
+  .fig-toolbar .upload-status{font-size:11.5px;color:var(--ink-muted);margin-left:auto}
+
+  .fig-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:14px;
+  }
+  .fig-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;
+    overflow:hidden;cursor:pointer;transition:all .15s;
+    display:flex;flex-direction:column;
+  }
+  .fig-card:hover{border-color:var(--ink-muted);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .fig-card-img{
+    width:100%;aspect-ratio:4/3;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .fig-card-img img{
+    width:100%;height:100%;object-fit:contain;display:block;
+  }
+  .fig-card-body{padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:6px}
+  .fig-card-title{
+    font-family:'Shippori Mincho',serif;font-weight:600;font-size:13.5px;
+    color:var(--ink);line-height:1.4;
+  }
+  .fig-card-meta{display:flex;gap:5px;flex-wrap:wrap}
+  .fig-card-meta .pill{
+    font-size:10.5px;padding:1px 7px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-soft);
+  }
+  .fig-card-actions{
+    display:flex;gap:6px;justify-content:flex-end;
+    padding:8px 12px;border-top:1px solid var(--line);background:var(--bg);
+  }
+  .fig-card-actions button{
+    background:transparent;border:1px solid var(--line);
+    padding:4px 9px;font-size:11px;border-radius:4px;cursor:pointer;
+    color:var(--ink-soft);font-family:inherit;transition:all .12s;
+  }
+  .fig-card-actions button:hover{background:var(--paper);color:var(--ink);border-color:var(--ink-muted)}
+  .fig-card-actions .del:hover{color:var(--accent);border-color:var(--accent)}
+
+  .fig-empty{
+    padding:50px 24px;text-align:center;color:var(--ink-muted);
+    font-size:13px;background:var(--bg);border-radius:6px;
+  }
+  .fig-empty .ico{font-size:36px;color:var(--line);margin-bottom:8px}
+  .fig-empty .hint{margin-top:14px;font-size:12px;line-height:1.7}
+
+  /* 図表拡大モーダル */
+  .fig-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
+  .fig-modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.85)}
+  .fig-modal-content{
+    position:relative;z-index:1;background:var(--paper);
+    border-radius:8px;max-width:95vw;max-height:95vh;
+    display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .fig-modal-close{
+    position:absolute;top:8px;right:10px;z-index:2;
+    background:rgba(0,0,0,.6);color:#fff;border:none;
+    width:36px;height:36px;border-radius:50%;font-size:20px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    line-height:1;transition:background .12s;
+  }
+  .fig-modal-close:hover{background:rgba(0,0,0,.9)}
+  .fig-modal-nav{
+    position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:2;
+    display:flex;gap:6px;align-items:center;
+    background:rgba(0,0,0,.6);padding:4px 12px;border-radius:99px;
+  }
+  .fig-modal-prev,.fig-modal-next{
+    background:transparent;border:none;color:#fff;
+    width:28px;height:28px;font-size:20px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .fig-modal-prev:hover,.fig-modal-next:hover{color:var(--accent)}
+  .fig-modal-prev:disabled,.fig-modal-next:disabled{opacity:.3;cursor:default}
+  .fig-modal-pos{color:#fff;font-size:11px;font-variant-numeric:tabular-nums;min-width:50px;text-align:center}
+  .fig-modal-image-wrap{
+    flex:1;background:#1a1a1a;display:flex;align-items:center;justify-content:center;
+    overflow:auto;min-height:300px;
+  }
+  .fig-modal-image-wrap img{
+    max-width:100%;max-height:80vh;display:block;cursor:zoom-in;
+  }
+  .fig-modal-info{padding:12px 18px;background:var(--paper);border-top:1px solid var(--line)}
+  .fig-modal-title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;
+    color:var(--ink);margin-bottom:5px;
+  }
+  .fig-modal-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+  .fig-modal-meta .pill{font-size:10.5px;padding:1px 7px;border-radius:99px;background:var(--line-soft);color:var(--ink-soft)}
+  .fig-modal-notes{font-size:12.5px;color:var(--ink-soft);line-height:1.7;white-space:pre-wrap}
+  .fig-modal-notes:empty{display:none}
+
+  /* 紐付けピッカー */
+  .fig-picker-content{
+    position:relative;z-index:1;background:var(--paper);
+    border-radius:8px;max-width:560px;width:95vw;max-height:90vh;
+    display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .fig-picker-title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;
+    color:var(--ink);padding:18px 22px 8px;margin:0;
+  }
+  .fig-picker-desc{
+    font-size:12px;color:var(--ink-muted);padding:0 22px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .fig-picker-list{
+    flex:1;overflow-y:auto;padding:8px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .fig-picker-empty{padding:30px;text-align:center;color:var(--ink-muted);font-size:12px}
+  .fig-picker-item{
+    display:flex;gap:12px;padding:8px 12px;border:1px solid var(--line);
+    border-radius:5px;cursor:pointer;align-items:center;transition:all .12s;
+  }
+  .fig-picker-item:hover{background:var(--bg);border-color:var(--ink-muted)}
+  .fig-picker-item.linked{background:#FFF7E8;border-color:var(--amber)}
+  .fig-picker-item input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;cursor:pointer}
+  .fig-picker-item img{
+    width:60px;height:45px;object-fit:contain;
+    background:var(--bg);border:1px solid var(--line);border-radius:3px;flex-shrink:0;
+  }
+  .fig-picker-item .info{flex:1;min-width:0}
+  .fig-picker-item .info .ti{
+    font-family:'Shippori Mincho',serif;font-weight:600;
+    font-size:13px;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .fig-picker-item .info .me{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+  .fig-picker-item .info .me .pill{
+    font-size:10px;padding:1px 6px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-soft);
+  }
+  .fig-picker-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
+
+  /* 問題内の関連図表バッジ */
+  .linked-figs{
+    display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;
+    padding:8px 12px;background:#FFF7E8;border:1px dashed var(--amber);
+    border-radius:5px;align-items:center;
+  }
+  .linked-figs-label{font-size:11px;color:var(--amber);font-weight:600;letter-spacing:.05em}
+  .linked-fig-chip{
+    background:var(--paper);border:1px solid var(--amber);color:var(--ink);
+    padding:3px 10px;border-radius:99px;font-size:11.5px;cursor:pointer;
+    transition:all .12s;display:inline-flex;align-items:center;gap:5px;
+  }
+  .linked-fig-chip:hover{background:var(--amber);color:#fff;border-color:var(--amber)}
+  .linked-fig-chip .ico{font-size:13px;line-height:1}
+  .link-fig-btn{
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    padding:4px 11px;font-size:11.5px;border-radius:4px;cursor:pointer;
+    font-family:inherit;transition:all .12s;
+  }
+  .link-fig-btn:hover{background:var(--bg);color:var(--ink);border-color:var(--ink-muted)}
+
+  @media(max-width:640px){
+    .fig-grid{grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:10px}
+    .fig-card-title{font-size:12px}
+    .fig-toolbar{padding:10px 12px;gap:8px}
+    .fig-modal-content{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}
+    .fig-modal-image-wrap img{max-height:70vh}
+    .fig-picker-item img{width:48px;height:36px}
+  }
+
   /* ===== Weak problems view (弱点問題) ===== */
   .weak-intro{margin-bottom:14px}
   .weak-h2{
@@ -665,13 +859,13 @@
     .brand .seal{width:36px;height:36px}
     .brand .sub{display:none}
 
-    /* Tabs: full-width 6-col, big touch targets */
+    /* Tabs: full-width 7-col, big touch targets */
     nav.tabs{
-      display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+      display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
       background:var(--line-soft);padding:3px;border-radius:8px;
     }
     nav.tabs button{
-      font-size:10.5px;padding:11px 0;border-radius:6px;
+      font-size:10px;padding:11px 0;border-radius:6px;
       border-bottom:none;color:var(--ink-soft);min-height:44px;
       letter-spacing:0;
     }
@@ -810,6 +1004,7 @@
       <button class="tab-btn active" data-tab="quiz">択一</button>
       <button class="tab-btn" data-tab="select">選択式</button>
       <button class="tab-btn" data-tab="weak">弱点</button>
+      <button class="tab-btn" data-tab="figures">図表</button>
       <button class="tab-btn" data-tab="progress">進捗管理</button>
       <button class="tab-btn" data-tab="manage">問題管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
@@ -952,6 +1147,46 @@
   <main id="view-weak" style="display:none;grid-column:1/-1">
     <div id="weak-content"></div>
   </main>
+
+  <!-- ===== FIGURES VIEW (図表) ===== -->
+  <main id="view-figures" style="display:none;grid-column:1/-1">
+    <div id="figures-content"></div>
+  </main>
+
+  <!-- 図表拡大モーダル -->
+  <div id="figure-modal" class="fig-modal" style="display:none">
+    <div class="fig-modal-overlay"></div>
+    <div class="fig-modal-content">
+      <button class="fig-modal-close" id="fig-modal-close">×</button>
+      <div class="fig-modal-nav">
+        <button class="fig-modal-prev" id="fig-modal-prev">‹</button>
+        <span class="fig-modal-pos" id="fig-modal-pos"></span>
+        <button class="fig-modal-next" id="fig-modal-next">›</button>
+      </div>
+      <div class="fig-modal-image-wrap">
+        <img id="fig-modal-image" src="" alt="">
+      </div>
+      <div class="fig-modal-info">
+        <div class="fig-modal-title" id="fig-modal-title"></div>
+        <div class="fig-modal-meta" id="fig-modal-meta"></div>
+        <div class="fig-modal-notes" id="fig-modal-notes"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 図表紐付けピッカーモーダル -->
+  <div id="fig-picker-modal" class="fig-modal" style="display:none">
+    <div class="fig-modal-overlay"></div>
+    <div class="fig-picker-content">
+      <button class="fig-modal-close" id="fig-picker-close">×</button>
+      <h3 class="fig-picker-title">この問題に紐付ける図表を選択</h3>
+      <div class="fig-picker-desc" id="fig-picker-desc"></div>
+      <div class="fig-picker-list" id="fig-picker-list"></div>
+      <div class="fig-picker-foot">
+        <button class="btn" id="fig-picker-done">完了</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== PROGRESS VIEW ===== -->
   <main id="view-progress" style="display:none;grid-column:1/-1">
@@ -1390,6 +1625,9 @@ function loadState(){
       s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
       s.weakSession.answered ||= false;
       s.weakSession.userAnswer ??= null;
+      // 図表機能の追加 (後方互換)
+      s.figures ||= [];
+      s.figuresView ||= {filterSubject:'',filterFrame:''};
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -1429,7 +1667,9 @@ function loadState(){
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
     selectHistory: [],
     selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null},
-    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null}
+    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null},
+    figures: [],
+    figuresView: {filterSubject:'',filterFrame:''}
   };
 }
 function saveState(){
@@ -1553,6 +1793,18 @@ function renderQuiz(){
   const userAns = state.session.userAnswer;
   const correct = answered && userAns===q.answer;
 
+  // 関連図表バッジエリア
+  const linkedFigIds = Array.isArray(q.figureIds) ? q.figureIds.filter(fid=>state.figures.some(f=>f.id===fid)) : [];
+  const linkedFigsHtml = `<div class="linked-figs">
+    <span class="linked-figs-label">📚 関連図表</span>
+    ${linkedFigIds.length ? linkedFigIds.map((fid,i)=>{
+      const f = state.figures.find(x=>x.id===fid);
+      if(!f) return '';
+      return `<button class="linked-fig-chip" data-figidx="${i}"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
+    }).join('') : '<span style="font-size:11.5px;color:var(--ink-muted)">紐付けなし</span>'}
+    <button class="link-fig-btn" id="link-fig-btn">${linkedFigIds.length?'🔗 紐付けを変更':'🔗 図表を紐付け'}</button>
+  </div>`;
+
   card.innerHTML = fmBanner + `
     <div class="meta-row">
       <span class="pill accent">${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
@@ -1563,6 +1815,8 @@ function renderQuiz(){
       <div class="progress-track"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
     </div>
+
+    ${linkedFigsHtml}
 
     <div class="q-box">${escapeHtml(q.text)}</div>
 
@@ -1595,6 +1849,16 @@ function renderQuiz(){
   document.getElementById('btn-prev').addEventListener('click',()=>nav(-1));
   document.getElementById('btn-next').addEventListener('click',()=>nav(1));
   card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBm(q.id,b.dataset.bm)));
+  // 関連図表バッジクリック
+  card.querySelectorAll('.linked-fig-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const i = parseInt(chip.dataset.figidx, 10);
+      showFigureModal(linkedFigIds, i);
+    });
+  });
+  // 紐付けボタン
+  const linkBtn = document.getElementById('link-fig-btn');
+  if(linkBtn) linkBtn.addEventListener('click',()=>openFigurePicker(q.id));
 
   const artBtn = card.querySelector('.article-toggle');
   if(artBtn) artBtn.addEventListener('click',()=>{
@@ -2001,6 +2265,8 @@ function restoreBackup(){
         state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null};
         state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
         state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
+        state.figures ||= [];
+        state.figuresView ||= {filterSubject:'',filterFrame:''};
         saveState();
         renderQuiz();renderManage();renderSidebar();
         // 進捗管理画面も明示的に更新
@@ -2013,7 +2279,7 @@ function restoreBackup(){
           if(fa[k].current) inProgressCount++;
           completedCount += (fa[k].history||[]).length;
         }
-        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
+        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 図表: ${state.figures.length}件\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
       }catch(err){alert('復元失敗: '+err.message)}
     };
     r.readAsText(f);
@@ -2288,6 +2554,344 @@ function renderSelectSidebar(){
   document.getElementById('select-filter-bm').value = state.selectSession.filterBm;
 }
 
+/* ===== Figures (図表) ===== */
+function compressImage(file, maxWidth = 1920, quality = 0.85){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > maxWidth){
+          h = Math.round(h * (maxWidth / w));
+          w = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img, 0, 0, w, h);
+        // JPEG優先(PNGより小さい)
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({dataUrl, w, h, size: Math.round(dataUrl.length * 0.75)});
+      };
+      img.onerror = ()=>reject(new Error('画像の読み込みに失敗しました'));
+      img.src = e.target.result;
+    };
+    reader.onerror = ()=>reject(new Error('ファイル読み込みエラー'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFigureUpload(file){
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    alert('画像ファイル(PNG/JPG)を選択してください。\nPDFの場合は、まずスクリーンショット等で画像化してからアップロードしてください。');
+    return;
+  }
+  try{
+    const status = document.getElementById('fig-upload-status');
+    if(status) status.textContent = '画像を処理中...';
+    const {dataUrl, w, h, size} = await compressImage(file);
+    // メタ情報入力
+    const title = prompt('図表のタイトルを入力してください:', file.name.replace(/\.[^.]+$/,''));
+    if(!title){
+      if(status) status.textContent = '';
+      return;
+    }
+    const subjects = SUBJECTS_ORDER.join('\n');
+    const subj = prompt(`科目を選択(以下からコピー、または空欄):\n\n${subjects}`, '');
+    const frameInput = prompt('フレーム番号(数字のみ、なければ空欄):', '');
+    const frameNo = frameInput ? parseInt(frameInput, 10) : null;
+    const notes = prompt('メモ(任意):', '') || '';
+    const fig = {
+      id: 'fig_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: title.trim(),
+      subject: subj && SUBJECTS_ORDER.includes(subj.trim()) ? subj.trim() : (subj?.trim() || ''),
+      frameNo: isNaN(frameNo) ? null : frameNo,
+      notes: notes.trim(),
+      imageData: dataUrl,
+      createdAt: Date.now()
+    };
+    state.figures.push(fig);
+    saveState();
+    if(status) status.textContent = `アップロード完了 (${Math.round(size/1024)}KB)`;
+    setTimeout(()=>{if(status) status.textContent=''}, 3000);
+    renderFigures();
+  }catch(err){
+    alert('アップロード失敗: ' + err.message);
+  }
+}
+
+function getFiguresPool(){
+  let pool = state.figures.slice();
+  const v = state.figuresView;
+  if(v.filterSubject) pool = pool.filter(f=>f.subject===v.filterSubject);
+  if(v.filterFrame) pool = pool.filter(f=>String(f.frameNo)===String(v.filterFrame));
+  // ソート: 科目順→フレーム番号→タイトル
+  pool.sort((a,b)=>{
+    const sa = SUBJECTS_ORDER.indexOf(a.subject||'');
+    const sb = SUBJECTS_ORDER.indexOf(b.subject||'');
+    if(sa!==sb) return (sa<0?999:sa) - (sb<0?999:sb);
+    const fa = a.frameNo==null ? 999 : a.frameNo;
+    const fb = b.frameNo==null ? 999 : b.frameNo;
+    if(fa!==fb) return fa-fb;
+    return (a.title||'').localeCompare(b.title||'');
+  });
+  return pool;
+}
+
+function renderFigures(){
+  const root = document.getElementById('figures-content');
+  const v = state.figuresView;
+  // 科目選択肢
+  const usedSubjects = [...new Set(state.figures.map(f=>f.subject).filter(Boolean))];
+  const subjOpts = '<option value="">すべて</option>' +
+    SUBJECTS_ORDER.filter(s=>usedSubjects.includes(s)).map(s=>
+      `<option value="${escapeHtml(s)}" ${v.filterSubject===s?'selected':''}>${escapeHtml(s)}</option>`
+    ).join('');
+  // フレーム選択肢
+  let frameSource = state.figures;
+  if(v.filterSubject) frameSource = frameSource.filter(f=>f.subject===v.filterSubject);
+  const usedFrames = [...new Set(frameSource.map(f=>f.frameNo).filter(n=>n!=null))].sort((a,b)=>a-b);
+  const frameOpts = '<option value="">すべて</option>' +
+    usedFrames.map(n=>`<option value="${n}" ${String(v.filterFrame)===String(n)?'selected':''}>F${n}</option>`).join('');
+
+  let html = `<div class="card fig-intro">
+    <h2 class="fig-h2">図表 <span class="fig-sub">見える化ノート・横断整理資料の保管庫</span></h2>
+    <div class="fig-toolbar">
+      <button class="upload-btn" id="fig-upload-btn">📤 図表をアップロード</button>
+      <input type="file" id="fig-upload-input" accept="image/*" style="display:none">
+      <select id="fig-filter-subj">${subjOpts}</select>
+      <select id="fig-filter-frame">${frameOpts}</select>
+      <span class="upload-status" id="fig-upload-status"></span>
+    </div>
+  </div>`;
+
+  const pool = getFiguresPool();
+  if(!state.figures.length){
+    html += `<div class="fig-empty">
+      <div class="ico">📊</div>
+      <div>まだ図表が登録されていません</div>
+      <div class="hint">右上の「📤 図表をアップロード」から、A4横サイズ程度の図表画像(PNG/JPG)を登録してください。<br>
+      タイトル・科目・フレーム番号・メモを入力すると、後で検索しやすくなります。</div>
+    </div>`;
+  } else if(!pool.length){
+    html += `<div class="fig-empty">
+      <div class="ico">―</div>
+      <div>条件に合う図表がありません</div>
+    </div>`;
+  } else {
+    html += `<div class="card"><div class="fig-grid">`;
+    for(const fig of pool){
+      const linkedCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(fig.id)).length;
+      html += `<div class="fig-card" data-figid="${fig.id}">
+        <div class="fig-card-img"><img src="${fig.imageData}" alt="${escapeHtml(fig.title)}"></div>
+        <div class="fig-card-body">
+          <div class="fig-card-title">${escapeHtml(fig.title)}</div>
+          <div class="fig-card-meta">
+            ${fig.subject?`<span class="pill">${escapeHtml(fig.subject)}</span>`:''}
+            ${fig.frameNo!=null?`<span class="pill">F${fig.frameNo}</span>`:''}
+            ${linkedCount>0?`<span class="pill">🔗 ${linkedCount}問</span>`:''}
+          </div>
+        </div>
+        <div class="fig-card-actions">
+          <button data-act="edit" data-figid="${fig.id}">編集</button>
+          <button class="del" data-act="del" data-figid="${fig.id}">削除</button>
+        </div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  root.innerHTML = html;
+
+  // イベントワイヤリング
+  document.getElementById('fig-upload-btn').addEventListener('click',()=>document.getElementById('fig-upload-input').click());
+  document.getElementById('fig-upload-input').addEventListener('change',(e)=>{
+    const f = e.target.files[0];
+    if(f) handleFigureUpload(f);
+    e.target.value=''; // reset
+  });
+  document.getElementById('fig-filter-subj').addEventListener('change',(e)=>{
+    state.figuresView.filterSubject = e.target.value;
+    state.figuresView.filterFrame = ''; // 科目変更時はフレームクリア
+    saveState();
+    renderFigures();
+  });
+  document.getElementById('fig-filter-frame').addEventListener('change',(e)=>{
+    state.figuresView.filterFrame = e.target.value;
+    saveState();
+    renderFigures();
+  });
+  // カードクリック(画像エリア・タイトル)
+  root.querySelectorAll('.fig-card').forEach(card=>{
+    const figid = card.dataset.figid;
+    card.querySelector('.fig-card-img').addEventListener('click',()=>showFigureModal([figid], 0));
+    card.querySelector('.fig-card-body').addEventListener('click',()=>showFigureModal([figid], 0));
+  });
+  // 編集・削除
+  root.querySelectorAll('.fig-card-actions button').forEach(b=>{
+    b.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const figid = b.dataset.figid;
+      if(b.dataset.act==='edit') editFigure(figid);
+      else if(b.dataset.act==='del') deleteFigure(figid);
+    });
+  });
+}
+
+function editFigure(figId){
+  const fig = state.figures.find(f=>f.id===figId);
+  if(!fig) return;
+  const newTitle = prompt('タイトル:', fig.title);
+  if(newTitle===null) return;
+  const subjects = SUBJECTS_ORDER.join('\n');
+  const newSubj = prompt(`科目(以下からコピー、または空欄):\n\n${subjects}`, fig.subject||'');
+  if(newSubj===null) return;
+  const newFrameInput = prompt('フレーム番号(数字、空欄なら未設定):', fig.frameNo!=null?String(fig.frameNo):'');
+  if(newFrameInput===null) return;
+  const newNotes = prompt('メモ:', fig.notes||'');
+  if(newNotes===null) return;
+  fig.title = newTitle.trim();
+  fig.subject = newSubj && SUBJECTS_ORDER.includes(newSubj.trim()) ? newSubj.trim() : (newSubj?.trim() || '');
+  const fn = newFrameInput.trim() ? parseInt(newFrameInput.trim(), 10) : null;
+  fig.frameNo = isNaN(fn) ? null : fn;
+  fig.notes = newNotes.trim();
+  saveState();
+  renderFigures();
+}
+
+function deleteFigure(figId){
+  const fig = state.figures.find(f=>f.id===figId);
+  if(!fig) return;
+  const linkedCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(figId)).length;
+  let msg = `図表「${fig.title}」を削除しますか?`;
+  if(linkedCount>0) msg += `\n(${linkedCount}問の紐付けも自動解除されます)`;
+  if(!confirm(msg)) return;
+  state.figures = state.figures.filter(f=>f.id!==figId);
+  // 各問題の紐付けからも削除
+  for(const q of state.questions){
+    if(Array.isArray(q.figureIds)){
+      q.figureIds = q.figureIds.filter(id=>id!==figId);
+      if(!q.figureIds.length) delete q.figureIds;
+    }
+  }
+  saveState();
+  renderFigures();
+}
+
+let _figModalState = {figIds:[], idx:0};
+function showFigureModal(figIds, idx=0){
+  if(!figIds || !figIds.length) return;
+  _figModalState = {figIds: figIds.slice(), idx};
+  renderFigureModal();
+  document.getElementById('figure-modal').style.display='flex';
+}
+function renderFigureModal(){
+  const {figIds, idx} = _figModalState;
+  const fig = state.figures.find(f=>f.id===figIds[idx]);
+  if(!fig){closeFigureModal();return}
+  document.getElementById('fig-modal-image').src = fig.imageData;
+  document.getElementById('fig-modal-image').alt = fig.title;
+  document.getElementById('fig-modal-title').textContent = fig.title;
+  let meta = '';
+  if(fig.subject) meta += `<span class="pill">${escapeHtml(fig.subject)}</span>`;
+  if(fig.frameNo!=null) meta += `<span class="pill">F${fig.frameNo}</span>`;
+  document.getElementById('fig-modal-meta').innerHTML = meta;
+  document.getElementById('fig-modal-notes').textContent = fig.notes||'';
+  const showNav = figIds.length > 1;
+  document.getElementById('fig-modal-nav').style.display = showNav ? 'flex' : 'none';
+  if(showNav){
+    document.getElementById('fig-modal-pos').textContent = `${idx+1} / ${figIds.length}`;
+    document.getElementById('fig-modal-prev').disabled = idx<=0;
+    document.getElementById('fig-modal-next').disabled = idx>=figIds.length-1;
+  }
+}
+function closeFigureModal(){document.getElementById('figure-modal').style.display='none'}
+function navFigureModal(dir){
+  const {figIds, idx} = _figModalState;
+  const next = idx + dir;
+  if(next<0 || next>=figIds.length) return;
+  _figModalState.idx = next;
+  renderFigureModal();
+}
+
+let _pickerQid = null;
+function openFigurePicker(qid){
+  const q = state.questions.find(x=>x.id===qid);
+  if(!q) return;
+  _pickerQid = qid;
+  const linked = new Set(q.figureIds||[]);
+  let descText = `問題:${q.year||''} ${q.law||''} ${q.qno||''}`;
+  if(q.category) descText += ` / ${q.category}`;
+  document.getElementById('fig-picker-desc').textContent = descText;
+
+  const figs = state.figures.slice().sort((a,b)=>{
+    // この問題に関連しそうな図表を上位に
+    const sameLawA = a.subject===lawToSubject(q.law||'')?1:0;
+    const sameLawB = b.subject===lawToSubject(q.law||'')?1:0;
+    if(sameLawA!==sameLawB) return sameLawB - sameLawA;
+    const sameFrameA = a.frameNo===q.frameNo?1:0;
+    const sameFrameB = b.frameNo===q.frameNo?1:0;
+    if(sameFrameA!==sameFrameB) return sameFrameB - sameFrameA;
+    return (a.title||'').localeCompare(b.title||'');
+  });
+
+  const listEl = document.getElementById('fig-picker-list');
+  if(!figs.length){
+    listEl.innerHTML = `<div class="fig-picker-empty">図表が1つも登録されていません。<br>「図表」タブからアップロードしてください。</div>`;
+  } else {
+    listEl.innerHTML = figs.map(f=>`
+      <label class="fig-picker-item ${linked.has(f.id)?'linked':''}" data-figid="${f.id}">
+        <input type="checkbox" ${linked.has(f.id)?'checked':''}>
+        <img src="${f.imageData}" alt="">
+        <div class="info">
+          <div class="ti">${escapeHtml(f.title)}</div>
+          <div class="me">
+            ${f.subject?`<span class="pill">${escapeHtml(f.subject)}</span>`:''}
+            ${f.frameNo!=null?`<span class="pill">F${f.frameNo}</span>`:''}
+          </div>
+        </div>
+      </label>
+    `).join('');
+    listEl.querySelectorAll('.fig-picker-item').forEach(item=>{
+      const cb = item.querySelector('input[type="checkbox"]');
+      cb.addEventListener('change',()=>{
+        item.classList.toggle('linked', cb.checked);
+      });
+    });
+  }
+  document.getElementById('fig-picker-modal').style.display='flex';
+}
+function closeFigurePicker(){
+  document.getElementById('fig-picker-modal').style.display='none';
+  _pickerQid = null;
+}
+function applyFigurePicker(){
+  if(!_pickerQid) {closeFigurePicker();return}
+  const q = state.questions.find(x=>x.id===_pickerQid);
+  if(!q) {closeFigurePicker();return}
+  const linkedIds = [];
+  document.querySelectorAll('#fig-picker-list .fig-picker-item').forEach(item=>{
+    const cb = item.querySelector('input[type="checkbox"]');
+    if(cb && cb.checked) linkedIds.push(item.dataset.figid);
+  });
+  if(linkedIds.length){
+    q.figureIds = linkedIds;
+  } else {
+    delete q.figureIds;
+  }
+  saveState();
+  closeFigurePicker();
+  // 現在のビューを再描画
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+  if(activeTab==='quiz') renderQuiz();
+  else if(activeTab==='weak') renderWeak();
+}
+
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
@@ -2296,6 +2900,7 @@ function switchTab(name){
   document.getElementById('view-select').style.display = name==='select'?'block':'none';
   document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
   document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
+  document.getElementById('view-figures').style.display = name==='figures'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
   document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
   document.getElementById('view-data').style.display = name==='data'?'block':'none';
@@ -2303,8 +2908,8 @@ function switchTab(name){
   if(name==='quiz') renderQuiz();
   if(name==='select') renderSelectQuiz();
   if(name==='weak') renderWeak();
+  if(name==='figures') renderFigures();
   if(name==='progress'){
-    // タブクリック時は常に科目一覧から始める
     state.progressView = {mode:'subjects', subject:null};
     renderProgress();
   }
@@ -2468,6 +3073,18 @@ function renderWeak(){
   const lastDate = getLastMistakeDate(q.id);
   const lastDateStr = lastDate ? new Date(lastDate).toLocaleDateString('ja-JP') : '-';
 
+  // 関連図表バッジエリア
+  const weakLinkedFigIds = Array.isArray(q.figureIds) ? q.figureIds.filter(fid=>state.figures.some(f=>f.id===fid)) : [];
+  const weakLinkedFigsHtml = `<div class="linked-figs">
+    <span class="linked-figs-label">📚 関連図表</span>
+    ${weakLinkedFigIds.length ? weakLinkedFigIds.map((fid,i)=>{
+      const f = state.figures.find(x=>x.id===fid);
+      if(!f) return '';
+      return `<button class="linked-fig-chip" data-figidx="${i}"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
+    }).join('') : '<span style="font-size:11.5px;color:var(--ink-muted)">紐付けなし</span>'}
+    <button class="link-fig-btn" id="weak-link-fig-btn">${weakLinkedFigIds.length?'🔗 紐付けを変更':'🔗 図表を紐付け'}</button>
+  </div>`;
+
   html += `<div class="card">
     <div class="meta-row">
       <span class="weak-badge">弱点</span>
@@ -2480,6 +3097,7 @@ function renderWeak(){
       <span style="font-size:10px;color:var(--ink-muted);margin-left:6px">最終誤答 ${lastDateStr}</span>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}%</span>`:''}
     </div>
+    ${weakLinkedFigsHtml}
     <div class="problem">${escapeHtml(q.text||'').replace(/\n/g,'<br>')}</div>
     <div class="answers">
       <button class="ans-btn ans-o ${answered&&userAns===true?'picked':''} ${answered&&q.answer===true?'reveal':''}" data-ans="true" ${answered?'disabled':''}>
@@ -2513,6 +3131,16 @@ function renderWeak(){
   if(next) next.addEventListener('click',()=>navWeak(1));
   // ふせん
   root.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBmWeak(q.id,b.dataset.bm)));
+  // 関連図表バッジクリック
+  root.querySelectorAll('.linked-fig-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const i = parseInt(chip.dataset.figidx, 10);
+      showFigureModal(weakLinkedFigIds, i);
+    });
+  });
+  // 紐付けボタン
+  const weakLinkBtn = document.getElementById('weak-link-fig-btn');
+  if(weakLinkBtn) weakLinkBtn.addEventListener('click',()=>openFigurePicker(q.id));
   // 条文等トグル
   const artBtn = root.querySelector('.article-toggle');
   if(artBtn) artBtn.addEventListener('click',()=>{
@@ -2773,6 +3401,16 @@ function init(){
   if(brandIcon && appleIcon && appleIcon.href){
     brandIcon.src = appleIcon.href;
   }
+
+  // 図表モーダルのイベント
+  document.getElementById('fig-modal-close').addEventListener('click', closeFigureModal);
+  document.querySelector('#figure-modal .fig-modal-overlay').addEventListener('click', closeFigureModal);
+  document.getElementById('fig-modal-prev').addEventListener('click', ()=>navFigureModal(-1));
+  document.getElementById('fig-modal-next').addEventListener('click', ()=>navFigureModal(1));
+  // 図表ピッカーのイベント
+  document.getElementById('fig-picker-close').addEventListener('click', closeFigurePicker);
+  document.querySelector('#fig-picker-modal .fig-modal-overlay').addEventListener('click', closeFigurePicker);
+  document.getElementById('fig-picker-done').addEventListener('click', applyFigurePicker);
 
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
