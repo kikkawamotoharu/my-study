@@ -3317,8 +3317,6 @@ function openFigurePicker(id, type='question'){
   }
   if(!entity) return;
   _pickerTarget = {id, type};
-  // 互換用に旧変数も残す
-  _pickerQid = (type==='question') ? id : null;
 
   const linked = new Set(entity.figureIds||[]);
   let descText;
@@ -3374,7 +3372,6 @@ function openFigurePicker(id, type='question'){
 function closeFigurePicker(){
   const pm = document.getElementById('fig-picker-modal');
   if(pm) pm.style.cssText = 'display:none';
-  _pickerQid = null;
   _pickerTarget = null;
 }
 function applyFigurePicker(){
