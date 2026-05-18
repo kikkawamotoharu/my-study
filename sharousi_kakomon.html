@@ -61,10 +61,13 @@
   }
   .brand .seal{
     display:inline-flex;align-items:center;justify-content:center;
-    width:36px;height:36px;background:var(--accent);color:#fff;
-    font-family:'Shippori Mincho',serif;font-weight:700;font-size:18px;
-    border-radius:4px;transform:rotate(-3deg);
-    box-shadow:0 2px 4px rgba(184,58,46,.25);
+    width:44px;height:44px;border-radius:6px;
+    background:transparent;overflow:hidden;
+    box-shadow:0 2px 8px rgba(36,42,80,.18);
+    transform:none;
+  }
+  .brand .seal img{
+    width:100%;height:100%;object-fit:cover;display:block;
   }
   .brand .sub{color:var(--ink-muted);font-size:12px;letter-spacing:.1em}
   nav.tabs{display:flex;gap:4px}
@@ -659,7 +662,7 @@
     }
     .brand{justify-content:center;gap:10px}
     .brand h1{font-size:20px}
-    .brand .seal{width:30px;height:30px;font-size:15px}
+    .brand .seal{width:36px;height:36px}
     .brand .sub{display:none}
 
     /* Tabs: full-width 6-col, big touch targets */
@@ -797,7 +800,7 @@
 
   <header class="top">
     <div class="brand">
-      <span class="seal">社</span>
+      <span class="seal"><img id="brand-icon" src="" alt="社労士 過去問演習帳"></span>
       <div>
         <h1>過去問演習帳</h1>
         <div class="sub">SHAROUSHI · KAKOMON</div>
@@ -827,11 +830,13 @@
         <div class="stat-item"><div class="num indigo" id="stat-today-total">0</div><div class="lbl">解答数</div></div>
         <div class="stat-item"><div class="num accent" id="stat-today-rate">—</div><div class="lbl">正答率</div></div>
       </div>
+      <div class="stat-row"><span>正答 / 解答</span><span class="v" id="stat-today-ratio">— / —</span></div>
     </div>
 
     <div class="stat-card">
       <h3>通算成績</h3>
       <div class="stat-row"><span>総解答数</span><span class="v" id="stat-all-total">0</span></div>
+      <div class="stat-row"><span>正答 / 解答</span><span class="v" id="stat-all-ratio">— / —</span></div>
       <div class="stat-row"><span>正答率</span><span class="v" id="stat-all-rate">—</span></div>
       <div class="stat-row"><span>登録問題数</span><span class="v" id="stat-q-count">0</span></div>
     </div>
@@ -893,11 +898,13 @@
         <div class="stat-item"><div class="num indigo" id="select-stat-today-total">0</div><div class="lbl">解答数</div></div>
         <div class="stat-item"><div class="num accent" id="select-stat-today-rate">—</div><div class="lbl">正答率</div></div>
       </div>
+      <div class="stat-row"><span>正答 / 解答</span><span class="v" id="select-stat-today-ratio">— / —</span></div>
     </div>
 
     <div class="stat-card">
       <h3>通算成績(選択式)</h3>
       <div class="stat-row"><span>総解答数</span><span class="v" id="select-stat-all-total">0</span></div>
+      <div class="stat-row"><span>正答 / 解答</span><span class="v" id="select-stat-all-ratio">— / —</span></div>
       <div class="stat-row"><span>正答率</span><span class="v" id="select-stat-all-rate">—</span></div>
       <div class="stat-row"><span>登録空欄数</span><span class="v" id="select-stat-q-count">0</span></div>
     </div>
@@ -1774,10 +1781,19 @@ function checkFrameComplete(){
 
 /* ===== Sidebar ===== */
 function renderSidebar(){
-  document.getElementById('stat-today-total').textContent = statTodayTotal();
+  // 本日の演習
+  const todayTotal = statTodayTotal();
+  const todayHistory = state.history.filter(h=>h.ts>=todayStart());
+  const todayCorrect = todayHistory.filter(h=>h.correct).length;
+  document.getElementById('stat-today-total').textContent = todayTotal;
   const tr = statTodayRate();
   document.getElementById('stat-today-rate').textContent = tr===null?'—':Math.round(tr*100)+'%';
-  document.getElementById('stat-all-total').textContent = state.history.length;
+  document.getElementById('stat-today-ratio').textContent = todayTotal===0 ? '— / —' : `${todayCorrect} / ${todayTotal}`;
+  // 通算成績
+  const allTotal = state.history.length;
+  const allCorrect = state.history.filter(h=>h.correct).length;
+  document.getElementById('stat-all-total').textContent = allTotal;
+  document.getElementById('stat-all-ratio').textContent = allTotal===0 ? '— / —' : `${allCorrect} / ${allTotal}`;
   const ar = statAllRate();
   document.getElementById('stat-all-rate').textContent = ar===null?'—':Math.round(ar*100)+'%';
   document.getElementById('stat-q-count').textContent = state.questions.length;
@@ -2229,10 +2245,19 @@ function toggleBmSelect(qid, color){
 }
 
 function renderSelectSidebar(){
-  document.getElementById('select-stat-today-total').textContent = selectStatTodayTotal();
+  // 本日の演習(選択式)
+  const todayTotal = selectStatTodayTotal();
+  const todayHistory = state.selectHistory.filter(h=>h.ts>=todayStart());
+  const todayCorrect = todayHistory.filter(h=>h.correct).length;
+  document.getElementById('select-stat-today-total').textContent = todayTotal;
   const tr = selectStatTodayRate();
   document.getElementById('select-stat-today-rate').textContent = tr===null?'—':Math.round(tr*100)+'%';
-  document.getElementById('select-stat-all-total').textContent = state.selectHistory.length;
+  document.getElementById('select-stat-today-ratio').textContent = todayTotal===0 ? '— / —' : `${todayCorrect} / ${todayTotal}`;
+  // 通算成績(選択式)
+  const allTotal = state.selectHistory.length;
+  const allCorrect = state.selectHistory.filter(h=>h.correct).length;
+  document.getElementById('select-stat-all-total').textContent = allTotal;
+  document.getElementById('select-stat-all-ratio').textContent = allTotal===0 ? '— / —' : `${allCorrect} / ${allTotal}`;
   const ar = selectStatAllRate();
   document.getElementById('select-stat-all-rate').textContent = ar===null?'—':Math.round(ar*100)+'%';
   document.getElementById('select-stat-q-count').textContent = state.selectQuestions.length;
@@ -2315,17 +2340,21 @@ function getWeakPool(){
   });
   // 解答日範囲フィルタ
   if(s.dateFrom){
-    const t = new Date(s.dateFrom).getTime();
+    // ローカルタイムゾーンで「その日の0時0分0秒」として解釈
+    const [y,m,d] = s.dateFrom.split('-').map(Number);
+    const t = new Date(y, m-1, d, 0, 0, 0, 0).getTime();
     pool = pool.filter(q=>{
-      const d = getLastMistakeDate(q.id);
-      return d!==null && d >= t;
+      const d2 = getLastMistakeDate(q.id);
+      return d2!==null && d2 >= t;
     });
   }
   if(s.dateTo){
-    const t = new Date(s.dateTo).getTime() + 86400000; // end of day
+    // ローカルタイムゾーンで「その日の23時59分59秒」として解釈
+    const [y,m,d] = s.dateTo.split('-').map(Number);
+    const t = new Date(y, m-1, d, 23, 59, 59, 999).getTime();
     pool = pool.filter(q=>{
-      const d = getLastMistakeDate(q.id);
-      return d!==null && d <= t;
+      const d2 = getLastMistakeDate(q.id);
+      return d2!==null && d2 <= t;
     });
   }
   // 科目フィルタ
@@ -2738,6 +2767,13 @@ function renderProgressFrames(root, summary, subject){
 
 /* ===== Wire up ===== */
 function init(){
+  // ブランドアイコン:apple-touch-icon の base64 を再利用
+  const brandIcon = document.getElementById('brand-icon');
+  const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+  if(brandIcon && appleIcon && appleIcon.href){
+    brandIcon.src = appleIcon.href;
+  }
+
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 
