@@ -631,7 +631,7 @@
   }
   .fig-picker-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
 
-  /* 問題内の関連図表バッジ */
+    /* 問題内の関連図表バッジ */
   .linked-figs{
     display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;
     padding:8px 12px;background:#FFF7E8;border:1px dashed var(--amber);
@@ -659,6 +659,175 @@
     .fig-modal-content{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}
     .fig-modal-image-wrap img{max-height:70vh}
     .fig-picker-item img{width:48px;height:36px}
+  }
+
+  /* ===== Case problems (事例問題) ===== */
+  .case-intro{margin-bottom:14px}
+  .case-h2{
+    font-family:'Shippori Mincho',serif;font-size:20px;font-weight:700;
+    color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:12px;
+  }
+  .case-sub{font-family:'Noto Sans JP';font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em}
+  .case-toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    padding:14px 18px;background:var(--bg);
+    border:1px solid var(--line);border-radius:6px;margin-bottom:14px;
+  }
+  .case-toolbar select{
+    padding:6px 10px;border:1px solid var(--line);border-radius:4px;
+    font:inherit;font-size:13px;background:var(--paper);color:var(--ink);
+  }
+  .case-toolbar .case-count{margin-left:auto;font-size:12px;color:var(--ink-muted)}
+  .case-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:14px;
+  }
+  .case-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;
+    padding:14px 16px;cursor:pointer;transition:all .15s;
+    display:flex;flex-direction:column;gap:8px;
+    border-left:4px solid var(--line-soft);
+  }
+  .case-card:hover{border-color:var(--ink-muted);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+  .case-card.completed{border-left-color:var(--green)}
+  .case-card.in-progress{border-left-color:var(--amber)}
+  .case-card.fresh{border-left-color:var(--ink-muted)}
+  .case-card-title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;
+    color:var(--ink);line-height:1.4;
+  }
+  .case-card-source{font-size:11px;color:var(--ink-muted);line-height:1.5}
+  .case-card-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto}
+  .case-card-meta .pill{
+    font-size:10.5px;padding:1px 7px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-soft);
+  }
+  .case-card-meta .pill.acc{background:#E8F5E9;color:var(--green);font-weight:600}
+  .case-card-meta .pill.partial{background:#FFF4E0;color:var(--amber);font-weight:600}
+
+  .case-detail-nav{margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .case-detail-layout{
+    display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;
+  }
+  .case-detail-left{position:sticky;top:14px;max-height:calc(100vh - 80px);overflow-y:auto}
+  .case-detail-right{min-width:0}
+  .case-section-box{
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;
+    padding:14px 18px;margin-bottom:14px;
+  }
+  .case-section-box h3{
+    font-family:'Shippori Mincho',serif;font-size:13px;font-weight:700;
+    color:var(--ink);margin-bottom:8px;padding-bottom:6px;
+    border-bottom:1px solid var(--line);letter-spacing:.05em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .case-section-box h3 .ico{font-size:14px}
+  .case-text{
+    font-family:'Shippori Mincho',serif;font-size:14px;line-height:1.95;
+    color:var(--ink);white-space:pre-wrap;
+  }
+  .case-point-box{
+    background:#FFFCF5;border:1px solid var(--line);border-left:3px solid var(--amber);
+  }
+  .case-point-box h3{color:var(--amber)}
+  .case-point-text{
+    font-size:13px;line-height:1.85;color:var(--ink-soft);white-space:pre-wrap;
+  }
+  .case-subq-progress{
+    display:flex;gap:10px;margin-bottom:12px;padding:8px 12px;
+    background:var(--bg);border-radius:5px;font-size:11.5px;
+    color:var(--ink-muted);align-items:center;flex-wrap:wrap;
+  }
+  .case-subq-progress .dots{display:flex;gap:5px}
+  .case-subq-progress .dot{
+    width:26px;height:26px;border-radius:50%;
+    border:1.5px solid var(--line);background:var(--paper);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+    transition:all .12s;font-family:'Shippori Mincho',serif;
+  }
+  .case-subq-progress .dot.current{border-color:var(--accent);background:var(--accent);color:#fff;transform:scale(1.05)}
+  .case-subq-progress .dot.correct{border-color:var(--green);background:var(--green);color:#fff}
+  .case-subq-progress .dot.wrong{border-color:var(--accent);background:var(--accent);color:#fff}
+  .case-subq-progress .dot:hover{transform:scale(1.15)}
+  .case-subq-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;
+    padding:18px 22px;
+  }
+  .case-subq-head{
+    display:flex;align-items:center;gap:12px;margin-bottom:14px;
+    padding-bottom:10px;border-bottom:1px solid var(--line);
+  }
+  .case-subq-label{
+    background:var(--accent);color:#fff;font-family:'Shippori Mincho',serif;
+    font-weight:700;font-size:18px;width:36px;height:36px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .case-subq-title{
+    font-family:'Shippori Mincho',serif;font-size:13px;color:var(--ink-soft);font-weight:500;
+  }
+  .case-subq-text{
+    font-family:'Shippori Mincho',serif;font-size:14.5px;line-height:1.95;
+    color:var(--ink);margin-bottom:14px;
+  }
+  .case-subq-result{
+    margin-top:14px;padding:14px 18px;background:var(--bg);
+    border-radius:6px;border:1px solid var(--line);
+  }
+  .case-subq-result.correct{background:#E8F5E9;border-color:#86C397}
+  .case-subq-result.wrong{background:#FCEDEB;border-color:#E8B0AA}
+  .case-subq-result .verdict{
+    font-family:'Shippori Mincho',serif;font-size:15px;font-weight:700;
+    margin-bottom:10px;display:flex;align-items:center;gap:8px;
+  }
+  .case-subq-result .verdict .mark{font-size:24px}
+  .case-subq-result.correct .verdict{color:var(--green)}
+  .case-subq-result.wrong .verdict{color:var(--accent)}
+  .case-subq-result .label{
+    font-family:'Shippori Mincho',serif;font-size:11.5px;font-weight:600;
+    color:var(--ink-soft);letter-spacing:.05em;margin-top:8px;margin-bottom:5px;
+  }
+  .case-subq-result .body{font-size:13px;line-height:1.85;color:var(--ink);white-space:pre-wrap}
+  .case-summary-banner{
+    background:linear-gradient(to right, #FFFCF5, #FFF7E8);
+    border:1px solid var(--amber);border-radius:6px;
+    padding:14px 18px;margin-bottom:14px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .case-summary-banner.complete{background:linear-gradient(to right, #E8F5E9, #C9E6CE);border-color:var(--green)}
+  .case-summary-banner .icon{font-size:24px}
+  .case-summary-banner .title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;color:var(--ink);
+  }
+  .case-summary-banner .desc{font-size:11.5px;color:var(--ink-soft)}
+  .case-summary-banner .stat{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:18px;
+    color:var(--accent);margin-left:auto;
+  }
+  .case-summary-banner.complete .stat{color:var(--green)}
+  .case-collapsible{margin-bottom:10px}
+  .case-collapsible details{
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden;
+  }
+  .case-collapsible summary{
+    padding:10px 14px;cursor:pointer;
+    font-family:'Shippori Mincho',serif;font-weight:600;font-size:12.5px;
+    color:var(--ink);display:flex;align-items:center;gap:8px;
+    list-style:none;user-select:none;
+  }
+  .case-collapsible summary::-webkit-details-marker{display:none}
+  .case-collapsible summary::before{
+    content:"▶";color:var(--ink-muted);font-size:9px;transition:transform .2s;
+  }
+  .case-collapsible details[open] summary::before{transform:rotate(90deg)}
+  .case-collapsible .col-body{padding:0 14px 12px;border-top:1px solid var(--line)}
+  .case-collapsible .col-body .case-text,
+  .case-collapsible .col-body .case-point-text{font-size:13px;line-height:1.85;padding-top:10px}
+
+  @media(max-width:900px){
+    .case-detail-layout{grid-template-columns:1fr;gap:14px}
+    .case-detail-left{position:static;max-height:none}
+    .case-subq-card{padding:14px 16px}
+    .case-grid{grid-template-columns:1fr;gap:10px}
   }
 
   /* ===== Weak problems view (弱点問題) ===== */
@@ -714,6 +883,50 @@
     font-size:13px;background:var(--bg);border-radius:6px;
   }
   .weak-empty .ico{font-size:36px;color:var(--line);margin-bottom:8px}
+
+  /* 弱点 事例カード一覧 */
+  .weak-case-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
+    gap:14px;
+  }
+  .weak-case-card{
+    background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:6px;padding:14px 16px;cursor:pointer;
+    display:flex;flex-direction:column;gap:8px;transition:all .15s;
+  }
+  .weak-case-card:hover{border-color:var(--ink-muted);border-left-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .weak-case-head{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .weak-case-title{
+    font-family:'Shippori Mincho',serif;font-weight:600;font-size:14px;
+    color:var(--ink);line-height:1.5;
+  }
+  .weak-case-source{font-size:11.5px;color:var(--ink-muted);line-height:1.4}
+  .weak-case-stats{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    padding:6px 0;border-top:1px dashed var(--line);
+  }
+  .sub-status-row{display:inline-flex;gap:3px}
+  .sub-status{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .sub-status.o{background:#E8F5E9;color:var(--green);border:1px solid #C8E6C9}
+  .sub-status.x{background:#FFEEEE;color:var(--accent);border:1px solid #F5C0BB}
+  .sub-status.u{background:var(--line-soft);color:var(--ink-muted);border:1px solid var(--line)}
+  .weak-case-open{
+    margin-top:4px;font-size:12px;padding:7px 12px;
+    background:var(--ink);color:var(--paper);border:none;
+    border-radius:4px;cursor:pointer;font-family:inherit;
+    font-weight:500;transition:all .12s;align-self:flex-start;
+  }
+  .weak-case-open:hover{background:var(--indigo);transform:translateX(2px)}
+  @media(max-width:640px){
+    .weak-case-grid{grid-template-columns:1fr}
+    .weak-case-card{padding:12px}
+    .weak-case-title{font-size:13px}
+  }
 
   /* 弱点バッジ・パターン表示 */
   .weak-badge{
@@ -866,13 +1079,13 @@
     .brand .seal{width:36px;height:36px}
     .brand .sub{display:none}
 
-    /* Tabs: full-width 7-col, big touch targets */
+    /* Tabs: full-width 8-col, big touch targets */
     nav.tabs{
-      display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
-      background:var(--line-soft);padding:3px;border-radius:8px;
+      display:grid;grid-template-columns:repeat(8,1fr);gap:1px;
+      background:var(--line-soft);padding:2px;border-radius:8px;
     }
     nav.tabs button{
-      font-size:10px;padding:11px 0;border-radius:6px;
+      font-size:9.5px;padding:11px 0;border-radius:5px;
       border-bottom:none;color:var(--ink-soft);min-height:44px;
       letter-spacing:0;
     }
@@ -1010,10 +1223,11 @@
     <nav class="tabs">
       <button class="tab-btn active" data-tab="quiz">択一</button>
       <button class="tab-btn" data-tab="select">選択式</button>
+      <button class="tab-btn" data-tab="case">事例</button>
       <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="figures">図表</button>
-      <button class="tab-btn" data-tab="progress">進捗管理</button>
-      <button class="tab-btn" data-tab="manage">問題管理</button>
+      <button class="tab-btn" data-tab="progress">進捗</button>
+      <button class="tab-btn" data-tab="manage">管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
     </nav>
   </header>
@@ -1158,6 +1372,11 @@
   <!-- ===== FIGURES VIEW (図表) ===== -->
   <main id="view-figures" style="display:none;grid-column:1/-1">
     <div id="figures-content"></div>
+  </main>
+
+  <!-- ===== CASE VIEW (事例問題) ===== -->
+  <main id="view-case" style="display:none;grid-column:1/-1">
+    <div id="case-content"></div>
   </main>
 
   <!-- ===== PROGRESS VIEW ===== -->
@@ -1506,6 +1725,57 @@ function frameTitle(law, n){
 }
 function frameKey(law, n){return `${law}|${n}`}
 
+/* ===== Sample CASE data: TAC 2025年7月全国模試 労災問2 ===== */
+const SAMPLE_CASES = [
+  {
+    id: "case_tac202507_rosai_q2_3_1_1",
+    type: "case",
+    title: "TAC202507_rosai_Q2_3-1-1",
+    source: "TAC 2025年7月全国模試 労災問2",
+    law: "労災保険法",
+    subject: "労働者災害補償保険法",
+    frameNo: 3,
+    section: "1",
+    sectionName: "給付基礎日額",
+    sectionOrder: 1,
+    difficulty: "B",
+    caseText: "給付基礎日額に関する次の記述のうち、誤っているものはどれか。なお、設問の労働者は、甲事業主の事業(以下「甲事業」という。)及び乙事業主の事業(以下「乙事業」という。)にそれぞれ令和5年4月1日から引き続き使用されており、乙事業については令和7年3月31日に退職している(甲事業には引き続き使用されている。)。また、自動変更対象額は4,090円である。",
+    point: "おおまかにいうと、複数事業労働者の給付基礎日額の算定については、(1)複数事業労働者の業務災害の場合には、①「業務災害の発生した事業場」について平均賃金の算定期間(算定事由発生日以前3か月間/退職している場合には退職日から遡る3か月間)により給付基礎日額相当額を算定し、②「業務災害の発生した事業場以外の事業場」について①の3か月間と重複する期間により給付基礎日額相当額を算定し、①と②を合算した額が給付基礎日額となります。なお、「業務災害の発生した事業場以外の事業場」について①の3か月間と重複する期間がないときは、「業務災害の発生した事業場以外の事業場」の賃金は算入しません。\nまた、(2)複数事業労働者の複数業務要因災害の場合には、①「算定事由発生日に使用されている事業場(算定事由発生日に全ての事業場を退職しているときは、退職日が最も遅い事業場)」について平均賃金の算定期間(算定事由発生日以前3か月間/退職している場合には退職日から遡る3か月間)により給付基礎日額相当額を算定し、②「その他の事業場」については①の3か月間と重複する期間により給付基礎日額相当額を算定し、①と②を合算した額が給付基礎日額となります。なお、「その他の事業場」について①の3か月間と重複する期間がないときは、「その他の事業場」の賃金は算入しません。",
+    subQuestions: [
+      {
+        label: "A",
+        text: "労働者の給付基礎日額の算定に当たり、甲事業の給付基礎日額相当額(5,000円)と乙事業の給付基礎日額相当額(2,000円)とを合算することとなる場合、給付基礎日額は7,000円となる。",
+        answer: true,
+        explanation: "法8条3項、則9条の2の2。自動変更対象額の規定は、(合算前の)給付基礎日額相当額ではなく、(合算後の)給付基礎日額について適用される。したがって、設問の場合、「5,000円+2,000円=7,000円(≧4,090円)」により、給付基礎日額は7,000円となる。"
+      },
+      {
+        label: "B",
+        text: "労働者が令和6年10月から令和7年3月の間に甲事業及び乙事業において要因が生じた複数業務要因災害によって令和7年4月11日に診断により疾病の発生が確定した場合、当該疾病に係る保険給付の額の基礎となる給付基礎日額の算定に当たっては、甲事業の給付基礎日額相当額は令和7年1月11日から同年4月10日までの期間により算定し、乙事業の給付基礎日額相当額は令和7年1月1日から同年3月31日までの期間により算定する。",
+        answer: false,
+        explanation: "法8条3項、則9条の2の2、令和2.8.21基発0821第2号。乙事業の給付基礎日額の算定期間が誤りである。複数業務要因災害は、どの事業においても業務と疾病等との間に相当因果関係が認められないものであることから、算定事由発生日においていずれかの事業に使用されている場合は、当該事業について算定事由発生日以前3か月間により算定する。設問の場合、算定事由発生日において甲事業に使用されているため、甲事業の給付基礎日額相当額は算定事由発生日以前3か月間(1月11日から4月10日)により算定し、乙事業の給付基礎日額相当額は当該3か月間の始期(1月11日)から退職日(3月31日)までの期間により算定する。"
+      },
+      {
+        label: "C",
+        text: "労働者が令和7年4月11日に発生した業務災害により負傷した場合、当該負傷に係る保険給付の額の基礎となる給付基礎日額の算定に当たっては、甲事業の令和7年1月11日から同年4月10日までの期間により算定し、乙事業の賃金は算入しない。",
+        answer: true,
+        explanation: "法8条1項、則5条、令和2.8.21基発0821第2号。設問の通り正しい。設問の労働者は、(算定事由発生日において)「事業主が同一人でない2以上の事業に使用される労働者」でなく、また、「負傷、疾病、障害又は死亡の原因又は要因となる事由が生じた時点において事業主が同一人でない2以上の事業に同時に使用されていた労働者」にも該当しないので、複数事業労働者(又はこれに類する者)ではなく、乙事業の賃金は算入しない。"
+      },
+      {
+        label: "D",
+        text: "労働者が令和6年10月から令和7年3月の間に甲事業において原因が生じた業務上の事由によって令和7年4月11日に診断により疾病の発生が確定した場合、当該疾病に係る保険給付の額の基礎となる給付基礎日額の算定に当たっては、甲事業の給付基礎日額相当額は令和7年1月11日から同年4月10日までの3か月間により算定し、乙事業の給付基礎日額相当額は令和7年1月11日から同年3月31日までの期間により算定する。",
+        answer: true,
+        explanation: "法8条3項、則9条の2の2、令和2.8.21基発0821第2号。設問の通り正しい。設問の場合、甲事業の業務災害であり、算定事由発生日は4月11日である[算定事由発生日において災害発生事業場(甲事業)を退職していない。]。この場合には、算定事由発生日以前3か月間(1月11日から4月10日)により甲事業の給付基礎日額相当額を算定し、乙事業の給付基礎日額相当額は当該3か月間の始期(1月11日)から退職日(3月31日)までの期間により算定する。"
+      },
+      {
+        label: "E",
+        text: "労働者が令和6年10月から令和7年3月の間に乙事業において原因が生じた業務上の事由によって令和7年4月11日に診断により疾病の発生が確定した場合、当該疾病に係る保険給付の額の基礎となる給付基礎日額の算定に当たっては、甲事業及び乙事業の給付基礎日額相当額は、それぞれ令和7年1月1日から同年3月31日の期間により算定する。",
+        answer: true,
+        explanation: "法8条3項、則9条の2の2、令和2.8.21基発0821第2号。設問の通り正しい。設問の場合、乙事業の業務災害であり、算定事由発生日は4月11日であるが、算定事由発生日において災害発生事業場(乙事業)を退職している。この場合には、算定事由発生日(診断により疾病の発生が確定した日)ではなく、乙事業の退職日を基準に、その日から遡る3か月間(1月1日から3月31日)により乙事業の給付基礎日額相当額を算定し、甲事業の給付基礎日額相当額は当該3か月間の始期(1月1日)から乙事業の退職日(3月31日)までの期間により算定する。"
+      }
+    ]
+  }
+];
+
 /* ===== Sample SELECT data: 雇用保険法 R7-選 問1の一部 ===== */
 const SAMPLE_SELECT_QUESTIONS = [
   {
@@ -1628,12 +1898,20 @@ function loadState(){
       s.selectSession.userChoice ??= null;
       s.selectSession.filterCat ??= '';
       // 弱点問題の追加 (後方互換)
-      s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
+      s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu'};
       s.weakSession.answered ||= false;
       s.weakSession.userAnswer ??= null;
+      s.weakSession.questionType ||= 'takuitsu';
       // 図表機能の追加 (後方互換)
       s.figures ||= [];
       s.figuresView ||= {filterSubject:'',filterFrame:''};
+      // 事例問題機能の追加 (後方互換)
+      if(!s.cases || !s.cases.length){
+        s.cases = SAMPLE_CASES.slice();
+      }
+      s.caseHistory ||= [];
+      s.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
+      s.caseSession ||= {currentSubIdx:0, answered:{}, userAnswers:{}};
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -1673,9 +1951,13 @@ function loadState(){
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
     selectHistory: [],
     selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null},
-    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null},
+    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu'},
     figures: [],
-    figuresView: {filterSubject:'',filterFrame:''}
+    figuresView: {filterSubject:'',filterFrame:''},
+    cases: SAMPLE_CASES.slice(),
+    caseHistory: [],
+    caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
+    caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}}
   };
 }
 function saveState(){
@@ -2210,11 +2492,21 @@ function doImport(){
   let arr;
   try{arr = JSON.parse(raw)}catch(e){alert('JSON解析エラー: '+e.message);return}
   if(!Array.isArray(arr)){alert('配列で渡してください');return}
-  let addedTakuitsu=0, addedSelect=0, skipped=0;
+  let addedTakuitsu=0, addedSelect=0, addedCase=0, skipped=0;
   for(const q of arr){
+    // 事例判定: type:"case" または subQuestions/caseText 等の存在
+    const isCase = q.type==='case' || (q.caseText && Array.isArray(q.subQuestions) && q.subQuestions.length);
     // 選択式判定: type:"select" または problemText/choices/correctIndexの存在
-    const isSelect = q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number');
-    if(isSelect){
+    const isSelect = !isCase && (q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number'));
+    if(isCase){
+      if(!q.caseText || !Array.isArray(q.subQuestions) || !q.subQuestions.length){skipped++;continue}
+      q.type = 'case';
+      q.id = q.id || ('case_'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+      state.cases ||= [];
+      if(state.cases.some(x=>x.id===q.id)){skipped++;continue}
+      state.cases.push(q);
+      addedCase++;
+    }else if(isSelect){
       if(!q.problemText || !Array.isArray(q.choices) || typeof q.correctIndex!=='number'){skipped++;continue}
       q.type = 'select';
       q.id = q.id || ('s'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
@@ -2237,6 +2529,7 @@ function doImport(){
   let msg = '';
   if(addedTakuitsu) msg += `択一: ${addedTakuitsu}問追加\n`;
   if(addedSelect) msg += `選択式: ${addedSelect}問追加\n`;
+  if(addedCase) msg += `事例: ${addedCase}問追加\n`;
   if(skipped) msg += `(${skipped}件はスキップ ※重複ID・不完全データなど)`;
   alert(msg || '追加された問題はありませんでした。');
 }
@@ -2270,9 +2563,12 @@ function restoreBackup(){
         state.selectHistory ||= [];
         state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null};
         state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
-        state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
+        state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu'};
         state.figures ||= [];
         state.figuresView ||= {filterSubject:'',filterFrame:''};
+        state.cases ||= [];
+        state.caseHistory ||= [];
+        state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
         saveState();
         renderQuiz();renderManage();renderSidebar();
         // 進捗管理画面も明示的に更新
@@ -2285,7 +2581,7 @@ function restoreBackup(){
           if(fa[k].current) inProgressCount++;
           completedCount += (fa[k].history||[]).length;
         }
-        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 図表: ${state.figures.length}件\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
+        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 事例問題: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
       }catch(err){alert('復元失敗: '+err.message)}
     };
     r.readAsText(f);
@@ -2907,6 +3203,360 @@ function applyFigurePicker(){
   else if(activeTab==='weak') renderWeak();
 }
 
+/* ===== Case problems (事例問題) ===== */
+function getCasesPool(){
+  let pool = state.cases.slice();
+  const v = state.caseView;
+  if(v.filterSubject) pool = pool.filter(c=>lawToSubject(c.law)===v.filterSubject);
+  if(v.filterFrame) pool = pool.filter(c=>String(c.frameNo)===String(v.filterFrame));
+  // ソート: 科目→フレーム→セクション→順番
+  pool.sort((a,b)=>{
+    const sa = SUBJECTS_ORDER.indexOf(lawToSubject(a.law||''));
+    const sb = SUBJECTS_ORDER.indexOf(lawToSubject(b.law||''));
+    if(sa!==sb) return (sa<0?999:sa) - (sb<0?999:sb);
+    const fa = a.frameNo==null ? 999 : a.frameNo;
+    const fb = b.frameNo==null ? 999 : b.frameNo;
+    if(fa!==fb) return fa-fb;
+    const seca = a.section||'';
+    const secb = b.section||'';
+    if(seca!==secb) return seca.localeCompare(secb);
+    return (a.sectionOrder||0) - (b.sectionOrder||0);
+  });
+  return pool;
+}
+
+function getCaseStats(caseId){
+  // 最新の解答状況 - 各 subQuestion について、最後の解答結果
+  const c = state.cases.find(x=>x.id===caseId);
+  if(!c) return {answered:0, total:0, correct:0, completed:false, anyWrong:false};
+  const total = c.subQuestions.length;
+  let answered = 0, correct = 0, anyWrong = false;
+  for(let i=0;i<total;i++){
+    const sq = c.subQuestions[i];
+    const subId = `${caseId}_sub_${sq.label}`;
+    const history = state.caseHistory.filter(h=>h.caseId===caseId && h.subLabel===sq.label).sort((a,b)=>b.ts-a.ts);
+    if(history.length>0){
+      answered++;
+      if(history[0].correct) correct++;
+      else anyWrong = true;
+    }
+  }
+  return {answered, total, correct, completed:answered===total, anyWrong};
+}
+
+function isCaseWeak(caseId){
+  // 事例問題が弱点かどうか:5問のうち1問でも最終解答が不正解
+  const c = state.cases.find(x=>x.id===caseId);
+  if(!c) return false;
+  for(const sq of c.subQuestions){
+    const history = state.caseHistory.filter(h=>h.caseId===caseId && h.subLabel===sq.label).sort((a,b)=>b.ts-a.ts);
+    if(history.length>0 && !history[0].correct) return true;
+  }
+  return false;
+}
+
+function getLastCaseAnswerDate(caseId){
+  const hs = state.caseHistory.filter(h=>h.caseId===caseId);
+  if(!hs.length) return null;
+  return Math.max(...hs.map(h=>h.ts));
+}
+
+function renderCase(){
+  const root = document.getElementById('case-content');
+  state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
+  if(state.caseView.mode === 'detail' && state.caseView.selectedCaseId){
+    renderCaseDetail(root, state.caseView.selectedCaseId);
+  }else{
+    renderCaseList(root);
+  }
+}
+
+function renderCaseList(root){
+  const v = state.caseView;
+  const allCases = state.cases;
+  // 絞り込み選択肢
+  const usedSubjects = [...new Set(allCases.map(c=>lawToSubject(c.law||'')).filter(Boolean))];
+  const subjOpts = '<option value="">すべて</option>' +
+    SUBJECTS_ORDER.filter(s=>usedSubjects.includes(s)).map(s=>
+      `<option value="${escapeHtml(s)}" ${v.filterSubject===s?'selected':''}>${escapeHtml(s)}</option>`
+    ).join('');
+  let frameSource = allCases;
+  if(v.filterSubject) frameSource = frameSource.filter(c=>lawToSubject(c.law||'')===v.filterSubject);
+  const usedFrames = [...new Set(frameSource.map(c=>c.frameNo).filter(n=>n!=null))].sort((a,b)=>a-b);
+  const frameOpts = '<option value="">すべて</option>' +
+    usedFrames.map(n=>`<option value="${n}" ${String(v.filterFrame)===String(n)?'selected':''}>F${n}</option>`).join('');
+
+  let html = `<div class="card case-intro">
+    <h2 class="case-h2">事例問題 <span class="case-sub">複雑事例の集中演習(模試など)</span></h2>
+    <div class="case-toolbar">
+      <select id="case-filter-subj">${subjOpts}</select>
+      <select id="case-filter-frame">${frameOpts}</select>
+      <span class="case-count">登録 ${state.cases.length}件</span>
+    </div>
+  </div>`;
+
+  const pool = getCasesPool();
+  if(!allCases.length){
+    html += `<div class="fig-empty"><div class="ico">🎯</div><div>まだ事例問題が登録されていません</div>
+      <div class="hint">「問題管理」タブから事例問題のJSONをインポートすると、ここに表示されます。<br>
+      JSON仕様は別途お渡しした「JSON仕様書」を参照してください。</div></div>`;
+  }else if(!pool.length){
+    html += `<div class="fig-empty"><div class="ico">―</div><div>条件に合う事例問題がありません</div></div>`;
+  }else{
+    html += `<div class="case-grid">`;
+    for(const c of pool){
+      const stats = getCaseStats(c.id);
+      const cls = stats.completed ? (stats.correct===stats.total ? 'completed' : 'in-progress') :
+                  stats.answered>0 ? 'in-progress' : 'fresh';
+      let accPill = '';
+      if(stats.completed){
+        const allCorrect = stats.correct===stats.total;
+        accPill = `<span class="pill ${allCorrect?'acc':'partial'}">${stats.correct}/${stats.total} 正解</span>`;
+      }else if(stats.answered>0){
+        accPill = `<span class="pill partial">演習中 ${stats.answered}/${stats.total}</span>`;
+      }else{
+        accPill = `<span class="pill">未着手</span>`;
+      }
+      html += `<div class="case-card ${cls}" data-caseid="${c.id}">
+        <div class="case-card-title">🎯 ${escapeHtml(c.title)}</div>
+        <div class="case-card-source">${escapeHtml(c.source||'')}</div>
+        <div class="case-card-meta">
+          ${c.law?`<span class="pill">${escapeHtml(c.law)}</span>`:''}
+          ${c.frameNo!=null?`<span class="pill">F${c.frameNo}</span>`:''}
+          ${c.sectionName?`<span class="pill">${escapeHtml(c.sectionName)}</span>`:''}
+          <span class="pill">小問${c.subQuestions.length}</span>
+          ${accPill}
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  root.innerHTML = html;
+  // イベント
+  document.getElementById('case-filter-subj').addEventListener('change',(e)=>{
+    state.caseView.filterSubject = e.target.value;
+    state.caseView.filterFrame = '';
+    saveState();renderCase();
+  });
+  document.getElementById('case-filter-frame').addEventListener('change',(e)=>{
+    state.caseView.filterFrame = e.target.value;
+    saveState();renderCase();
+  });
+  root.querySelectorAll('.case-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      state.caseView = {...state.caseView, mode:'detail', selectedCaseId:card.dataset.caseid};
+      state.caseSession = {currentSubIdx:0, answered:{}, userAnswers:{}};
+      saveState();renderCase();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+function renderCaseDetail(root, caseId){
+  const c = state.cases.find(x=>x.id===caseId);
+  if(!c){
+    state.caseView.mode = 'list';
+    renderCase();
+    return;
+  }
+  const idx = state.caseSession.currentSubIdx || 0;
+  const total = c.subQuestions.length;
+  const currentSub = c.subQuestions[idx];
+  const stats = getCaseStats(caseId);
+  const isMobile = window.innerWidth <= 900;
+
+  // 各 subQuestion の最新解答状態を取得
+  const subStates = c.subQuestions.map(sq=>{
+    const history = state.caseHistory.filter(h=>h.caseId===caseId && h.subLabel===sq.label).sort((a,b)=>b.ts-a.ts);
+    if(!history.length) return {state:'none'};
+    return {state: history[0].correct?'correct':'wrong', userAns: history[0].userAns};
+  });
+  const currentSubState = subStates[idx];
+  const answered = currentSubState.state !== 'none';
+  const userAns = answered ? currentSubState.userAns : null;
+  const correct = answered && userAns===currentSub.answer;
+
+  // 関連図表
+  const linkedFigIds = Array.isArray(c.figureIds) ? c.figureIds.filter(fid=>state.figures.some(f=>f.id===fid)) : [];
+
+  // 事例本文・ポイントのHTML
+  const caseTextHtml = `<div class="case-section-box">
+    <h3><span class="ico">📋</span>事例</h3>
+    <div class="case-text">${escapeHtml(c.caseText||'')}</div>
+  </div>`;
+  const pointHtml = c.point ? `<div class="case-section-box case-point-box">
+    <h3><span class="ico">💡</span>解き方のポイント(共通)</h3>
+    <div class="case-point-text">${escapeHtml(c.point)}</div>
+  </div>` : '';
+  const figsHtml = linkedFigIds.length ? `<div class="case-section-box">
+    <h3><span class="ico">📚</span>関連図表</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${linkedFigIds.map((fid,i)=>{
+        const f = state.figures.find(x=>x.id===fid);
+        if(!f) return '';
+        return `<button class="linked-fig-chip" data-figidx="${i}"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
+      }).join('')}
+    </div>
+  </div>` : '';
+
+  // 現在の小問
+  const subqHtml = `<div class="case-subq-card">
+    <div class="case-subq-head">
+      <span class="case-subq-label">${escapeHtml(currentSub.label)}</span>
+      <div>
+        <div class="case-subq-title">小問 ${idx+1} / ${total}</div>
+        <div style="font-size:11px;color:var(--ink-muted)">問${currentSub.label}</div>
+      </div>
+    </div>
+    <div class="case-subq-text">${escapeHtml(currentSub.text).replace(/\n/g,'<br>')}</div>
+    <div class="answer-row">
+      <button class="btn-ans maru" data-ans="true" ${answered?'disabled':''}>
+        <span>○</span><span class="label">正</span><span class="kbd">1 / O</span>
+      </button>
+      <button class="btn-ans batsu" data-ans="false" ${answered?'disabled':''}>
+        <span>×</span><span class="label">誤</span><span class="kbd">2 / X</span>
+      </button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-nav" id="case-prev" ${idx===0?'disabled':''}>← 前の小問</button>
+      <button class="btn-nav" id="case-next" ${idx===total-1?'disabled':''}>次の小問 →</button>
+    </div>
+    ${answered ? `<div class="case-subq-result ${correct?'correct':'wrong'}">
+      <div class="verdict"><span class="mark">${correct?'○':'×'}</span>${correct?'正解!':'不正解'}<span style="margin-left:auto;font-size:12px;color:var(--ink-muted);font-weight:400">正解: ${currentSub.answer?'○':'×'}</span></div>
+      <div class="label">解説</div>
+      <div class="body">${escapeHtml(currentSub.explanation||'')}</div>
+    </div>` : ''}
+  </div>`;
+
+  // ナビゲーション(小問1〜5のドット)
+  const dotsHtml = subStates.map((st,i)=>{
+    let cls = 'dot';
+    if(i===idx) cls += ' current';
+    else if(st.state==='correct') cls += ' correct';
+    else if(st.state==='wrong') cls += ' wrong';
+    return `<span class="${cls}" data-subidx="${i}">${escapeHtml(c.subQuestions[i].label)}</span>`;
+  }).join('');
+  const progressHtml = `<div class="case-subq-progress">
+    <span>小問:</span>
+    <div class="dots">${dotsHtml}</div>
+    <span style="margin-left:auto">解答済 ${stats.answered}/${total} ${stats.completed?`(${stats.correct}/${total}正解)`:''}</span>
+  </div>`;
+
+  // 全問完了時のサマリー
+  const allDone = stats.completed;
+  const summaryHtml = allDone ? `<div class="case-summary-banner ${stats.correct===total?'complete':''}">
+    <span class="icon">${stats.correct===total?'🎉':'⚠'}</span>
+    <div>
+      <div class="title">${stats.correct===total?'全問正解です!':`${total}問中 ${stats.correct}問正解`}</div>
+      <div class="desc">${stats.correct===total?'お見事!':'弱点として記録されます。後日「弱点」タブから復習できます。'}</div>
+    </div>
+    <div class="stat">${stats.correct}/${total}</div>
+  </div>` : '';
+
+  // モバイル版/デスクトップ版でレイアウトを切り替え
+  let html = `<div class="card">
+    <div class="case-detail-nav">
+      <button class="btn-back" id="case-back">← 一覧に戻る</button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;color:var(--ink)">🎯 ${escapeHtml(c.title)}</div>
+        <div style="font-size:11px;color:var(--ink-muted)">${escapeHtml(c.source||'')}　${c.law?`/ ${escapeHtml(c.law)} F${c.frameNo} ${escapeHtml(c.sectionName||'')}`:''}</div>
+      </div>
+    </div>
+    ${summaryHtml}
+    ${progressHtml}`;
+
+  if(isMobile){
+    // モバイル: 折りたたみ+小問の縦並び
+    html += `<div class="case-collapsible">
+      <details open><summary>📋 事例本文</summary><div class="col-body"><div class="case-text">${escapeHtml(c.caseText||'')}</div></div></details>
+    </div>`;
+    if(c.point) html += `<div class="case-collapsible">
+      <details><summary>💡 解き方のポイント</summary><div class="col-body"><div class="case-point-text">${escapeHtml(c.point)}</div></div></details>
+    </div>`;
+    if(linkedFigIds.length) html += `<div class="case-collapsible">
+      <details><summary>📚 関連図表</summary><div class="col-body" style="padding-top:10px">
+        ${linkedFigIds.map((fid,i)=>{
+          const f = state.figures.find(x=>x.id===fid);
+          if(!f) return '';
+          return `<button class="linked-fig-chip" data-figidx="${i}" style="margin:2px"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
+        }).join('')}
+      </div></details>
+    </div>`;
+    html += subqHtml;
+  }else{
+    // PC: 2カラム
+    html += `<div class="case-detail-layout">
+      <div class="case-detail-left">
+        ${caseTextHtml}
+        ${pointHtml}
+        ${figsHtml}
+      </div>
+      <div class="case-detail-right">
+        ${subqHtml}
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  root.innerHTML = html;
+
+  // イベント
+  document.getElementById('case-back').addEventListener('click',()=>{
+    state.caseView = {...state.caseView, mode:'list', selectedCaseId:null};
+    saveState();renderCase();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  root.querySelectorAll('.btn-ans').forEach(b=>{
+    if(!b.disabled) b.addEventListener('click',()=>answerCaseSubQuestion(b.dataset.ans==='true'));
+  });
+  document.getElementById('case-prev').addEventListener('click',()=>navCaseSub(-1));
+  document.getElementById('case-next').addEventListener('click',()=>navCaseSub(1));
+  root.querySelectorAll('.case-subq-progress .dot').forEach(d=>{
+    d.addEventListener('click',()=>{
+      state.caseSession.currentSubIdx = parseInt(d.dataset.subidx,10);
+      saveState();renderCase();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  // 関連図表チップ
+  root.querySelectorAll('.linked-fig-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const i = parseInt(chip.dataset.figidx, 10);
+      showFigureModal(linkedFigIds, i);
+    });
+  });
+}
+
+function answerCaseSubQuestion(userAns){
+  const caseId = state.caseView.selectedCaseId;
+  const c = state.cases.find(x=>x.id===caseId);
+  if(!c) return;
+  const idx = state.caseSession.currentSubIdx || 0;
+  const sq = c.subQuestions[idx];
+  // 既に解答済みなら何もしない
+  const history = state.caseHistory.filter(h=>h.caseId===caseId && h.subLabel===sq.label).sort((a,b)=>b.ts-a.ts);
+  if(history.length>0) return;
+  const correct = userAns===sq.answer;
+  state.caseHistory.push({
+    caseId, subLabel: sq.label, ts: Date.now(), userAns, correct
+  });
+  saveState();
+  renderCase();
+}
+
+function navCaseSub(dir){
+  const caseId = state.caseView.selectedCaseId;
+  const c = state.cases.find(x=>x.id===caseId);
+  if(!c) return;
+  const total = c.subQuestions.length;
+  const next = (state.caseSession.currentSubIdx || 0) + dir;
+  if(next<0 || next>=total) return;
+  state.caseSession.currentSubIdx = next;
+  saveState();
+  renderCase();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
@@ -2914,6 +3564,7 @@ function switchTab(name){
   document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
   document.getElementById('view-select').style.display = name==='select'?'block':'none';
   document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
+  document.getElementById('view-case').style.display = name==='case'?'block':'none';
   document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
   document.getElementById('view-figures').style.display = name==='figures'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
@@ -2922,6 +3573,13 @@ function switchTab(name){
   if(name==='manage') renderManage();
   if(name==='quiz') renderQuiz();
   if(name==='select') renderSelectQuiz();
+  if(name==='case'){
+    // タブクリック時は一覧画面から開始
+    if(!state.caseView || state.caseView.mode==='detail'){
+      state.caseView = {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
+    }
+    renderCase();
+  }
   if(name==='weak') renderWeak();
   if(name==='figures') renderFigures();
   if(name==='progress'){
@@ -3045,6 +3703,13 @@ function renderWeak(){
         <input type="date" id="w-date-to" value="${s.dateTo||''}">
       </div>
       <div class="weak-filter-row">
+        <label>問題種別</label>
+        <select id="w-qtype">
+          <option value="takuitsu" ${s.questionType==='takuitsu'?'selected':''}>択一問題</option>
+          <option value="case" ${s.questionType==='case'?'selected':''}>事例問題</option>
+        </select>
+      </div>
+      <div class="weak-filter-row">
         <label>科目</label>
         <select id="w-subject">${subjectOptions}</select>
       </div>
@@ -3061,6 +3726,11 @@ function renderWeak(){
       </div>
     </div>
   </div>`;
+
+  // 問題種別が「事例」の場合は事例カード一覧を表示
+  if(s.questionType === 'case'){
+    return renderWeakCases(root, html, s);
+  }
 
   // 検索結果サマリ
   const pool = getWeakPool();
@@ -3233,6 +3903,7 @@ function wireWeakFilters(){
   const el4 = document.getElementById('w-date-to'); if(el4) el4.addEventListener('change', onChange('dateTo'));
   const el5 = document.getElementById('w-subject'); if(el5) el5.addEventListener('change', onChange('subject'));
   const el6 = document.getElementById('w-sort'); if(el6) el6.addEventListener('change', onChange('sortBy'));
+  const el7 = document.getElementById('w-qtype'); if(el7) el7.addEventListener('change', onChange('questionType'));
   const reset = document.getElementById('w-reset');
   if(reset) reset.addEventListener('click',()=>{
     state.weakSession.missMin=1;
@@ -3243,9 +3914,143 @@ function wireWeakFilters(){
     state.weakSession.sortBy='count-desc';
     state.weakSession.currentIndex=0;
     state.weakSession.answered=false;
+    // questionTypeはユーザー意図のため初期化しない
     saveState();
     renderWeak();
   });
+}
+
+/* ===== 弱点の事例モード ===== */
+function renderWeakCases(root, headerHtml, s){
+  // 弱点と判定される事例(5問中1つでも最終誤答)を抽出
+  let pool = (state.cases||[]).filter(c=>isCaseWeak(c.id));
+  // 科目フィルタ
+  if(s.subject){
+    pool = pool.filter(c=>{
+      const subj = lawToSubject(c.law) || c.law;
+      return subj === s.subject;
+    });
+  }
+  // 解答日範囲フィルタ
+  if(s.dateFrom){
+    const [y,m,d] = s.dateFrom.split('-').map(Number);
+    const t = new Date(y, m-1, d, 0, 0, 0, 0).getTime();
+    pool = pool.filter(c=>{
+      const lastDate = getLastCaseAnswerDate(c.id);
+      return lastDate!==null && lastDate >= t;
+    });
+  }
+  if(s.dateTo){
+    const [y,m,d] = s.dateTo.split('-').map(Number);
+    const t = new Date(y, m-1, d, 23, 59, 59, 999).getTime();
+    pool = pool.filter(c=>{
+      const lastDate = getLastCaseAnswerDate(c.id);
+      return lastDate!==null && lastDate <= t;
+    });
+  }
+  // ソート
+  const sort = s.sortBy || 'count-desc';
+  if(sort==='count-desc' || sort==='count-asc'){
+    pool.sort((a,b)=>{
+      const ca = getCaseMistakeCount(a.id), cb = getCaseMistakeCount(b.id);
+      return sort==='count-desc' ? cb-ca : ca-cb;
+    });
+  }else if(sort==='date-desc' || sort==='date-asc'){
+    pool.sort((a,b)=>{
+      const da = getLastCaseAnswerDate(a.id)||0, db = getLastCaseAnswerDate(b.id)||0;
+      return sort==='date-desc' ? db-da : da-db;
+    });
+  }else if(sort==='range'){
+    pool.sort((a,b)=>{
+      const sa = SUBJECTS_ORDER.indexOf(lawToSubject(a.law)||a.law||'');
+      const sb = SUBJECTS_ORDER.indexOf(lawToSubject(b.law)||b.law||'');
+      if(sa!==sb) return (sa<0?999:sa) - (sb<0?999:sb);
+      const fa = a.frameNo==null ? 999 : a.frameNo;
+      const fb = b.frameNo==null ? 999 : b.frameNo;
+      if(fa!==fb) return fa-fb;
+      return (a.id||'').localeCompare(b.id||'');
+    });
+  }
+
+  let html = headerHtml;
+  if(!pool.length){
+    html += `<div class="weak-empty"><div class="ico">―</div>条件に合う事例問題はありません。<br>事例タブで問題を解いてミスすると、ここに表示されます。</div>`;
+    root.innerHTML = html;
+    wireWeakFilters();
+    return;
+  }
+  html += `<div class="weak-summary">
+    <div>検索結果: <span class="count"><b>${pool.length}</b>件</span></div>
+    <div class="weak-pos">事例(5問中1問でもミス)</div>
+  </div>`;
+  html += `<div class="weak-case-grid">`;
+  for(const c of pool){
+    const missCount = getCaseMistakeCount(c.id);
+    const lastDate = getLastCaseAnswerDate(c.id);
+    const lastDateStr = lastDate ? new Date(lastDate).toLocaleDateString('ja-JP') : '-';
+    // 各小問のステータス
+    const subStatus = (c.subQuestions||[]).map(sq=>{
+      const history = state.caseHistory.filter(h=>h.caseId===c.id && h.subLabel===sq.label).sort((a,b)=>b.ts-a.ts);
+      if(!history.length) return `<span class="sub-status u">${sq.label}</span>`;
+      return history[0].correct
+        ? `<span class="sub-status o">${sq.label}</span>`
+        : `<span class="sub-status x">${sq.label}</span>`;
+    }).join('');
+    html += `<div class="weak-case-card" data-caseid="${c.id}">
+      <div class="weak-case-head">
+        <span class="weak-badge">弱点</span>
+        <span class="pill accent">${escapeHtml(c.law||'')}</span>
+        ${c.frameNo!=null?`<span class="pill">F${c.frameNo}</span>`:''}
+        ${c.subUnit!=null?`<span class="pill">${escapeHtml(String(c.subUnit))}</span>`:''}
+      </div>
+      <div class="weak-case-title">${escapeHtml(c.title||c.id)}</div>
+      <div class="weak-case-source">${escapeHtml(c.source||'')} ${escapeHtml(c.sourceQNo||'')}</div>
+      <div class="weak-case-stats">
+        <span class="miss-count">ミス${missCount}回</span>
+        <span class="sub-status-row">${subStatus}</span>
+        <span style="font-size:10.5px;color:var(--ink-muted);margin-left:auto">最終誤答 ${lastDateStr}</span>
+      </div>
+      <button class="btn btn-sm weak-case-open" data-caseid="${c.id}">この事例を復習する →</button>
+    </div>`;
+  }
+  html += `</div>`;
+
+  root.innerHTML = html;
+  wireWeakFilters();
+  // 「この事例を復習する」クリック
+  root.querySelectorAll('.weak-case-open').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const cid = btn.dataset.caseid;
+      state.caseView = state.caseView || {mode:'detail',selectedCaseId:cid,filterSubject:'',filterFrame:''};
+      state.caseView.mode = 'detail';
+      state.caseView.selectedCaseId = cid;
+      state.caseView.currentSubIndex = 0;
+      state.caseView.answered = false;
+      state.caseView.userAnswer = null;
+      saveState();
+      switchTab('case');
+    });
+  });
+  // カードクリックでも同様
+  root.querySelectorAll('.weak-case-card').forEach(card=>{
+    card.addEventListener('click',(e)=>{
+      if(e.target.tagName === 'BUTTON') return;
+      const cid = card.dataset.caseid;
+      state.caseView = state.caseView || {mode:'detail',selectedCaseId:cid,filterSubject:'',filterFrame:''};
+      state.caseView.mode = 'detail';
+      state.caseView.selectedCaseId = cid;
+      state.caseView.currentSubIndex = 0;
+      state.caseView.answered = false;
+      state.caseView.userAnswer = null;
+      saveState();
+      switchTab('case');
+    });
+  });
+}
+
+/* 事例の総ミス回数(5問中ミスした回数の合計) */
+function getCaseMistakeCount(caseId){
+  return state.caseHistory.filter(h=>h.caseId===caseId && !h.correct).length;
 }
 
 /* ===== Progress view ===== */
