@@ -534,8 +534,15 @@
   .fig-empty .hint{margin-top:14px;font-size:12px;line-height:1.7}
 
   /* 図表拡大モーダル */
-  .fig-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
-  .fig-modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.85)}
+  .fig-modal{
+    position:fixed!important;
+    top:0;left:0;right:0;bottom:0;
+    z-index:99999;
+    align-items:center;justify-content:center;
+  }
+  .fig-modal[style*="display: flex"],
+  .fig-modal[style*="display:flex"]{display:flex!important}
+  .fig-modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85)}
   .fig-modal-content{
     position:relative;z-index:1;background:var(--paper);
     border-radius:8px;max-width:95vw;max-height:95vh;
@@ -1153,41 +1160,6 @@
     <div id="figures-content"></div>
   </main>
 
-  <!-- 図表拡大モーダル -->
-  <div id="figure-modal" class="fig-modal" style="display:none">
-    <div class="fig-modal-overlay"></div>
-    <div class="fig-modal-content">
-      <button class="fig-modal-close" id="fig-modal-close">×</button>
-      <div class="fig-modal-nav">
-        <button class="fig-modal-prev" id="fig-modal-prev">‹</button>
-        <span class="fig-modal-pos" id="fig-modal-pos"></span>
-        <button class="fig-modal-next" id="fig-modal-next">›</button>
-      </div>
-      <div class="fig-modal-image-wrap">
-        <img id="fig-modal-image" src="" alt="">
-      </div>
-      <div class="fig-modal-info">
-        <div class="fig-modal-title" id="fig-modal-title"></div>
-        <div class="fig-modal-meta" id="fig-modal-meta"></div>
-        <div class="fig-modal-notes" id="fig-modal-notes"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 図表紐付けピッカーモーダル -->
-  <div id="fig-picker-modal" class="fig-modal" style="display:none">
-    <div class="fig-modal-overlay"></div>
-    <div class="fig-picker-content">
-      <button class="fig-modal-close" id="fig-picker-close">×</button>
-      <h3 class="fig-picker-title">この問題に紐付ける図表を選択</h3>
-      <div class="fig-picker-desc" id="fig-picker-desc"></div>
-      <div class="fig-picker-list" id="fig-picker-list"></div>
-      <div class="fig-picker-foot">
-        <button class="btn" id="fig-picker-done">完了</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ===== PROGRESS VIEW ===== -->
   <main id="view-progress" style="display:none;grid-column:1/-1">
     <div id="progress-content"></div>
@@ -1307,6 +1279,40 @@
     <div class="actions">
       <button class="btn ghost" id="import-cancel">キャンセル</button>
       <button class="btn" id="import-do">インポート実行</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 図表モーダル(app外、body直下) ===== -->
+<div id="figure-modal" class="fig-modal" style="display:none">
+  <div class="fig-modal-overlay"></div>
+  <div class="fig-modal-content">
+    <button class="fig-modal-close" id="fig-modal-close">×</button>
+    <div class="fig-modal-nav" id="fig-modal-nav">
+      <button class="fig-modal-prev" id="fig-modal-prev">‹</button>
+      <span class="fig-modal-pos" id="fig-modal-pos"></span>
+      <button class="fig-modal-next" id="fig-modal-next">›</button>
+    </div>
+    <div class="fig-modal-image-wrap">
+      <img id="fig-modal-image" src="" alt="">
+    </div>
+    <div class="fig-modal-info">
+      <div class="fig-modal-title" id="fig-modal-title"></div>
+      <div class="fig-modal-meta" id="fig-modal-meta"></div>
+      <div class="fig-modal-notes" id="fig-modal-notes"></div>
+    </div>
+  </div>
+</div>
+
+<div id="fig-picker-modal" class="fig-modal" style="display:none">
+  <div class="fig-modal-overlay"></div>
+  <div class="fig-picker-content">
+    <button class="fig-modal-close" id="fig-picker-close">×</button>
+    <h3 class="fig-picker-title">この問題に紐付ける図表を選択</h3>
+    <div class="fig-picker-desc" id="fig-picker-desc"></div>
+    <div class="fig-picker-list" id="fig-picker-list"></div>
+    <div class="fig-picker-foot">
+      <button class="btn" id="fig-picker-done">完了</button>
     </div>
   </div>
 </div>
@@ -2785,10 +2791,13 @@ function deleteFigure(figId){
 
 let _figModalState = {figIds:[], idx:0};
 function showFigureModal(figIds, idx=0){
-  if(!figIds || !figIds.length) return;
+  if(!figIds || !figIds.length){alert('図表が見つかりません');return}
   _figModalState = {figIds: figIds.slice(), idx};
   renderFigureModal();
-  document.getElementById('figure-modal').style.display='flex';
+  const m = document.getElementById('figure-modal');
+  if(!m){alert('モーダル要素が見つかりません(figure-modal)');return}
+  // 確実に最前面に表示
+  m.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center';
 }
 function renderFigureModal(){
   const {figIds, idx} = _figModalState;
@@ -2810,7 +2819,10 @@ function renderFigureModal(){
     document.getElementById('fig-modal-next').disabled = idx>=figIds.length-1;
   }
 }
-function closeFigureModal(){document.getElementById('figure-modal').style.display='none'}
+function closeFigureModal(){
+  const m = document.getElementById('figure-modal');
+  if(m) m.style.cssText = 'display:none';
+}
 function navFigureModal(dir){
   const {figIds, idx} = _figModalState;
   const next = idx + dir;
@@ -2864,10 +2876,13 @@ function openFigurePicker(qid){
       });
     });
   }
-  document.getElementById('fig-picker-modal').style.display='flex';
+  const pm = document.getElementById('fig-picker-modal');
+  if(!pm){alert('ピッカーモーダル要素が見つかりません');return}
+  pm.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center';
 }
 function closeFigurePicker(){
-  document.getElementById('fig-picker-modal').style.display='none';
+  const pm = document.getElementById('fig-picker-modal');
+  if(pm) pm.style.cssText = 'display:none';
   _pickerQid = null;
 }
 function applyFigurePicker(){
