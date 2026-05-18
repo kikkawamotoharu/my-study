@@ -409,6 +409,54 @@
   .prog-status.empty{color:var(--ink-muted);opacity:.6;font-style:italic}
   .btn-sm{font-size:12px;padding:7px 14px;border-radius:5px}
 
+  /* ===== Progress: 科目一覧 ===== */
+  .subjects-card{padding:18px 22px}
+  .subjects-grid{display:flex;flex-direction:column;gap:8px}
+  .subject-card{
+    background:var(--bg);border:1px solid var(--line);border-radius:6px;
+    padding:14px 18px;cursor:pointer;
+    display:flex;align-items:center;gap:14px;
+    transition:all .15s;position:relative;
+  }
+  .subject-card:hover{background:var(--paper);border-color:var(--ink-soft);transform:translateX(2px)}
+  .subject-card.empty{opacity:.6}
+  .subject-card.done{border-left:4px solid var(--green)}
+  .subject-card.partial{border-left:4px solid var(--amber)}
+  .subject-card.fresh{border-left:4px solid var(--ink-muted)}
+  .subject-card.empty{border-left:4px solid var(--line)}
+  .sc-name{
+    font-family:'Shippori Mincho',serif;font-weight:700;
+    font-size:15px;color:var(--ink);flex:1;min-width:130px;
+  }
+  .sc-stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .sc-stat{
+    font-size:11.5px;color:var(--ink-soft);
+    background:var(--line-soft);padding:2px 9px;border-radius:99px;
+    font-variant-numeric:tabular-nums;
+  }
+  .sc-stat.empty{color:var(--ink-muted);font-style:italic;background:transparent}
+  .sc-stat.inprog{background:#FFF4E0;color:var(--amber);font-weight:500}
+  .sc-arrow{
+    color:var(--ink-muted);font-size:22px;font-weight:300;
+    line-height:1;flex-shrink:0;
+  }
+  .prog-nav{margin-bottom:14px}
+  .btn-back{
+    background:transparent;border:1px solid var(--line);
+    padding:6px 14px;border-radius:5px;font-size:12px;
+    color:var(--ink-soft);cursor:pointer;font-family:inherit;
+    transition:all .12s;
+  }
+  .btn-back:hover{background:var(--bg);color:var(--ink);border-color:var(--ink-muted)}
+
+  @media(max-width:640px){
+    .subjects-card{padding:14px}
+    .subject-card{padding:12px 14px;gap:10px}
+    .sc-name{font-size:13.5px;min-width:0}
+    .sc-stat{font-size:10.5px;padding:2px 7px}
+    .sc-arrow{font-size:18px}
+  }
+
   /* ===== Weak problems view (弱点問題) ===== */
   .weak-intro{margin-bottom:14px}
   .weak-h2{
@@ -1651,10 +1699,29 @@ function startFrameAttempt(subject, frameNo){
 function enterFrameMode(subject, frameNo){
   state.session.frameMode = {subject, frameNo};
   state.session.mode = 'seq';
-  state.session.currentIndex = 0;
   state.session.answered = false;
   state.session.userAnswer = null;
-  // 他のフィルタはクリア(モード優先)
+  // 進行中の演習があれば、最初の未解答問題から再開する
+  const k = frameKey(subject, frameNo);
+  const fa = state.frameAttempts[k];
+  if(fa && fa.current && fa.current.answeredIds && fa.current.answeredIds.length > 0){
+    // frameMode 設定済み → getPool() でフレーム内の問題を取得
+    state.session.currentIndex = 0;
+    const pool = getPool();
+    const answeredSet = new Set(fa.current.answeredIds);
+    let resumeIdx = 0;
+    for(let i=0; i<pool.length; i++){
+      if(!answeredSet.has(pool[i].id)){
+        resumeIdx = i;
+        break;
+      }
+      // 全問解答済みなら最後の問題に
+      if(i===pool.length-1) resumeIdx = i;
+    }
+    state.session.currentIndex = resumeIdx;
+  }else{
+    state.session.currentIndex = 0;
+  }
   saveState();
   switchTab('quiz');
 }
@@ -1908,10 +1975,29 @@ function restoreBackup(){
         if(!s.questions){throw new Error('不正な形式');}
         if(!confirm('現在のデータをすべて置き換えます。よろしいですか?')) return;
         state = s;
-        state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',answered:false,userAnswer:null};
+        // 全フィールドの初期化を保証(後方互換)
+        state.questions ||= [];
+        state.history ||= [];
+        state.bookmarks ||= {};
+        state.frameAttempts ||= {};
+        state.selectQuestions ||= [];
+        state.selectHistory ||= [];
+        state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null};
+        state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
+        state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null};
         saveState();
         renderQuiz();renderManage();renderSidebar();
-        alert('復元しました');
+        // 進捗管理画面も明示的に更新
+        const progressContent = document.getElementById('progress-content');
+        if(progressContent) renderProgress();
+        // 復元サマリー
+        const fa = state.frameAttempts || {};
+        let inProgressCount = 0, completedCount = 0;
+        for(const k in fa){
+          if(fa[k].current) inProgressCount++;
+          completedCount += (fa[k].history||[]).length;
+        }
+        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
       }catch(err){alert('復元失敗: '+err.message)}
     };
     r.readAsText(f);
@@ -2192,7 +2278,11 @@ function switchTab(name){
   if(name==='quiz') renderQuiz();
   if(name==='select') renderSelectQuiz();
   if(name==='weak') renderWeak();
-  if(name==='progress') renderProgress();
+  if(name==='progress'){
+    // タブクリック時は常に科目一覧から始める
+    state.progressView = {mode:'subjects', subject:null};
+    renderProgress();
+  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -2489,6 +2579,7 @@ function wireWeakFilters(){
 /* ===== Progress view ===== */
 function renderProgress(){
   const root = document.getElementById('progress-content');
+  state.progressView ||= {mode:'subjects', subject:null};
   // === データ概要(診断) ===
   const total = state.questions.length;
   const noFrame = state.questions.filter(q=>q.frameNo==null).length;
@@ -2507,81 +2598,135 @@ function renderProgress(){
   if(unknownLaws.size>0) summary += ` <span class="diag-warn">⚠ 未登録の法律: ${[...unknownLaws].join('、')}</span>`;
   summary += `</div>`;
 
+  if(state.progressView.mode === 'subjects'){
+    renderProgressSubjects(root, summary);
+  } else {
+    renderProgressFrames(root, summary, state.progressView.subject);
+  }
+}
+
+function renderProgressSubjects(root, summary){
   let html = `<div class="card progress-intro">
     <h2 class="prog-h2">進捗管理 <span class="prog-sub">フレーム別演習の達成状況</span></h2>
     ${summary}
-    <p class="prog-desc">各フレームの右にある「演習開始」ボタンから、フレーム単位で問題演習をスタートできます。フレーム内の全問題を解き終えると1回分が完了となり、最大10回まで記録されます。<br><span style="color:var(--ink-muted)">※「問題演習」タブから絞り込み・ランダム出題などで個別に解いた解答は、ここの進捗には反映されません(フレーム演習モードで解いたもののみ対象です)。</span></p>
+    <p class="prog-desc">学習したい <b>科目</b> をクリックすると、その科目のフレーム別進捗が表示されます。<br><span style="color:var(--ink-muted)">※「問題演習」タブから絞り込み・ランダム出題などで個別に解いた解答は、ここの進捗には反映されません(フレーム演習モードで解いたもののみ対象です)。</span></p>
   </div>`;
 
+  html += `<div class="card subjects-card"><div class="subjects-grid">`;
   for(const subject of SUBJECTS_ORDER){
     const frames = FRAMES[subject] || [];
     if(!frames.length) continue;
-    html += `<div class="card prog-chapter">
-      <h3 class="prog-law">${escapeHtml(subject)}</h3>
-      <div class="prog-frames">`;
+    let qTotal = 0, completedFrames = 0, inProgressFrames = 0;
     for(const fr of frames){
-      // 該当フレームの問題(科目=章でフィルタ。複数の個別法律にまたがる場合あり)
       const qs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n);
-      const total = qs.length;
-      // 内訳:この科目内の複数法律にまたがる場合、内訳を表示
-      const lawsInFrame = [...new Set(qs.map(q=>q.law))];
-      const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
-        ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
+      qTotal += qs.length;
       const k = frameKey(subject, fr.n);
-      const fa = state.frameAttempts[k] || {history:[], current:null};
-      const completed = fa.history.length;
-      const cur = fa.current;
-      // 10個のスロット表示
-      let slots = '';
-      for(let i=0;i<10;i++){
-        if(i < fa.history.length){
-          const att = fa.history[i];
-          const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
-          slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
-        }else if(i === fa.history.length && cur){
-          const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
-          slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
-        }else{
-          slots += `<div class="slot empty"><span class="slot-n">${i+1}</span></div>`;
-        }
+      const fa = state.frameAttempts[k];
+      if(fa){
+        if(fa.current) inProgressFrames++;
+        if((fa.history||[]).length>0) completedFrames++;
       }
-      // ステータステキスト
-      let status = '';
-      if(total===0){
-        status = `<span class="prog-status empty">問題未登録</span>`;
-      }else if(cur){
-        const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-        status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
-      }else if(completed){
-        const lastAtt = fa.history[fa.history.length-1];
-        const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-        status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
-      }else{
-        status = `<span class="prog-status">未着手 (${total}問登録)</span>`;
-      }
-      // アクションボタン
-      let btn = '';
-      if(total===0){
-        btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
-      }else if(cur){
-        btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="resume">演習を再開</button>`;
-      }else{
-        btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="start">演習開始</button>`;
-      }
-      html += `<div class="prog-frame">
-        <div class="pf-head">
-          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span>${lawBreakdown}</div>
-          ${btn}
-        </div>
-        <div class="pf-slots">${slots}</div>
-        <div class="pf-status">${status}</div>
-      </div>`;
     }
-    html += `</div></div>`;
+    const totalFrames = frames.length;
+    const status = qTotal===0 ? 'empty' : (completedFrames===totalFrames ? 'done' : (completedFrames>0 || inProgressFrames>0 ? 'partial' : 'fresh'));
+    html += `<div class="subject-card ${status}" data-subject="${escapeHtml(subject)}">
+      <div class="sc-name">${escapeHtml(subject)}</div>
+      <div class="sc-stats">
+        <span class="sc-stat">${qTotal}問 / ${totalFrames}フレーム</span>
+        ${qTotal===0 ? '<span class="sc-stat empty">問題未登録</span>' :
+          `<span class="sc-stat">完了 ${completedFrames}/${totalFrames}</span>` +
+          (inProgressFrames>0 ? `<span class="sc-stat inprog">演習中 ${inProgressFrames}</span>` : '')
+        }
+      </div>
+      <div class="sc-arrow">›</div>
+    </div>`;
   }
+  html += `</div></div>`;
 
   root.innerHTML = html;
-  // ボタンのイベント
+  root.querySelectorAll('.subject-card').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      state.progressView = {mode:'frames', subject: c.dataset.subject};
+      saveState();
+      renderProgress();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+function renderProgressFrames(root, summary, subject){
+  const frames = FRAMES[subject] || [];
+  let html = `<div class="card progress-intro">
+    <div class="prog-nav">
+      <button class="btn-back" id="prog-back">← 科目一覧に戻る</button>
+    </div>
+    <h2 class="prog-h2">${escapeHtml(subject)} <span class="prog-sub">フレーム別進捗</span></h2>
+    ${summary}
+  </div>`;
+
+  html += `<div class="card prog-chapter"><div class="prog-frames">`;
+  for(const fr of frames){
+    const qs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n);
+    const total = qs.length;
+    const lawsInFrame = [...new Set(qs.map(q=>q.law))];
+    const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
+      ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
+    const k = frameKey(subject, fr.n);
+    const fa = state.frameAttempts[k] || {history:[], current:null};
+    const completed = fa.history.length;
+    const cur = fa.current;
+    let slots = '';
+    for(let i=0;i<10;i++){
+      if(i < fa.history.length){
+        const att = fa.history[i];
+        const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+        slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
+      }else if(i === fa.history.length && cur){
+        const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
+        slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
+      }else{
+        slots += `<div class="slot empty"><span class="slot-n">${i+1}</span></div>`;
+      }
+    }
+    let status = '';
+    if(total===0){
+      status = `<span class="prog-status empty">問題未登録</span>`;
+    }else if(cur){
+      const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+      status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
+    }else if(completed){
+      const lastAtt = fa.history[fa.history.length-1];
+      const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+      status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
+    }else{
+      status = `<span class="prog-status">未着手 (${total}問登録)</span>`;
+    }
+    let btn = '';
+    if(total===0){
+      btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
+    }else if(cur){
+      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="resume">演習を再開</button>`;
+    }else{
+      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-act="start">演習開始</button>`;
+    }
+    html += `<div class="prog-frame">
+      <div class="pf-head">
+        <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span>${lawBreakdown}</div>
+        ${btn}
+      </div>
+      <div class="pf-slots">${slots}</div>
+      <div class="pf-status">${status}</div>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  root.innerHTML = html;
+  document.getElementById('prog-back').addEventListener('click', ()=>{
+    state.progressView = {mode:'subjects', subject:null};
+    saveState();
+    renderProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
   root.querySelectorAll('button[data-act]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const subj = b.dataset.subj;
