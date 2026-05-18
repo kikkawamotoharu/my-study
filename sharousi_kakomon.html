@@ -631,6 +631,38 @@
   }
   .fig-picker-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
 
+  /* 図表メタ情報入力フォーム */
+  .fig-meta-form{
+    padding:14px 18px;display:flex;flex-direction:column;gap:14px;
+    max-height:60vh;overflow-y:auto;
+  }
+  .fig-meta-field{display:flex;flex-direction:column;gap:4px}
+  .fig-meta-label{
+    font-family:'Shippori Mincho',serif;font-size:12px;font-weight:600;
+    color:var(--ink-soft);letter-spacing:.05em;
+  }
+  .fig-meta-req{color:var(--accent);margin-left:3px}
+  .fig-meta-hint{font-size:10.5px;color:var(--ink-muted);margin-top:2px}
+  .fig-meta-form input[type="text"],
+  .fig-meta-form input[type="number"],
+  .fig-meta-form select,
+  .fig-meta-form textarea{
+    padding:8px 11px;border:1px solid var(--line);border-radius:5px;
+    font:inherit;font-size:14px;background:var(--paper);color:var(--ink);
+    width:100%;box-sizing:border-box;font-family:'Shippori Mincho',serif;
+  }
+  .fig-meta-form select{
+    cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%23999' d='M0 0l5 6 5-6z'/%3e%3c/svg%3e");
+    background-repeat:no-repeat;background-position:right 10px center;
+    appearance:none;-webkit-appearance:none;padding-right:30px;
+  }
+  .fig-meta-form input:focus,
+  .fig-meta-form select:focus,
+  .fig-meta-form textarea:focus{
+    outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(184,58,46,.1);
+  }
+  .fig-meta-form textarea{resize:vertical;min-height:60px;line-height:1.7}
+
     /* 問題内の関連図表バッジ */
   .linked-figs{
     display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;
@@ -1532,6 +1564,39 @@
     <div class="fig-picker-list" id="fig-picker-list"></div>
     <div class="fig-picker-foot">
       <button class="btn" id="fig-picker-done">完了</button>
+    </div>
+  </div>
+</div>
+
+<div id="fig-meta-modal" class="fig-modal" style="display:none">
+  <div class="fig-modal-overlay"></div>
+  <div class="fig-picker-content">
+    <button class="fig-modal-close" id="fig-meta-close">×</button>
+    <h3 class="fig-picker-title" id="fig-meta-modal-title">図表の情報を入力</h3>
+    <div class="fig-picker-desc" id="fig-meta-modal-desc"></div>
+    <div class="fig-meta-form">
+      <label class="fig-meta-field">
+        <span class="fig-meta-label">タイトル <span class="fig-meta-req">*</span></span>
+        <input type="text" id="fig-meta-input-title" placeholder="例: 不服申立て・横断整理">
+      </label>
+      <label class="fig-meta-field">
+        <span class="fig-meta-label">関係する法令</span>
+        <select id="fig-meta-input-subject"></select>
+        <span class="fig-meta-hint">プルダウンから選択(未指定でも可)</span>
+      </label>
+      <label class="fig-meta-field">
+        <span class="fig-meta-label">フレーム番号</span>
+        <input type="number" id="fig-meta-input-frame" placeholder="例: 3" min="1" step="1">
+        <span class="fig-meta-hint">数値のみ。未指定なら空欄のままでOK</span>
+      </label>
+      <label class="fig-meta-field">
+        <span class="fig-meta-label">メモ(任意)</span>
+        <textarea id="fig-meta-input-notes" rows="3" placeholder="補足情報など"></textarea>
+      </label>
+    </div>
+    <div class="fig-picker-foot" style="gap:8px">
+      <button class="btn ghost" id="fig-meta-cancel">キャンセル</button>
+      <button class="btn" id="fig-meta-save">保存</button>
     </div>
   </div>
 </div>
@@ -2897,34 +2962,148 @@ async function handleFigureUpload(file){
     const status = document.getElementById('fig-upload-status');
     if(status) status.textContent = '画像を処理中...';
     const {dataUrl, w, h, size} = await compressImage(file);
-    // メタ情報入力
-    const title = prompt('図表のタイトルを入力してください:', file.name.replace(/\.[^.]+$/,''));
-    if(!title){
-      if(status) status.textContent = '';
-      return;
+    if(status) status.textContent = '';
+    // フォームモーダルでメタ情報を入力
+    openFigMetaModal({
+      mode: 'create',
+      dataUrl,
+      size,
+      suggestedTitle: file.name.replace(/\.[^.]+$/,'')
+    });
+  }catch(err){
+    alert('アップロード失敗: ' + err.message);
+  }
+}
+
+/* ===== 図表メタ情報入力モーダル ===== */
+let _figMetaContext = null;
+// 法令の選択肢を構築 (科目+各個別法律)
+function buildFigSubjectOptions(){
+  // 主要科目 + 各個別法律 (アプリで使われている法律名を集約)
+  const used = new Set();
+  // 既存figureから使われている科目名
+  for(const f of state.figures){
+    if(f.subject) used.add(f.subject);
+  }
+  // questionsから使われている法律名
+  for(const q of state.questions){
+    if(q.law) used.add(q.law);
+  }
+  // cases、selectQuestionsからも
+  for(const c of state.cases){
+    if(c.law) used.add(c.law);
+  }
+  for(const s of state.selectQuestions){
+    if(s.law) used.add(s.law);
+  }
+  // 主要科目を先頭に
+  const list = [];
+  const seenSet = new Set();
+  for(const subj of SUBJECTS_ORDER){
+    list.push(subj);
+    seenSet.add(subj);
+  }
+  // 個別法律のうち主要科目以外を追加 (一般常識の個別法など)
+  const extras = [...used].filter(x=>!seenSet.has(x)).sort();
+  return {main: list, extras};
+}
+
+function openFigMetaModal(context){
+  _figMetaContext = context;
+  const titleEl = document.getElementById('fig-meta-modal-title');
+  const descEl = document.getElementById('fig-meta-modal-desc');
+  const inputTitle = document.getElementById('fig-meta-input-title');
+  const inputSubject = document.getElementById('fig-meta-input-subject');
+  const inputFrame = document.getElementById('fig-meta-input-frame');
+  const inputNotes = document.getElementById('fig-meta-input-notes');
+
+  // 法令プルダウンを構築
+  const {main, extras} = buildFigSubjectOptions();
+  let opts = '<option value="">(指定なし)</option>';
+  opts += '<optgroup label="主要科目">';
+  for(const s of main){
+    opts += `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`;
+  }
+  opts += '</optgroup>';
+  if(extras.length){
+    opts += '<optgroup label="個別法律・その他">';
+    for(const s of extras){
+      opts += `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`;
     }
-    const subjects = SUBJECTS_ORDER.join('\n');
-    const subj = prompt(`科目を選択(以下からコピー、または空欄):\n\n${subjects}`, '');
-    const frameInput = prompt('フレーム番号(数字のみ、なければ空欄):', '');
-    const frameNo = frameInput ? parseInt(frameInput, 10) : null;
-    const notes = prompt('メモ(任意):', '') || '';
+    opts += '</optgroup>';
+  }
+  inputSubject.innerHTML = opts;
+
+  if(context.mode === 'create'){
+    titleEl.textContent = '図表の情報を入力';
+    descEl.textContent = '画像処理が完了しました。下記の情報を入力してください。';
+    inputTitle.value = context.suggestedTitle || '';
+    inputSubject.value = '';
+    inputFrame.value = '';
+    inputNotes.value = '';
+  } else if(context.mode === 'edit'){
+    const fig = state.figures.find(f=>f.id===context.figId);
+    if(!fig){closeFigMetaModal();return}
+    titleEl.textContent = '図表の情報を編集';
+    descEl.textContent = '内容を変更して「保存」を押してください。';
+    inputTitle.value = fig.title || '';
+    inputSubject.value = fig.subject || '';
+    inputFrame.value = fig.frameNo != null ? String(fig.frameNo) : '';
+    inputNotes.value = fig.notes || '';
+  }
+
+  const m = document.getElementById('fig-meta-modal');
+  if(!m){alert('メタ情報モーダルが見つかりません');return}
+  m.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center';
+  setTimeout(()=>inputTitle.focus(), 60);
+}
+
+function closeFigMetaModal(){
+  const m = document.getElementById('fig-meta-modal');
+  if(m) m.style.cssText = 'display:none';
+  _figMetaContext = null;
+}
+
+function saveFigMetaModal(){
+  if(!_figMetaContext){closeFigMetaModal();return}
+  const title = document.getElementById('fig-meta-input-title').value.trim();
+  if(!title){alert('タイトルは必須です');return}
+  const subject = document.getElementById('fig-meta-input-subject').value;
+  const frameInput = document.getElementById('fig-meta-input-frame').value.trim();
+  const fn = frameInput ? parseInt(frameInput, 10) : null;
+  const frameNo = isNaN(fn) ? null : fn;
+  const notes = document.getElementById('fig-meta-input-notes').value.trim();
+
+  if(_figMetaContext.mode === 'create'){
     const fig = {
       id: 'fig_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-      title: title.trim(),
-      subject: subj && SUBJECTS_ORDER.includes(subj.trim()) ? subj.trim() : (subj?.trim() || ''),
-      frameNo: isNaN(frameNo) ? null : frameNo,
-      notes: notes.trim(),
-      imageData: dataUrl,
+      title,
+      subject,
+      frameNo,
+      notes,
+      imageData: _figMetaContext.dataUrl,
       createdAt: Date.now()
     };
     state.figures.push(fig);
     saveState();
-    if(status) status.textContent = `アップロード完了 (${Math.round(size/1024)}KB)`;
-    setTimeout(()=>{if(status) status.textContent=''}, 3000);
-    renderFigures();
-  }catch(err){
-    alert('アップロード失敗: ' + err.message);
+    const status = document.getElementById('fig-upload-status');
+    if(status){
+      const kb = Math.round((_figMetaContext.size||0)/1024);
+      status.textContent = `アップロード完了 (${kb}KB)`;
+      setTimeout(()=>{if(status) status.textContent=''}, 3000);
+    }
+  } else if(_figMetaContext.mode === 'edit'){
+    const fig = state.figures.find(f=>f.id===_figMetaContext.figId);
+    if(!fig){closeFigMetaModal();return}
+    fig.title = title;
+    fig.subject = subject;
+    fig.frameNo = frameNo;
+    fig.notes = notes;
+    saveState();
   }
+
+  closeFigMetaModal();
+  renderFigures();
 }
 
 function getFiguresPool(){
@@ -2989,6 +3168,7 @@ function renderFigures(){
     html += `<div class="card"><div class="fig-grid">`;
     for(const fig of pool){
       const linkedCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(fig.id)).length;
+      const linkedCaseCount = state.cases.filter(c=>Array.isArray(c.figureIds) && c.figureIds.includes(fig.id)).length;
       html += `<div class="fig-card" data-figid="${fig.id}">
         <div class="fig-card-img"><img src="${fig.imageData}" alt="${escapeHtml(fig.title)}"></div>
         <div class="fig-card-body">
@@ -2997,6 +3177,7 @@ function renderFigures(){
             ${fig.subject?`<span class="pill">${escapeHtml(fig.subject)}</span>`:''}
             ${fig.frameNo!=null?`<span class="pill">F${fig.frameNo}</span>`:''}
             ${linkedCount>0?`<span class="pill">🔗 ${linkedCount}問</span>`:''}
+            ${linkedCaseCount>0?`<span class="pill">🎯 ${linkedCaseCount}事例</span>`:''}
           </div>
         </div>
         <div class="fig-card-actions">
@@ -3048,30 +3229,22 @@ function renderFigures(){
 function editFigure(figId){
   const fig = state.figures.find(f=>f.id===figId);
   if(!fig) return;
-  const newTitle = prompt('タイトル:', fig.title);
-  if(newTitle===null) return;
-  const subjects = SUBJECTS_ORDER.join('\n');
-  const newSubj = prompt(`科目(以下からコピー、または空欄):\n\n${subjects}`, fig.subject||'');
-  if(newSubj===null) return;
-  const newFrameInput = prompt('フレーム番号(数字、空欄なら未設定):', fig.frameNo!=null?String(fig.frameNo):'');
-  if(newFrameInput===null) return;
-  const newNotes = prompt('メモ:', fig.notes||'');
-  if(newNotes===null) return;
-  fig.title = newTitle.trim();
-  fig.subject = newSubj && SUBJECTS_ORDER.includes(newSubj.trim()) ? newSubj.trim() : (newSubj?.trim() || '');
-  const fn = newFrameInput.trim() ? parseInt(newFrameInput.trim(), 10) : null;
-  fig.frameNo = isNaN(fn) ? null : fn;
-  fig.notes = newNotes.trim();
-  saveState();
-  renderFigures();
+  openFigMetaModal({mode: 'edit', figId});
 }
 
 function deleteFigure(figId){
   const fig = state.figures.find(f=>f.id===figId);
   if(!fig) return;
-  const linkedCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(figId)).length;
+  const linkedQuestionCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(figId)).length;
+  const linkedCaseCount = state.cases.filter(c=>Array.isArray(c.figureIds) && c.figureIds.includes(figId)).length;
+  const linkedTotal = linkedQuestionCount + linkedCaseCount;
   let msg = `図表「${fig.title}」を削除しますか?`;
-  if(linkedCount>0) msg += `\n(${linkedCount}問の紐付けも自動解除されます)`;
+  if(linkedTotal>0){
+    const parts = [];
+    if(linkedQuestionCount>0) parts.push(`択一${linkedQuestionCount}問`);
+    if(linkedCaseCount>0) parts.push(`事例${linkedCaseCount}件`);
+    msg += `\n(${parts.join('・')}の紐付けも自動解除されます)`;
+  }
   if(!confirm(msg)) return;
   state.figures = state.figures.filter(f=>f.id!==figId);
   // 各問題の紐付けからも削除
@@ -3079,6 +3252,13 @@ function deleteFigure(figId){
     if(Array.isArray(q.figureIds)){
       q.figureIds = q.figureIds.filter(id=>id!==figId);
       if(!q.figureIds.length) delete q.figureIds;
+    }
+  }
+  // 各事例の紐付けからも削除
+  for(const c of state.cases){
+    if(Array.isArray(c.figureIds)){
+      c.figureIds = c.figureIds.filter(id=>id!==figId);
+      if(!c.figureIds.length) delete c.figureIds;
     }
   }
   saveState();
@@ -3127,23 +3307,38 @@ function navFigureModal(dir){
   renderFigureModal();
 }
 
-let _pickerQid = null;
-function openFigurePicker(qid){
-  const q = state.questions.find(x=>x.id===qid);
-  if(!q) return;
-  _pickerQid = qid;
-  const linked = new Set(q.figureIds||[]);
-  let descText = `問題:${q.year||''} ${q.law||''} ${q.qno||''}`;
-  if(q.category) descText += ` / ${q.category}`;
+let _pickerTarget = null; // {id, type:'question'|'case'}
+function openFigurePicker(id, type='question'){
+  let entity;
+  if(type === 'case'){
+    entity = state.cases.find(x=>x.id===id);
+  } else {
+    entity = state.questions.find(x=>x.id===id);
+  }
+  if(!entity) return;
+  _pickerTarget = {id, type};
+  // 互換用に旧変数も残す
+  _pickerQid = (type==='question') ? id : null;
+
+  const linked = new Set(entity.figureIds||[]);
+  let descText;
+  if(type === 'case'){
+    descText = `事例:${entity.title||entity.id}`;
+    if(entity.source) descText += ` / ${entity.source}`;
+  } else {
+    descText = `問題:${entity.year||''} ${entity.law||''} ${entity.qno||''}`;
+    if(entity.category) descText += ` / ${entity.category}`;
+  }
   document.getElementById('fig-picker-desc').textContent = descText;
 
   const figs = state.figures.slice().sort((a,b)=>{
-    // この問題に関連しそうな図表を上位に
-    const sameLawA = a.subject===lawToSubject(q.law||'')?1:0;
-    const sameLawB = b.subject===lawToSubject(q.law||'')?1:0;
+    // この対象に関連しそうな図表を上位に
+    const targetSubject = lawToSubject(entity.law||'');
+    const sameLawA = a.subject===targetSubject?1:0;
+    const sameLawB = b.subject===targetSubject?1:0;
     if(sameLawA!==sameLawB) return sameLawB - sameLawA;
-    const sameFrameA = a.frameNo===q.frameNo?1:0;
-    const sameFrameB = b.frameNo===q.frameNo?1:0;
+    const sameFrameA = a.frameNo===entity.frameNo?1:0;
+    const sameFrameB = b.frameNo===entity.frameNo?1:0;
     if(sameFrameA!==sameFrameB) return sameFrameB - sameFrameA;
     return (a.title||'').localeCompare(b.title||'');
   });
@@ -3180,20 +3375,27 @@ function closeFigurePicker(){
   const pm = document.getElementById('fig-picker-modal');
   if(pm) pm.style.cssText = 'display:none';
   _pickerQid = null;
+  _pickerTarget = null;
 }
 function applyFigurePicker(){
-  if(!_pickerQid) {closeFigurePicker();return}
-  const q = state.questions.find(x=>x.id===_pickerQid);
-  if(!q) {closeFigurePicker();return}
+  if(!_pickerTarget) {closeFigurePicker();return}
+  const {id, type} = _pickerTarget;
+  let entity;
+  if(type === 'case'){
+    entity = state.cases.find(x=>x.id===id);
+  } else {
+    entity = state.questions.find(x=>x.id===id);
+  }
+  if(!entity) {closeFigurePicker();return}
   const linkedIds = [];
   document.querySelectorAll('#fig-picker-list .fig-picker-item').forEach(item=>{
     const cb = item.querySelector('input[type="checkbox"]');
     if(cb && cb.checked) linkedIds.push(item.dataset.figid);
   });
   if(linkedIds.length){
-    q.figureIds = linkedIds;
+    entity.figureIds = linkedIds;
   } else {
-    delete q.figureIds;
+    delete entity.figureIds;
   }
   saveState();
   closeFigurePicker();
@@ -3201,6 +3403,7 @@ function applyFigurePicker(){
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
   if(activeTab==='quiz') renderQuiz();
   else if(activeTab==='weak') renderWeak();
+  else if(activeTab==='case') renderCase();
 }
 
 /* ===== Case problems (事例問題) ===== */
@@ -3388,16 +3591,18 @@ function renderCaseDetail(root, caseId){
     <h3><span class="ico">💡</span>解き方のポイント(共通)</h3>
     <div class="case-point-text">${escapeHtml(c.point)}</div>
   </div>` : '';
-  const figsHtml = linkedFigIds.length ? `<div class="case-section-box">
+  // 関連図表 (PC版用) - 常に表示。紐付けがなくてもボタンで追加可能。
+  const figsHtml = `<div class="case-section-box">
     <h3><span class="ico">📚</span>関連図表</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap">
-      ${linkedFigIds.map((fid,i)=>{
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      ${linkedFigIds.length ? linkedFigIds.map((fid,i)=>{
         const f = state.figures.find(x=>x.id===fid);
         if(!f) return '';
         return `<button class="linked-fig-chip" data-figidx="${i}"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
-      }).join('')}
+      }).join('') : '<span style="font-size:11.5px;color:var(--ink-muted)">紐付けなし</span>'}
+      <button class="link-fig-btn" id="case-link-fig-btn">${linkedFigIds.length?'🔗 紐付けを変更':'🔗 図表を紐付け'}</button>
     </div>
-  </div>` : '';
+  </div>`;
 
   // 現在の小問
   const subqHtml = `<div class="case-subq-card">
@@ -3474,12 +3679,18 @@ function renderCaseDetail(root, caseId){
       <details><summary>💡 解き方のポイント</summary><div class="col-body"><div class="case-point-text">${escapeHtml(c.point)}</div></div></details>
     </div>`;
     if(linkedFigIds.length) html += `<div class="case-collapsible">
-      <details><summary>📚 関連図表</summary><div class="col-body" style="padding-top:10px">
+      <details><summary>📚 関連図表 (${linkedFigIds.length})</summary><div class="col-body" style="padding-top:10px">
         ${linkedFigIds.map((fid,i)=>{
           const f = state.figures.find(x=>x.id===fid);
           if(!f) return '';
           return `<button class="linked-fig-chip" data-figidx="${i}" style="margin:2px"><span class="ico">🔍</span>${escapeHtml(f.title)}</button>`;
         }).join('')}
+        <div style="margin-top:8px"><button class="link-fig-btn" id="case-link-fig-btn">🔗 紐付けを変更</button></div>
+      </div></details>
+    </div>`;
+    else html += `<div class="case-collapsible">
+      <details><summary>📚 関連図表 (紐付けなし)</summary><div class="col-body" style="padding-top:10px">
+        <button class="link-fig-btn" id="case-link-fig-btn">🔗 図表を紐付け</button>
       </div></details>
     </div>`;
     html += subqHtml;
@@ -3525,6 +3736,9 @@ function renderCaseDetail(root, caseId){
       showFigureModal(linkedFigIds, i);
     });
   });
+  // 図表紐付けボタン (PC・モバイル共通)
+  const caseLinkBtn = document.getElementById('case-link-fig-btn');
+  if(caseLinkBtn) caseLinkBtn.addEventListener('click',()=>openFigurePicker(caseId, 'case'));
 }
 
 function answerCaseSubQuestion(userAns){
@@ -4231,6 +4445,11 @@ function init(){
   document.getElementById('fig-picker-close').addEventListener('click', closeFigurePicker);
   document.querySelector('#fig-picker-modal .fig-modal-overlay').addEventListener('click', closeFigurePicker);
   document.getElementById('fig-picker-done').addEventListener('click', applyFigurePicker);
+  // 図表メタ情報入力モーダルのイベント
+  document.getElementById('fig-meta-close').addEventListener('click', closeFigMetaModal);
+  document.querySelector('#fig-meta-modal .fig-modal-overlay').addEventListener('click', closeFigMetaModal);
+  document.getElementById('fig-meta-cancel').addEventListener('click', closeFigMetaModal);
+  document.getElementById('fig-meta-save').addEventListener('click', saveFigMetaModal);
 
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
