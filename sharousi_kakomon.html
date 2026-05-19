@@ -2804,11 +2804,48 @@ function openImportModal(){
   document.getElementById('modal-import').style.display='flex';
 }
 function doImport(){
-  const raw = document.getElementById('import-text').value.trim();
+  let raw = document.getElementById('import-text').value.trim();
   if(!raw){alert('JSONを貼り付けてください');return}
+
+  // ===== 寛容化1: Markdownコードブロック(```json ... ```)を除去 =====
+  raw = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+
+  let parsed;
+  try{ parsed = JSON.parse(raw) }catch(e){ alert('JSON解析エラー: '+e.message); return }
+
+  // ===== 寛容化2: 配列でない場合のリカバリー =====
   let arr;
-  try{arr = JSON.parse(raw)}catch(e){alert('JSON解析エラー: '+e.message);return}
-  if(!Array.isArray(arr)){alert('配列で渡してください');return}
+  if(Array.isArray(parsed)){
+    arr = parsed;
+  } else if(parsed && typeof parsed === 'object'){
+    // ケース2-A: {"questions":[...]} や {"data":[...]} のような包む形 → 中の配列を取り出す
+    const wrapKeys = ['questions','data','items','problems','問題','択一','選択式','事例'];
+    let inner = null;
+    for(const k of wrapKeys){
+      if(Array.isArray(parsed[k])){ inner = parsed[k]; break; }
+    }
+    if(inner){
+      arr = inner;
+    }
+    // ケース2-B: 単一の問題オブジェクト {text:"...", answer:true, ...} → 配列化
+    else if(parsed.text || parsed.problemText || parsed.caseText || Array.isArray(parsed.subQuestions)){
+      arr = [parsed];
+    }
+    // ケース2-C: 日本語フィールド名のJSON({"問題文":"...","選択肢":[...]} など)→ 分かりやすいエラー
+    else if(parsed['問題文'] || parsed['選択肢'] || parsed['メタデータ'] || parsed['ポイント']){
+      alert('このJSONは日本語のフィールド名(「問題文」「選択肢」「メタデータ」など)を使っています。\n\nこのアプリは英語フィールド名("text", "answer", "choices" など)のJSONを必要とします。\n\nClaudeに依頼するときは、必ず「JSON仕様書v3に従って」と指示してください。');
+      return;
+    }
+    // ケース2-D: 何の構造か分からない → 包む形か単一オブジェクトかのヒントを出す
+    else {
+      alert('JSONの形式が認識できません。\n\n以下のいずれかの形にしてください:\n\n①  問題1つ:\n[{"text":"問題文", "answer":true, ...}]\n\n② 複数問題:\n[{...}, {...}, ...]\n\nもし {"questions":[...]} のような包み方になっていれば、外側の波カッコを外してください。');
+      return;
+    }
+  } else {
+    alert('JSONの中身が配列でもオブジェクトでもありません。');
+    return;
+  }
+
   let addedTakuitsu=0, addedSelect=0, addedCase=0, skipped=0;
   for(const q of arr){
     // 事例判定: type:"case" または subQuestions/caseText 等の存在
