@@ -336,6 +336,22 @@
   }
   .frame-banner .fb-actions button:hover{background:rgba(245,242,236,.2);color:#fff;border-color:rgba(245,242,236,.4)}
 
+  /* フレーム完了バナー(緑系・お祝い感) */
+  .frame-banner.completed{
+    background:linear-gradient(135deg,#2D7A4F 0%,#4CAF50 100%);
+    box-shadow:0 2px 12px rgba(45,122,79,.35);
+  }
+  .frame-banner.completed .fb-mark{background:#FFB74D;color:#3E2723}
+  .frame-banner.completed .fb-title{font-size:15px;font-weight:700}
+  .frame-banner.completed .fb-note{font-size:12px;opacity:.9;margin:6px 0 10px;line-height:1.55}
+  .frame-banner.completed .fb-actions button{
+    background:rgba(255,255,255,.18);font-size:12px;padding:7px 14px;
+  }
+  .frame-banner.completed .fb-actions button.primary{
+    background:#fff;color:#2D7A4F;font-weight:600;border-color:#fff;
+  }
+  .frame-banner.completed .fb-actions button.primary:hover{background:#F5F2EC;color:#1E5F38}
+
   /* ===== Progress view ===== */
   .progress-intro{margin-bottom:14px}
   .prog-h2{
@@ -2317,6 +2333,23 @@ function renderQuiz(){
 
   // フレーム演習中バナー(問題があってもなくても表示)
   const fmBanner = (()=>{
+    // フレーム完了通知バナー(優先)
+    if(state.session.frameCompleted){
+      const fc = state.session.frameCompleted;
+      const kindLbl = (fc.kind==='forecast') ? '予想問' : '過去問';
+      const kindBadge = (fc.kind==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:6px">予想</span>' : '';
+      return `<div class="frame-banner completed">
+        <div class="fb-head">
+          <span class="fb-mark">完了</span>
+          <span class="fb-title">🎉 ${escapeHtml(fc.subject)} ${escapeHtml(frameTitle(fc.subject,fc.frameNo))}${kindBadge}<br><span style="font-size:13px;font-weight:500;opacity:.95">(${kindLbl})${fc.attemptNo}回目の演習が完了しました!</span></span>
+        </div>
+        <div class="fb-note">📖 最終問の解説をゆっくり確認したら、下のボタンで進捗管理に戻ってください。</div>
+        <div class="fb-actions">
+          <button class="primary" id="fc-back-progress">進捗管理に戻る</button>
+          <button id="fc-dismiss">この演習画面を続ける</button>
+        </div>
+      </div>`;
+    }
     if(!state.session.frameMode) return '';
     const fm = state.session.frameMode;
     const subject = fm.subject || fm.law;
@@ -2396,8 +2429,10 @@ function renderQuiz(){
     </div>
 
     <div class="nav-row">
+      <button class="btn-nav" id="btn-first" ${idx===0?'disabled':''} title="最初の問題へ">⏮ 最初へ</button>
       <button class="btn-nav" id="btn-prev" ${idx===0?'disabled':''}>← 前へ</button>
       <button class="btn-nav" id="btn-next">次へ →</button>
+      <button class="btn-nav" id="btn-last" ${idx===pool.length-1?'disabled':''} title="最後の問題へ">最後へ ⏭</button>
     </div>
     <div class="kbd-hint">キーボード: <code>1</code>/<code>O</code>=○ &nbsp; <code>2</code>/<code>X</code>=× &nbsp; <code>←</code>=前 &nbsp; <code>→</code>=次</div>
 
@@ -2414,6 +2449,10 @@ function renderQuiz(){
   card.querySelectorAll('.btn-ans').forEach(b=>b.addEventListener('click',()=>answerQuestion(b.dataset.ans==='true')));
   document.getElementById('btn-prev').addEventListener('click',()=>nav(-1));
   document.getElementById('btn-next').addEventListener('click',()=>nav(1));
+  const bFirst = document.getElementById('btn-first');
+  if(bFirst) bFirst.addEventListener('click',()=>navTo(0));
+  const bLast = document.getElementById('btn-last');
+  if(bLast) bLast.addEventListener('click',()=>navTo(pool.length-1));
   card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBm(q.id,b.dataset.bm)));
   // 関連図表バッジクリック
   card.querySelectorAll('.linked-fig-chip').forEach(chip=>{
@@ -2436,6 +2475,24 @@ function renderQuiz(){
   // フレーム演習バナーのボタン
   const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
   const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
+  // フレーム完了バナーのボタン
+  const fcBack = document.getElementById('fc-back-progress');
+  if(fcBack) fcBack.addEventListener('click', ()=>{
+    state.session.frameCompleted = null;
+    state.session.frameMode = null;
+    state.session.answered = false;
+    state.session.userAnswer = null;
+    saveState();
+    switchTab('progress');
+  });
+  const fcDis = document.getElementById('fc-dismiss');
+  if(fcDis) fcDis.addEventListener('click', ()=>{
+    // 完了バナーを消し、最終問の解説を引き続き閲覧可能にする(frameModeも抜ける)
+    state.session.frameCompleted = null;
+    state.session.frameMode = null;
+    saveState();
+    renderQuiz();
+  });
 
   renderSidebar();
 }
@@ -2492,6 +2549,22 @@ function nav(dir){
   renderQuiz();
 }
 
+/* 指定インデックスへ直接ジャンプ(「最初へ」「最後へ」用) */
+function navTo(idx){
+  const pool = getPool();
+  if(!pool.length) return;
+  // 範囲外を安全にクランプ
+  if(idx < 0) idx = 0;
+  if(idx > pool.length - 1) idx = pool.length - 1;
+  state.session.currentIndex = idx;
+  state.session.answered = false;
+  state.session.userAnswer = null;
+  saveState();
+  renderQuiz();
+  // 解答エリアまでスクロールして見やすく
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
 function toggleBm(qid,color){
   state.bookmarks[qid] ||= [];
   const i = state.bookmarks[qid].indexOf(color);
@@ -2507,6 +2580,7 @@ function toggleBm(qid,color){
    引数 kind: 'past' | 'forecast' (省略時は 'past')。同じフレームでも過去問と予想問は別管理。 */
 function startFrameAttempt(subject, frameNo, kind){
   kind = kind || 'past';
+  state.session.frameCompleted = null; // 前回完了フラグをクリア
   const k = frameKey(subject, frameNo, kind);
   state.frameAttempts[k] ||= {history:[], current:null};
   const fa = state.frameAttempts[k];
@@ -2570,6 +2644,7 @@ function enterFrameMode(subject, frameNo, kind){
 
 function exitFrameMode(){
   state.session.frameMode = null;
+  state.session.frameCompleted = null;
   state.session.answered = false;
   state.session.userAnswer = null;
   saveState();
@@ -2607,13 +2682,16 @@ function checkFrameComplete(){
     fa.history.push(fa.current);
     if(fa.history.length > 10) fa.history.shift(); // 最新10件保持
     fa.current = null;
-    state.session.frameMode = null;
+    // フレーム完了フラグを設定(frameModeはまだ維持 → 最終問の解説を引き続き表示)
+    state.session.frameCompleted = {
+      subject: subject,
+      frameNo: frameNo,
+      kind: fmKind,
+      attemptNo: fa.history.length
+    };
     saveState();
-    const kindLbl = (fmKind==='forecast') ? '予想問' : '過去問';
-    setTimeout(()=>{
-      alert(`🎉 フレーム完了!\n${subject} ${frameTitle(subject, frameNo)}(${kindLbl})の${fa.history.length}回目の演習が終わりました。`);
-      switchTab('progress');
-    }, 300);
+    // 画面内バナーで通知。alert/switchTab は廃止し、ユーザーが解説を読み終わってから手動で進捗管理に戻れるようにする
+    renderQuiz();
   }
 }
 
