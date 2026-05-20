@@ -1312,6 +1312,112 @@
     .q-box{font-size:14.5px;padding:16px 14px}
     nav.tabs button{font-size:13px;padding:11px 2px}
   }
+  /* ===== 条文・解説タブ(Articles) ===== */
+  /* Level 1: 法律一覧 */
+  .art-intro{padding:20px 24px}
+  .art-h2{margin:0 0 6px 0;font-size:20px;font-weight:600}
+  .art-sub{font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em;margin-left:6px}
+  .art-desc{font-size:13px;color:var(--ink-muted);margin:8px 0 0 0;line-height:1.7}
+  .art-subjects-card{padding:18px}
+  .art-subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .art-subject-card{
+    display:flex;align-items:center;gap:8px;padding:14px 14px;
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
+  }
+  .art-subject-card:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
+  .art-subject-card .as-name{flex:1;font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+  .art-subject-card .as-count{
+    flex:0 0 auto;padding:2px 8px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);
+    font-size:11px;white-space:nowrap;
+  }
+  .art-subject-card .as-count.has-data{background:#FCE9CC;color:#8B5A1A}
+  .art-subject-card .as-arrow{flex:0 0 auto;color:var(--ink-muted);font-size:18px}
+  /* Level 2: フレーム一覧 */
+  .art-nav{margin-bottom:14px}
+  .art-frames-card{padding:18px}
+  .art-frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+  .art-frame{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
+  }
+  .art-frame:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
+  .art-frame.empty{cursor:default;opacity:.55}
+  .art-frame.empty:hover{background:var(--bg);border-color:var(--line);transform:none}
+  .art-frame .af-n{
+    flex:0 0 auto;padding:3px 8px;border-radius:4px;
+    background:var(--ink);color:var(--paper);
+    font-size:11px;font-weight:600;font-family:monospace;
+  }
+  .art-frame .af-t{flex:1;font-size:13px;color:var(--ink);line-height:1.4}
+  .art-frame .af-c{
+    flex:0 0 auto;padding:2px 7px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);
+    font-size:11px;white-space:nowrap;
+  }
+  .art-frame .af-c.has-data{background:#FCE9CC;color:#8B5A1A}
+  .art-frame .af-arrow{flex:0 0 auto;color:var(--ink-muted);font-size:16px}
+  /* Level 3: インデックス横並びタブ + コンテンツ */
+  .art-content-card{padding:18px}
+  .art-frame-title{margin:0 0 12px 0;font-size:16px;font-weight:600}
+  .art-frame-title .aft-sub{font-size:12px;color:var(--ink-muted);font-weight:400;margin-left:6px}
+  .art-index-tabs{
+    display:flex;gap:6px;overflow-x:auto;
+    border-bottom:2px solid var(--line);
+    margin:0 -18px 18px -18px;padding:0 18px 0 18px;
+    scrollbar-width:thin;
+  }
+  .art-index-tabs::-webkit-scrollbar{height:6px}
+  .art-index-tabs::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .art-index-tab{
+    flex:0 0 auto;
+    padding:10px 14px;margin-bottom:-2px;
+    background:transparent;border:none;border-bottom:2px solid transparent;
+    font-size:13px;color:var(--ink-muted);
+    cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;
+  }
+  .art-index-tab:hover{color:var(--ink)}
+  .art-index-tab.active{color:var(--ink);border-bottom-color:#C9472A;font-weight:600}
+  .art-empty{
+    padding:30px 20px;text-align:center;color:var(--ink-muted);font-size:13px;line-height:1.7;
+    background:var(--bg);border:1px dashed var(--line);border-radius:8px;
+  }
+  /* a/b/c ブロック */
+  .art-block{margin-bottom:18px}
+  .art-block:last-child{margin-bottom:0}
+  .art-block-header{
+    display:flex;align-items:baseline;gap:8px;margin-bottom:6px;
+    padding-bottom:4px;border-bottom:1px solid var(--line-soft);
+  }
+  .art-block-kind{
+    flex:0 0 auto;padding:1px 7px;border-radius:3px;
+    font-size:10px;font-weight:600;letter-spacing:.05em;
+  }
+  .art-block-kind.k-a{background:#FEE5E0;color:#8B2618}
+  .art-block-kind.k-b{background:#E3EEF6;color:#1F4F77}
+  .art-block-kind.k-c{background:#F3E9D7;color:#7A5A1A}
+  .art-block-title{flex:1;font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+  .art-block-ref{flex:0 0 auto;font-size:11px;color:var(--ink-muted)}
+  .art-block-text{font-size:14px;line-height:1.85;color:var(--ink);white-space:pre-wrap}
+  /* a.条文 = 黒字+【】内は朱色 */
+  .art-block.k-article .art-block-text{}
+  .art-red{color:#C9472A;font-weight:600}
+  /* c.比較認識法 = 強調枠 */
+  .art-block.k-point .art-block-text{
+    background:#FFF7E8;border-left:4px solid #E5A53A;
+    padding:12px 14px;border-radius:0 6px 6px 0;
+    font-size:13.5px;
+  }
+  /* スマホ最適化 */
+  @media(max-width:640px){
+    .art-subjects-grid{grid-template-columns:1fr}
+    .art-frames{grid-template-columns:1fr}
+    .art-block-text{font-size:13.5px}
+    .art-block.k-point .art-block-text{font-size:13px;padding:10px 12px}
+    .art-index-tab{padding:9px 12px;font-size:12.5px}
+  }
 </style>
 </head>
 <body>
@@ -2943,13 +3049,28 @@ function doImport(){
     return;
   }
 
-  let addedTakuitsu=0, addedSelect=0, addedCase=0, skipped=0;
+  let addedTakuitsu=0, addedSelect=0, addedCase=0, addedArticleFrame=0, skipped=0;
   for(const q of arr){
+    // 条文フレーム判定: type:"article-frame" + law + frameNo + indices配列
+    const isArticleFrame = q.type === 'article-frame' && q.law && q.frameNo != null && Array.isArray(q.indices);
     // 事例判定: type:"case" または subQuestions/caseText 等の存在
-    const isCase = q.type==='case' || (q.caseText && Array.isArray(q.subQuestions) && q.subQuestions.length);
+    const isCase = !isArticleFrame && (q.type==='case' || (q.caseText && Array.isArray(q.subQuestions) && q.subQuestions.length));
     // 選択式判定: type:"select" または problemText/choices/correctIndexの存在
-    const isSelect = !isCase && (q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number'));
-    if(isCase){
+    const isSelect = !isArticleFrame && !isCase && (q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number'));
+    if(isArticleFrame){
+      // 条文フレームの取り込み
+      if(!q.indices.length){skipped++;continue}
+      // 法律名は表記揺れ吸収(科目名に正規化)
+      const subject = lawToSubject(q.law);
+      if(!subject){skipped++;continue}
+      state.articles ||= {};
+      state.articles[subject] ||= {};
+      // 既存データがあれば上書き(同じframeNoの既存indicesを置換)
+      state.articles[subject][q.frameNo] = {
+        indices: q.indices
+      };
+      addedArticleFrame++;
+    }else if(isCase){
       if(!q.caseText || !Array.isArray(q.subQuestions) || !q.subQuestions.length){skipped++;continue}
       q.type = 'case';
       q.id = q.id || ('case_'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
@@ -2972,6 +3093,8 @@ function doImport(){
       q.kind = (q.kind === 'forecast') ? 'forecast' : 'past';
       // 過去問の場合はsourceを空にして混乱を防ぐ
       if(q.kind === 'past' && q.source) q.source = '';
+      // 条文紐付けフィールド(後方互換)
+      if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
       state.questions.push(q);
       addedTakuitsu++;
     }
@@ -2981,10 +3104,15 @@ function doImport(){
   renderManage();
   renderSidebar();
   if(document.getElementById('select-stat-q-count')) renderSelectSidebar();
+  // 条文・解説タブが表示中なら再描画
+  if(document.querySelector('.tab-btn.active')?.dataset.tab === 'articles'){
+    renderArticles();
+  }
   let msg = '';
   if(addedTakuitsu) msg += `択一: ${addedTakuitsu}問追加\n`;
   if(addedSelect) msg += `選択式: ${addedSelect}問追加\n`;
   if(addedCase) msg += `事例: ${addedCase}問追加\n`;
+  if(addedArticleFrame) msg += `条文フレーム: ${addedArticleFrame}件追加\n`;
   if(skipped) msg += `(${skipped}件はスキップ ※重複ID・不完全データなど)`;
   alert(msg || '追加された問題はありませんでした。');
 }
@@ -4183,29 +4311,212 @@ function navCaseSub(dir){
 }
 
 /* ===== Articles (条文・解説) ===== */
-// Phase 2: タブが追加され、空画面のプレースホルダが表示される段階
-// Phase 3以降で renderArticlesSubjects / renderArticlesFrames / renderArticlesContent を実装予定
+// 階層: 法律一覧(subjects) → フレーム一覧(frames) → コンテンツ(content)
+// state.articles 構造: {法律名: {フレーム番号: {indices: [{id, title, blocks:[{id, kind, ...}]}]}}}
+
 function renderArticles(){
   const root = document.getElementById('articles-content');
   if(!root) return;
   state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
-  const articleCount = Object.keys(state.articles||{}).length;
-  root.innerHTML = `
-    <div class="card" style="padding:24px">
-      <h2 style="margin:0 0 12px 0">条文・解説</h2>
-      <p style="margin:0 0 10px 0;color:var(--ink-muted)">比較認識法®テキストの条文・解説・ポイントを参照できる機能です。択一問題と紐付けて、間違えた問題の根拠条文をすぐに確認できます。</p>
-      <div style="margin:20px 0;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:8px;color:var(--ink-muted);font-size:13px;line-height:1.7">
-        <strong>🚧 開発中(Phase 2/8 完了)</strong><br>
-        現在、データの土台と新タブの枠を準備しました。<br>
-        次のフェーズで「法律一覧 → フレーム一覧 → 条文表示」の画面を順次追加していきます。<br><br>
-        <span style="color:var(--ink-muted)">現在の登録法律数: ${articleCount}法律</span>
+  state.articles ||= {};
+  const mode = state.articleView.mode;
+  if(mode === 'frames' && state.articleView.subject){
+    renderArticlesFrames(root, state.articleView.subject);
+  } else if(mode === 'content' && state.articleView.subject && state.articleView.frameNo != null){
+    renderArticlesContent(root, state.articleView.subject, state.articleView.frameNo);
+  } else {
+    renderArticlesSubjects(root);
+  }
+}
+
+/* Level 1: 法律一覧 */
+function renderArticlesSubjects(root){
+  // 各法律の登録インデックス数を集計
+  const counts = {};
+  for(const subject of SUBJECTS_ORDER){
+    let n = 0;
+    const lawData = state.articles[subject] || {};
+    for(const frNo of Object.keys(lawData)){
+      const ind = (lawData[frNo] || {}).indices || [];
+      n += ind.length;
+    }
+    counts[subject] = n;
+  }
+  let html = `<div class="card art-intro">
+    <h2 class="art-h2">条文・解説 <span class="art-sub">CONDITIONS &amp; EXPLANATIONS</span></h2>
+    <p class="art-desc">比較認識法®テキストの条文・解説・ポイントを参照できます。<br>学習したい <b>法律</b> をクリックすると、その法律のフレーム別に整理された条文が表示されます。</p>
+  </div>`;
+  html += `<div class="card art-subjects-card"><div class="art-subjects-grid">`;
+  for(const subject of SUBJECTS_ORDER){
+    const c = counts[subject] || 0;
+    const cls = c > 0 ? 'has-data' : '';
+    html += `<div class="art-subject-card" data-subject="${escapeHtml(subject)}">
+      <span class="as-name">${escapeHtml(subject)}</span>
+      <span class="as-count ${cls}">${c}項目</span>
+      <span class="as-arrow">›</span>
+    </div>`;
+  }
+  html += `</div></div>`;
+  // 何も登録されていないとき
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  if(total === 0){
+    html += `<div class="card art-subjects-card">
+      <div class="art-empty">
+        まだ条文データが1件も登録されていません。<br>
+        「管理」タブの「JSONインポート」から、条文・解説のデータ(<code>type:"article-frame"</code>)を読み込んでください。
       </div>
-      <div style="font-size:12px;color:var(--ink-muted)">
-        ※ 既存の択一問題には影響ありません。<br>
-        ※ 「データ」タブからバックアップ・復元を行うと、条文データも自動的に保存・復元されます。
-      </div>
+    </div>`;
+  }
+  root.innerHTML = html;
+  // 法律カードクリック
+  root.querySelectorAll('.art-subject-card').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      state.articleView = {mode:'frames', subject:c.dataset.subject, frameNo:null, indexId:null};
+      saveState();
+      renderArticles();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 2: フレーム一覧 */
+function renderArticlesFrames(root, subject){
+  const frames = FRAMES[subject] || [];
+  const lawData = state.articles[subject] || {};
+  let html = `<div class="card art-intro">
+    <div class="art-nav">
+      <button class="btn-back" id="art-back-subjects">← 法律一覧に戻る</button>
     </div>
-  `;
+    <h2 class="art-h2">${escapeHtml(subject)} <span class="art-sub">フレーム別 条文・解説</span></h2>
+    <p class="art-desc">フレームをクリックすると、そのフレームの条文・解説・ポイントが表示されます。<br><span style="color:var(--ink-muted)">※「項目あり」のフレームのみクリックできます。</span></p>
+  </div>`;
+  html += `<div class="card art-frames-card"><div class="art-frames">`;
+  for(const fr of frames){
+    const data = lawData[fr.n] || {};
+    const indices = data.indices || [];
+    const cnt = indices.length;
+    const hasData = cnt > 0;
+    const cls = hasData ? '' : 'empty';
+    const countCls = hasData ? 'has-data' : '';
+    html += `<div class="art-frame ${cls}" ${hasData ? `data-fno="${fr.n}"` : ''}>
+      <span class="af-n">F${fr.n}</span>
+      <span class="af-t">${escapeHtml(fr.t)}</span>
+      <span class="af-c ${countCls}">${cnt}項目</span>
+      ${hasData ? '<span class="af-arrow">›</span>' : ''}
+    </div>`;
+  }
+  html += `</div></div>`;
+  root.innerHTML = html;
+  // 戻るボタン
+  const backBtn = document.getElementById('art-back-subjects');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    state.articleView = {mode:'subjects', subject:null, frameNo:null, indexId:null};
+    saveState();
+    renderArticles();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // フレームクリック(データありのみ)
+  root.querySelectorAll('.art-frame:not(.empty)').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      const fno = parseInt(c.dataset.fno, 10);
+      state.articleView = {mode:'content', subject:subject, frameNo:fno, indexId:null};
+      saveState();
+      renderArticles();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 3: インデックス横並びタブ + コンテンツ表示 */
+function renderArticlesContent(root, subject, frameNo){
+  const lawData = state.articles[subject] || {};
+  const frData = lawData[frameNo] || {};
+  const indices = frData.indices || [];
+  // 未選択時は先頭のインデックスを自動選択
+  let selectedId = state.articleView.indexId;
+  if(!selectedId && indices.length){
+    selectedId = indices[0].id;
+    state.articleView.indexId = selectedId;
+  }
+  const selected = indices.find(x=>x.id === selectedId) || indices[0];
+  const frameTitleStr = frameTitle(subject, frameNo);
+  let html = `<div class="card art-intro">
+    <div class="art-nav">
+      <button class="btn-back" id="art-back-frames">← ${escapeHtml(subject)} のフレーム一覧に戻る</button>
+    </div>
+    <h3 class="art-frame-title">${escapeHtml(subject)} <span class="aft-sub">${escapeHtml(frameTitleStr)}</span></h3>
+  </div>`;
+  html += `<div class="card art-content-card">`;
+  if(!indices.length){
+    html += `<div class="art-empty">このフレームには条文データが登録されていません。</div>`;
+  } else {
+    // 横並びインデックスタブ
+    html += `<div class="art-index-tabs">`;
+    indices.forEach((idx, i)=>{
+      const active = idx.id === (selected ? selected.id : '');
+      html += `<button class="art-index-tab ${active?'active':''}" data-idxid="${escapeHtml(idx.id)}">${i+1}. ${escapeHtml(idx.title || '')}</button>`;
+    });
+    html += `</div>`;
+    // コンテンツ表示
+    if(selected){
+      const blocks = selected.blocks || [];
+      if(!blocks.length){
+        html += `<div class="art-empty">この項目にはブロックが登録されていません。</div>`;
+      } else {
+        for(const blk of blocks){
+          html += renderArticleBlock(blk);
+        }
+      }
+    }
+  }
+  html += `</div>`;
+  root.innerHTML = html;
+  // 戻るボタン
+  const backBtn = document.getElementById('art-back-frames');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    state.articleView = {mode:'frames', subject:subject, frameNo:null, indexId:null};
+    saveState();
+    renderArticles();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // タブ切替
+  root.querySelectorAll('.art-index-tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      state.articleView.indexId = t.dataset.idxid;
+      saveState();
+      renderArticles();
+      // タブ切替時はスクロール上に戻さない(同じ画面の中での移動)
+    });
+  });
+}
+
+/* a/b/c ブロックのHTML生成 */
+function renderArticleBlock(blk){
+  const kind = blk.kind || 'article';
+  let kindLabel = '条文', kCls = 'k-a', blkKindCls = 'k-article';
+  if(kind === 'explanation'){kindLabel = '解説'; kCls = 'k-b'; blkKindCls = 'k-explanation'}
+  else if(kind === 'point'){kindLabel = '比較認識法®'; kCls = 'k-c'; blkKindCls = 'k-point'}
+  const title = blk.title ? `<span class="art-block-title">${escapeHtml(blk.title)}</span>` : '<span class="art-block-title"></span>';
+  const ref = blk.legalRef ? `<span class="art-block-ref">${escapeHtml(blk.legalRef)}</span>` : '';
+  // 【...】を朱色spanに変換。HTMLエスケープを先に行ってから【】を変換
+  const text = formatArticleText(blk.text || '');
+  return `<div class="art-block ${blkKindCls}">
+    <div class="art-block-header">
+      <span class="art-block-kind ${kCls}">${kindLabel}</span>
+      ${title}
+      ${ref}
+    </div>
+    <div class="art-block-text">${text}</div>
+  </div>`;
+}
+
+/* 【...】記法を朱色spanに変換 (HTMLエスケープ済みテキストに対して適用) */
+function formatArticleText(raw){
+  if(!raw) return '';
+  // まずHTMLエスケープ。次に【...】を <span class="art-red">...</span> へ
+  // 【】は全角文字なので、エスケープでは変換されず安全に検出できる
+  const esc = escapeHtml(raw);
+  return esc.replace(/【([^】]+)】/g, '<span class="art-red">$1</span>');
 }
 
 /* ===== Tabs ===== */
