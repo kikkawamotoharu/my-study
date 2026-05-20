@@ -1329,6 +1329,7 @@
       <button class="tab-btn active" data-tab="quiz">択一</button>
       <button class="tab-btn" data-tab="select">選択式</button>
       <button class="tab-btn" data-tab="case">事例</button>
+      <button class="tab-btn" data-tab="articles">条文・解説</button>
       <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="figures">図表</button>
       <button class="tab-btn" data-tab="progress">進捗</button>
@@ -1491,6 +1492,11 @@
   <!-- ===== CASE VIEW (事例問題) ===== -->
   <main id="view-case" style="display:none;grid-column:1/-1">
     <div id="case-content"></div>
+  </main>
+
+  <!-- ===== ARTICLES VIEW (条文・解説) ===== -->
+  <main id="view-articles" style="display:none;grid-column:1/-1">
+    <div id="articles-content"></div>
   </main>
 
   <!-- ===== PROGRESS VIEW ===== -->
@@ -2161,6 +2167,9 @@ function loadState(){
       // 進捗管理のサブモード(過去問/予想問)初期化
       s.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
       s.progressView.kindMode ||= 'past';
+      // 条文・解説機能の追加 (後方互換)
+      s.articles ||= {};
+      s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -2214,6 +2223,14 @@ function loadState(){
       }
       if(faKeyMigrated>0) console.log(`Migrated ${faKeyMigrated} frameAttempts keys to new format`);
 
+      // === Migration v4: 条文・解説機能対応 ===
+      // 既存問題にlinkedBlocks未設定 → 空配列を付与(後方互換)
+      let lbMigrated = 0;
+      for(const q of s.questions){
+        if(!Array.isArray(q.linkedBlocks)){q.linkedBlocks = []; lbMigrated++}
+      }
+      if(lbMigrated>0) console.log(`Migrated ${lbMigrated} questions with empty linkedBlocks`);
+
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -2233,7 +2250,9 @@ function loadState(){
     caseHistory: [],
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
-    progressView: {mode:'subjects', subject:null, kindMode:'past'}
+    progressView: {mode:'subjects', subject:null, kindMode:'past'},
+    articles: {},
+    articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null}
   };
 }
 function saveState(){
@@ -3009,6 +3028,9 @@ function restoreBackup(){
         state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
         state.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
         state.progressView.kindMode ||= 'past';
+        // 条文・解説機能の追加 (後方互換)
+        state.articles ||= {};
+        state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
         // === Migration v3: 予想問対応 ===
         // (a) 既存問題のkind未設定 → 'past' とみなす
         for(const q of state.questions){if(q.kind == null) q.kind = 'past'}
@@ -3020,6 +3042,11 @@ function restoreBackup(){
             if(!state.frameAttempts[newKey]) state.frameAttempts[newKey] = state.frameAttempts[k];
             delete state.frameAttempts[k];
           }
+        }
+        // === Migration v4: 条文・解説機能対応 ===
+        // 既存問題にlinkedBlocks未設定 → 空配列を付与
+        for(const q of state.questions){
+          if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
         }
         saveState();
         renderQuiz();renderManage();renderSidebar();
@@ -4155,6 +4182,32 @@ function navCaseSub(dir){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+/* ===== Articles (条文・解説) ===== */
+// Phase 2: タブが追加され、空画面のプレースホルダが表示される段階
+// Phase 3以降で renderArticlesSubjects / renderArticlesFrames / renderArticlesContent を実装予定
+function renderArticles(){
+  const root = document.getElementById('articles-content');
+  if(!root) return;
+  state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
+  const articleCount = Object.keys(state.articles||{}).length;
+  root.innerHTML = `
+    <div class="card" style="padding:24px">
+      <h2 style="margin:0 0 12px 0">条文・解説</h2>
+      <p style="margin:0 0 10px 0;color:var(--ink-muted)">比較認識法®テキストの条文・解説・ポイントを参照できる機能です。択一問題と紐付けて、間違えた問題の根拠条文をすぐに確認できます。</p>
+      <div style="margin:20px 0;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:8px;color:var(--ink-muted);font-size:13px;line-height:1.7">
+        <strong>🚧 開発中(Phase 2/8 完了)</strong><br>
+        現在、データの土台と新タブの枠を準備しました。<br>
+        次のフェーズで「法律一覧 → フレーム一覧 → 条文表示」の画面を順次追加していきます。<br><br>
+        <span style="color:var(--ink-muted)">現在の登録法律数: ${articleCount}法律</span>
+      </div>
+      <div style="font-size:12px;color:var(--ink-muted)">
+        ※ 既存の択一問題には影響ありません。<br>
+        ※ 「データ」タブからバックアップ・復元を行うと、条文データも自動的に保存・復元されます。
+      </div>
+    </div>
+  `;
+}
+
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
@@ -4163,6 +4216,7 @@ function switchTab(name){
   document.getElementById('view-select').style.display = name==='select'?'block':'none';
   document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
   document.getElementById('view-case').style.display = name==='case'?'block':'none';
+  document.getElementById('view-articles').style.display = name==='articles'?'block':'none';
   document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
   document.getElementById('view-figures').style.display = name==='figures'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
@@ -4177,6 +4231,15 @@ function switchTab(name){
       state.caseView = {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
     }
     renderCase();
+  }
+  if(name==='articles'){
+    // タブクリック時は法律一覧画面から開始(modeをsubjectsにリセット)
+    state.articleView = state.articleView || {mode:'subjects', subject:null, frameNo:null, indexId:null};
+    state.articleView.mode = 'subjects';
+    state.articleView.subject = null;
+    state.articleView.frameNo = null;
+    state.articleView.indexId = null;
+    renderArticles();
   }
   if(name==='weak') renderWeak();
   if(name==='figures') renderFigures();
