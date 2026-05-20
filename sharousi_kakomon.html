@@ -1864,7 +1864,7 @@
       </div>
 
       <div class="section-h" style="margin-top:24px">注意事項</div>
-      <p class="section-body dim">データはブラウザの localStorage に保存されます。ブラウザのキャッシュ削除でデータが消える可能性があるため、定期的なバックアップを推奨します。</p>
+      <p class="section-body dim">データはブラウザの localStorage と IndexedDB (図表画像のみ) に保存されます。ブラウザのキャッシュ削除でデータが消える可能性があるため、定期的なバックアップを推奨します。</p>
     </div>
   </main>
 
@@ -2469,6 +2469,180 @@ const SAMPLE_SELECT_QUESTIONS = [
     pageRef:"プレテキ労②P101"
   }
 ];
+
+/* ===== IndexedDB 図表画像ストア =====
+   iOS Safari の localStorage 5MB 制限を回避するため、
+   画像本体(dataURL)だけを IndexedDB に保存する。
+   メタ情報(id/title/frameNo 等)は従来通り localStorage(state.figures)に残す。 */
+const FIG_DB_NAME = 'sharoushi_figures_db';
+const FIG_DB_VERSION = 1;
+const FIG_STORE_NAME = 'figureImages';
+
+const figureStore = (function(){
+  let _dbPromise = null;
+  let _failed = false;
+  function openDB(){
+    if(_dbPromise) return _dbPromise;
+    if(typeof indexedDB === 'undefined'){
+      _failed = true;
+      _dbPromise = Promise.reject(new Error('IndexedDB not supported'));
+      return _dbPromise;
+    }
+    _dbPromise = new Promise((resolve, reject)=>{
+      let req;
+      try{ req = indexedDB.open(FIG_DB_NAME, FIG_DB_VERSION) }
+      catch(e){ _failed = true; reject(e); return }
+      req.onupgradeneeded = function(e){
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains(FIG_STORE_NAME)){
+          db.createObjectStore(FIG_STORE_NAME, {keyPath:'id'});
+        }
+      };
+      req.onsuccess = function(){ resolve(req.result) };
+      req.onerror = function(){ _failed = true; reject(req.error) };
+      req.onblocked = function(){ _failed = true; reject(new Error('IndexedDB blocked')) };
+    });
+    return _dbPromise;
+  }
+  function tx(mode){
+    return openDB().then(function(db){
+      return db.transaction(FIG_STORE_NAME, mode).objectStore(FIG_STORE_NAME);
+    });
+  }
+  return {
+    isFailed: function(){ return _failed },
+    ready: function(){ return openDB().then(function(){return true}).catch(function(){return false}) },
+    get: function(id){
+      return tx('readonly').then(function(store){
+        return new Promise(function(resolve, reject){
+          const r = store.get(id);
+          r.onsuccess = function(){ resolve(r.result ? r.result.dataURL : null) };
+          r.onerror = function(){ reject(r.error) };
+        });
+      });
+    },
+    put: function(id, dataURL){
+      return tx('readwrite').then(function(store){
+        return new Promise(function(resolve, reject){
+          const r = store.put({id:id, dataURL:dataURL});
+          r.onsuccess = function(){ resolve() };
+          r.onerror = function(){ reject(r.error) };
+        });
+      });
+    },
+    delete: function(id){
+      return tx('readwrite').then(function(store){
+        return new Promise(function(resolve, reject){
+          const r = store.delete(id);
+          r.onsuccess = function(){ resolve() };
+          r.onerror = function(){ reject(r.error) };
+        });
+      });
+    },
+    getAll: function(){
+      return tx('readonly').then(function(store){
+        return new Promise(function(resolve, reject){
+          const r = store.getAll();
+          r.onsuccess = function(){ resolve(r.result || []) };
+          r.onerror = function(){ reject(r.error) };
+        });
+      });
+    },
+    clear: function(){
+      return tx('readwrite').then(function(store){
+        return new Promise(function(resolve, reject){
+          const r = store.clear();
+          r.onsuccess = function(){ resolve() };
+          r.onerror = function(){ reject(r.error) };
+        });
+      });
+    },
+    // 単一トランザクションで一括 put (復元・移行で使用)
+    putMany: function(entries){
+      return openDB().then(function(db){
+        return new Promise(function(resolve, reject){
+          const t = db.transaction(FIG_STORE_NAME, 'readwrite');
+          const store = t.objectStore(FIG_STORE_NAME);
+          for(const ent of entries){
+            store.put({id:ent[0], dataURL:ent[1]});
+          }
+          t.oncomplete = function(){ resolve() };
+          t.onerror = function(){ reject(t.error) };
+          t.onabort = function(){ reject(t.error || new Error('tx aborted')) };
+        });
+      });
+    }
+  };
+})();
+
+// 図表画像の in-memory キャッシュ (同期描画用、id → dataURL)
+const figureImageCache = new Map();
+
+// 図表画像 src を同期取得。キャッシュ → fig.imageData (移行前データ) の順。
+function getFigureImageSrc(fig){
+  if(!fig) return '';
+  if(figureImageCache.has(fig.id)) return figureImageCache.get(fig.id);
+  if(fig.imageData) return fig.imageData; // 移行前データのフォールバック
+  return '';
+}
+
+// IndexedDB を初期化し、既存 localStorage 内の画像を移行 + キャッシュ構築。
+// 失敗してもアプリは(画像表示の劣化以外は)動作可能。
+async function initFigureStorage(){
+  const ok = await figureStore.ready();
+  if(!ok){
+    console.warn('IndexedDB unavailable - figure images will remain in localStorage');
+    // フォールバック: 既存 imageData がキャッシュに乗るようにしておく
+    for(const fig of (state.figures||[])){
+      if(fig.imageData) figureImageCache.set(fig.id, fig.imageData);
+    }
+    return false;
+  }
+  // === 既存 localStorage 内の imageData → IndexedDB へ移行 ===
+  const figs = state.figures || [];
+  const pendingPuts = [];
+  for(const fig of figs){
+    if(fig.imageData){
+      pendingPuts.push([fig.id, fig.imageData]);
+      figureImageCache.set(fig.id, fig.imageData);
+    }
+  }
+  if(pendingPuts.length){
+    try{
+      await figureStore.putMany(pendingPuts);
+      // 移行成功: localStorage 側の imageData を除去
+      let removed = 0;
+      for(const fig of figs){
+        if(fig.imageData){ delete fig.imageData; removed++ }
+      }
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        console.log('Migrated '+removed+' figure images to IndexedDB');
+      }catch(e){
+        console.warn('saveState after migration failed', e);
+      }
+    }catch(e){
+      console.warn('Migration to IndexedDB failed (keeping inline data as fallback)', e);
+    }
+  }
+  // === IDB から残り(他端末経由で入った分など)を読み込み ===
+  try{
+    const all = await figureStore.getAll();
+    for(const ent of all){
+      if(!figureImageCache.has(ent.id)){
+        figureImageCache.set(ent.id, ent.dataURL);
+      }
+    }
+  }catch(e){
+    console.warn('Loading figures from IndexedDB failed', e);
+  }
+  // 図表タブが既に表示中なら再描画
+  const figView = document.getElementById('view-figures');
+  if(figView && figView.style.display !== 'none'){
+    try{ if(typeof renderFigures==='function') renderFigures() }catch(_){}
+  }
+  return true;
+}
 
 /* ===== State & Storage ===== */
 const STORAGE_KEY = 'sharoushi_kakomon_v1';
@@ -3393,9 +3567,34 @@ function exportQuestions(){
   const blob = new Blob([JSON.stringify(state.questions,null,2)],{type:'application/json'});
   download(blob,`sharoushi_questions_${Date.now()}.json`);
 }
-function backupAll(){
-  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  download(blob,`sharoushi_backup_${Date.now()}.json`);
+async function backupAll(){
+  try{
+    // IndexedDB から全画像を取得し、メタとマージしてバックアップに含める
+    const imageMap = new Map();
+    try{
+      const all = await figureStore.getAll();
+      for(const ent of all) imageMap.set(ent.id, ent.dataURL);
+    }catch(e){
+      console.warn('IDB getAll failed in backup', e);
+    }
+    // キャッシュからも(IDB 未保存の可能性をカバー)
+    for(const [id, url] of figureImageCache){
+      if(!imageMap.has(id)) imageMap.set(id, url);
+    }
+    // state を deep copy して図表に imageData を埋め戻す
+    const snapshot = JSON.parse(JSON.stringify(state));
+    if(Array.isArray(snapshot.figures)){
+      for(const f of snapshot.figures){
+        if(imageMap.has(f.id) && !f.imageData){
+          f.imageData = imageMap.get(f.id);
+        }
+      }
+    }
+    const blob = new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
+    download(blob,`sharoushi_backup_${Date.now()}.json`);
+  }catch(err){
+    alert('バックアップ作成に失敗しました: '+err.message);
+  }
 }
 function restoreBackup(){
   const inp = document.createElement('input');
@@ -3403,11 +3602,45 @@ function restoreBackup(){
   inp.onchange = e=>{
     const f = e.target.files[0];if(!f) return;
     const r = new FileReader();
-    r.onload = ()=>{
+    r.onload = async ()=>{
       try{
         const s = JSON.parse(r.result);
         if(!s.questions){throw new Error('不正な形式');}
         if(!confirm('現在のデータをすべて置き換えます。よろしいですか?')) return;
+
+        // === 図表画像を IndexedDB へ移し、state からは imageData を取り除く ===
+        // (これにより localStorage は劇的に小さくなり、iOS の 5MB 制限を回避できる)
+        const figEntries = [];
+        if(Array.isArray(s.figures)){
+          for(const fig of s.figures){
+            if(fig.imageData){
+              figEntries.push([fig.id, fig.imageData]);
+              delete fig.imageData;
+            }
+          }
+        }
+        // 既存 IDB をクリアして書き戻し
+        try{
+          await figureStore.clear();
+          if(figEntries.length){
+            await figureStore.putMany(figEntries);
+          }
+        }catch(idbErr){
+          console.warn('IndexedDB write during restore failed', idbErr);
+          // 失敗時は state.figures に imageData を戻して従来動作にフォールバック
+          if(Array.isArray(s.figures)){
+            for(const [id, url] of figEntries){
+              const fig = s.figures.find(x=>x.id===id);
+              if(fig) fig.imageData = url;
+            }
+          }
+        }
+        // キャッシュも置き換え
+        figureImageCache.clear();
+        for(const [id, url] of figEntries){
+          figureImageCache.set(id, url);
+        }
+
         state = s;
         // 全フィールドの初期化を保証(後方互換)
         state.questions ||= [];
@@ -3453,6 +3686,8 @@ function restoreBackup(){
         // 進捗管理画面も明示的に更新
         const progressContent = document.getElementById('progress-content');
         if(progressContent) renderProgress();
+        // 図表画面も更新
+        try{ if(typeof renderFigures==='function') renderFigures() }catch(_){}
         // 復元サマリー
         const fa = state.frameAttempts || {};
         let inProgressCount = 0, completedCount = 0;
@@ -3889,16 +4124,28 @@ function saveFigMetaModal(){
   const notes = document.getElementById('fig-meta-input-notes').value.trim();
 
   if(_figMetaContext.mode === 'create'){
+    const newId = 'fig_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    const dataUrl = _figMetaContext.dataUrl;
     const fig = {
-      id: 'fig_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      id: newId,
       title,
       subject,
       frameNo,
       notes,
-      imageData: _figMetaContext.dataUrl,
       createdAt: Date.now()
+      // 画像本体は IndexedDB に保存(localStorage 容量逼迫の回避)
     };
     state.figures.push(fig);
+    // 描画用キャッシュへ即時反映
+    figureImageCache.set(newId, dataUrl);
+    // 画像本体は IndexedDB へ非同期保存。失敗時はロールバック。
+    figureStore.put(newId, dataUrl).catch(err=>{
+      state.figures = state.figures.filter(f=>f.id!==newId);
+      figureImageCache.delete(newId);
+      try{ saveState() }catch(_){}
+      try{ renderFigures() }catch(_){}
+      alert('画像の保存(IndexedDB)に失敗しました: '+err.message);
+    });
     saveState();
     const status = document.getElementById('fig-upload-status');
     if(status){
@@ -3984,7 +4231,7 @@ function renderFigures(){
       const linkedCount = state.questions.filter(q=>Array.isArray(q.figureIds) && q.figureIds.includes(fig.id)).length;
       const linkedCaseCount = state.cases.filter(c=>Array.isArray(c.figureIds) && c.figureIds.includes(fig.id)).length;
       html += `<div class="fig-card" data-figid="${fig.id}">
-        <div class="fig-card-img"><img src="${fig.imageData}" alt="${escapeHtml(fig.title)}"></div>
+        <div class="fig-card-img"><img src="${getFigureImageSrc(fig)}" alt="${escapeHtml(fig.title)}"></div>
         <div class="fig-card-body">
           <div class="fig-card-title">${escapeHtml(fig.title)}</div>
           <div class="fig-card-meta">
@@ -4061,6 +4308,9 @@ function deleteFigure(figId){
   }
   if(!confirm(msg)) return;
   state.figures = state.figures.filter(f=>f.id!==figId);
+  // IndexedDB / キャッシュからも削除 (失敗してもメタ削除は完了させる)
+  figureImageCache.delete(figId);
+  figureStore.delete(figId).catch(err=>console.warn('IDB delete failed', err));
   // 各問題の紐付けからも削除
   for(const q of state.questions){
     if(Array.isArray(q.figureIds)){
@@ -4093,7 +4343,7 @@ function renderFigureModal(){
   const {figIds, idx} = _figModalState;
   const fig = state.figures.find(f=>f.id===figIds[idx]);
   if(!fig){closeFigureModal();return}
-  document.getElementById('fig-modal-image').src = fig.imageData;
+  document.getElementById('fig-modal-image').src = getFigureImageSrc(fig);
   document.getElementById('fig-modal-image').alt = fig.title;
   document.getElementById('fig-modal-title').textContent = fig.title;
   let meta = '';
@@ -4162,7 +4412,7 @@ function openFigurePicker(id, type='question'){
     listEl.innerHTML = figs.map(f=>`
       <label class="fig-picker-item ${linked.has(f.id)?'linked':''}" data-figid="${f.id}">
         <input type="checkbox" ${linked.has(f.id)?'checked':''}>
-        <img src="${f.imageData}" alt="">
+        <img src="${getFigureImageSrc(f)}" alt="">
         <div class="info">
           <div class="ti">${escapeHtml(f.title)}</div>
           <div class="me">
@@ -6132,6 +6382,10 @@ function init(){
 
   renderQuiz();
   renderSidebar();
+
+  // IndexedDB を初期化し、既存 localStorage 画像を移行 + キャッシュを構築
+  // (非同期。完了後に図表タブが開いていれば再描画される)
+  initFigureStorage().catch(err=>console.warn('initFigureStorage failed', err));
 }
 init();
 </script>
