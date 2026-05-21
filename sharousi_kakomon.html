@@ -2504,6 +2504,32 @@ function isFrameInProgressManagement(subject, frameNo, kind){
   return count >= FORECAST_FRAME_THRESHOLD;
 }
 
+/* ===== 改修8 Step 3: 進捗管理タブ専用 表示ヘルパー ===== */
+/* 進捗管理タブの kindMode を 'pastA' | 'pastB' | 'forecast' に正規化 */
+function normalizeProgressKindMode(km){
+  if(!km || km === 'past' || km === 'both') return 'pastA';
+  if(km === 'pastA' || km === 'pastB' || km === 'forecast') return km;
+  return 'pastA';
+}
+/* kindMode の表示ラベル(「過去問A」「過去問B」「予想問」) */
+function progressKindLabel(km){
+  const k = normalizeProgressKindMode(km);
+  if(k === 'forecast') return '予想問';
+  if(k === 'pastB') return '過去問B';
+  return '過去問A';
+}
+/* kindMode で「15問しきい値なし=全フレーム表示」かどうか(pastA のみ true) */
+function progressKindShowAll(km){
+  return normalizeProgressKindMode(km) === 'pastA';
+}
+/* kindMode の問題リストに表示する小バッジ */
+function progressKindBadge(km){
+  const k = normalizeProgressKindMode(km);
+  if(k === 'forecast') return '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>';
+  if(k === 'pastB')    return '<span class="kind-badge" style="font-size:9px;margin-left:4px;background:#8B7355;color:#fff;border-color:#8B7355">過B</span>';
+  return ''; // pastA はバッジなし(従来動作)
+}
+
 /* 確認④c: 15問しきい値到達時、既存の解答履歴を「初回演習」として自動取り込み
    - 対象 kind(forecast / pastB)フレームで 15問以上に達した
    - frameAttempts[subject|N|kind] がまだない
@@ -2931,8 +2957,8 @@ function loadState(){
       s.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
       s.caseSession ||= {currentSubIdx:0, answered:{}, userAnswers:{}};
       // 進捗管理のサブモード(過去問/予想問)初期化
-      s.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
-      s.progressView.kindMode ||= 'past';
+      s.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
+      s.progressView.kindMode ||= 'pastA';
       // 条文・解説機能の追加 (後方互換)
       s.articles ||= {};
       s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -3021,6 +3047,13 @@ function loadState(){
       }
       if(faKindMigrated>0) console.log(`Migrated ${faKindMigrated} frameAttempts keys: |past → |pastA`);
 
+      // 改修8 Step 3: progressView.kindMode のマイグレーション
+      //   進捗管理タブの「過去問」モード('past')は新仕様で「過去問A」('pastA')に対応する
+      if(s.progressView && s.progressView.kindMode === 'past'){
+        s.progressView.kindMode = 'pastA';
+        console.log(`Migrated progressView.kindMode: 'past' → 'pastA'`);
+      }
+
       // === 改修6: 図表 imageData の同期的キャッシュ退避 ===
       // iOS Safari の localStorage 5MB 制限対策。
       // ここで state.figures[*].imageData を figureImageCache に同期的に退避して
@@ -3059,7 +3092,7 @@ function loadState(){
     caseHistory: [],
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
-    progressView: {mode:'subjects', subject:null, kindMode:'past'},
+    progressView: {mode:'subjects', subject:null, kindMode:'pastA'},
     articles: {},
     articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
   };
@@ -4119,8 +4152,8 @@ function restoreBackup(){
         state.cases ||= [];
         state.caseHistory ||= [];
         state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
-        state.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
-        state.progressView.kindMode ||= 'past';
+        state.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
+        state.progressView.kindMode ||= 'pastA';
         // 条文・解説機能の追加 (後方互換)
         state.articles ||= {};
         state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -4156,6 +4189,11 @@ function restoreBackup(){
             if(!state.frameAttempts[newKey]) state.frameAttempts[newKey] = state.frameAttempts[k];
             delete state.frameAttempts[k];
           }
+        }
+        // 改修8 Step 3: progressView.kindMode のマイグレーション
+        //   進捗管理タブの「過去問」モード('past')は新仕様で「過去問A」('pastA')に対応
+        if(state.progressView && state.progressView.kindMode === 'past'){
+          state.progressView.kindMode = 'pastA';
         }
         saveState();
         renderQuiz();renderManage();renderSidebar();
@@ -6166,7 +6204,8 @@ function switchTab(name){
   if(name==='figures') renderFigures();
   if(name==='progress'){
     // kindModeは引き継いで、modeとsubjectだけリセット
-    const curKindMode = (state.progressView && state.progressView.kindMode) || 'past';
+    // 改修8 Step 3: デフォルト・正規化は normalizeProgressKindMode 経由
+    const curKindMode = normalizeProgressKindMode(state.progressView && state.progressView.kindMode);
     state.progressView = {mode:'subjects', subject:null, kindMode: curKindMode};
     renderProgress();
   }
@@ -6660,13 +6699,16 @@ function getCaseMistakeCount(caseId){
 /* ===== Progress view ===== */
 function renderProgress(){
   const root = document.getElementById('progress-content');
-  state.progressView ||= {mode:'subjects', subject:null, parentFrameNo:null, kindMode:'past'};
-  state.progressView.kindMode ||= 'past';
+  // 改修8 Step 3: kindMode のデフォルトを 'pastA' に変更
+  state.progressView ||= {mode:'subjects', subject:null, parentFrameNo:null, kindMode:'pastA'};
+  state.progressView.kindMode ||= 'pastA';
+  // 旧 'past' は 'pastA' に正規化(loadState で migrate されているが念のため)
+  if(state.progressView.kindMode === 'past') state.progressView.kindMode = 'pastA';
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
   ensureForecastFrameAutoInit();
   const kindMode = state.progressView.kindMode;
   // === データ概要(診断) ===
-  // kindModeに応じて対象問題を絞り込む(過去問のみ・予想問のみ)
+  // kindModeに応じて対象問題を絞り込む(pastA / pastB / forecast)
   const kFilter = q => questionMatchesKindMode(q, kindMode);
   const targetQs = state.questions.filter(kFilter);
   const total = targetQs.length;
@@ -6680,12 +6722,14 @@ function renderProgress(){
       if(!SUBJECTS_ORDER.includes(subj)) unknownLaws.add(q.law);
     }
   }
-  const kindLabel = (kindMode==='forecast') ? '予想問' : '過去問';
+  // 改修8 Step 3: ラベルは新ヘルパーで「過去問A」「過去問B」「予想問」に対応
+  const kindLabel = progressKindLabel(kindMode);
   let summary = `<div class="diag-line">${kindLabel}の登録総数 <b>${total}問</b>`;
   if(noFrame>0) summary += ` <span class="diag-warn">⚠ フレーム番号未設定: ${noFrame}問</span>`;
   if(unknownLaws.size>0) summary += ` <span class="diag-warn">⚠ 未登録の法律: ${[...unknownLaws].join('、')}</span>`;
-  if(kindMode==='forecast'){
-    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ 予想問は1フレーム${FORECAST_FRAME_THRESHOLD}問以上のみ表示</span>`;
+  // 15問しきい値の説明: pastB / forecast の場合に表示(pastA はしきい値なし)
+  if(!progressKindShowAll(kindMode)){
+    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ ${kindLabel}は1フレーム${FORECAST_FRAME_THRESHOLD}問以上のみ表示</span>`;
   }
   summary += `</div>`;
 
@@ -6707,14 +6751,18 @@ function renderProgress(){
   }
 }
 
-/* 進捗管理のサブタブUI(過去問/予想問)HTML生成 */
+/* 進捗管理のサブタブUI(過去問A/過去問B/予想問)HTML生成 ─ 改修8 Step 3 */
 function progressSubTabsHtml(currentKind){
+  // 後方互換: 'past' は 'pastA' として表示
+  const cur = normalizeProgressKindMode(currentKind);
   // 各kindの登録数を計算
-  const pastCount = state.questions.filter(isPastAny).length;
+  const pastACount = state.questions.filter(isPastA).length;
+  const pastBCount = state.questions.filter(isPastB).length;
   const forecastCount = state.questions.filter(isForecast).length;
   return `<div class="prog-subtabs">
-    <button class="prog-subtab ${currentKind==='past'?'active':''}" data-kindmode="past">📚 過去問 <span class="pst-count">${pastCount}問</span></button>
-    <button class="prog-subtab ${currentKind==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
+    <button class="prog-subtab ${cur==='pastA'?'active':''}" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
+    <button class="prog-subtab ${cur==='pastB'?'active':''}" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
+    <button class="prog-subtab ${cur==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
   </div>`;
 }
 
@@ -6739,8 +6787,8 @@ function renderProgressSubjects(root, summary, kindMode){
         for(const sf of subs){
           const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
           const cnt = sfQs.length;
-          // サブフレーム表示対象判定: 過去問なら全表示、予想問は15問以上
-          const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+          // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+          const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
           if(!eligible){
             qTotal += cnt;
             continue;
@@ -6759,7 +6807,7 @@ function renderProgressSubjects(root, summary, kindMode){
       // 通常(サブフレームなし)フレーム
       const qs = allFrameQs;
       const cnt = qs.length;
-      // 表示対象判定: 過去問なら全フレーム、予想問は15問以上
+      // 表示対象判定: pastA は全フレーム、 pastB/forecast は15問以上
       const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
       if(!eligible){
         // フレーム自体は表示対象外。問題数のみ集計
@@ -6777,13 +6825,18 @@ function renderProgressSubjects(root, summary, kindMode){
     }
     const totalFrames = eligibleFrames; // 表示対象フレーム数
     const status = qTotal===0 ? 'empty' : (totalFrames>0 && completedFrames===totalFrames ? 'done' : (completedFrames>0 || inProgressFrames>0 ? 'partial' : 'fresh'));
-    const eligibleNote = (kindMode==='forecast' && totalFrames < frames.length)
+    // 改修8 Step 3: しきい値あり(pastB/forecast)で表示対象フレームが減っている場合に注記
+    const eligibleNote = (!progressKindShowAll(kindMode) && totalFrames < frames.length)
       ? ` <span style="font-size:10px;color:var(--ink-muted)">(${totalFrames}/${frames.length}対象)</span>` : '';
+    // 改修8 Step 3: 「問題未登録」or 該当 kind なしのラベルを kind 別に
+    const emptyLbl = kindMode==='forecast' ? '予想問なし' :
+                     kindMode==='pastB'    ? '過去問Bなし' :
+                     '問題未登録';
     html += `<div class="subject-card ${status}" data-subject="${escapeHtml(subject)}">
       <div class="sc-name">${escapeHtml(subject)}</div>
       <div class="sc-stats">
         <span class="sc-stat">${qTotal}問 / ${totalFrames}フレーム${eligibleNote}</span>
-        ${qTotal===0 ? `<span class="sc-stat empty">${kindMode==='forecast'?'予想問なし':'問題未登録'}</span>` :
+        ${qTotal===0 ? `<span class="sc-stat empty">${emptyLbl}</span>` :
           (totalFrames===0 ? `<span class="sc-stat empty">15問以上のフレームなし</span>` :
             `<span class="sc-stat">完了 ${completedFrames}/${totalFrames}</span>` +
             (inProgressFrames>0 ? `<span class="sc-stat inprog">演習中 ${inProgressFrames}</span>` : '')
@@ -6858,7 +6911,7 @@ function buildProgressFrameRow(opts){
   }else{
     btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
   }
-  const kindIcon = (kindModeVal==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+  const kindIcon = progressKindBadge(kindModeVal);
   return `<div class="prog-frame">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
@@ -6878,7 +6931,8 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   for(const sf of subs){
     const cnt = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf)).length;
     totalQ += cnt;
-    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+    const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible) continue;
     eligibleSubs++;
     const k = frameKey(subject, sf.key, kindMode);
@@ -6888,11 +6942,11 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
       if((fa.history||[]).length>0) completedSubs++;
     }
   }
-  const kindIcon = (kindMode==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+  const kindIcon = progressKindBadge(kindMode);
   const subBadge = `<span class="badge-subframe" style="background:#FFE8B3;color:#7A5A1A;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-left:6px">中分類 ${subs.length} 個</span>`;
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
-    : (kindMode==='forecast' ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
+    : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span></div>
@@ -6952,9 +7006,10 @@ function renderProgressFrames(root, summary, subject, kindMode){
       dataFno: fr.n
     });
   }
-  if(shownFrames===0 && kindMode==='forecast'){
+  if(shownFrames===0 && !progressKindShowAll(kindMode)){
+    const lbl = progressKindLabel(kindMode);
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      この科目の予想問は、まだ${FORECAST_FRAME_THRESHOLD}問以上のフレームがありません。<br>
+      この科目の${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上のフレームがありません。<br>
       問題を追加すると、達成したフレームから自動的にここに表示されます。
     </div>`;
   }
@@ -7026,14 +7081,16 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
   for(const sf of subs){
     const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
     const cnt = sfQs.length;
-    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+    const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible){
+      const lbl = progressKindLabel(kindMode);
       html += `<div class="prog-frame" style="opacity:.55">
         <div class="pf-head">
           <div class="pf-title"><span class="pf-n">F${parentFrameNo}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
           <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
         </div>
-        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「${lbl}」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
       </div>`;
       continue;
     }
@@ -7049,9 +7106,10 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       dataFno: sf.key
     });
   }
-  if(shownSubs===0 && kindMode==='forecast'){
+  if(shownSubs===0 && !progressKindShowAll(kindMode)){
+    const lbl = progressKindLabel(kindMode);
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      このフレームの予想問は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
+      このフレームの${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
     </div>`;
   }
   html += `</div></div>`;
