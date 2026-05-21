@@ -4966,12 +4966,21 @@ function openArticlePicker(qid, type='question'){
       if(articles[qSubj][fnStr]){
         initialKey = fnStr;
       } else {
-        // 親フレーム配下の最初のサブフレームを探す
-        const subStart = frKeys.find(k => {
-          const p = parseSubFrameKey(k);
-          return p && p.parent === entity.frameNo;
-        });
-        if(subStart) initialKey = subStart;
+        // 改修7: 問題の law が示すサブフレームを優先して選択する。
+        // 例: 社一 F2(社会保険法規等)配下で、問題の law が「児童手当法」なら
+        //     F2_5(児童手当法)を初期選択する(従来は機械的に F2_1 だった)。
+        // マッチが無い、または条文未投入なら、親フレーム配下の最初のサブフレームへフォールバック。
+        const matchedSub = getSubFrameForQuestion(qSubj, entity.frameNo, entity.law||'');
+        if(matchedSub && articles[qSubj][matchedSub.key]){
+          initialKey = matchedSub.key;
+        } else {
+          // 親フレーム配下の最初のサブフレームを探す(フォールバック)
+          const subStart = frKeys.find(k => {
+            const p = parseSubFrameKey(k);
+            return p && p.parent === entity.frameNo;
+          });
+          if(subStart) initialKey = subStart;
+        }
       }
     }
     if(!initialKey && frKeys.length) initialKey = frKeys[0];
