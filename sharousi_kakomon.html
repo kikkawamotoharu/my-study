@@ -1032,6 +1032,14 @@
   .kind-mode-btn:hover{background:var(--line-soft);color:var(--ink)}
   .kind-mode-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
   .kind-mode-btn .count{font-size:11px;opacity:.75}
+  /* 改修8: 複合モードと単独モードの視覚的区切り */
+  .kind-mode-divider{
+    height:1px;background:var(--line);margin:6px 4px;opacity:.6;
+  }
+  .kind-mode-section-label{
+    font-size:10.5px;color:var(--ink-muted);
+    padding:4px 4px 2px;text-transform:uppercase;letter-spacing:.5px;
+  }
 
   /* 進捗管理: 過去問/予想問サブタブ */
   .prog-subtabs{
@@ -1714,9 +1722,17 @@
     <div class="stat-card">
       <h3>種類モード</h3>
       <div class="kind-mode-group">
-        <button class="kind-mode-btn active" data-kindmode="both">過去問+予想問(両方) <span class="count" id="kmc-both"></span></button>
-        <button class="kind-mode-btn" data-kindmode="past">過去問のみ <span class="count" id="kmc-past"></span></button>
-        <button class="kind-mode-btn" data-kindmode="forecast">予想問のみ <span class="count" id="kmc-forecast"></span></button>
+        <!-- 改修8: 複合モード(複数種別を同時出題) -->
+        <div class="kind-mode-section-label">複合</div>
+        <button class="kind-mode-btn active" data-kindmode="both">すべて(A+B+予想) <span class="count" id="kmc-both"></span></button>
+        <button class="kind-mode-btn" data-kindmode="past">過去問(A+B) <span class="count" id="kmc-past"></span></button>
+        <button class="kind-mode-btn" data-kindmode="pastA_forecast">過去問A+予想問 <span class="count" id="kmc-pastA_forecast"></span></button>
+        <div class="kind-mode-divider"></div>
+        <!-- 改修8: 単独モード(1種別だけ出題) -->
+        <div class="kind-mode-section-label">単独</div>
+        <button class="kind-mode-btn" data-kindmode="pastA">過去問A <span class="count" id="kmc-pastA"></span></button>
+        <button class="kind-mode-btn" data-kindmode="pastB">過去問B <span class="count" id="kmc-pastB"></span></button>
+        <button class="kind-mode-btn" data-kindmode="forecast">予想問 <span class="count" id="kmc-forecast"></span></button>
       </div>
     </div>
 
@@ -3091,13 +3107,10 @@ function getPool(){
     return pool; // モード中は他フィルタ無効
   }
   // 種類モード(過去問/予想問/両方)フィルタ
-  // 改修8: Step 1 では既存 'past' は「過去問A+B」を意味する後方互換として扱う。
+  // 改修8: questionMatchesKindMode 経由で 6パターン全部に対応。
+  //   'both'/'past'/'forecast'/'pastA'/'pastB'/'pastA_forecast'
   const kindMode = s.kindMode || 'both';
-  if(kindMode==='past'){
-    pool = pool.filter(isPastAny);  // 過去問 A+B
-  }else if(kindMode==='forecast'){
-    pool = pool.filter(isForecast);
-  }
+  pool = pool.filter(q => questionMatchesKindMode(q, kindMode));
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
   if(s.filterFrame){
     const fn = parseInt(s.filterFrame,10);
@@ -3128,13 +3141,20 @@ function getPool(){
       const idMap = Object.fromEntries(pool.map(q=>[q.id,q]));
       pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
     }
-  }else if(s.mode==='seq' && kindMode==='both'){
-    // 両方モードの順番出題: 過去問(A+B)→予想問の順に並べる(各内部は登録順を維持)
-    pool.sort((a,b)=>{
-      const ka = isPastAny(a) ? 0 : 1;
-      const kb = isPastAny(b) ? 0 : 1;
-      return ka - kb;
-    });
+  }else if(s.mode==='seq'){
+    // 改修8: 複合モード(複数 kind が混じる)の順番出題は kind 順に並べる。
+    //   優先度: pastA(0) < pastB(1) < forecast(2)
+    //   単独モード(pastA / pastB / forecast)は元から1種別なので並べ替え不要
+    const isMulti = (kindMode === 'both' || kindMode === 'past' || kindMode === 'pastA_forecast');
+    if(isMulti){
+      const ord = q => {
+        const k = getKind(q);
+        if(k === 'pastA') return 0;
+        if(k === 'pastB') return 1;
+        return 2; // forecast
+      };
+      pool.sort((a,b) => ord(a) - ord(b));
+    }
   }
   return pool;
 }
@@ -3674,8 +3694,9 @@ function renderSidebar(){
   document.getElementById('stat-q-count').textContent = state.questions.length;
 
   // 種類モード(kindMode)カウント
+  // 改修8: 'both'/'past'/'forecast' に加え、 'pastA'/'pastB'/'pastA_forecast' の3パターンも計算
   const oldKindMode = state.session.kindMode;
-  for(const km of ['both','past','forecast']){
+  for(const km of ['both','past','pastA_forecast','pastA','pastB','forecast']){
     state.session.kindMode = km;
     const el = document.getElementById('kmc-'+km);
     if(el) el.textContent = '('+getPool().length+')';
@@ -6174,10 +6195,9 @@ function getWeakPool(){
   const s = state.weakSession;
   // ミスのある問題のみ抽出
   let pool = state.questions.filter(q => getMistakeCount(q.id) > 0);
-  // 種類モードフィルタ(過去/予想/両方)
+  // 種類モードフィルタ(改修8: 6パターン全部に対応)
   const km = s.kindMode || 'both';
-  if(km==='past') pool = pool.filter(isPastAny);
-  else if(km==='forecast') pool = pool.filter(isForecast);
+  pool = pool.filter(q => questionMatchesKindMode(q, km));
   // ミス回数フィルタ
   pool = pool.filter(q=>{
     const c = getMistakeCount(q.id);
@@ -6277,9 +6297,12 @@ function renderWeak(){
         </select>
         <label style="margin-left:8px">種類</label>
         <select id="w-kindmode">
-          <option value="both" ${(s.kindMode||'both')==='both'?'selected':''}>過去問+予想問</option>
-          <option value="past" ${s.kindMode==='past'?'selected':''}>過去問のみ</option>
-          <option value="forecast" ${s.kindMode==='forecast'?'selected':''}>予想問のみ</option>
+          <option value="both" ${(s.kindMode||'both')==='both'?'selected':''}>すべて(A+B+予想)</option>
+          <option value="past" ${s.kindMode==='past'?'selected':''}>過去問(A+B)</option>
+          <option value="pastA_forecast" ${s.kindMode==='pastA_forecast'?'selected':''}>過去問A+予想問</option>
+          <option value="pastA" ${s.kindMode==='pastA'?'selected':''}>過去問A</option>
+          <option value="pastB" ${s.kindMode==='pastB'?'selected':''}>過去問B</option>
+          <option value="forecast" ${s.kindMode==='forecast'?'selected':''}>予想問</option>
         </select>
       </div>
       <div class="weak-filter-row">
