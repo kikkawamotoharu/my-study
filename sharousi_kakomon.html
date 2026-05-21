@@ -1918,12 +1918,13 @@
       <div style="flex:0 0 150px">
         <label class="field">問題区分</label>
         <select id="m-kind">
-          <option value="past">過去問</option>
+          <option value="pastA">過去問A</option>
+          <option value="pastB">過去問B</option>
           <option value="forecast">予想問</option>
         </select>
       </div>
       <div style="flex:1">
-        <label class="field">出典(予想問のみ)</label>
+        <label class="field">出典(過去問B・予想問)</label>
         <input type="text" id="m-source" placeholder="例: TAC2025-7模試">
       </div>
       <div style="flex:0 0 120px">
@@ -2429,9 +2430,42 @@ function frameTitle(law, n){
   return fr ? `フレーム${n} ${fr.t}` : `フレーム${n}`;
 }
 function frameKey(law, n, kind){
-  // kindは 'past' | 'forecast'。省略時は 'past'(後方互換)。
+  // kindは 'pastA' | 'pastB' | 'forecast'。省略時は 'pastA'(後方互換)。
   // n は整数(従来) or 文字列("2.1"形式 = サブフレーム)を受け取る。
-  return `${law}|${n}|${kind||'past'}`;
+  // 改修8: 'past' は後方互換として 'pastA' へ正規化する。
+  let k = kind || 'pastA';
+  if(k === 'past') k = 'pastA';
+  return `${law}|${n}|${k}`;
+}
+
+/* ===== 改修8: 過去問A / 過去問B / 予想問 の判定ヘルパー =====
+   既存データ(q.kind 未設定や 'past')は 'pastA' として扱う。
+   新規に q.kind='pastB' が JSON インポートで入ってきた場合は別管理。 */
+function getKind(q){
+  const k = q && q.kind;
+  if(k === 'pastA' || k === 'pastB' || k === 'forecast') return k;
+  return 'pastA'; // 'past' (旧) や未設定 → pastA として扱う
+}
+function isPastA(q){    return getKind(q) === 'pastA' }
+function isPastB(q){    return getKind(q) === 'pastB' }
+function isForecast(q){ return getKind(q) === 'forecast' }
+function isPastAny(q){  const k = getKind(q); return k === 'pastA' || k === 'pastB' }
+
+/* kindMode の値の正規化(後方互換).
+   既存 'past' (UI) → 'pastA' or 'past_only' のどちらにマッピングするか?
+   Step 1 では既存 'past' は「過去問A+B両方を見せる」=後方互換として「past」キーは「pastAny」相当に解釈する.
+   ただし Step 2 で kindMode の値域を本格的に書き換える際に再整理する.
+   --- ここでは「q が指定 kindMode に該当するか」を一元判定するユーティリティを提供する. */
+function questionMatchesKindMode(q, kindMode){
+  const km = kindMode || 'both';
+  if(km === 'both') return true; // 全部
+  if(km === 'past') return isPastAny(q); // 過去問(A+B)= 後方互換
+  if(km === 'forecast') return isForecast(q);
+  // Step 2 で追加予定の細分モードに先行対応
+  if(km === 'pastA') return isPastA(q);
+  if(km === 'pastB') return isPastB(q);
+  if(km === 'pastA_forecast') return isPastA(q) || isForecast(q);
+  return true;
 }
 
 /* ===== 予想問の15問しきい値判定 =====
@@ -2439,32 +2473,40 @@ function frameKey(law, n, kind){
    過去問は問題数に関係なく常に表示対象。 */
 const FORECAST_FRAME_THRESHOLD = 15;
 function isFrameInProgressManagement(subject, frameNo, kind){
-  if(kind==='past') return true; // 過去問は全フレーム表示対象
-  // 予想問は15問以上のみ
+  // 改修8 Step 1: 仕様書⑤に従い、 pastB も「予想問同様に 15問以上」を進捗管理対象とする。
+  //   pastA(比較認識法問題集ベース)       → 全フレーム表示
+  //   pastB(個別追加の過去問)/forecast(予想問) → 15問以上のフレームのみ表示
+  let k = kind || 'pastA';
+  if(k === 'past') k = 'pastA';
+  if(k === 'pastA') return true; // 過去問A は閾値なし
+  // pastB と forecast は同一 kind の問題数で 15問しきい値を判定
   const count = state.questions.filter(q=>
     lawToSubject(q.law)===subject &&
     q.frameNo===frameNo &&
-    (q.kind||'past')==='forecast'
+    getKind(q)===k
   ).length;
   return count >= FORECAST_FRAME_THRESHOLD;
 }
 
 /* 確認④c: 15問しきい値到達時、既存の解答履歴を「初回演習」として自動取り込み
-   - 予想問フレームで15問以上に達した
-   - frameAttempts[subject|N|forecast] がまだない
-   - 該当する予想問たちに既存の解答履歴がある
-   → その「最新解答」を初回演習履歴として保存(全問解答済なら history[0] に completed、部分解答なら current に進行中) */
-function ensureForecastFrameAutoInit(){
+   - 対象 kind(forecast / pastB)フレームで 15問以上に達した
+   - frameAttempts[subject|N|kind] がまだない
+   - 該当する問題たちに既存の解答履歴がある
+   → その「最新解答」を初回演習履歴として保存(全問解答済なら history[0] に completed、部分解答なら current に進行中)
+   改修8 Step 1: 仕様書⑤に従い、 pastB も予想問同様に自動取り込み対象とした(generic 化)。 */
+function ensureKindFrameAutoInit(kind){
+  const targetKind = kind || 'forecast';
+  if(targetKind !== 'forecast' && targetKind !== 'pastB') return; // 対象外 kind は何もしない
   let initialized = 0;
   for(const subject of SUBJECTS_ORDER){
     const frames = FRAMES[subject] || [];
     for(const fr of frames){
-      const k = frameKey(subject, fr.n, 'forecast');
+      const k = frameKey(subject, fr.n, targetKind);
       if(state.frameAttempts[k]) continue; // 既に存在 → スキップ
       const qs = state.questions.filter(q=>
         lawToSubject(q.law)===subject &&
         q.frameNo===fr.n &&
-        (q.kind||'past')==='forecast'
+        getKind(q)===targetKind
       );
       if(qs.length < FORECAST_FRAME_THRESHOLD) continue; // 15問未満 → スキップ
 
@@ -2506,9 +2548,14 @@ function ensureForecastFrameAutoInit(){
     }
   }
   if(initialized>0){
-    console.log(`Auto-initialized forecast frameAttempts for ${initialized} frame(s)`);
+    console.log(`Auto-initialized ${targetKind} frameAttempts for ${initialized} frame(s)`);
     saveState();
   }
+}
+// 後方互換 wrapper: 既存呼び出し箇所(forecast 用)はそのまま使える
+function ensureForecastFrameAutoInit(){
+  ensureKindFrameAutoInit('forecast');
+  ensureKindFrameAutoInit('pastB');
 }
 
 /* ===== Sample CASE data: TAC 2025年7月全国模試 労災問2 ===== */
@@ -2936,6 +2983,28 @@ function loadState(){
       }
       if(lbMigrated>0) console.log(`Migrated ${lbMigrated} questions with empty linkedBlocks`);
 
+      // === 改修8 Migration v5: 過去問A/B 区分の導入 ===
+      // 既存の q.kind === 'past' は、新仕様では「過去問A」として扱う。
+      // (これから JSON インポートで追加される 'pastB' = 過去問B と区別するため)
+      let kindAMigrated = 0;
+      for(const q of s.questions){
+        if(q.kind === 'past'){ q.kind = 'pastA'; kindAMigrated++ }
+      }
+      if(kindAMigrated>0) console.log(`Migrated ${kindAMigrated} questions: kind 'past' → 'pastA'`);
+
+      // frameAttempts キーの '|past' を '|pastA' に変換
+      let faKindMigrated = 0;
+      for(const k of Object.keys(s.frameAttempts)){
+        const parts = k.split('|');
+        if(parts.length === 3 && parts[2] === 'past'){
+          const newKey = parts[0]+'|'+parts[1]+'|pastA';
+          if(!s.frameAttempts[newKey]) s.frameAttempts[newKey] = s.frameAttempts[k];
+          delete s.frameAttempts[k];
+          faKindMigrated++;
+        }
+      }
+      if(faKindMigrated>0) console.log(`Migrated ${faKindMigrated} frameAttempts keys: |past → |pastA`);
+
       // === 改修6: 図表 imageData の同期的キャッシュ退避 ===
       // iOS Safari の localStorage 5MB 制限対策。
       // ここで state.figures[*].imageData を figureImageCache に同期的に退避して
@@ -3009,8 +3078,10 @@ function getPool(){
   // フレーム演習モードが有効なら、そのフレームの問題に強制限定
   if(s.frameMode){
     const subj = s.frameMode.subject || s.frameMode.law; // 後方互換
-    const fmKind = s.frameMode.kind || 'past';
-    pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo && (q.kind||'past')===fmKind);
+    // 改修8: frameMode.kind は 'pastA' | 'pastB' | 'forecast'。 旧値 'past' は 'pastA' へ正規化。
+    let fmKind = s.frameMode.kind || 'pastA';
+    if(fmKind === 'past') fmKind = 'pastA';
+    pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo && getKind(q)===fmKind);
     // サブフレーム指定があれば、さらに当該サブフレームに属する法律のみへ絞り込む
     if(s.frameMode.subFrameKey){
       const subs = getSubFrames(subj, s.frameMode.frameNo);
@@ -3020,11 +3091,12 @@ function getPool(){
     return pool; // モード中は他フィルタ無効
   }
   // 種類モード(過去問/予想問/両方)フィルタ
+  // 改修8: Step 1 では既存 'past' は「過去問A+B」を意味する後方互換として扱う。
   const kindMode = s.kindMode || 'both';
   if(kindMode==='past'){
-    pool = pool.filter(q=>(q.kind||'past')==='past');
+    pool = pool.filter(isPastAny);  // 過去問 A+B
   }else if(kindMode==='forecast'){
-    pool = pool.filter(q=>(q.kind||'past')==='forecast');
+    pool = pool.filter(isForecast);
   }
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
   if(s.filterFrame){
@@ -3057,10 +3129,10 @@ function getPool(){
       pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
     }
   }else if(s.mode==='seq' && kindMode==='both'){
-    // 両方モードの順番出題: 過去問→予想問の順に並べる(各内部は登録順を維持)
+    // 両方モードの順番出題: 過去問(A+B)→予想問の順に並べる(各内部は登録順を維持)
     pool.sort((a,b)=>{
-      const ka = (a.kind||'past')==='past' ? 0 : 1;
-      const kb = (b.kind||'past')==='past' ? 0 : 1;
+      const ka = isPastAny(a) ? 0 : 1;
+      const kb = isPastAny(b) ? 0 : 1;
       return ka - kb;
     });
   }
@@ -3125,7 +3197,9 @@ function renderQuiz(){
     const fm = state.session.frameMode;
     const subject = fm.subject || fm.law;
     const frameNo = fm.frameNo;
-    const fmKind = fm.kind || 'past';
+    // 改修8: fmKind を 'pastA'|'pastB'|'forecast' に正規化(旧'past'→'pastA')
+    let fmKind = fm.kind || 'pastA';
+    if(fmKind === 'past') fmKind = 'pastA';
     const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
     const k = frameKey(subject, keyN, fmKind);
     const fa = state.frameAttempts[k];
@@ -3185,7 +3259,7 @@ function renderQuiz(){
       ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
-      ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+      ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       <button type="button" class="idx-jump" id="quiz-idx-jump" title="クリックで問題番号を直接指定">[${idx+1}/${pool.length}]</button>
       <div class="progress-track progress-clickable" id="quiz-progress-track" title="クリックで任意の問題へジャンプ"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
@@ -3322,7 +3396,7 @@ function answerQuestion(userAns){
   if(state.session.frameMode){
     const fm = state.session.frameMode;
     const subj = fm.subject || fm.law;
-    const fmKind = fm.kind || 'past';
+    let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
     const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
     const k = frameKey(subj, keyN, fmKind);
     const fa = state.frameAttempts[k];
@@ -3440,9 +3514,13 @@ function toggleBm(qid,color){
 
 /* ===== Frame study mode (フレーム演習) ===== */
 /* 引数 subject: 試験科目名(章名)。例:"雇用保険法"、"社会保険に関する一般常識"
-   引数 kind: 'past' | 'forecast' (省略時は 'past')。同じフレームでも過去問と予想問は別管理。 */
+   引数 kind: 'pastA' | 'pastB' | 'forecast' (省略時は 'pastA')。
+   改修8: 後方互換のため、 旧値 'past' は 'pastA' へ正規化する。 */
 function startFrameAttempt(subject, frameRef, kind){
-  kind = kind || 'past';
+  // 改修8: kind 引数を正規化(旧 'past'/'both'/省略 → 'pastA')
+  let normKind = kind || 'pastA';
+  if(normKind === 'past' || normKind === 'both') normKind = 'pastA';
+  kind = normKind;
   state.session.frameCompleted = null; // 前回完了フラグをクリア
   // frameRef を解析(数値=親フレーム、"2.1"形式=サブフレーム)
   const fref = resolveFrameRef(subject, frameRef);
@@ -3452,7 +3530,8 @@ function startFrameAttempt(subject, frameRef, kind){
   const k = frameKey(subject, keyN, kind);
   state.frameAttempts[k] ||= {history:[], current:null};
   const fa = state.frameAttempts[k];
-  const kindLbl = (kind==='forecast') ? '予想問' : '過去問';
+  // 改修8: 「過去問A」「過去問B」「予想問」のラベル区別
+  const kindLbl = (kind==='forecast') ? '予想問' : (kind==='pastB') ? '過去問B' : '過去問A';
   // 現在進行中の演習があれば確認
   if(fa.current){
     if(!confirm(`このフレーム(${kindLbl})には進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
@@ -3467,7 +3546,8 @@ function startFrameAttempt(subject, frameRef, kind){
     if(!confirm(`このフレーム(${kindLbl})は既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)`)) return;
   }
   // 該当フレームに属する問題のIDを取得(科目=章 + kind + サブフレーム法律でフィルタ)
-  let qFiltered = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref.frameNo && (q.kind||'past')===kind);
+  // 改修8: getKind(q) で q.kind を 'pastA'|'pastB'|'forecast' に正規化したものと比較
+  let qFiltered = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref.frameNo && getKind(q)===kind);
   if(fref.isSubFrame && fref.subFrame){
     qFiltered = qFiltered.filter(q=>questionMatchesSubFrame(q.law, fref.subFrame));
   }
@@ -3484,7 +3564,10 @@ function startFrameAttempt(subject, frameRef, kind){
 }
 
 function enterFrameMode(subject, frameNo, kind, subFrameKey){
-  kind = kind || 'past';
+  // 改修8: kind 引数を正規化(旧 'past'/'both'/省略 → 'pastA')
+  let normKind = kind || 'pastA';
+  if(normKind === 'past' || normKind === 'both') normKind = 'pastA';
+  kind = normKind;
   state.session.frameMode = {subject, frameNo, kind, subFrameKey: subFrameKey || null};
   state.session.mode = 'seq';
   state.session.answered = false;
@@ -3529,7 +3612,7 @@ function abandonFrameAttempt(){
   if(!confirm('現在のフレーム演習を破棄しますか?\n(これまで解答した記録は通算成績には残りますが、進捗管理表からは消えます)')) return;
   const fm = state.session.frameMode;
   const subj = fm.subject || fm.law;
-  const fmKind = fm.kind || 'past';
+  let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
   const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
   const k = frameKey(subj, keyN, fmKind);
   if(state.frameAttempts[k]) state.frameAttempts[k].current = null;
@@ -3542,7 +3625,7 @@ function checkFrameComplete(){
   const fm = state.session.frameMode;
   const subject = fm.subject || fm.law;
   const frameNo = fm.frameNo;
-  const fmKind = fm.kind || 'past';
+  let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
   const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
   const k = frameKey(subject, keyN, fmKind);
   const fa = state.frameAttempts[k];
@@ -3620,8 +3703,8 @@ function renderSidebar(){
   // Filter selects(種類モードに応じて絞り込む)
   const kmFilter = q => {
     const km = state.session.kindMode || 'both';
-    if(km==='past') return (q.kind||'past')==='past';
-    if(km==='forecast') return (q.kind||'past')==='forecast';
+    if(km==='past') return isPastAny(q);
+    if(km==='forecast') return isForecast(q);
     return true;
   };
   const kmQs = state.questions.filter(kmFilter);
@@ -3670,7 +3753,7 @@ function renderManage(){
         <span>${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
         <span>${escapeHtml(q.qno||'')}</span>
         <span>Lv.${escapeHtml(q.difficulty||'-')}</span>
-        ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+        ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       </div>
       <div class="qt">${escapeHtml(q.text)}</div>
       <div class="qa ${q.answer?'o':'x'}">${q.answer?'○':'×'}</div>
@@ -3687,7 +3770,8 @@ let _editModalDraftLinkedBlocks = null;  // 新規問題作成中の紐付け一
 function openEditModal(id){
   const isNew = !id;
   editingId = id;
-  const q = id ? state.questions.find(x=>x.id===id) : {year:'',law:'雇用保険法',qno:'',category:'',text:'',answer:true,difficulty:'C',point:'',explanation:'',legalBasis:'',articleText:'',kind:'past',source:'',frameNo:null};
+  // 改修8: 新規問題のデフォルト kind を 'pastA' に
+  const q = id ? state.questions.find(x=>x.id===id) : {year:'',law:'雇用保険法',qno:'',category:'',text:'',answer:true,difficulty:'C',point:'',explanation:'',legalBasis:'',articleText:'',kind:'pastA',source:'',frameNo:null};
   if(!q) return;
   document.getElementById('modal-title').textContent = isNew?'新規問題':'問題を編集';
   document.getElementById('m-year').value = q.year||'';
@@ -3701,7 +3785,12 @@ function openEditModal(id){
   document.getElementById('m-exp').value = q.explanation||'';
   document.getElementById('m-basis').value = q.legalBasis||'';
   document.getElementById('m-article').value = q.articleText||'';
-  document.getElementById('m-kind').value = q.kind||'past';
+  // 改修8: 'past' (旧) も 'pastA' として扱う
+  {
+    let k = q.kind || 'pastA';
+    if(k === 'past') k = 'pastA';
+    document.getElementById('m-kind').value = k;
+  }
   document.getElementById('m-source').value = q.source||'';
   document.getElementById('m-frame').value = (q.frameNo!=null) ? q.frameNo : '';
   document.getElementById('m-delete').style.display = isNew?'none':'inline-block';
@@ -3730,12 +3819,13 @@ function saveEditModal(){
     explanation:document.getElementById('m-exp').value.trim(),
     legalBasis:document.getElementById('m-basis').value.trim(),
     articleText:document.getElementById('m-article').value.trim(),
-    kind:document.getElementById('m-kind').value || 'past',
+    kind:document.getElementById('m-kind').value || 'pastA',
     source:document.getElementById('m-source').value.trim(),
     frameNo: (isNaN(frameNo) ? null : frameNo)
   };
-  // 過去問の場合はsourceは空に統一(誤入力対策)
-  if(data.kind === 'past') data.source = '';
+  // 改修8: 過去問A は source を持たない(混乱防止)。過去問B・予想問は保持。
+  if(data.kind === 'past') data.kind = 'pastA'; // 旧値の念のため正規化
+  if(data.kind === 'pastA') data.source = '';
   if(editingId){
     const i = state.questions.findIndex(q=>q.id===editingId);
     if(i>=0) state.questions[i] = {...state.questions[i],...data};
@@ -3875,10 +3965,19 @@ function doImport(){
       if(!q.text){skipped++;continue}
       q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
       if(state.questions.some(x=>x.id===q.id)){skipped++;continue}
-      // kindのデフォルト値: JSON内で'forecast'と指定があればそれ、なければ'past'
-      q.kind = (q.kind === 'forecast') ? 'forecast' : 'past';
-      // 過去問の場合はsourceを空にして混乱を防ぐ
-      if(q.kind === 'past' && q.source) q.source = '';
+      // 改修8: kindの正規化。 JSON内で 'forecast' / 'pastB' / 'pastA' / 'past' を受け入れ。
+      //   'past' (旧) → 'pastA' へ自動変換、 未指定/不明 → 'pastA' (デフォルト)
+      if(q.kind === 'forecast'){
+        q.kind = 'forecast';
+      } else if(q.kind === 'pastB'){
+        q.kind = 'pastB';
+      } else if(q.kind === 'pastA' || q.kind === 'past'){
+        q.kind = 'pastA';
+      } else {
+        q.kind = 'pastA';
+      }
+      // 過去問A は source を持たない(混乱防止)。過去問B・予想問は source を保持。
+      if(q.kind === 'pastA' && q.source) q.source = '';
       // 条文紐付けフィールド(後方互換)
       if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
       state.questions.push(q);
@@ -4022,6 +4121,20 @@ function restoreBackup(){
         // 既存問題にlinkedBlocks未設定 → 空配列を付与
         for(const q of state.questions){
           if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
+        }
+        // === 改修8 Migration v5: 過去問A/B 区分への移行 ===
+        // 既存 q.kind === 'past' は新仕様で「過去問A」として扱う
+        for(const q of state.questions){
+          if(q.kind === 'past') q.kind = 'pastA';
+        }
+        // frameAttempts キーの '|past' を '|pastA' に変換
+        for(const k of Object.keys(state.frameAttempts)){
+          const parts = k.split('|');
+          if(parts.length === 3 && parts[2] === 'past'){
+            const newKey = parts[0]+'|'+parts[1]+'|pastA';
+            if(!state.frameAttempts[newKey]) state.frameAttempts[newKey] = state.frameAttempts[k];
+            delete state.frameAttempts[k];
+          }
         }
         saveState();
         renderQuiz();renderManage();renderSidebar();
@@ -6063,8 +6176,8 @@ function getWeakPool(){
   let pool = state.questions.filter(q => getMistakeCount(q.id) > 0);
   // 種類モードフィルタ(過去/予想/両方)
   const km = s.kindMode || 'both';
-  if(km==='past') pool = pool.filter(q=>(q.kind||'past')==='past');
-  else if(km==='forecast') pool = pool.filter(q=>(q.kind||'past')==='forecast');
+  if(km==='past') pool = pool.filter(isPastAny);
+  else if(km==='forecast') pool = pool.filter(isForecast);
   // ミス回数フィルタ
   pool = pool.filter(q=>{
     const c = getMistakeCount(q.id);
@@ -6237,7 +6350,7 @@ function renderWeak(){
       ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
-      ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+      ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       <span class="miss-count">ミス${missCount}回</span>
       <span class="miss-pattern">${pattern.split('').map(c=>c==='o'?'<span class="o">○</span>':'<span class="x">×</span>').join('')}</span>
       <span style="font-size:10px;color:var(--ink-muted);margin-left:6px">最終誤答 ${lastDateStr}</span>
@@ -6531,7 +6644,7 @@ function renderProgress(){
   const kindMode = state.progressView.kindMode;
   // === データ概要(診断) ===
   // kindModeに応じて対象問題を絞り込む(過去問のみ・予想問のみ)
-  const kFilter = q => (q.kind||'past')===kindMode;
+  const kFilter = q => questionMatchesKindMode(q, kindMode);
   const targetQs = state.questions.filter(kFilter);
   const total = targetQs.length;
   const noFrame = targetQs.filter(q=>q.frameNo==null).length;
@@ -6574,8 +6687,8 @@ function renderProgress(){
 /* 進捗管理のサブタブUI(過去問/予想問)HTML生成 */
 function progressSubTabsHtml(currentKind){
   // 各kindの登録数を計算
-  const pastCount = state.questions.filter(q=>(q.kind||'past')==='past').length;
-  const forecastCount = state.questions.filter(q=>(q.kind||'past')==='forecast').length;
+  const pastCount = state.questions.filter(isPastAny).length;
+  const forecastCount = state.questions.filter(isForecast).length;
   return `<div class="prog-subtabs">
     <button class="prog-subtab ${currentKind==='past'?'active':''}" data-kindmode="past">📚 過去問 <span class="pst-count">${pastCount}問</span></button>
     <button class="prog-subtab ${currentKind==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
@@ -6596,7 +6709,7 @@ function renderProgressSubjects(root, summary, kindMode){
     if(!frames.length) continue;
     let qTotal = 0, completedFrames = 0, inProgressFrames = 0, eligibleFrames = 0;
     for(const fr of frames){
-      const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+      const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
       // このフレームがサブフレームを持つなら、サブフレームごとに集計
       if(hasSubFrames(subject, fr.n)){
         const subs = getSubFrames(subject, fr.n);
@@ -6737,7 +6850,7 @@ function buildProgressFrameRow(opts){
    集計: 中分類N個・全X問・完了U/N・演習中V */
 function buildParentFrameSummaryCard(subject, fr, kindMode){
   const subs = getSubFrames(subject, fr.n);
-  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
   let totalQ = 0, completedSubs = 0, inProgressSubs = 0, eligibleSubs = 0;
   for(const sf of subs){
     const cnt = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf)).length;
@@ -6788,7 +6901,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
       continue;
     }
     // ===== 通常(サブフレーム無し)のフレーム — 従来通り =====
-    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
     const total = allFrameQs.length;
     const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
     if(!eligible){
@@ -6885,7 +6998,7 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
   </div>`;
 
   html += `<div class="card prog-chapter"><div class="prog-frames">`;
-  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===parentFrameNo && (q.kind||'past')===kindMode);
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===parentFrameNo && questionMatchesKindMode(q, kindMode));
   let shownSubs = 0;
   for(const sf of subs){
     const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
@@ -7001,7 +7114,7 @@ function init(){
     state.session.userAnswer = null;
     // 種類モード切替時、現在のフィルタ(法律/フレーム/年度等)が新しいプールに存在しなければクリア
     const km = state.session.kindMode;
-    const kmf = q => km==='past'?(q.kind||'past')==='past' : km==='forecast'?(q.kind||'past')==='forecast' : true;
+    const kmf = q => questionMatchesKindMode(q, km);
     const newQs = state.questions.filter(kmf);
     if(state.session.filterLaw && !newQs.some(q=>q.law===state.session.filterLaw)) state.session.filterLaw='';
     if(state.session.filterYear && !newQs.some(q=>q.year===state.session.filterYear)) state.session.filterYear='';
