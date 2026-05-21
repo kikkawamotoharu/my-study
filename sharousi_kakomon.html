@@ -6485,7 +6485,7 @@ function getCaseMistakeCount(caseId){
 /* ===== Progress view ===== */
 function renderProgress(){
   const root = document.getElementById('progress-content');
-  state.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
+  state.progressView ||= {mode:'subjects', subject:null, parentFrameNo:null, kindMode:'past'};
   state.progressView.kindMode ||= 'past';
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
   ensureForecastFrameAutoInit();
@@ -6516,6 +6516,17 @@ function renderProgress(){
 
   if(state.progressView.mode === 'subjects'){
     renderProgressSubjects(root, summary, kindMode);
+  } else if(state.progressView.mode === 'subframes'){
+    // サブフレーム指定が不正(親にサブフレーム無し)なら親フレーム一覧へフォールバック
+    const subj = state.progressView.subject;
+    const pfn = state.progressView.parentFrameNo;
+    if(!subj || pfn == null || !hasSubFrames(subj, pfn)){
+      state.progressView.mode = 'frames';
+      state.progressView.parentFrameNo = null;
+      renderProgressFrames(root, summary, subj, kindMode);
+    } else {
+      renderProgressSubFrames(root, summary, subj, pfn, kindMode);
+    }
   } else {
     renderProgressFrames(root, summary, state.progressView.subject, kindMode);
   }
@@ -6630,6 +6641,92 @@ function renderProgressSubjects(root, summary, kindMode){
   });
 }
 
+/* 1フレーム行(進捗バー10マス付き)を描画する共通ヘルパー。
+   親フレーム・サブフレームともに使用。 */
+function buildProgressFrameRow(opts){
+  const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno} = opts;
+  const k = frameKey(subjectVal, fkN, kindModeVal);
+  const fa = state.frameAttempts[k] || {history:[], current:null};
+  const completed = fa.history.length;
+  const cur = fa.current;
+  let slots = '';
+  for(let i=0;i<10;i++){
+    if(i < fa.history.length){
+      const att = fa.history[i];
+      const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+      slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
+    }else if(i === fa.history.length && cur){
+      const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
+      slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
+    }else{
+      slots += `<div class="slot empty"><span class="slot-n">${i+1}</span></div>`;
+    }
+  }
+  let status = '';
+  if(totalCount===0){
+    status = `<span class="prog-status empty">問題未登録</span>`;
+  }else if(cur){
+    const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+    status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
+  }else if(completed){
+    const lastAtt = fa.history[fa.history.length-1];
+    const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
+    status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
+  }else{
+    status = `<span class="prog-status">未着手 (${totalCount}問登録)</span>`;
+  }
+  let btn = '';
+  if(totalCount===0){
+    btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
+  }else if(cur){
+    btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="resume">演習を再開</button>`;
+  }else{
+    btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
+  }
+  const kindIcon = (kindModeVal==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+  return `<div class="prog-frame">
+    <div class="pf-head">
+      <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
+      ${btn}
+    </div>
+    <div class="pf-slots">${slots}</div>
+    <div class="pf-status">${status}</div>
+  </div>`;
+}
+
+/* サブフレームを持つ親フレームのサマリーカード(クリックでサブフレーム一覧へ)。
+   集計: 中分類N個・全X問・完了U/N・演習中V */
+function buildParentFrameSummaryCard(subject, fr, kindMode){
+  const subs = getSubFrames(subject, fr.n);
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+  let totalQ = 0, completedSubs = 0, inProgressSubs = 0, eligibleSubs = 0;
+  for(const sf of subs){
+    const cnt = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf)).length;
+    totalQ += cnt;
+    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+    if(!eligible) continue;
+    eligibleSubs++;
+    const k = frameKey(subject, sf.key, kindMode);
+    const fa = state.frameAttempts[k];
+    if(fa){
+      if(fa.current) inProgressSubs++;
+      if((fa.history||[]).length>0) completedSubs++;
+    }
+  }
+  const kindIcon = (kindMode==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+  const subBadge = `<span class="badge-subframe" style="background:#FFE8B3;color:#7A5A1A;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-left:6px">中分類 ${subs.length} 個</span>`;
+  const progressLine = (eligibleSubs > 0)
+    ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
+    : (kindMode==='forecast' ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
+  return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
+    <div class="pf-head">
+      <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span></div>
+      <div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div>
+    </div>
+    <div class="pf-status" style="font-size:12px;color:var(--ink-muted)">${progressLine}　→ クリックで中分類別の進捗を表示</div>
+  </div>`;
+}
+
 function renderProgressFrames(root, summary, subject, kindMode){
   const frames = FRAMES[subject] || [];
   let html = `<div class="card progress-intro">
@@ -6644,101 +6741,15 @@ function renderProgressFrames(root, summary, subject, kindMode){
   html += `<div class="card prog-chapter"><div class="prog-frames">`;
   let shownFrames = 0;
 
-  // 1フレーム行を描画する共通ヘルパー(親フレーム or サブフレーム共用)
-  // params: { displayN(例:"2" or "2_1"), title, totalCount, frameKey数値orサブフレームキー, subjectVal, kindModeVal, lawBreakdown }
-  function buildFrameRow(opts){
-    const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno} = opts;
-    const k = frameKey(subjectVal, fkN, kindModeVal);
-    const fa = state.frameAttempts[k] || {history:[], current:null};
-    const completed = fa.history.length;
-    const cur = fa.current;
-    let slots = '';
-    for(let i=0;i<10;i++){
-      if(i < fa.history.length){
-        const att = fa.history[i];
-        const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
-        slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
-      }else if(i === fa.history.length && cur){
-        const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
-        slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
-      }else{
-        slots += `<div class="slot empty"><span class="slot-n">${i+1}</span></div>`;
-      }
-    }
-    let status = '';
-    if(totalCount===0){
-      status = `<span class="prog-status empty">問題未登録</span>`;
-    }else if(cur){
-      const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-      status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
-    }else if(completed){
-      const lastAtt = fa.history[fa.history.length-1];
-      const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-      status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
-    }else{
-      status = `<span class="prog-status">未着手 (${totalCount}問登録)</span>`;
-    }
-    let btn = '';
-    if(totalCount===0){
-      btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
-    }else if(cur){
-      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="resume">演習を再開</button>`;
-    }else{
-      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
-    }
-    const kindIcon = (kindModeVal==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
-    return `<div class="prog-frame">
-      <div class="pf-head">
-        <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
-        ${btn}
-      </div>
-      <div class="pf-slots">${slots}</div>
-      <div class="pf-status">${status}</div>
-    </div>`;
-  }
-
   for(const fr of frames){
-    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
-
-    // サブフレームを持つ親フレームは、サブフレーム単位の行に展開
+    // サブフレームを持つ親フレームは「サマリーカード」を表示(クリックで中分類一覧へ)
     if(hasSubFrames(subject, fr.n)){
-      const subs = getSubFrames(subject, fr.n);
-      // 親フレームの「導入見出し」行を1つ薄く表示(オプション、視認性のため)
-      html += `<div class="prog-frame-group-head" style="grid-column:1/-1;padding:8px 4px 4px;font-size:12px;color:var(--ink-muted);border-bottom:1px dashed var(--border-2,#e0d8c8);margin:8px 0 4px">
-        <span style="font-weight:600">F${fr.n} ${escapeHtml(fr.t)}</span>
-        <span style="margin-left:8px">中分類別の進捗:</span>
-      </div>`;
-      for(const sf of subs){
-        const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
-        const cnt = sfQs.length;
-        // 予想問のしきい値判定をサブフレーム単位で
-        const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
-        if(!eligible){
-          html += `<div class="prog-frame" style="opacity:.55">
-            <div class="pf-head">
-              <div class="pf-title"><span class="pf-n">F${fr.n}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
-              <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
-            </div>
-            <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
-          </div>`;
-          continue;
-        }
-        shownFrames++;
-        html += buildFrameRow({
-          displayN: `${fr.n}_${sf.n}`,
-          title: sf.t,
-          totalCount: cnt,
-          fkN: sf.key, // 例 "2.1"
-          subjectVal: subject,
-          kindModeVal: kindMode,
-          lawBreakdown: '',
-          dataFno: sf.key // クリック時に "2.1" 形式を渡す
-        });
-      }
+      html += buildParentFrameSummaryCard(subject, fr, kindMode);
+      shownFrames++;
       continue;
     }
-
     // ===== 通常(サブフレーム無し)のフレーム — 従来通り =====
+    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
     const total = allFrameQs.length;
     const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
     if(!eligible){
@@ -6755,7 +6766,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
     const lawsInFrame = [...new Set(allFrameQs.map(q=>q.law))];
     const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
       ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
-    html += buildFrameRow({
+    html += buildProgressFrameRow({
       displayN: String(fr.n),
       title: fr.t,
       totalCount: total,
@@ -6785,7 +6796,102 @@ function renderProgressFrames(root, summary, subject, kindMode){
     });
   });
   document.getElementById('prog-back').addEventListener('click', ()=>{
-    state.progressView = {mode:'subjects', subject:null, kindMode: state.progressView.kindMode};
+    state.progressView = {mode:'subjects', subject:null, parentFrameNo:null, kindMode: state.progressView.kindMode};
+    saveState();
+    renderProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // 親フレームサマリーカードクリック → サブフレーム一覧へ
+  root.querySelectorAll('.prog-frame-summary').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      const pfn = parseInt(c.dataset.parentFrame, 10);
+      state.progressView = {mode:'subframes', subject:subject, parentFrameNo:pfn, kindMode: state.progressView.kindMode};
+      saveState();
+      renderProgress();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  // 演習開始/再開ボタンクリック(サブフレーム無しフレーム用)
+  root.querySelectorAll('button[data-act]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      e.stopPropagation(); // サマリーカードクリックとの干渉防止
+      const subj = b.dataset.subj;
+      const fnoStr = b.dataset.fno;
+      const fno = /^\d+$/.test(fnoStr) ? parseInt(fnoStr,10) : fnoStr;
+      const km = b.dataset.kindmode || 'past';
+      startFrameAttempt(subj, fno, km);
+    });
+  });
+}
+
+/* 中分類(サブフレーム)一覧 — 親フレームを選んだ後の表示 */
+function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode){
+  const frames = FRAMES[subject] || [];
+  const parentFrame = frames.find(f=>f.n===parentFrameNo);
+  if(!parentFrame){
+    // 親フレームが見つからない → フレーム一覧に戻す
+    state.progressView.mode = 'frames';
+    state.progressView.parentFrameNo = null;
+    renderProgressFrames(root, summary, subject, kindMode);
+    return;
+  }
+  const subs = getSubFrames(subject, parentFrameNo);
+  let html = `<div class="card progress-intro">
+    <div class="prog-nav">
+      <button class="btn-back" id="prog-back-frames">← ${escapeHtml(subject)} の大分類一覧に戻る</button>
+    </div>
+    <h2 class="prog-h2">${escapeHtml(subject)} <span class="prog-sub">F${parentFrameNo} ${escapeHtml(parentFrame.t)} — 中分類別の進捗</span></h2>
+    ${progressSubTabsHtml(kindMode)}
+    ${summary}
+  </div>`;
+
+  html += `<div class="card prog-chapter"><div class="prog-frames">`;
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===parentFrameNo && (q.kind||'past')===kindMode);
+  let shownSubs = 0;
+  for(const sf of subs){
+    const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
+    const cnt = sfQs.length;
+    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+    if(!eligible){
+      html += `<div class="prog-frame" style="opacity:.55">
+        <div class="pf-head">
+          <div class="pf-title"><span class="pf-n">F${parentFrameNo}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
+          <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
+        </div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
+      </div>`;
+      continue;
+    }
+    shownSubs++;
+    html += buildProgressFrameRow({
+      displayN: `${parentFrameNo}_${sf.n}`,
+      title: sf.t,
+      totalCount: cnt,
+      fkN: sf.key,
+      subjectVal: subject,
+      kindModeVal: kindMode,
+      lawBreakdown: '',
+      dataFno: sf.key
+    });
+  }
+  if(shownSubs===0 && kindMode==='forecast'){
+    html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
+      このフレームの予想問は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  root.innerHTML = html;
+  root.querySelectorAll('.prog-subtab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      state.progressView.kindMode = t.dataset.kindmode;
+      saveState();
+      renderProgress();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  document.getElementById('prog-back-frames').addEventListener('click', ()=>{
+    state.progressView = {mode:'frames', subject:subject, parentFrameNo:null, kindMode: state.progressView.kindMode};
     saveState();
     renderProgress();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -6794,7 +6900,6 @@ function renderProgressFrames(root, summary, subject, kindMode){
     b.addEventListener('click', ()=>{
       const subj = b.dataset.subj;
       const fnoStr = b.dataset.fno;
-      // サブフレーム文字列("2.1")の場合はそのまま、整数文字列の場合はパースして数値化
       const fno = /^\d+$/.test(fnoStr) ? parseInt(fnoStr,10) : fnoStr;
       const km = b.dataset.kindmode || 'past';
       startFrameAttempt(subj, fno, km);
