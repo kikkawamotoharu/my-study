@@ -2220,18 +2220,52 @@ const FRAMES = {
 const SUB_FRAMES = {
   "社会保険に関する一般常識": {
     2: [
-      {key:"2.1", n:1, t:"国民健康保険法",     law:"国民健康保険法"},
-      {key:"2.2", n:2, t:"船員保険法",         law:"船員保険法"},
-      {key:"2.3", n:3, t:"高齢者医療確保法",   law:"高齢者の医療の確保に関する法律"},
-      {key:"2.4", n:4, t:"介護保険法",         law:"介護保険法"},
-      {key:"2.5", n:5, t:"児童手当法",         law:"児童手当法"}
+      {key:"2.1", n:1, t:"国民健康保険法",     law:"国民健康保険法",                 laws:["国民健康保険法"]},
+      {key:"2.2", n:2, t:"船員保険法",         law:"船員保険法",                     laws:["船員保険法"]},
+      {key:"2.3", n:3, t:"高齢者医療確保法",   law:"高齢者の医療の確保に関する法律", laws:["高齢者の医療の確保に関する法律","高齢者医療確保法","高確法"]},
+      {key:"2.4", n:4, t:"介護保険法",         law:"介護保険法",                     laws:["介護保険法"]},
+      {key:"2.5", n:5, t:"児童手当法",         law:"児童手当法",                     laws:["児童手当法"]}
     ],
     3: [
-      {key:"3.1", n:1, t:"確定拠出年金法",     law:"確定拠出年金法"},
-      {key:"3.2", n:2, t:"確定給付企業年金法", law:"確定給付企業年金法"}
+      {key:"3.1", n:1, t:"確定拠出年金法",     law:"確定拠出年金法",                 laws:["確定拠出年金法"]},
+      {key:"3.2", n:2, t:"確定給付企業年金法", law:"確定給付企業年金法",             laws:["確定給付企業年金法"]}
     ]
   }
 };
+/* 問題の法律名(q.law)が指定サブフレームに属するかを判定。
+   sub-frame に laws[] があれば表記揺れも含めて照合、無ければ law を使用。 */
+function questionMatchesSubFrame(qLaw, subFrame){
+  if(!qLaw || !subFrame) return false;
+  if(Array.isArray(subFrame.laws) && subFrame.laws.length){
+    return subFrame.laws.includes(qLaw);
+  }
+  return qLaw === subFrame.law;
+}
+/* 問題(q)が属するサブフレーム情報を取得(無ければ null)。 */
+function getSubFrameForQuestion(subject, frameNo, qLaw){
+  const subs = getSubFrames(subject, frameNo);
+  if(!subs.length) return null;
+  for(const sf of subs){
+    if(questionMatchesSubFrame(qLaw, sf)) return sf;
+  }
+  return null;
+}
+/* frameRef を解釈して {frameNo, subFrameKey, subFrame, isSubFrame} を返す。
+   frameRef は数値(例: 2)または文字列("2" / "2.1")。 */
+function resolveFrameRef(subject, frameRef){
+  // 数値、または数字のみの文字列 → 親フレーム
+  if(typeof frameRef === 'number' || (typeof frameRef === 'string' && /^\d+$/.test(frameRef))){
+    return {frameNo: parseInt(frameRef,10), subFrameKey: null, subFrame: null, isSubFrame: false};
+  }
+  if(typeof frameRef === 'string'){
+    const parsed = parseSubFrameKey(frameRef);
+    if(parsed){
+      const sf = getSubFrames(subject, parsed.parent).find(s=>s.n===parsed.n) || null;
+      return {frameNo: parsed.parent, subFrameKey: frameRef, subFrame: sf, isSubFrame: true};
+    }
+  }
+  return {frameNo: null, subFrameKey: null, subFrame: null, isSubFrame: false};
+}
 
 /* このフレームはサブフレーム(中分類)を持つか? */
 function hasSubFrames(subject, frameNo){
@@ -2332,6 +2366,7 @@ function frameTitle(law, n){
 }
 function frameKey(law, n, kind){
   // kindは 'past' | 'forecast'。省略時は 'past'(後方互換)。
+  // n は整数(従来) or 文字列("2.1"形式 = サブフレーム)を受け取る。
   return `${law}|${n}|${kind||'past'}`;
 }
 
@@ -2882,6 +2917,12 @@ function getPool(){
     const subj = s.frameMode.subject || s.frameMode.law; // 後方互換
     const fmKind = s.frameMode.kind || 'past';
     pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo && (q.kind||'past')===fmKind);
+    // サブフレーム指定があれば、さらに当該サブフレームに属する法律のみへ絞り込む
+    if(s.frameMode.subFrameKey){
+      const subs = getSubFrames(subj, s.frameMode.frameNo);
+      const sf = subs.find(x=>x.key === s.frameMode.subFrameKey);
+      if(sf) pool = pool.filter(q=>questionMatchesSubFrame(q.law, sf));
+    }
     return pool; // モード中は他フィルタ無効
   }
   // 種類モード(過去問/予想問/両方)フィルタ
@@ -2970,10 +3011,14 @@ function renderQuiz(){
       const fc = state.session.frameCompleted;
       const kindLbl = (fc.kind==='forecast') ? '予想問' : '過去問';
       const kindBadge = (fc.kind==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:6px">予想</span>' : '';
+      // サブフレーム名を含めたタイトル
+      const titleStr = fc.subFrameKey
+        ? frameOrSubFrameLabel(fc.subject, fc.subFrameKey)
+        : frameTitle(fc.subject, fc.frameNo);
       return `<div class="frame-banner completed">
         <div class="fb-head">
           <span class="fb-mark">完了</span>
-          <span class="fb-title">🎉 ${escapeHtml(fc.subject)} ${escapeHtml(frameTitle(fc.subject,fc.frameNo))}${kindBadge}<br><span style="font-size:13px;font-weight:500;opacity:.95">(${kindLbl})${fc.attemptNo}回目の演習が完了しました!</span></span>
+          <span class="fb-title">🎉 ${escapeHtml(fc.subject)} ${escapeHtml(titleStr)}${kindBadge}<br><span style="font-size:13px;font-weight:500;opacity:.95">(${kindLbl})${fc.attemptNo}回目の演習が完了しました!</span></span>
         </div>
         <div class="fb-note">📖 最終問の解説をゆっくり確認したら、下のボタンで進捗管理に戻ってください。</div>
         <div class="fb-actions">
@@ -2987,7 +3032,8 @@ function renderQuiz(){
     const subject = fm.subject || fm.law;
     const frameNo = fm.frameNo;
     const fmKind = fm.kind || 'past';
-    const k = frameKey(subject, frameNo, fmKind);
+    const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
+    const k = frameKey(subject, keyN, fmKind);
     const fa = state.frameAttempts[k];
     const cur = fa && fa.current;
     if(!cur) return '';
@@ -2995,10 +3041,14 @@ function renderQuiz(){
     const tot = cur.questionIds.length;
     const pct = tot ? Math.round(done/tot*100) : 0;
     const kindLbl = (fmKind==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:6px">予想</span>' : '';
+    // サブフレーム名を含めたタイトル
+    const titleStr = fm.subFrameKey
+      ? frameOrSubFrameLabel(subject, fm.subFrameKey)
+      : frameTitle(subject, frameNo);
     return `<div class="frame-banner">
       <div class="fb-head">
         <span class="fb-mark">演習中</span>
-        <span class="fb-title">${escapeHtml(subject)} ${escapeHtml(frameTitle(subject,frameNo))}${kindLbl} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
+        <span class="fb-title">${escapeHtml(subject)} ${escapeHtml(titleStr)}${kindLbl} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
       </div>
       <div class="fb-prog"><div class="fb-bar"><div class="fb-fill" style="width:${pct}%"></div></div><span class="fb-pct">${done}/${tot}問 (${pct}%)</span></div>
       <div class="fb-actions">
@@ -3179,7 +3229,8 @@ function answerQuestion(userAns){
     const fm = state.session.frameMode;
     const subj = fm.subject || fm.law;
     const fmKind = fm.kind || 'past';
-    const k = frameKey(subj, fm.frameNo, fmKind);
+    const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
+    const k = frameKey(subj, keyN, fmKind);
     const fa = state.frameAttempts[k];
     if(fa && fa.current && !fa.current.answeredIds.includes(q.id)){
       fa.current.answeredIds.push(q.id);
@@ -3296,10 +3347,15 @@ function toggleBm(qid,color){
 /* ===== Frame study mode (フレーム演習) ===== */
 /* 引数 subject: 試験科目名(章名)。例:"雇用保険法"、"社会保険に関する一般常識"
    引数 kind: 'past' | 'forecast' (省略時は 'past')。同じフレームでも過去問と予想問は別管理。 */
-function startFrameAttempt(subject, frameNo, kind){
+function startFrameAttempt(subject, frameRef, kind){
   kind = kind || 'past';
   state.session.frameCompleted = null; // 前回完了フラグをクリア
-  const k = frameKey(subject, frameNo, kind);
+  // frameRef を解析(数値=親フレーム、"2.1"形式=サブフレーム)
+  const fref = resolveFrameRef(subject, frameRef);
+  if(fref.frameNo == null){alert('フレーム参照が不正です: '+frameRef);return}
+  // frameAttempts のキーは subFrameKey があれば "2.1" 文字列、無ければ整数
+  const keyN = fref.isSubFrame ? fref.subFrameKey : fref.frameNo;
+  const k = frameKey(subject, keyN, kind);
   state.frameAttempts[k] ||= {history:[], current:null};
   const fa = state.frameAttempts[k];
   const kindLbl = (kind==='forecast') ? '予想問' : '過去問';
@@ -3307,7 +3363,7 @@ function startFrameAttempt(subject, frameNo, kind){
   if(fa.current){
     if(!confirm(`このフレーム(${kindLbl})には進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
       // 継続
-      enterFrameMode(subject, frameNo, kind);
+      enterFrameMode(subject, fref.frameNo, kind, fref.subFrameKey);
       return;
     }
     // 中止して新規
@@ -3316,8 +3372,12 @@ function startFrameAttempt(subject, frameNo, kind){
   if(fa.history.length >= 10){
     if(!confirm(`このフレーム(${kindLbl})は既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)`)) return;
   }
-  // 該当フレームに属する問題のIDを取得(科目=章 + kind でフィルタ)
-  const qids = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===frameNo && (q.kind||'past')===kind).map(q=>q.id);
+  // 該当フレームに属する問題のIDを取得(科目=章 + kind + サブフレーム法律でフィルタ)
+  let qFiltered = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref.frameNo && (q.kind||'past')===kind);
+  if(fref.isSubFrame && fref.subFrame){
+    qFiltered = qFiltered.filter(q=>questionMatchesSubFrame(q.law, fref.subFrame));
+  }
+  const qids = qFiltered.map(q=>q.id);
   if(!qids.length){alert(`このフレームには${kindLbl}が登録されていません。`);return}
   fa.current = {
     attemptNo: fa.history.length + 1,
@@ -3326,17 +3386,18 @@ function startFrameAttempt(subject, frameNo, kind){
     answeredIds: []
   };
   saveState();
-  enterFrameMode(subject, frameNo, kind);
+  enterFrameMode(subject, fref.frameNo, kind, fref.subFrameKey);
 }
 
-function enterFrameMode(subject, frameNo, kind){
+function enterFrameMode(subject, frameNo, kind, subFrameKey){
   kind = kind || 'past';
-  state.session.frameMode = {subject, frameNo, kind};
+  state.session.frameMode = {subject, frameNo, kind, subFrameKey: subFrameKey || null};
   state.session.mode = 'seq';
   state.session.answered = false;
   state.session.userAnswer = null;
   // 進行中の演習があれば、最初の未解答問題から再開する
-  const k = frameKey(subject, frameNo, kind);
+  const keyN = subFrameKey ? subFrameKey : frameNo;
+  const k = frameKey(subject, keyN, kind);
   const fa = state.frameAttempts[k];
   if(fa && fa.current && fa.current.answeredIds && fa.current.answeredIds.length > 0){
     // frameMode 設定済み → getPool() でフレーム内の問題を取得
@@ -3375,7 +3436,8 @@ function abandonFrameAttempt(){
   const fm = state.session.frameMode;
   const subj = fm.subject || fm.law;
   const fmKind = fm.kind || 'past';
-  const k = frameKey(subj, fm.frameNo, fmKind);
+  const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
+  const k = frameKey(subj, keyN, fmKind);
   if(state.frameAttempts[k]) state.frameAttempts[k].current = null;
   exitFrameMode();
   switchTab('progress');
@@ -3387,7 +3449,8 @@ function checkFrameComplete(){
   const subject = fm.subject || fm.law;
   const frameNo = fm.frameNo;
   const fmKind = fm.kind || 'past';
-  const k = frameKey(subject, frameNo, fmKind);
+  const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
+  const k = frameKey(subject, keyN, fmKind);
   const fa = state.frameAttempts[k];
   if(!fa || !fa.current) return;
   // 全問解答済みかチェック
@@ -3404,6 +3467,7 @@ function checkFrameComplete(){
     state.session.frameCompleted = {
       subject: subject,
       frameNo: frameNo,
+      subFrameKey: fm.subFrameKey || null,
       kind: fmKind,
       attemptNo: fa.history.length
     };
@@ -6418,7 +6482,32 @@ function renderProgressSubjects(root, summary, kindMode){
     if(!frames.length) continue;
     let qTotal = 0, completedFrames = 0, inProgressFrames = 0, eligibleFrames = 0;
     for(const fr of frames){
-      const qs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+      const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+      // このフレームがサブフレームを持つなら、サブフレームごとに集計
+      if(hasSubFrames(subject, fr.n)){
+        const subs = getSubFrames(subject, fr.n);
+        for(const sf of subs){
+          const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
+          const cnt = sfQs.length;
+          // サブフレーム表示対象判定: 過去問なら全表示、予想問は15問以上
+          const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+          if(!eligible){
+            qTotal += cnt;
+            continue;
+          }
+          eligibleFrames++;
+          qTotal += cnt;
+          const k = frameKey(subject, sf.key, kindMode);
+          const fa = state.frameAttempts[k];
+          if(fa){
+            if(fa.current) inProgressFrames++;
+            if((fa.history||[]).length>0) completedFrames++;
+          }
+        }
+        continue; // 親フレームではなくサブフレーム単位で数えたので親はスキップ
+      }
+      // 通常(サブフレームなし)フレーム
+      const qs = allFrameQs;
       const cnt = qs.length;
       // 表示対象判定: 過去問なら全フレーム、予想問は15問以上
       const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
@@ -6490,27 +6579,12 @@ function renderProgressFrames(root, summary, subject, kindMode){
 
   html += `<div class="card prog-chapter"><div class="prog-frames">`;
   let shownFrames = 0;
-  for(const fr of frames){
-    const qs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
-    const total = qs.length;
-    // 予想問の場合、15問しきい値判定 → 満たさないものは「対象外」表示(チラ見せ)
-    const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
-    if(!eligible){
-      // 予想問で15問未満のフレームは「対象外」として簡易表示
-      html += `<div class="prog-frame" style="opacity:.55">
-        <div class="pf-head">
-          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
-          <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
-        </div>
-        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - total}問追加されると進捗管理対象になります。</div>
-      </div>`;
-      continue;
-    }
-    shownFrames++;
-    const lawsInFrame = [...new Set(qs.map(q=>q.law))];
-    const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
-      ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
-    const k = frameKey(subject, fr.n, kindMode);
+
+  // 1フレーム行を描画する共通ヘルパー(親フレーム or サブフレーム共用)
+  // params: { displayN(例:"2" or "2_1"), title, totalCount, frameKey数値orサブフレームキー, subjectVal, kindModeVal, lawBreakdown }
+  function buildFrameRow(opts){
+    const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno} = opts;
+    const k = frameKey(subjectVal, fkN, kindModeVal);
     const fa = state.frameAttempts[k] || {history:[], current:null};
     const completed = fa.history.length;
     const cur = fa.current;
@@ -6528,7 +6602,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
       }
     }
     let status = '';
-    if(total===0){
+    if(totalCount===0){
       status = `<span class="prog-status empty">問題未登録</span>`;
     }else if(cur){
       const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
@@ -6538,25 +6612,95 @@ function renderProgressFrames(root, summary, subject, kindMode){
       const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
       status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
     }else{
-      status = `<span class="prog-status">未着手 (${total}問登録)</span>`;
+      status = `<span class="prog-status">未着手 (${totalCount}問登録)</span>`;
     }
     let btn = '';
-    if(total===0){
+    if(totalCount===0){
       btn = `<button class="btn ghost btn-sm" disabled>—</button>`;
     }else if(cur){
-      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-kindmode="${kindMode}" data-act="resume">演習を再開</button>`;
+      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="resume">演習を再開</button>`;
     }else{
-      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}" data-kindmode="${kindMode}" data-act="start">演習開始</button>`;
+      btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
     }
-    const kindIcon = (kindMode==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
-    html += `<div class="prog-frame">
+    const kindIcon = (kindModeVal==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+    return `<div class="prog-frame">
       <div class="pf-head">
-        <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon} <span class="pf-q">(${total}問)</span>${lawBreakdown}</div>
+        <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
         ${btn}
       </div>
       <div class="pf-slots">${slots}</div>
       <div class="pf-status">${status}</div>
     </div>`;
+  }
+
+  for(const fr of frames){
+    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
+
+    // サブフレームを持つ親フレームは、サブフレーム単位の行に展開
+    if(hasSubFrames(subject, fr.n)){
+      const subs = getSubFrames(subject, fr.n);
+      // 親フレームの「導入見出し」行を1つ薄く表示(オプション、視認性のため)
+      html += `<div class="prog-frame-group-head" style="grid-column:1/-1;padding:8px 4px 4px;font-size:12px;color:var(--ink-muted);border-bottom:1px dashed var(--border-2,#e0d8c8);margin:8px 0 4px">
+        <span style="font-weight:600">F${fr.n} ${escapeHtml(fr.t)}</span>
+        <span style="margin-left:8px">中分類別の進捗:</span>
+      </div>`;
+      for(const sf of subs){
+        const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
+        const cnt = sfQs.length;
+        // 予想問のしきい値判定をサブフレーム単位で
+        const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
+        if(!eligible){
+          html += `<div class="prog-frame" style="opacity:.55">
+            <div class="pf-head">
+              <div class="pf-title"><span class="pf-n">F${fr.n}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
+              <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
+            </div>
+            <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
+          </div>`;
+          continue;
+        }
+        shownFrames++;
+        html += buildFrameRow({
+          displayN: `${fr.n}_${sf.n}`,
+          title: sf.t,
+          totalCount: cnt,
+          fkN: sf.key, // 例 "2.1"
+          subjectVal: subject,
+          kindModeVal: kindMode,
+          lawBreakdown: '',
+          dataFno: sf.key // クリック時に "2.1" 形式を渡す
+        });
+      }
+      continue;
+    }
+
+    // ===== 通常(サブフレーム無し)のフレーム — 従来通り =====
+    const total = allFrameQs.length;
+    const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
+    if(!eligible){
+      html += `<div class="prog-frame" style="opacity:.55">
+        <div class="pf-head">
+          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
+          <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
+        </div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - total}問追加されると進捗管理対象になります。</div>
+      </div>`;
+      continue;
+    }
+    shownFrames++;
+    const lawsInFrame = [...new Set(allFrameQs.map(q=>q.law))];
+    const lawBreakdown = (lawsInFrame.length > 1 || (lawsInFrame.length===1 && lawsInFrame[0]!==subject))
+      ? ` <span class="pf-laws">${lawsInFrame.map(l=>escapeHtml(l)).join('・')}</span>` : '';
+    html += buildFrameRow({
+      displayN: String(fr.n),
+      title: fr.t,
+      totalCount: total,
+      fkN: fr.n,
+      subjectVal: subject,
+      kindModeVal: kindMode,
+      lawBreakdown: lawBreakdown,
+      dataFno: fr.n
+    });
   }
   if(shownFrames===0 && kindMode==='forecast'){
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
@@ -6585,7 +6729,9 @@ function renderProgressFrames(root, summary, subject, kindMode){
   root.querySelectorAll('button[data-act]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const subj = b.dataset.subj;
-      const fno = parseInt(b.dataset.fno, 10);
+      const fnoStr = b.dataset.fno;
+      // サブフレーム文字列("2.1")の場合はそのまま、整数文字列の場合はパースして数値化
+      const fno = /^\d+$/.test(fnoStr) ? parseInt(fnoStr,10) : fnoStr;
       const km = b.dataset.kindmode || 'past';
       startFrameAttempt(subj, fno, km);
     });
