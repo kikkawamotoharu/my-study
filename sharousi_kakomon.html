@@ -2769,55 +2769,48 @@ function getFigureImageSrc(fig){
   return '';
 }
 
-// IndexedDB を初期化し、既存 localStorage 内の画像を移行 + キャッシュ構築。
+// IndexedDB を初期化し、キャッシュ(loadState で退避済) → IndexedDB のマイグレーションと、
+// IndexedDB → キャッシュの逆方向同期を行う。
 // 失敗してもアプリは(画像表示の劣化以外は)動作可能。
+// 改修6: loadState で imageData は同期的にキャッシュへ退避済みのため、
+//        この関数は IndexedDB との同期に専念する。
 async function initFigureStorage(){
   const ok = await figureStore.ready();
   if(!ok){
-    console.warn('IndexedDB unavailable - figure images will remain in localStorage');
-    // フォールバック: 既存 imageData がキャッシュに乗るようにしておく
-    for(const fig of (state.figures||[])){
-      if(fig.imageData) figureImageCache.set(fig.id, fig.imageData);
-    }
+    console.warn('IndexedDB unavailable - figure images will remain in memory cache only');
+    // フォールバック: loadState で退避済のキャッシュをそのまま使う(画像表示は維持可)
     return false;
   }
-  // === 既存 localStorage 内の imageData → IndexedDB へ移行 ===
-  const figs = state.figures || [];
-  const pendingPuts = [];
-  for(const fig of figs){
-    if(fig.imageData){
-      pendingPuts.push([fig.id, fig.imageData]);
-      figureImageCache.set(fig.id, fig.imageData);
-    }
-  }
-  if(pendingPuts.length){
-    try{
-      await figureStore.putMany(pendingPuts);
-      // 移行成功: localStorage 側の imageData を除去
-      let removed = 0;
-      for(const fig of figs){
-        if(fig.imageData){ delete fig.imageData; removed++ }
-      }
-      try{
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        console.log('Migrated '+removed+' figure images to IndexedDB');
-      }catch(e){
-        console.warn('saveState after migration failed', e);
-      }
-    }catch(e){
-      console.warn('Migration to IndexedDB failed (keeping inline data as fallback)', e);
-    }
-  }
-  // === IDB から残り(他端末経由で入った分など)を読み込み ===
+  // === IDB → キャッシュ: 既存 IDB 内の画像をキャッシュへロード ===
+  const existingInIDB = new Set();
   try{
     const all = await figureStore.getAll();
     for(const ent of all){
+      existingInIDB.add(ent.id);
       if(!figureImageCache.has(ent.id)){
         figureImageCache.set(ent.id, ent.dataURL);
       }
     }
   }catch(e){
     console.warn('Loading figures from IndexedDB failed', e);
+  }
+  // === キャッシュ → IDB: キャッシュにあって IDB に無いものを書き込む(マイグレーション) ===
+  const figs = state.figures || [];
+  const pendingPuts = [];
+  for(const fig of figs){
+    if(figureImageCache.has(fig.id) && !existingInIDB.has(fig.id)){
+      pendingPuts.push([fig.id, figureImageCache.get(fig.id)]);
+    }
+  }
+  if(pendingPuts.length){
+    try{
+      await figureStore.putMany(pendingPuts);
+      console.log('Migrated '+pendingPuts.length+' figure images to IndexedDB');
+      // localStorage を縮小確定(loadState で imageData は既に除去済だが、念のため上書き保存)
+      try{ saveState() }catch(e){ console.warn('saveState after migration failed', e) }
+    }catch(e){
+      console.warn('Migration to IndexedDB failed (keeping cache as fallback)', e);
+    }
   }
   // 図表タブが既に表示中なら再描画
   const figView = document.getElementById('view-figures');
@@ -2943,6 +2936,25 @@ function loadState(){
       }
       if(lbMigrated>0) console.log(`Migrated ${lbMigrated} questions with empty linkedBlocks`);
 
+      // === 改修6: 図表 imageData の同期的キャッシュ退避 ===
+      // iOS Safari の localStorage 5MB 制限対策。
+      // ここで state.figures[*].imageData を figureImageCache に同期的に退避して
+      // state からは削除する。これにより、initFigureStorage() による IndexedDB への
+      // 非同期マイグレーションが完了する前に saveState() が呼ばれても、
+      // QuotaExceededError が発生しない。
+      // IndexedDB への永続化は initFigureStorage() で別途行う。
+      if(Array.isArray(s.figures)){
+        let stashed = 0;
+        for(const fig of s.figures){
+          if(fig && fig.imageData){
+            figureImageCache.set(fig.id, fig.imageData);
+            delete fig.imageData;
+            stashed++;
+          }
+        }
+        if(stashed>0) console.log(`Stashed ${stashed} figure images from localStorage to in-memory cache`);
+      }
+
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -2968,8 +2980,26 @@ function loadState(){
   };
 }
 function saveState(){
-  try{localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}
-  catch(e){alert('保存に失敗しました: '+e.message)}
+  // 改修6 防御層: 万一 state.figures に imageData が残っていたら、
+  // 書き込み前に figureImageCache へ退避して state からは削除する。
+  // これにより、どんな経路でも localStorage の 5MB 制限超過を未然に防ぐ。
+  if(Array.isArray(state.figures)){
+    for(const fig of state.figures){
+      if(fig && fig.imageData){
+        figureImageCache.set(fig.id, fig.imageData);
+        delete fig.imageData;
+      }
+    }
+  }
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    // ここに来るのは、画像以外のメタ情報だけで 5MB を超えた極端なケース。
+    // 画像本体はすでに IndexedDB / キャッシュ側に分離済みなので、再試行しても
+    // 解消しない。ユーザーには明示的に通知する。
+    console.error('saveState failed', e);
+    alert('保存に失敗しました: '+e.message+'\n\n画像本体は IndexedDB に分離済みです。\nブラウザのキャッシュ削除前に「データ」タブから完全バックアップを取得してください。');
+  }
 }
 
 /* ===== Question filter / current pool ===== */
