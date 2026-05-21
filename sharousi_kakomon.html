@@ -103,6 +103,23 @@
     border-radius:99px;overflow:hidden;
   }
   .progress-fill{height:100%;background:var(--indigo);transition:width .3s}
+  /* クリッカブルなプログレスバー — 改修1 */
+  .progress-track.progress-clickable{
+    cursor:pointer;height:8px;border:1px solid transparent;
+    transition:height .12s, border-color .12s;
+  }
+  .progress-track.progress-clickable:hover{
+    height:10px;border-color:var(--ink-muted);
+  }
+  .progress-track.progress-clickable .progress-fill{transition:width .15s}
+  /* 問題番号インジケータ(クリックで番号指定) — 改修1 */
+  .idx-jump{
+    font-size:11px;color:var(--ink-soft);font-family:inherit;
+    background:transparent;border:1px solid transparent;
+    padding:1px 6px;border-radius:4px;cursor:pointer;
+    font-variant-numeric:tabular-nums;
+  }
+  .idx-jump:hover{background:var(--line-soft);color:var(--ink);border-color:var(--line)}
 
   .q-box{
     background:var(--bg);border:1px solid var(--line);
@@ -136,7 +153,7 @@
   }
   .btn-ans{position:relative}
 
-  .nav-row{display:flex;gap:8px;justify-content:center;margin-top:8px}
+  .nav-row{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
   .btn-nav{
     background:none;border:1px solid var(--line);cursor:pointer;
     padding:6px 16px;border-radius:6px;font-family:inherit;font-size:13px;
@@ -144,6 +161,12 @@
   }
   .btn-nav:hover{background:var(--line-soft);color:var(--ink)}
   .btn-nav:disabled{opacity:.4;cursor:not-allowed}
+  /* ステップジャンプボタン(±5, ±10) — 改修1 */
+  .btn-nav.btn-nav-step{
+    padding:6px 12px;font-size:12px;color:var(--ink-muted);
+    font-variant-numeric:tabular-nums;letter-spacing:.02em;
+  }
+  .btn-nav.btn-nav-step:hover{color:var(--indigo);border-color:var(--indigo)}
 
   /* Result */
   .result{
@@ -1359,6 +1382,15 @@
   }
   .art-frame .af-c.has-data{background:#FCE9CC;color:#8B5A1A}
   .art-frame .af-arrow{flex:0 0 auto;color:var(--ink-muted);font-size:16px}
+  /* サブフレーム持ちフレームのバッジ — 改修2 */
+  .af-sub-badge{
+    display:inline-block;margin-left:8px;padding:1px 7px;
+    background:var(--accent-soft);color:var(--accent);
+    font-size:10.5px;border-radius:99px;font-weight:600;letter-spacing:.05em;
+  }
+  /* (未分類)既存データ表示用 — 改修2 */
+  .art-frame.art-frame-legacy{border-style:dashed;background:#FFFBEE}
+  .art-frame.art-frame-legacy:hover{background:#FFF6D9}
   /* Level 3: インデックス横並びタブ + コンテンツ */
   .art-content-card{padding:18px}
   .art-frame-title{margin:0 0 12px 0;font-size:16px;font-weight:600}
@@ -2178,6 +2210,58 @@ const FRAMES = {
   ]
 };
 
+/* サブフレーム定義(中分類) — 改修2
+   F2「社会保険法規等」と F3「企業年金制度」のように、複数法律をひとつのフレームで束ねている
+   科目では、フレームをクリックすると中分類の選択画面に飛ぶ。
+   - key: state.articles 内のキー(文字列。"2.1" 形式)
+   - n:   中分類内の連番(1始まり、表示順)
+   - t:   中分類の表示名
+   - law: 関連する法律名(LAW_TO_SUBJECTで該当科目に解決される) */
+const SUB_FRAMES = {
+  "社会保険に関する一般常識": {
+    2: [
+      {key:"2.1", n:1, t:"国民健康保険法",     law:"国民健康保険法"},
+      {key:"2.2", n:2, t:"船員保険法",         law:"船員保険法"},
+      {key:"2.3", n:3, t:"高齢者医療確保法",   law:"高齢者の医療の確保に関する法律"},
+      {key:"2.4", n:4, t:"介護保険法",         law:"介護保険法"},
+      {key:"2.5", n:5, t:"児童手当法",         law:"児童手当法"}
+    ],
+    3: [
+      {key:"3.1", n:1, t:"確定拠出年金法",     law:"確定拠出年金法"},
+      {key:"3.2", n:2, t:"確定給付企業年金法", law:"確定給付企業年金法"}
+    ]
+  }
+};
+
+/* このフレームはサブフレーム(中分類)を持つか? */
+function hasSubFrames(subject, frameNo){
+  return !!(SUB_FRAMES[subject] && SUB_FRAMES[subject][frameNo]);
+}
+/* サブフレーム配列を取得(無ければ空配列) */
+function getSubFrames(subject, frameNo){
+  return (SUB_FRAMES[subject] && SUB_FRAMES[subject][frameNo]) || [];
+}
+/* サブフレームキー文字列("2.1"等)から親フレーム番号と中分類連番を取得 */
+function parseSubFrameKey(key){
+  if(typeof key !== 'string') return null;
+  const m = key.match(/^(\d+)\.(\d+)$/);
+  if(!m) return null;
+  return {parent: parseInt(m[1],10), n: parseInt(m[2],10)};
+}
+/* キー(整数 or "2.1"形式)から表示用ラベルを得る */
+function frameOrSubFrameLabel(subject, key){
+  if(typeof key === 'number' || /^\d+$/.test(String(key))){
+    const n = parseInt(key,10);
+    return `F${n} ${(FRAMES[subject]||[]).find(f=>f.n===n)?.t || ''}`.trim();
+  }
+  const parsed = parseSubFrameKey(String(key));
+  if(parsed){
+    const sub = getSubFrames(subject, parsed.parent).find(s=>s.n===parsed.n);
+    if(sub) return `F${parsed.parent}_${parsed.n} ${sub.t}`;
+  }
+  return String(key);
+}
+
 const SUBJECTS_ORDER = [
   "労働基準法","労働安全衛生法","労働者災害補償保険法","雇用保険法","労働保険徴収法","労務管理その他の労働に関する一般常識",
   "健康保険法","国民年金法","厚生年金保険法","社会保険に関する一般常識"
@@ -2697,6 +2781,8 @@ function loadState(){
       // 条文・解説機能の追加 (後方互換)
       s.articles ||= {};
       s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
+      // 改修2: サブフレーム対応 — subFrameKey と subframes モード追加
+      if(typeof s.articleView.subFrameKey === 'undefined') s.articleView.subFrameKey = null;
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -2779,7 +2865,7 @@ function loadState(){
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
     progressView: {mode:'subjects', subject:null, kindMode:'past'},
     articles: {},
-    articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null}
+    articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
   };
 }
 function saveState(){
@@ -2956,8 +3042,8 @@ function renderQuiz(){
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
       ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
-      <span style="font-size:11px">[${idx+1}/${pool.length}]</span>
-      <div class="progress-track"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
+      <button type="button" class="idx-jump" id="quiz-idx-jump" title="クリックで問題番号を直接指定">[${idx+1}/${pool.length}]</button>
+      <div class="progress-track progress-clickable" id="quiz-progress-track" title="クリックで任意の問題へジャンプ"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
     </div>
 
@@ -2974,12 +3060,7 @@ function renderQuiz(){
       </button>
     </div>
 
-    <div class="nav-row">
-      <button class="btn-nav" id="btn-first" ${idx===0?'disabled':''} title="最初の問題へ">⏮ 最初へ</button>
-      <button class="btn-nav" id="btn-prev" ${idx===0?'disabled':''}>← 前へ</button>
-      <button class="btn-nav" id="btn-next">次へ →</button>
-      <button class="btn-nav" id="btn-last" ${idx===pool.length-1?'disabled':''} title="最後の問題へ">最後へ ⏭</button>
-    </div>
+    ${renderQuizNavRow(idx, pool.length)}
     <div class="kbd-hint">キーボード: <code>1</code>/<code>O</code>=○ &nbsp; <code>2</code>/<code>X</code>=× &nbsp; <code>←</code>=前 &nbsp; <code>→</code>=次</div>
 
     ${answered ? renderResult(q,correct) : ''}
@@ -2993,12 +3074,24 @@ function renderQuiz(){
 
   // Wire up
   card.querySelectorAll('.btn-ans').forEach(b=>b.addEventListener('click',()=>answerQuestion(b.dataset.ans==='true')));
-  document.getElementById('btn-prev').addEventListener('click',()=>nav(-1));
-  document.getElementById('btn-next').addEventListener('click',()=>nav(1));
-  const bFirst = document.getElementById('btn-first');
-  if(bFirst) bFirst.addEventListener('click',()=>navTo(0));
-  const bLast = document.getElementById('btn-last');
-  if(bLast) bLast.addEventListener('click',()=>navTo(pool.length-1));
+  wireQuizNavButtons(pool.length);
+  // 問題番号インジケータ:クリックで番号指定ジャンプ
+  const idxJump = document.getElementById('quiz-idx-jump');
+  if(idxJump) idxJump.addEventListener('click',()=>{
+    const inp = prompt(`何問目に移動しますか?(1 〜 ${pool.length})`, String(idx+1));
+    if(inp===null) return;
+    const n = parseInt(inp,10);
+    if(isNaN(n) || n<1 || n>pool.length){alert(`1 〜 ${pool.length} の整数を入力してください`); return}
+    navTo(n-1);
+  });
+  // プログレスバー:クリックでその位置へジャンプ
+  const progTrack = document.getElementById('quiz-progress-track');
+  if(progTrack) progTrack.addEventListener('click',(ev)=>{
+    const rect = progTrack.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+    const target = Math.min(pool.length-1, Math.max(0, Math.round(ratio * (pool.length-1))));
+    navTo(target);
+  });
   card.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBm(q.id,b.dataset.bm)));
   // 関連図表バッジクリック
   card.querySelectorAll('.linked-fig-chip').forEach(chip=>{
@@ -3121,6 +3214,73 @@ function navTo(idx){
   renderQuiz();
   // 解答エリアまでスクロールして見やすく
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* 相対ジャンプ(±N問) — 改修1 */
+function navJump(delta){
+  const pool = getPool();
+  if(!pool.length) return;
+  let target = state.session.currentIndex + delta;
+  if(target < 0) target = 0;
+  if(target > pool.length - 1) target = pool.length - 1;
+  if(target === state.session.currentIndex) return;
+  state.session.currentIndex = target;
+  state.session.answered = false;
+  state.session.userAnswer = null;
+  saveState();
+  renderQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ステップ数を決める(20問以上=10、5〜19問=5、5問未満=null) — 改修1 */
+function computeNavStep(total){
+  if(total >= 20) return 10;
+  if(total >= 5)  return 5;
+  return null;
+}
+
+/* ナビ行 HTML を組み立てる(択一タブ用) — 改修1 */
+function renderQuizNavRow(idx, total){
+  const step = computeNavStep(total);
+  const atFirst = idx === 0;
+  const atLast  = idx === total - 1;
+  if(step === null){
+    // 5問未満:シンプル
+    return `<div class="nav-row">
+      <button class="btn-nav" id="btn-prev" ${atFirst?'disabled':''}>← 前へ</button>
+      <button class="btn-nav" id="btn-next" ${atLast?'disabled':''}>次へ →</button>
+    </div>`;
+  }
+  // 5問以上:ステップボタン付き
+  const stepDisablePrev = atFirst;
+  const stepDisableNext = atLast;
+  return `<div class="nav-row">
+    <button class="btn-nav" id="btn-first" ${atFirst?'disabled':''} title="最初の問題へ">⏮ 最初へ</button>
+    <button class="btn-nav btn-nav-step" id="btn-jump-back" ${stepDisablePrev?'disabled':''} title="${step}問前へ">⟪ ${step}問前</button>
+    <button class="btn-nav" id="btn-prev" ${atFirst?'disabled':''}>← 前へ</button>
+    <button class="btn-nav" id="btn-next" ${atLast?'disabled':''}>次へ →</button>
+    <button class="btn-nav btn-nav-step" id="btn-jump-fwd" ${stepDisableNext?'disabled':''} title="${step}問後へ">${step}問後 ⟫</button>
+    <button class="btn-nav" id="btn-last" ${atLast?'disabled':''} title="最後の問題へ">最後へ ⏭</button>
+  </div>`;
+}
+
+/* ナビボタン群を wire(択一タブ用) — 改修1 */
+function wireQuizNavButtons(total){
+  const step = computeNavStep(total);
+  const bPrev = document.getElementById('btn-prev');
+  const bNext = document.getElementById('btn-next');
+  if(bPrev) bPrev.addEventListener('click', ()=>nav(-1));
+  if(bNext) bNext.addEventListener('click', ()=>nav(1));
+  const bFirst = document.getElementById('btn-first');
+  if(bFirst) bFirst.addEventListener('click', ()=>navTo(0));
+  const bLast  = document.getElementById('btn-last');
+  if(bLast)  bLast.addEventListener('click', ()=>navTo(total-1));
+  if(step !== null){
+    const bJB = document.getElementById('btn-jump-back');
+    const bJF = document.getElementById('btn-jump-fwd');
+    if(bJB) bJB.addEventListener('click', ()=>navJump(-step));
+    if(bJF) bJF.addEventListener('click', ()=>navJump(step));
+  }
 }
 
 function toggleBm(qid,color){
@@ -3511,8 +3671,30 @@ function doImport(){
       if(!subject){skipped++;continue}
       state.articles ||= {};
       state.articles[subject] ||= {};
-      // 既存データがあれば上書き(同じframeNoの既存indicesを置換)
-      state.articles[subject][q.frameNo] = {
+      // 改修2: subFrameNo が指定されていれば、中分類キー("2.1"形式)で格納
+      // それ以外は従来通り frameNo(整数)をキーに
+      let storageKey;
+      if(typeof q.subFrameNo === 'number' && q.subFrameNo > 0){
+        // サブフレーム形式: 親フレーム(frameNo)が SUB_FRAMES に定義されている必要がある
+        if(hasSubFrames(subject, q.frameNo)){
+          const subs = getSubFrames(subject, q.frameNo);
+          if(q.subFrameNo <= subs.length){
+            storageKey = `${q.frameNo}.${q.subFrameNo}`;
+          } else {
+            // サブフレーム範囲外 → スキップせず警告のみ、整数キーで格納
+            console.warn(`subFrameNo ${q.subFrameNo} out of range for ${subject} F${q.frameNo} (max ${subs.length}). Storing under integer key ${q.frameNo}.`);
+            storageKey = q.frameNo;
+          }
+        } else {
+          // この科目・フレームはサブフレーム未定義 → 整数キーへ
+          console.warn(`subFrameNo specified but ${subject} F${q.frameNo} has no SUB_FRAMES definition. Storing under integer key ${q.frameNo}.`);
+          storageKey = q.frameNo;
+        }
+      } else {
+        storageKey = q.frameNo;
+      }
+      // 既存データがあれば上書き
+      state.articles[subject][storageKey] = {
         indices: q.indices
       };
       addedArticleFrame++;
@@ -3664,6 +3846,8 @@ function restoreBackup(){
         // 条文・解説機能の追加 (後方互換)
         state.articles ||= {};
         state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
+        // 改修2: サブフレーム対応
+        if(typeof state.articleView.subFrameKey === 'undefined') state.articleView.subFrameKey = null;
         // === Migration v3: 予想問対応 ===
         // (a) 既存問題のkind未設定 → 'past' とみなす
         for(const q of state.questions){if(q.kind == null) q.kind = 'past'}
@@ -4479,14 +4663,20 @@ let _artPickerCurFrame = null;   // 現在閲覧中のフレーム番号
 function findArticleBlock(blockId){
   const articles = state.articles || {};
   for(const [law, lawData] of Object.entries(articles)){
-    for(const [frNoStr, frData] of Object.entries(lawData || {})){
+    for(const [keyStr, frData] of Object.entries(lawData || {})){
       const indices = (frData && frData.indices) || [];
       for(let i=0; i<indices.length; i++){
         const idx = indices[i];
         const blk = (idx.blocks||[]).find(b => b && b.id === blockId);
         if(blk){
+          // 改修2: keyStr が "2.1" 形式ならサブフレーム、整数文字列なら整数フレーム
+          const sub = parseSubFrameKey(keyStr);
+          const frameNo = sub ? sub.parent : parseInt(keyStr,10);
           return {
-            law, frameNo: parseInt(frNoStr,10),
+            law, frameNo,
+            frameKey: keyStr,   // "2" or "2.1" 等の生キー(表示用)
+            subFrameKey: sub ? keyStr : null,
+            subFrameInfo: sub ? (getSubFrames(law, sub.parent).find(s=>s.n===sub.n)||null) : null,
             indexIdx: i, indexId: idx.id, indexTitle: idx.title || '',
             block: blk
           };
@@ -4495,6 +4685,15 @@ function findArticleBlock(blockId){
     }
   }
   return null;
+}
+
+/* ブロックの所属フレームの表示文字列を作る(チップ/パンくず用) — 改修2 */
+function articleBlockLocationLabel(info){
+  if(!info) return '';
+  if(info.subFrameInfo){
+    return `${info.law} F${info.frameNo}_${info.subFrameInfo.n} ${info.subFrameInfo.t}`;
+  }
+  return `${info.law} F${info.frameNo}`;
 }
 
 /* ブロックkindのラベル/CSSクラスを返す */
@@ -4531,9 +4730,13 @@ function renderEditModalLinkedList(){
     }
     const meta = articleKindMeta(info.block.kind);
     const title = info.block.title || '(無題)';
-    const subjShort = info.law.length>6 ? info.law.slice(0,6)+'…' : info.law;
-    return `<span class="chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(info.law)} F${info.frameNo} / ${escapeHtml(title)}">
-      <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(subjShort)} F${info.frameNo})</span></span>
+    // 改修2: サブフレーム情報も含めた所属表示
+    const locShort = (info.subFrameInfo)
+      ? `${info.law.length>6?info.law.slice(0,6)+'…':info.law} F${info.frameNo}_${info.subFrameInfo.n}`
+      : `${info.law.length>6?info.law.slice(0,6)+'…':info.law} F${info.frameNo}`;
+    const locFull = articleBlockLocationLabel(info);
+    return `<span class="chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(locFull)} / ${escapeHtml(title)}">
+      <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locShort)})</span></span>
       <button type="button" class="x" title="紐付けを外す">×</button>
     </span>`;
   }).join('');
@@ -4581,24 +4784,44 @@ function openArticlePicker(qid, type='question'){
   }
   document.getElementById('art-picker-desc').textContent = descText;
 
-  // 初期の法律/フレームを決定
+  // 初期の法律/フレームを決定 — 改修2: キーは文字列(整数 or "2.1"形式)として扱う
   const articles = state.articles || {};
   const lawsWithData = SUBJECTS_ORDER.filter(s => articles[s] && Object.keys(articles[s]).length>0);
   const qSubj = lawToSubject(entity.law||'');
+  // フレームキーをソート(整数優先、サブフレームは親フレーム内で連番)
+  const sortFrameKeys = (keys) => keys.slice().sort((a,b)=>{
+    const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+    const aMain = aSub ? aSub.parent : parseInt(a,10);
+    const bMain = bSub ? bSub.parent : parseInt(b,10);
+    if(aMain !== bMain) return aMain - bMain;
+    const aOrd = aSub ? aSub.n : 0;  // 整数キーは中分類より先
+    const bOrd = bSub ? bSub.n : 0;
+    return aOrd - bOrd;
+  });
   if(qSubj && articles[qSubj] && Object.keys(articles[qSubj]).length>0){
     _artPickerCurLaw = qSubj;
-    const frs = Object.keys(articles[qSubj]).map(n=>parseInt(n,10)).sort((a,b)=>a-b);
-    if(entity.frameNo != null && articles[qSubj][entity.frameNo]){
-      _artPickerCurFrame = entity.frameNo;
-    } else if(frs.length){
-      _artPickerCurFrame = frs[0];
-    } else {
-      _artPickerCurFrame = null;
+    const frKeys = sortFrameKeys(Object.keys(articles[qSubj]));
+    // 問題の frameNo に該当するキーを探す(整数 or サブフレーム先頭)
+    let initialKey = null;
+    if(entity.frameNo != null){
+      const fnStr = String(entity.frameNo);
+      if(articles[qSubj][fnStr]){
+        initialKey = fnStr;
+      } else {
+        // 親フレーム配下の最初のサブフレームを探す
+        const subStart = frKeys.find(k => {
+          const p = parseSubFrameKey(k);
+          return p && p.parent === entity.frameNo;
+        });
+        if(subStart) initialKey = subStart;
+      }
     }
+    if(!initialKey && frKeys.length) initialKey = frKeys[0];
+    _artPickerCurFrame = initialKey;
   } else if(lawsWithData.length){
     _artPickerCurLaw = lawsWithData[0];
-    const frs = Object.keys(articles[_artPickerCurLaw]).map(n=>parseInt(n,10)).sort((a,b)=>a-b);
-    _artPickerCurFrame = frs[0] || null;
+    const frKeys = sortFrameKeys(Object.keys(articles[_artPickerCurLaw]));
+    _artPickerCurFrame = frKeys[0] || null;
   } else {
     _artPickerCurLaw = '';
     _artPickerCurFrame = null;
@@ -4632,8 +4855,9 @@ function renderArticlePicker(){
       }
       const meta = articleKindMeta(info.block.kind);
       const title = info.block.title || '(無題)';
-      return `<span class="art-picker-chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(info.law)} F${info.frameNo}">
-        <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(info.law)} F${info.frameNo})</span></span>
+      const locFull = articleBlockLocationLabel(info);
+      return `<span class="art-picker-chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(locFull)}">
+        <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locFull)})</span></span>
         <button type="button" class="x" title="紐付けを外す">×</button>
       </span>`;
     }).join('');
@@ -4659,18 +4883,35 @@ function renderArticlePicker(){
       return `<option value="${escapeHtml(s)}"${sel}>${escapeHtml(s)}</option>`;
     }).join('');
   }
-  // フレームセレクター
+  // フレームセレクター — 改修2: 文字列キー(整数 or "2.1"形式)に対応
   const frSel = document.getElementById('art-picker-frame');
   if(!_artPickerCurLaw || !articles[_artPickerCurLaw]){
     frSel.innerHTML = '<option value="">(なし)</option>';
   } else {
-    const frs = Object.keys(articles[_artPickerCurLaw]).map(n=>parseInt(n,10)).sort((a,b)=>a-b);
+    // ソート: 親フレーム番号順、サブフレーム内連番順
+    const frKeys = Object.keys(articles[_artPickerCurLaw]).slice().sort((a,b)=>{
+      const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+      const aMain = aSub ? aSub.parent : parseInt(a,10);
+      const bMain = bSub ? bSub.parent : parseInt(b,10);
+      if(aMain !== bMain) return aMain - bMain;
+      const aOrd = aSub ? aSub.n : 0;
+      const bOrd = bSub ? bSub.n : 0;
+      return aOrd - bOrd;
+    });
     const frameDefs = FRAMES[_artPickerCurLaw] || [];
-    frSel.innerHTML = frs.map(n=>{
-      const def = frameDefs.find(f=>f.n===n);
-      const t = def ? def.t : '';
-      const sel = (n === _artPickerCurFrame) ? ' selected' : '';
-      return `<option value="${n}"${sel}>F${n} ${escapeHtml(t)}</option>`;
+    frSel.innerHTML = frKeys.map(key=>{
+      const sub = parseSubFrameKey(key);
+      let label;
+      if(sub){
+        const subDef = getSubFrames(_artPickerCurLaw, sub.parent).find(s=>s.n===sub.n);
+        label = `F${sub.parent}_${sub.n} ${subDef ? subDef.t : ''}`;
+      } else {
+        const n = parseInt(key,10);
+        const def = frameDefs.find(f=>f.n===n);
+        label = `F${n} ${def ? def.t : ''}`;
+      }
+      const sel = (String(key) === String(_artPickerCurFrame)) ? ' selected' : '';
+      return `<option value="${escapeHtml(String(key))}"${sel}>${escapeHtml(label)}</option>`;
     }).join('');
   }
 
@@ -4748,8 +4989,9 @@ function renderArticlePicker(){
           }
           const m2 = articleKindMeta(info.block.kind);
           const t2 = info.block.title || '(無題)';
-          return `<span class="art-picker-chip" data-bid="${escapeHtml(bid2)}" title="${escapeHtml(info.law)} F${info.frameNo}">
-            <span class="chip-ti">[${m2.lbl}] ${escapeHtml(t2)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(info.law)} F${info.frameNo})</span></span>
+          const locFull2 = articleBlockLocationLabel(info);
+          return `<span class="art-picker-chip" data-bid="${escapeHtml(bid2)}" title="${escapeHtml(locFull2)}">
+            <span class="chip-ti">[${m2.lbl}] ${escapeHtml(t2)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locFull2)})</span></span>
             <button type="button" class="x" title="紐付けを外す">×</button>
           </span>`;
         }).join('');
@@ -4777,12 +5019,22 @@ function renderArticlePicker(){
   lawSel.onchange = ()=>{
     _artPickerCurLaw = lawSel.value;
     const articles2 = state.articles || {};
-    const frs = articles2[_artPickerCurLaw] ? Object.keys(articles2[_artPickerCurLaw]).map(n=>parseInt(n,10)).sort((a,b)=>a-b) : [];
-    _artPickerCurFrame = frs[0] || null;
+    // 改修2: 文字列キーをそのまま保持しつつ、ソートして先頭を選ぶ
+    const frKeys = articles2[_artPickerCurLaw] ? Object.keys(articles2[_artPickerCurLaw]).slice().sort((a,b)=>{
+      const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+      const aMain = aSub ? aSub.parent : parseInt(a,10);
+      const bMain = bSub ? bSub.parent : parseInt(b,10);
+      if(aMain !== bMain) return aMain - bMain;
+      const aOrd = aSub ? aSub.n : 0;
+      const bOrd = bSub ? bSub.n : 0;
+      return aOrd - bOrd;
+    }) : [];
+    _artPickerCurFrame = frKeys[0] || null;
     renderArticlePicker();
   };
   frSel.onchange = ()=>{
-    _artPickerCurFrame = parseInt(frSel.value,10) || null;
+    // 改修2: 文字列キー("2.1"等)もそのまま受け取る
+    _artPickerCurFrame = frSel.value || null;
     renderArticlePicker();
   };
 }
@@ -4853,7 +5105,7 @@ function renderLinkedArticlesSection(q, scope){
         <span class="arrow">›</span>
       </div>
       <div class="acc-body ${bodyCls}">
-        <div class="frame-info">${escapeHtml(info.law)} F${info.frameNo} / ${escapeHtml(info.indexTitle||'')}</div>
+        <div class="frame-info">${escapeHtml(articleBlockLocationLabel(info))} / ${escapeHtml(info.indexTitle||'')}</div>
         <div class="text">${text}</div>
       </div>
     </div>`;
@@ -5250,13 +5502,18 @@ function navCaseSub(dir){
 function renderArticles(){
   const root = document.getElementById('articles-content');
   if(!root) return;
-  state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
+  state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
   state.articles ||= {};
   const mode = state.articleView.mode;
   if(mode === 'frames' && state.articleView.subject){
     renderArticlesFrames(root, state.articleView.subject);
-  } else if(mode === 'content' && state.articleView.subject && state.articleView.frameNo != null){
-    renderArticlesContent(root, state.articleView.subject, state.articleView.frameNo);
+  } else if(mode === 'subframes' && state.articleView.subject && state.articleView.frameNo != null){
+    // 改修2: 中分類(サブフレーム)一覧
+    renderArticlesSubFrames(root, state.articleView.subject, state.articleView.frameNo);
+  } else if(mode === 'content' && state.articleView.subject && (state.articleView.frameNo != null || state.articleView.subFrameKey)){
+    // subFrameKey が指定されていれば、それを使う(改修2)
+    const key = state.articleView.subFrameKey || state.articleView.frameNo;
+    renderArticlesContent(root, state.articleView.subject, key);
   } else {
     renderArticlesSubjects(root);
   }
@@ -5264,13 +5521,13 @@ function renderArticles(){
 
 /* Level 1: 法律一覧 */
 function renderArticlesSubjects(root){
-  // 各法律の登録インデックス数を集計
+  // 各法律の登録インデックス数を集計(改修2: サブフレーム配下のキーも含めて全部カウント)
   const counts = {};
   for(const subject of SUBJECTS_ORDER){
     let n = 0;
     const lawData = state.articles[subject] || {};
-    for(const frNo of Object.keys(lawData)){
-      const ind = (lawData[frNo] || {}).indices || [];
+    for(const key of Object.keys(lawData)){
+      const ind = (lawData[key] || {}).indices || [];
       n += ind.length;
     }
     counts[subject] = n;
@@ -5304,7 +5561,7 @@ function renderArticlesSubjects(root){
   // 法律カードクリック
   root.querySelectorAll('.art-subject-card').forEach(c=>{
     c.addEventListener('click', ()=>{
-      state.articleView = {mode:'frames', subject:c.dataset.subject, frameNo:null, indexId:null};
+      state.articleView = {mode:'frames', subject:c.dataset.subject, frameNo:null, indexId:null, subFrameKey:null};
       saveState();
       renderArticles();
       window.scrollTo({top:0,behavior:'smooth'});
@@ -5321,20 +5578,36 @@ function renderArticlesFrames(root, subject){
       <button class="btn-back" id="art-back-subjects">← 法律一覧に戻る</button>
     </div>
     <h2 class="art-h2">${escapeHtml(subject)} <span class="art-sub">フレーム別 条文・解説</span></h2>
-    <p class="art-desc">フレームをクリックすると、そのフレームの条文・解説・ポイントが表示されます。<br><span style="color:var(--ink-muted)">※「項目あり」のフレームのみクリックできます。</span></p>
+    <p class="art-desc">フレームをクリックすると、そのフレームの条文・解説・ポイントが表示されます。<br><span style="color:var(--ink-muted)">※「項目あり」のフレームのみクリックできます。中分類があるフレームは、クリック後に中分類の選択画面が表示されます。</span></p>
   </div>`;
   html += `<div class="card art-frames-card"><div class="art-frames">`;
   for(const fr of frames){
     const data = lawData[fr.n] || {};
     const indices = data.indices || [];
-    const cnt = indices.length;
-    const hasData = cnt > 0;
+    // 改修2: サブフレームを持つフレームは、サブフレーム配下の合計項目数もカウント
+    let subCnt = 0;
+    let subFrameTotal = 0;
+    if(hasSubFrames(subject, fr.n)){
+      const subs = getSubFrames(subject, fr.n);
+      subFrameTotal = subs.length;
+      for(const sub of subs){
+        const sd = lawData[sub.key] || {};
+        subCnt += (sd.indices||[]).length;
+      }
+    }
+    const directCnt = indices.length;
+    const totalCnt  = directCnt + subCnt;
+    const hasData   = totalCnt > 0 || hasSubFrames(subject, fr.n);  // サブフレームを持つフレームは常にクリック可能
     const cls = hasData ? '' : 'empty';
-    const countCls = hasData ? 'has-data' : '';
+    const countCls = totalCnt > 0 ? 'has-data' : '';
+    // サブフレーム持ち専用のバッジ表示(中分類N個)
+    const subBadge = hasSubFrames(subject, fr.n)
+      ? `<span class="af-sub-badge">中分類 ${subFrameTotal} 個</span>` : '';
+    // 数字部分(F2)、タイトル、項目数の表示
     html += `<div class="art-frame ${cls}" ${hasData ? `data-fno="${fr.n}"` : ''}>
       <span class="af-n">F${fr.n}</span>
-      <span class="af-t">${escapeHtml(fr.t)}</span>
-      <span class="af-c ${countCls}">${cnt}項目</span>
+      <span class="af-t">${escapeHtml(fr.t)}${subBadge}</span>
+      <span class="af-c ${countCls}">${totalCnt}項目</span>
       ${hasData ? '<span class="af-arrow">›</span>' : ''}
     </div>`;
   }
@@ -5343,7 +5616,7 @@ function renderArticlesFrames(root, subject){
   // 戻るボタン
   const backBtn = document.getElementById('art-back-subjects');
   if(backBtn) backBtn.addEventListener('click', ()=>{
-    state.articleView = {mode:'subjects', subject:null, frameNo:null, indexId:null};
+    state.articleView = {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
     saveState();
     renderArticles();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -5352,7 +5625,12 @@ function renderArticlesFrames(root, subject){
   root.querySelectorAll('.art-frame:not(.empty)').forEach(c=>{
     c.addEventListener('click', ()=>{
       const fno = parseInt(c.dataset.fno, 10);
-      state.articleView = {mode:'content', subject:subject, frameNo:fno, indexId:null};
+      // 改修2: サブフレームを持つフレームは中分類画面へ
+      if(hasSubFrames(subject, fno)){
+        state.articleView = {mode:'subframes', subject:subject, frameNo:fno, indexId:null, subFrameKey:null};
+      } else {
+        state.articleView = {mode:'content', subject:subject, frameNo:fno, indexId:null, subFrameKey:null};
+      }
       saveState();
       renderArticles();
       window.scrollTo({top:0,behavior:'smooth'});
@@ -5360,10 +5638,89 @@ function renderArticlesFrames(root, subject){
   });
 }
 
-/* Level 3: インデックス横並びタブ + コンテンツ表示 */
-function renderArticlesContent(root, subject, frameNo){
+/* Level 2.5 (改修2): 中分類(サブフレーム)一覧 — F2/F3 等の親フレーム配下を表示 */
+function renderArticlesSubFrames(root, subject, parentFrameNo){
   const lawData = state.articles[subject] || {};
-  const frData = lawData[frameNo] || {};
+  const subFrames = getSubFrames(subject, parentFrameNo);
+  const parentFr  = (FRAMES[subject]||[]).find(f=>f.n===parentFrameNo);
+  const parentTitle = parentFr ? parentFr.t : '';
+  // 既存の整数キー配下(レガシー未分類)も表示する
+  const legacyData = lawData[parentFrameNo] || {};
+  const legacyIndices = legacyData.indices || [];
+  const hasLegacy = legacyIndices.length > 0;
+
+  let html = `<div class="card art-intro">
+    <div class="art-nav">
+      <button class="btn-back" id="art-back-frames-from-sub">← ${escapeHtml(subject)} のフレーム一覧に戻る</button>
+    </div>
+    <h2 class="art-h2">${escapeHtml(subject)} <span class="art-sub">F${parentFrameNo} ${escapeHtml(parentTitle)} — 中分類</span></h2>
+    <p class="art-desc">このフレームは複数の法律で構成されています。中分類(法律)をクリックすると、その法律の条文・解説・ポイントが表示されます。</p>
+  </div>`;
+  html += `<div class="card art-frames-card"><div class="art-frames">`;
+
+  // 未分類(整数キー配下に直接データがある場合)を最上部に表示
+  if(hasLegacy){
+    html += `<div class="art-frame art-frame-legacy" data-key="${parentFrameNo}">
+      <span class="af-n" style="background:var(--ink-muted)">未</span>
+      <span class="af-t">(未分類)既存登録データ <span style="font-size:11px;color:var(--ink-muted)">— 新フォーマットで再インポートすると中分類に整理されます</span></span>
+      <span class="af-c has-data">${legacyIndices.length}項目</span>
+      <span class="af-arrow">›</span>
+    </div>`;
+  }
+
+  // 中分類カード
+  for(const sub of subFrames){
+    const sd = lawData[sub.key] || {};
+    const cnt = (sd.indices||[]).length;
+    const hasData = cnt > 0;
+    const cls = hasData ? '' : 'empty';
+    const countCls = hasData ? 'has-data' : '';
+    html += `<div class="art-frame ${cls}" ${hasData ? `data-key="${sub.key}"` : ''}>
+      <span class="af-n">F${parentFrameNo}_${sub.n}</span>
+      <span class="af-t">${escapeHtml(sub.t)}</span>
+      <span class="af-c ${countCls}">${cnt}項目</span>
+      ${hasData ? '<span class="af-arrow">›</span>' : ''}
+    </div>`;
+  }
+  html += `</div></div>`;
+  // データが何もない場合のヒント
+  if(!hasLegacy && subFrames.every(s => !((lawData[s.key]||{}).indices||[]).length)){
+    html += `<div class="card"><div class="art-empty">
+      この中分類にはまだ条文データがありません。<br>
+      「管理」タブのJSONインポートから、<code>type:"article-frame"</code> + <code>frameNo: ${parentFrameNo}, subFrameNo: 1〜${subFrames.length}</code> 形式で取り込んでください(JSON仕様書 v5 を参照)。
+    </div></div>`;
+  }
+  root.innerHTML = html;
+  // 戻る
+  const backBtn = document.getElementById('art-back-frames-from-sub');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    state.articleView = {mode:'frames', subject:subject, frameNo:null, indexId:null, subFrameKey:null};
+    saveState();
+    renderArticles();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // 中分類クリック
+  root.querySelectorAll('.art-frame:not(.empty)').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      const key = c.dataset.key;
+      // 整数キー(レガシー未分類) or 文字列キー(サブフレーム)
+      if(/^\d+$/.test(key)){
+        state.articleView = {mode:'content', subject:subject, frameNo:parseInt(key,10), indexId:null, subFrameKey:null};
+      } else {
+        state.articleView = {mode:'content', subject:subject, frameNo:parentFrameNo, indexId:null, subFrameKey:key};
+      }
+      saveState();
+      renderArticles();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 3: インデックス横並びタブ + コンテンツ表示
+   key は整数フレーム番号 or 文字列サブフレームキー("2.1"等) */
+function renderArticlesContent(root, subject, key){
+  const lawData = state.articles[subject] || {};
+  const frData = lawData[key] || {};
   const indices = frData.indices || [];
   // 未選択時は先頭のインデックスを自動選択
   let selectedId = state.articleView.indexId;
@@ -5372,10 +5729,25 @@ function renderArticlesContent(root, subject, frameNo){
     state.articleView.indexId = selectedId;
   }
   const selected = indices.find(x=>x.id === selectedId) || indices[0];
-  const frameTitleStr = frameTitle(subject, frameNo);
+
+  // 改修2: 表示タイトルとパンくず(中分類の場合は親フレーム情報も付ける)
+  const subParsed = (typeof key === 'string') ? parseSubFrameKey(key) : null;
+  let frameTitleStr, backTargetMode;
+  if(subParsed){
+    // サブフレーム表示
+    const sub = getSubFrames(subject, subParsed.parent).find(s=>s.n===subParsed.n);
+    const parentFr = (FRAMES[subject]||[]).find(f=>f.n===subParsed.parent);
+    const parentT = parentFr ? parentFr.t : '';
+    frameTitleStr = `F${subParsed.parent} ${parentT} / F${subParsed.parent}_${subParsed.n} ${sub ? sub.t : ''}`;
+    backTargetMode = 'subframes';
+  } else {
+    frameTitleStr = frameTitle(subject, parseInt(key,10));
+    backTargetMode = 'frames';
+  }
+
   let html = `<div class="card art-intro">
     <div class="art-nav">
-      <button class="btn-back" id="art-back-frames">← ${escapeHtml(subject)} のフレーム一覧に戻る</button>
+      <button class="btn-back" id="art-back-frames">← ${backTargetMode==='subframes' ? `F${subParsed.parent} 中分類一覧` : `${escapeHtml(subject)} のフレーム一覧`}に戻る</button>
     </div>
     <h3 class="art-frame-title">${escapeHtml(subject)} <span class="aft-sub">${escapeHtml(frameTitleStr)}</span></h3>
   </div>`;
@@ -5407,7 +5779,11 @@ function renderArticlesContent(root, subject, frameNo){
   // 戻るボタン
   const backBtn = document.getElementById('art-back-frames');
   if(backBtn) backBtn.addEventListener('click', ()=>{
-    state.articleView = {mode:'frames', subject:subject, frameNo:null, indexId:null};
+    if(backTargetMode==='subframes'){
+      state.articleView = {mode:'subframes', subject:subject, frameNo:subParsed.parent, indexId:null, subFrameKey:null};
+    } else {
+      state.articleView = {mode:'frames', subject:subject, frameNo:null, indexId:null, subFrameKey:null};
+    }
     saveState();
     renderArticles();
     window.scrollTo({top:0,behavior:'smooth'});
