@@ -418,6 +418,12 @@
     letter-spacing:.04em;
   }
   .pf-q{font-size:11px;color:var(--ink-muted);font-weight:400}
+  /* 改修: フレーム中分類項目の併記表示 */
+  .pf-items{
+    font-size:11px;color:var(--ink-muted);font-weight:400;
+    line-height:1.5;flex-basis:100%;margin-top:2px;
+    word-break:break-all;letter-spacing:.01em;
+  }
   .pf-laws{
     font-size:10.5px;color:var(--ink-muted);font-weight:400;
     background:var(--line-soft);padding:2px 8px;border-radius:99px;
@@ -1374,6 +1380,8 @@
     background:var(--bg);border:1px solid var(--line);border-radius:8px;
     cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
   }
+  /* 改修: 中分類項目併記時は上端揃え(項目が長くなるため) */
+  .art-frame.has-items{align-items:flex-start}
   .art-frame:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
   .art-frame.empty{cursor:default;opacity:.55}
   .art-frame.empty:hover{background:var(--bg);border-color:var(--line);transform:none}
@@ -1383,6 +1391,11 @@
     font-size:11px;font-weight:600;font-family:monospace;
   }
   .art-frame .af-t{flex:1;font-size:13px;color:var(--ink);line-height:1.4}
+  /* 改修: フレーム中分類項目の併記表示 */
+  .af-items{
+    display:block;font-size:11px;color:var(--ink-muted);font-weight:400;
+    margin-top:4px;line-height:1.5;word-break:break-all;letter-spacing:.01em;
+  }
   .art-frame .af-c{
     flex:0 0 auto;padding:2px 7px;border-radius:99px;
     background:var(--line-soft);color:var(--ink-muted);
@@ -1892,6 +1905,14 @@
         <button class="btn ghost" id="btn-restore">バックアップ復元</button>
       </div>
 
+      <!-- 改修: ストレージ診断機能 -->
+      <div class="section-h" style="margin-top:24px">ストレージ診断</div>
+      <p class="section-body dim">「保存に失敗しました」などのエラーが出るとき、または容量が気になるときに使ってください。<br>iPhone Safari の localStorage は約 5MB 制限です(図表画像は IndexedDB に分離保存されるためこの制限の対象外)。</p>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn ghost" id="btn-storage-diag">ストレージ状況を確認</button>
+      </div>
+      <div id="storage-diag-result" style="margin-top:14px;display:none"></div>
+
       <div class="section-h" style="margin-top:24px">問題データの追加方法</div>
       <div class="section-body dim">
         <p style="margin-bottom:8px">大量の問題を追加するときは、JSONで一括投入できます。「問題管理」→「JSONインポート」から下記の形式で貼り付けてください。</p>
@@ -2227,6 +2248,41 @@ const FRAMES = {
     {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"}
   ]
 };
+
+/* ===== 改修: フレーム中分類項目(表示用) =====
+   進捗管理タブ・条文解説タブのフレーム表記のところに、その中身(項目)を併記するための補助データ。
+   既存の SUB_FRAMES とは独立(SUB_FRAMES は中分類別の演習・条文管理のための機能データで、
+   こちらは「F5 求職者給付Ⅲ（F5.1_高年齢求職者給付金／F5.2_特例一時金）」のような
+   表示用文字列を組み立てるためだけのもの)。
+   構造: { [科目名]: { [フレーム番号]: [項目名, 項目名, ...] } } */
+const FRAME_ITEMS = {
+  "雇用保険法": {
+    1:  ["目的","管掌","定義","適用事業","暫定任意適用事業"],
+    2:  ["被保険者","適用除外","被保険者の種類","適用事業所に関する届出",
+         "日雇労働被保険者以外の被保険者に関する届出","日雇労働被保険者に関する届出",
+         "電子申請の義務","被保険者資格の確認"],
+    3:  ["失業等給付の種類","基本手当の受給要件","被保険者期間","基本手当の受給手続",
+         "基本手当日額","所定給付日数","基本手当の受給期間"],
+    4:  ["延長給付","基本手当以外の一般被保険者に係る求職者給付"],
+    5:  ["高年齢求職者給付金","特例一時金"],
+    6:  ["日雇労働求職者給付金(普通給付)","日雇労働求職者給付金(特例給付)","基本手当との調整"],
+    7:  ["就業促進手当","移転費","求職活動支援費"],
+    8:  ["教育訓練給付金","教育訓練支援給付金","教育訓練休暇給付金"],
+    9:  ["高年齢雇用継続給付基本給付金","高年齢再就職給付金","介護休業給付金"],
+    10: ["育児休業給付金","出生時育児休業給付金","出生後休業支援給付金","育児時短就業給付金"],
+    11: ["受給権の保護","未支給の失業等給付","不正利得の返還命令等","不正受給による給付制限",
+         "就職拒否等による給付制限","離職理由による給付制限","雇用保険二事業","費用の負担",
+         "不服申立て","雑則等"]
+  }
+};
+
+/* フレームの中分類項目を「F5.1_高年齢求職者給付金／F5.2_特例一時金」形式の文字列にする。
+   未定義の科目・フレームでは空文字を返す(=何も追加表示しない)。 */
+function getFrameItemsLabel(subject, frameNo){
+  const items = (FRAME_ITEMS[subject] || {})[frameNo];
+  if(!Array.isArray(items) || !items.length) return '';
+  return items.map((t,i)=>`F${frameNo}.${i+1}_${t}`).join('／');
+}
 
 /* サブフレーム定義(中分類) — 改修2
    F2「社会保険法規等」と F3「企業年金制度」のように、複数法律をひとつのフレームで束ねている
@@ -4060,6 +4116,207 @@ function exportQuestions(){
   const blob = new Blob([JSON.stringify(state.questions,null,2)],{type:'application/json'});
   download(blob,`sharoushi_questions_${Date.now()}.json`);
 }
+
+/* ===== 改修: ストレージ診断機能 =====
+   localStorage と IndexedDB の使用状況を可視化する。
+   どのデータが容量を圧迫しているか一目で分かるよう内訳を表示する。
+*/
+async function runStorageDiagnostic(){
+  const result = document.getElementById('storage-diag-result');
+  if(!result) return;
+  result.style.display = 'block';
+  result.innerHTML = '<p style="color:var(--mut);padding:10px">診断中...</p>';
+
+  try{
+    // === localStorage 全体サイズ ===
+    const raw = localStorage.getItem(STORAGE_KEY) || '';
+    // iPhone Safari の制限は UTF-16 換算で 5MB(=約 2.5M文字)とされるため
+    // 安全側で 1文字 = 2バイト換算
+    const totalBytes = raw.length * 2;
+
+    // === state を解析して内訳を取る ===
+    let stateObj = {};
+    try{ stateObj = JSON.parse(raw) }catch(_){ stateObj = {} }
+
+    const sections = [
+      {label:'択一問題 (questions)',         key:'questions'},
+      {label:'選択式問題 (selectQuestions)', key:'selectQuestions'},
+      {label:'事例問題 (cases)',             key:'cases'},
+      {label:'条文・解説 (articles)',        key:'articles'},
+      {label:'解答履歴 (history)',           key:'history'},
+      {label:'選択式履歴 (selectHistory)',   key:'selectHistory'},
+      {label:'事例履歴 (caseHistory)',       key:'caseHistory'},
+      {label:'フレーム演習履歴 (frameAttempts)', key:'frameAttempts'},
+      {label:'図表メタ情報 (figures)',       key:'figures'},
+      {label:'ブックマーク (bookmarks)',     key:'bookmarks'}
+    ];
+    const breakdown = [];
+    for(const s of sections){
+      const v = stateObj[s.key];
+      if(v === undefined){ breakdown.push({label:s.label, bytes:0, count:0}); continue }
+      const json = JSON.stringify(v);
+      const bytes = json.length * 2;
+      let count = 0;
+      if(Array.isArray(v)) count = v.length;
+      else if(v && typeof v==='object') count = Object.keys(v).length;
+      breakdown.push({label:s.label, bytes, count});
+    }
+    // 大きい順にソート
+    breakdown.sort((a,b)=>b.bytes - a.bytes);
+
+    // === マイグレーション漏れ検査(state.figures に imageData が残っていないか) ===
+    let lsImageLeak = 0;
+    let lsImageBytes = 0;
+    if(Array.isArray(stateObj.figures)){
+      for(const f of stateObj.figures){
+        if(f && f.imageData){
+          lsImageLeak++;
+          lsImageBytes += (f.imageData.length || 0) * 2;
+        }
+      }
+    }
+
+    // === IndexedDB の状況 ===
+    let idbAvailable = false;
+    let idbCount = 0;
+    let idbBytes = 0;
+    let idbErrMsg = '';
+    try{
+      const ok = await figureStore.ready();
+      if(ok){
+        idbAvailable = true;
+        const all = await figureStore.getAll();
+        idbCount = all.length;
+        for(const ent of all){
+          idbBytes += (ent.dataURL || '').length * 2;
+        }
+      }else{
+        idbErrMsg = 'IndexedDB が利用できない環境です';
+      }
+    }catch(e){
+      idbErrMsg = e.message || String(e);
+    }
+
+    // === キャッシュ(in-memory)の状況 ===
+    let cacheCount = 0;
+    let cacheBytes = 0;
+    for(const [id, url] of figureImageCache){
+      cacheCount++;
+      cacheBytes += (url || '').length * 2;
+    }
+
+    // === メタ件数とIDB件数の整合性 ===
+    const metaCount = Array.isArray(stateObj.figures) ? stateObj.figures.length : 0;
+
+    // === 表示構築 ===
+    const limitMB = 5;
+    const limitBytes = limitMB * 1024 * 1024;
+    const pct = Math.min(100, (totalBytes / limitBytes) * 100);
+    const pctColor = pct > 80 ? '#c0392b' : pct > 60 ? '#d68910' : '#27ae60';
+    const fmt = (b)=>{
+      if(b < 1024) return b + ' B';
+      if(b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+      return (b/1024/1024).toFixed(2) + ' MB';
+    };
+
+    let html = '';
+
+    // 全体サマリ
+    html += `<div style="background:var(--bg);border:1px solid var(--line);padding:14px;border-radius:6px">`;
+    html += `<div style="font-weight:600;font-size:13px;margin-bottom:8px">localStorage 全体使用量</div>`;
+    html += `<div style="font-size:15px;margin-bottom:8px"><strong>${fmt(totalBytes)}</strong> <span style="color:var(--mut);font-size:12px">/ 上限 約${limitMB}MB (${pct.toFixed(1)}%)</span></div>`;
+    html += `<div style="height:12px;background:#eee;border-radius:6px;overflow:hidden">
+      <div style="height:100%;width:${pct.toFixed(2)}%;background:${pctColor};transition:width 0.6s ease-out"></div>
+    </div>`;
+    html += `</div>`;
+
+    // マイグレーション漏れ警告(優先表示)
+    if(lsImageLeak > 0){
+      html += `<div style="background:#fff3cd;border:1px solid #ffc107;padding:14px;border-radius:6px;margin-top:10px">`;
+      html += `<div style="font-weight:600;color:#856404;margin-bottom:6px">⚠ localStorage に画像が残存しています</div>`;
+      html += `<div style="font-size:12px;color:#856404;line-height:1.6">${lsImageLeak}件の画像 (${fmt(lsImageBytes)}) が localStorage に残っています。<br>
+      図表タブを開く・任意の画像を編集して保存する等の操作で、自動的に IndexedDB へ移行されます。<br>
+      または、いったん完全バックアップを取得 → バックアップ復元 を実行すると確実に移行できます。</div>`;
+      html += `</div>`;
+    }
+
+    // 内訳テーブル
+    html += `<div style="background:var(--bg);border:1px solid var(--line);padding:14px;border-radius:6px;margin-top:10px">`;
+    html += `<div style="font-weight:600;font-size:13px;margin-bottom:8px">localStorage 内訳 (大きい順)</div>`;
+    html += `<table style="width:100%;font-size:12px;border-collapse:collapse">`;
+    html += `<thead><tr style="border-bottom:1px solid var(--line);text-align:left;color:var(--mut)">
+      <th style="padding:6px 8px;font-weight:500">項目</th>
+      <th style="padding:6px 8px;text-align:right;font-weight:500">件数</th>
+      <th style="padding:6px 8px;text-align:right;font-weight:500">サイズ</th>
+      <th style="padding:6px 8px;text-align:right;font-weight:500">割合</th>
+    </tr></thead><tbody>`;
+    for(const item of breakdown){
+      const p = totalBytes > 0 ? (item.bytes / totalBytes * 100) : 0;
+      html += `<tr style="border-bottom:1px solid #f0f0f0">
+        <td style="padding:6px 8px">${escapeHtml(item.label)}</td>
+        <td style="padding:6px 8px;text-align:right">${item.count}</td>
+        <td style="padding:6px 8px;text-align:right">${fmt(item.bytes)}</td>
+        <td style="padding:6px 8px;text-align:right;color:var(--mut)">${p.toFixed(1)}%</td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    // IndexedDB
+    html += `<div style="background:var(--bg);border:1px solid var(--line);padding:14px;border-radius:6px;margin-top:10px">`;
+    html += `<div style="font-weight:600;font-size:13px;margin-bottom:8px">IndexedDB (図表画像本体)</div>`;
+    if(idbAvailable){
+      html += `<div style="font-size:13px;line-height:1.8">
+        状態: <strong style="color:#27ae60">利用可</strong><br>
+        画像枚数: <strong>${idbCount}</strong> 枚 (メタ情報側: ${metaCount}件)<br>
+        画像合計サイズ: <strong>${fmt(idbBytes)}</strong><br>
+        in-memory キャッシュ: ${cacheCount}枚 / ${fmt(cacheBytes)}
+      </div>`;
+      // 整合性チェック
+      if(metaCount !== idbCount){
+        html += `<div style="font-size:12px;color:#d68910;margin-top:8px">⚠ メタ件数(${metaCount}) と IndexedDB枚数(${idbCount}) が一致しません。${idbCount<metaCount?'(マイグレーション未完了の可能性。図表タブを開き直してください)':'(古い未削除データが残っている可能性)'}</div>`;
+      }
+    }else{
+      html += `<div style="font-size:13px;color:#c0392b">状態: 利用不可<br>${escapeHtml(idbErrMsg)}</div>`;
+    }
+    html += `</div>`;
+
+    // 診断コメント
+    html += `<div style="background:#e7f5fe;border:1px solid #b3d9f7;padding:14px;border-radius:6px;margin-top:10px">`;
+    html += `<div style="font-weight:600;color:#1a5490;font-size:13px;margin-bottom:6px">診断コメント</div>`;
+    html += `<div style="font-size:12px;color:#1a5490;line-height:1.7">`;
+    if(pct >= 90){
+      const top = breakdown[0] || {label:'(不明)', bytes:0};
+      html += `🚨 <strong>使用率が ${pct.toFixed(0)}% に達しています。</strong>すぐに保存エラーが出る可能性があります。<br>`;
+      html += `最大の項目は「${escapeHtml(top.label)}」(${fmt(top.bytes)}) です。<br>`;
+      if(top.label.includes('履歴')){
+        html += `古い解答履歴のクリア、または完全バックアップを取得して別ブラウザで使う、などの対策を検討してください。`;
+      }else if(top.label.includes('図表メタ')){
+        html += `図表メタ情報が大きい場合、各図表のメモ(notes)を見直すと縮小できる可能性があります。`;
+      }else{
+        html += `「${escapeHtml(top.label)}」の整理を検討してください。`;
+      }
+    }else if(pct >= 70){
+      const top = breakdown[0] || {label:'(不明)', bytes:0};
+      html += `⚠ 使用率は ${pct.toFixed(0)}% です。容量にやや余裕がなくなってきています。<br>`;
+      html += `現在の最大項目は「${escapeHtml(top.label)}」(${fmt(top.bytes)}) です。<br>`;
+      html += `完全バックアップを取得しておくことをおすすめします。`;
+    }else if(pct >= 40){
+      html += `使用率は ${pct.toFixed(0)}% です。容量にはまだ余裕があります。<br>`;
+      html += `定期的なバックアップ取得を推奨します。`;
+    }else{
+      html += `✓ 使用率は ${pct.toFixed(0)}% で、十分余裕があります。<br>`;
+      html += `図表画像は IndexedDB に分離されているため、画像を増やしてもこの値はほとんど増えません。`;
+    }
+    html += `</div></div>`;
+
+    result.innerHTML = html;
+  }catch(e){
+    result.innerHTML = `<div style="background:#fdecea;border:1px solid #f5c6cb;padding:14px;border-radius:6px;color:#c0392b">
+      診断エラー: ${escapeHtml(e.message || String(e))}
+    </div>`;
+  }
+}
+
 async function backupAll(){
   try{
     // IndexedDB から全画像を取得し、メタとマージしてバックアップに含める
@@ -5942,10 +6199,14 @@ function renderArticlesFrames(root, subject){
     // サブフレーム持ち専用のバッジ表示(中分類N個)
     const subBadge = hasSubFrames(subject, fr.n)
       ? `<span class="af-sub-badge">中分類 ${subFrameTotal} 個</span>` : '';
+    // 改修: フレーム中分類項目の併記
+    const itemsLabel = getFrameItemsLabel(subject, fr.n);
+    const itemsHtml = itemsLabel ? `<span class="af-items">（${escapeHtml(itemsLabel)}）</span>` : '';
+    const hasItemsCls = itemsLabel ? 'has-items' : '';
     // 数字部分(F2)、タイトル、項目数の表示
-    html += `<div class="art-frame ${cls}" ${hasData ? `data-fno="${fr.n}"` : ''}>
+    html += `<div class="art-frame ${cls} ${hasItemsCls}" ${hasData ? `data-fno="${fr.n}"` : ''}>
       <span class="af-n">F${fr.n}</span>
-      <span class="af-t">${escapeHtml(fr.t)}${subBadge}</span>
+      <span class="af-t">${escapeHtml(fr.t)}${subBadge}${itemsHtml}</span>
       <span class="af-c ${countCls}">${totalCnt}項目</span>
       ${hasData ? '<span class="af-arrow">›</span>' : ''}
     </div>`;
@@ -6872,7 +7133,7 @@ function renderProgressSubjects(root, summary, kindMode){
 /* 1フレーム行(進捗バー10マス付き)を描画する共通ヘルパー。
    親フレーム・サブフレームともに使用。 */
 function buildProgressFrameRow(opts){
-  const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno} = opts;
+  const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno, itemsLabel} = opts;
   const k = frameKey(subjectVal, fkN, kindModeVal);
   const fa = state.frameAttempts[k] || {history:[], current:null};
   const completed = fa.history.length;
@@ -6912,9 +7173,11 @@ function buildProgressFrameRow(opts){
     btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
   }
   const kindIcon = progressKindBadge(kindModeVal);
+  // 改修: フレーム中分類項目の併記
+  const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
   return `<div class="prog-frame">
     <div class="pf-head">
-      <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
+      <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}${itemsHtml}</div>
       ${btn}
     </div>
     <div class="pf-slots">${slots}</div>
@@ -6944,12 +7207,15 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   }
   const kindIcon = progressKindBadge(kindMode);
   const subBadge = `<span class="badge-subframe" style="background:#FFE8B3;color:#7A5A1A;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-left:6px">中分類 ${subs.length} 個</span>`;
+  // 改修: フレーム中分類項目の併記(FRAME_ITEMS で定義されている場合のみ)
+  const itemsLabel = getFrameItemsLabel(subject, fr.n);
+  const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
     : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
-      <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span></div>
+      <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span>${itemsHtml}</div>
       <div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div>
     </div>
     <div class="pf-status" style="font-size:12px;color:var(--ink-muted)">${progressLine}　→ クリックで中分類別の進捗を表示</div>
@@ -6981,10 +7247,13 @@ function renderProgressFrames(root, summary, subject, kindMode){
     const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
     const total = allFrameQs.length;
     const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
+    // 改修: フレーム中分類項目の併記
+    const frItemsLabel = getFrameItemsLabel(subject, fr.n);
+    const frItemsHtml = frItemsLabel ? `<div class="pf-items">（${escapeHtml(frItemsLabel)}）</div>` : '';
     if(!eligible){
       html += `<div class="prog-frame" style="opacity:.55">
         <div class="pf-head">
-          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
+          <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span>${frItemsHtml}</div>
           <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
         </div>
         <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - total}問追加されると進捗管理対象になります。</div>
@@ -7003,7 +7272,8 @@ function renderProgressFrames(root, summary, subject, kindMode){
       subjectVal: subject,
       kindModeVal: kindMode,
       lawBreakdown: lawBreakdown,
-      dataFno: fr.n
+      dataFno: fr.n,
+      itemsLabel: frItemsLabel  // 改修
     });
   }
   if(shownFrames===0 && !progressKindShowAll(kindMode)){
@@ -7290,6 +7560,9 @@ function init(){
   // Data tab
   document.getElementById('btn-backup').addEventListener('click',backupAll);
   document.getElementById('btn-restore').addEventListener('click',restoreBackup);
+  // 改修: ストレージ診断ボタン
+  const btnDiag = document.getElementById('btn-storage-diag');
+  if(btnDiag) btnDiag.addEventListener('click', runStorageDiagnostic);
 
   // Keyboard shortcuts
   document.addEventListener('keydown',e=>{
