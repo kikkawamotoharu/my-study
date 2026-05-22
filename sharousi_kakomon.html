@@ -423,6 +423,13 @@
     background:var(--line-soft);padding:2px 8px;border-radius:99px;
     display:inline-block;margin-left:4px;letter-spacing:.02em;
   }
+  /* フレーム中分類項目(2行目に表示) — 改修3 2026-05-22 */
+  .pf-subs{
+    margin-top:4px;font-size:11px;color:var(--ink-muted);
+    line-height:1.55;letter-spacing:.02em;
+    padding-left:36px;  /* F# バッジ分のインデント揃え */
+    word-break:break-word;
+  }
   .pf-slots{
     display:grid;grid-template-columns:repeat(10,1fr);gap:4px;
     margin-bottom:8px;max-width:420px;
@@ -1032,14 +1039,6 @@
   .kind-mode-btn:hover{background:var(--line-soft);color:var(--ink)}
   .kind-mode-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
   .kind-mode-btn .count{font-size:11px;opacity:.75}
-  /* 改修8: 複合モードと単独モードの視覚的区切り */
-  .kind-mode-divider{
-    height:1px;background:var(--line);margin:6px 4px;opacity:.6;
-  }
-  .kind-mode-section-label{
-    font-size:10.5px;color:var(--ink-muted);
-    padding:4px 4px 2px;text-transform:uppercase;letter-spacing:.5px;
-  }
 
   /* 進捗管理: 過去問/予想問サブタブ */
   .prog-subtabs{
@@ -1373,6 +1372,16 @@
     display:flex;align-items:center;gap:10px;padding:12px 14px;
     background:var(--bg);border:1px solid var(--line);border-radius:8px;
     cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
+    flex-wrap:wrap;  /* 中分類行を2行目に折り返すため — 改修3 2026-05-22 */
+  }
+  /* 条文・解説タブのフレームカード内、中分類項目(2行目) — 改修3 2026-05-22 */
+  .art-frame .af-subs{
+    flex-basis:100%;
+    margin-top:2px;
+    font-size:11px;color:var(--ink-muted);
+    line-height:1.55;letter-spacing:.02em;
+    padding-left:36px;  /* F# バッジ分のインデント揃え */
+    word-break:break-word;
   }
   .art-frame:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
   .art-frame.empty{cursor:default;opacity:.55}
@@ -1722,17 +1731,9 @@
     <div class="stat-card">
       <h3>種類モード</h3>
       <div class="kind-mode-group">
-        <!-- 改修8: 複合モード(複数種別を同時出題) -->
-        <div class="kind-mode-section-label">複合</div>
-        <button class="kind-mode-btn active" data-kindmode="both">すべて(A+B+予想) <span class="count" id="kmc-both"></span></button>
-        <button class="kind-mode-btn" data-kindmode="past">過去問(A+B) <span class="count" id="kmc-past"></span></button>
-        <button class="kind-mode-btn" data-kindmode="pastA_forecast">過去問A+予想問 <span class="count" id="kmc-pastA_forecast"></span></button>
-        <div class="kind-mode-divider"></div>
-        <!-- 改修8: 単独モード(1種別だけ出題) -->
-        <div class="kind-mode-section-label">単独</div>
-        <button class="kind-mode-btn" data-kindmode="pastA">過去問A <span class="count" id="kmc-pastA"></span></button>
-        <button class="kind-mode-btn" data-kindmode="pastB">過去問B <span class="count" id="kmc-pastB"></span></button>
-        <button class="kind-mode-btn" data-kindmode="forecast">予想問 <span class="count" id="kmc-forecast"></span></button>
+        <button class="kind-mode-btn active" data-kindmode="both">過去問+予想問(両方) <span class="count" id="kmc-both"></span></button>
+        <button class="kind-mode-btn" data-kindmode="past">過去問のみ <span class="count" id="kmc-past"></span></button>
+        <button class="kind-mode-btn" data-kindmode="forecast">予想問のみ <span class="count" id="kmc-forecast"></span></button>
       </div>
     </div>
 
@@ -1934,13 +1935,12 @@
       <div style="flex:0 0 150px">
         <label class="field">問題区分</label>
         <select id="m-kind">
-          <option value="pastA">過去問A</option>
-          <option value="pastB">過去問B</option>
+          <option value="past">過去問</option>
           <option value="forecast">予想問</option>
         </select>
       </div>
       <div style="flex:1">
-        <label class="field">出典(過去問B・予想問)</label>
+        <label class="field">出典(予想問のみ)</label>
         <input type="text" id="m-source" placeholder="例: TAC2025-7模試">
       </div>
       <div style="flex:0 0 120px">
@@ -2198,7 +2198,7 @@ const FRAMES = {
   "労働保険徴収法":[
     {n:1,t:"総則、保険関係の成立及び消滅等"},{n:2,t:"保険関係の一括"},{n:3,t:"労働保険料の種類等"},
     {n:4,t:"概算保険料"},{n:5,t:"確定保険料等"},{n:6,t:"メリット制"},
-    {n:7,t:"印紙保険料"},{n:8,t:"特別納付保険料"},{n:9,t:"督促等、不服申立て、雑則その他"},
+    {n:7,t:"印紙保険料"},{n:8,t:"特例納付保険料"},{n:9,t:"督促等、不服申立て、雑則その他"},
     {n:10,t:"労働保険事務組合"}
   ],
   "労務管理その他の労働に関する一般常識":[
@@ -2224,7 +2224,8 @@ const FRAMES = {
     {n:10,t:"不服申立て、雑則、基金等"}
   ],
   "社会保険に関する一般常識":[
-    {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"}
+    {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"},
+    {n:4,t:"社会保障制度"},{n:5,t:"沿革"}
   ]
 };
 
@@ -2291,6 +2292,143 @@ function questionMatchesSubFrame(qLaw, subFrame){
   }
   return qLaw === subFrame.law;
 }
+
+/* ===== フレーム中分類項目(比較認識法®テキスト目次より) — 改修3 2026-05-22 =====
+   進捗管理タブのフレーム一覧で、フレーム名の下に細項目(中分類)を表示するためのデータ。
+   表示は「F<n>.<m> <項目名>」形式(例: F5.1 高年齢求職者給付金)。
+   未登録の科目はそのまま現状の表示(中分類なし)になる。
+   後日、他科目の比較認識法®テキスト目次を頂ければ簡単に追加可能。 */
+const FRAME_SUBSECTIONS = {
+  "雇用保険法": {
+    1:  ["目的","管掌","定義","適用事業","暫定任意適用事業"],
+    2:  ["被保険者","適用除外","被保険者の種類","適用事業所に関する届出","日雇労働被保険者以外の被保険者に関する届出","日雇労働被保険者に関する届出","電子申請の義務","被保険者資格の確認"],
+    3:  ["失業等給付の種類","基本手当の受給要件","被保険者期間","基本手当の受給手続","基本手当日額","所定給付日数","基本手当の受給期間"],
+    4:  ["延長給付","基本手当以外の一般被保険者に係る求職者給付"],
+    5:  ["高年齢求職者給付金","特例一時金"],
+    6:  ["日雇労働求職者給付金(普通給付)","日雇労働求職者給付金(特例給付)","基本手当との調整"],
+    7:  ["就業促進手当","移転費","求職活動支援費"],
+    8:  ["教育訓練給付金","教育訓練支援給付金","教育訓練休暇給付金"],
+    9:  ["高年齢雇用継続給付基本給付金","高年齢再就職給付金","介護休業給付金"],
+    10: ["育児休業給付金","出生時育児休業給付金","出生後休業支援給付金","育児時短就業給付金"],
+    11: ["受給権の保護","未支給の失業等給付","不正利得の返還命令等","不正受給による給付制限","就業拒否等による給付制限","離職理由による給付制限","雇用保険二事業","費用の負担","不服申立て","雑則等"]
+  },
+  "健康保険法": {
+    1:  ["目的等","保険者","全国健康保険協会","健康保険組合","権限の委任等"],
+    2:  ["適用事業所","一般の被保険者等","任意継続被保険者等","被扶養者","資格の得喪の確認等","被保険者に関する届出"],
+    3:  ["保険医療機関及び保険薬局等","保険医及び保険薬剤師","指定訪問看護事業者"],
+    4:  ["報酬等の定義","標準報酬月額","定時決定","資格取得時決定","随時改定","育児休業等終了時改定","産前産後休業終了時改定","任意継続被保険者等の標準報酬月額","標準賞与額"],
+    5:  ["保険給付の種類","療養の給付","入院時食事療養費","入院時生活療養費","保険外併用療養費","療養費","家族療養費","訪問看護療養費","家族訪問看護療養費","高額療養費","高額介護合算療養費"],
+    6:  ["移送費","家族移送費","傷病手当金","埋葬料及び埋葬費","家族埋葬料","出産育児一時金","家族出産育児一時金","出産手当金","傷病手当金・出産手当金の継続給付","資格喪失後の出産育児一時金","資格喪失後の埋葬料・埋葬費"],
+    7:  ["国庫負担等","保険料","保険料率","保険料の負担等","保険料の納付","滞納に対する措置等"],
+    8:  ["保険者","日雇特例被保険者","国庫補助","標準賃金日額","保険料額及び負担割合","保険料の納付","保険給付"],
+    9:  ["保険給付の方法","受給権の保護","併給調整","給付制限"],
+    10: ["保健福祉事業","不服申立て","雑則等"]
+  },
+  "国民年金法": {
+    1:  ["旧法と新法","目的等","権限の委任等","定義"],
+    2:  ["被保険者の種類","資格の得喪","被保険者期間の計算等","届出","国民年金原簿等","被保険者に対する情報の提供"],
+    3:  ["国庫負担","基礎年金拠出金","保険料","保険料の免除","追納","滞納に対する措置"],
+    4:  ["給付の種類及び裁定等","支給期間等","旧法の対象者","支給要件","保険料納付済期間","保険料免除期間","合算対象期間","第3種被保険者期間(坑内員・船員)の特例","年金額","振替加算","支給の繰上げ","支給の繰下げ","失権"],
+    5:  ["旧法の対象者","一般的な障害基礎年金","事後重症による障害基礎年金","基準障害による障害基礎年金","20歳前傷病による障害基礎年金","経過措置による障害基礎年金","併合認定","年金額","年金額の改定","加算額の改定","支給停止","失権"],
+    6:  ["旧法の対象者","支給要件","受給権者","年金額","支給停止","失権"],
+    7:  ["付加年金","寡婦年金","死亡一時金","脱退一時金"],
+    8:  ["国民年金事業の財政","年金額の改定"],
+    9:  ["死亡の推定","失踪宣告の取扱い","未支給年金","受給権者の申出による支給停止","受給権の保護","年金の支払の調整","併給調整","給付制限等","損害賠償との調整","不服申立て","国民年金事業の円滑な実施","時効","調査等","罰則"],
+    10: ["基金の目的・設立・管理等","加入員","給付の基準","解散・合併・分割","国民年金基金連合会"]
+  },
+  "労働保険徴収法": {
+    1:  ["趣旨","適用事業の区分","保険関係の成立","保険関係の消滅"],
+    2:  ["有期事業の一括","請負事業の一括","継続事業の一括"],
+    3:  ["労働保険料の種類","一般保険料","賃金総額","一般保険料率","特別加入保険料の額"],
+    4:  ["概算保険料の申告・納付","概算保険料の延納","増加概算保険料","概算保険料の追加徴収","概算保険料の認定決定"],
+    5:  ["確定保険料の申告・納付","口座振替納付等"],
+    6:  ["継続事業(一括有期事業を含む)のメリット制","有期事業のメリット制"],
+    7:  ["印紙保険料の納付","雇用保険印紙","帳簿の調整及び報告","印紙保険料の認定決定"],
+    8:  ["対象事業主","特例納付保険料の額","特例納付保険料の納付"],
+    9:  ["滞納に対する措置","労働保険料の負担","不服申立て","雑則等"],
+    10: ["労働保険事務組合の認可","労働保険事務組合への委託","労働保険事務組合の責任等","報奨金"]
+  },
+  "厚生年金保険法": {
+    1:  ["目的等","権限の委任等","適用事業所","適用事業所に関する届出"],
+    2:  ["当然被保険者","当然被保険者の資格の得喪","70歳以上の使用される者(70歳以上被用者)","任意単独被保険者","高齢任意加入被保険者","資格の得喪の確認","被保険者期間等","被保険者等に関するその他の届出","受給権者の届出","記録等"],
+    3:  ["報酬及び賞与","標準報酬月額","標準報酬月額の決定・改定","養育期間中の標準報酬月額の特例","標準賞与額","国庫負担","保険料","交付金等","滞納に対する措置等"],
+    4:  ["保険給付の種類及び裁定等","2つの老齢厚生年金","本来の老齢厚生年金","報酬比例部分の額","経過的加算","在職定時改定及び退職改定","加給年金額","特別加算","65歳以後の在職老齢年金(高在老)","老齢厚生年金の支給の繰上げ","老齢厚生年金の支給の繰下げ","失権"],
+    5:  ["特別支給の老齢厚生年金","Aゾーン","Bゾーン","Cゾーン","Dゾーン","支給開始年齢の特例","65歳未満の在職老齢年金(低在老)","失業等給付との調整","失権"],
+    6:  ["一般的な障害厚生年金","事後重症による障害厚生年金","基準障害による障害厚生年金","経過措置による障害厚生年金","併合認定","年金額","加給年金額","年金額の改定","支給停止及び失権","障害手当金"],
+    7:  ["支給要件","遺族","年金額","中高齢寡婦加算","経過的寡婦加算","支給停止","失権","脱退一時金","脱退手当金","特例老齢年金及び特例遺族年金"],
+    8:  ["合意分割","3号分割"],
+    9:  ["厚生年金保険事業の財政","積立金","厚生年金保険事業の運営改善に関する規定","死亡の推定","未支給の保険給付","併給の調整","年金の支払の調整","損害賠償との調整","不正利得の徴収","受給権の保護","給付制限"],
+    10: ["不服申立て","時効等","雑則","罰則","存続厚生年金基金及び存続連合会"]
+  },
+  "労働基準法": {
+    1:  ["労働条件の原則","労働条件の決定","均等待遇","男女同一賃金の原則","強制労働の禁止","中間搾取の排除","公民権行使の保障","適用事業","適用除外","労働者・使用者の定義","労働者派遣・出向"],
+    2:  ["労働契約","労働者の長期人身拘束の防止","解雇","退職時等の証明","金品の返還","有期労働契約に関する基準"],
+    3:  ["賃金の定義","賃金支払の5原則","非常時払","休業手当","出来高払制の保障給","平均賃金"],
+    4:  ["労働時間","休憩","休日","労働時間等に関する規定の適用除外"],
+    5:  ["1箇月単位の変形労働時間制","フレックスタイム制","1年単位の変形労働時間制","1週間単位の非定型的変形労働時間制"],
+    6:  ["非常災害等の場合","労使協定(36協定)による場合","割増賃金"],
+    7:  ["事業場外労働に関するみなし労働時間制","専門業務型裁量労働制","企画業務型裁量労働制"],
+    8:  ["年次有給休暇の権利の要件","年次有給休暇の付与日数","年次有給休暇の付与方法","年次有給休暇中の賃金","不利益取扱いの禁止"],
+    9:  ["未成年者の労働契約等","最低年齢","年少者等","年少者の労働時間及び休憩の原則","年少者の労働時間等の例外","年少者の深夜業","妊産婦等の就業制限","妊産婦に関する労働時間等"],
+    10: ["就業規則の作成及び手続","就業規則の必要的記載事項","制裁規定の制限","法令及び労働協約との関係","寄宿舎","周知義務","書類の保存等","付加金","時効","災害補償","監督機関","罰則"]
+  },
+  "労働安全衛生法": {
+    1:  ["目的","定義","責務","事業者に関する規定の適用","労働災害防止計画","派遣労働者に係る労働安全衛生法の適用区分"],
+    2:  ["全産業の安全衛生管理体制","委員会等","建設業等における安全衛生管理体制"],
+    3:  ["事業者の講ずべき措置","事業者の行うべき調査等","元方事業者の講ずべき措置","注文者の講ずべき措置等"],
+    4:  ["特定機械","法42条の機械等","動力により駆動される機械等","定期自主検査"],
+    5:  ["製造等禁止物質","製造許可物質","表示対象物・通知対象物","化学物質に関する管理体制","新規化学物質の有害性の調査","特別の有害性の調査の指示"],
+    6:  ["安全衛生教育","就業制限等"],
+    7:  ["作業環境測定","作業の管理等","健康管理手帳等"],
+    8:  ["一般健康診断","特殊健康診断","その他の健康診断","健康診断実施後の措置等"],
+    9:  ["長時間労働者に対する面接指導","研究開発業務従事者に対する面接指導","高度プロフェッショナル制度対象労働者に対する面接指導","心理的な負担の程度を把握するための検査等"],
+    10: ["特別安全衛生改善計画等","計画の届出","監督機関","雑則等"]
+  },
+  "労働者災害補償保険法": {
+    1:  ["目的等","適用事業","適用労働者"],
+    2:  ["業務災害の認定","複数業務要因災害の認定","通勤災害の認定"],
+    3:  ["給付基礎日額","スライド","年齢階層別の最低限度額及び最高限度額"],
+    4:  ["保険給付の種類等","療養(補償)等給付","休業(補償)等給付","傷病(補償)等年金"],
+    5:  ["障害(補償)等給付","障害(補償)等年金前払一時金","障害(補償)等年金差額一時金","介護(補償)等給付"],
+    6:  ["遺族(補償)等年金","遺族(補償)等年金前払一時金","遺族(補償)等一時金","葬祭料等(葬祭給付)","二次健康診断等給付"],
+    7:  ["保険給付の支払","内払と充当","死亡の推定","未支給の保険給付","受給権の保護","支給制限等","費用徴収","社会保険との調整","第三者行為災害と事業主責任災害"],
+    8:  ["社会復帰促進等事業の種類","特別支給金"],
+    9:  ["特別加入の対象者","業務災害、複数業務要因災害及び通勤災害の認定","給付基礎日額","保険給付","社会復帰促進等事業","支給制限","脱退等"],
+    10: ["労審法による不服申立て","行政不服審査法による不服申立て","雑則","罰則"]
+  },
+  "労務管理その他の労働に関する一般常識": {
+    1: ["労働組合法","労働関係調整法"],
+    2: ["労働契約法","最低賃金法","賃金の支払の確保等に関する法律","中小企業退職金共済法","労働時間等の設定の改善に関する特別措置法","個別労働関係紛争解決促進法","パートタイム・有期雇用労働法","男女雇用機会均等法","育児・介護休業法","次世代育成支援対策推進法","女性活躍推進法"],
+    3: ["労働施策総合推進法","職業安定法","労働者派遣法","高年齢者雇用安定法","障害者雇用促進法","青少年雇用促進法","職業能力開発促進法","求職者支援法"],
+    4: ["人事情報","雇用管理","能力開発","賃金管理","人間関係管理"],
+    5: ["統計に関する基礎知識","労働統計の概要"]
+  },
+  "社会保険に関する一般常識": {
+    1: ["総則","登録等","社会保険労務士の義務等","監督","社会保険労務士法人","社会保険労務士会及び全国社会保険労務士会連合会","罰則"],
+    2: ["国民健康保険法","船員保険法","高齢者医療確保法","介護保険法","児童手当法"],
+    3: ["確定拠出年金法","確定給付企業年金法"],
+    4: ["社会保障制度の発展","平成の30年間の社会保障制度等の改革","社会保障制度を支える人材の確保"],
+    5: ["医療(介護)保険制度の沿革","年金制度の沿革"]
+  }
+};
+
+/* フレーム中分類のHTML(2行目で表示)を生成。未登録なら空文字を返す。 */
+function frameSubsectionsHtml(subject, frameN){
+  const subs = (FRAME_SUBSECTIONS[subject] && FRAME_SUBSECTIONS[subject][frameN]) || null;
+  if(!subs || !subs.length) return '';
+  const parts = subs.map((s,i)=>`F${frameN}.${i+1} ${s}`).join(' / ');
+  return `<div class="pf-subs" title="中分類項目">└ ${escapeHtml(parts)}</div>`;
+}
+
+/* 同上だが、条文・解説タブのフレームカード(.art-frame)内で使う版。
+   CSSクラスが .af-subs(.pf-subs ではない)。 — 改修3 2026-05-22 */
+function frameSubsectionsHtmlArt(subject, frameN){
+  const subs = (FRAME_SUBSECTIONS[subject] && FRAME_SUBSECTIONS[subject][frameN]) || null;
+  if(!subs || !subs.length) return '';
+  const parts = subs.map((s,i)=>`F${frameN}.${i+1} ${s}`).join(' / ');
+  return `<span class="af-subs" title="中分類項目">└ ${escapeHtml(parts)}</span>`;
+}
+
 /* 問題(q)が属するサブフレーム情報を取得(無ければ null)。 */
 function getSubFrameForQuestion(subject, frameNo, qLaw){
   const subs = getSubFrames(subject, frameNo);
@@ -2446,42 +2584,9 @@ function frameTitle(law, n){
   return fr ? `フレーム${n} ${fr.t}` : `フレーム${n}`;
 }
 function frameKey(law, n, kind){
-  // kindは 'pastA' | 'pastB' | 'forecast'。省略時は 'pastA'(後方互換)。
+  // kindは 'past' | 'forecast'。省略時は 'past'(後方互換)。
   // n は整数(従来) or 文字列("2.1"形式 = サブフレーム)を受け取る。
-  // 改修8: 'past' は後方互換として 'pastA' へ正規化する。
-  let k = kind || 'pastA';
-  if(k === 'past') k = 'pastA';
-  return `${law}|${n}|${k}`;
-}
-
-/* ===== 改修8: 過去問A / 過去問B / 予想問 の判定ヘルパー =====
-   既存データ(q.kind 未設定や 'past')は 'pastA' として扱う。
-   新規に q.kind='pastB' が JSON インポートで入ってきた場合は別管理。 */
-function getKind(q){
-  const k = q && q.kind;
-  if(k === 'pastA' || k === 'pastB' || k === 'forecast') return k;
-  return 'pastA'; // 'past' (旧) や未設定 → pastA として扱う
-}
-function isPastA(q){    return getKind(q) === 'pastA' }
-function isPastB(q){    return getKind(q) === 'pastB' }
-function isForecast(q){ return getKind(q) === 'forecast' }
-function isPastAny(q){  const k = getKind(q); return k === 'pastA' || k === 'pastB' }
-
-/* kindMode の値の正規化(後方互換).
-   既存 'past' (UI) → 'pastA' or 'past_only' のどちらにマッピングするか?
-   Step 1 では既存 'past' は「過去問A+B両方を見せる」=後方互換として「past」キーは「pastAny」相当に解釈する.
-   ただし Step 2 で kindMode の値域を本格的に書き換える際に再整理する.
-   --- ここでは「q が指定 kindMode に該当するか」を一元判定するユーティリティを提供する. */
-function questionMatchesKindMode(q, kindMode){
-  const km = kindMode || 'both';
-  if(km === 'both') return true; // 全部
-  if(km === 'past') return isPastAny(q); // 過去問(A+B)= 後方互換
-  if(km === 'forecast') return isForecast(q);
-  // Step 2 で追加予定の細分モードに先行対応
-  if(km === 'pastA') return isPastA(q);
-  if(km === 'pastB') return isPastB(q);
-  if(km === 'pastA_forecast') return isPastA(q) || isForecast(q);
-  return true;
+  return `${law}|${n}|${kind||'past'}`;
 }
 
 /* ===== 予想問の15問しきい値判定 =====
@@ -2489,66 +2594,32 @@ function questionMatchesKindMode(q, kindMode){
    過去問は問題数に関係なく常に表示対象。 */
 const FORECAST_FRAME_THRESHOLD = 15;
 function isFrameInProgressManagement(subject, frameNo, kind){
-  // 改修8 Step 1: 仕様書⑤に従い、 pastB も「予想問同様に 15問以上」を進捗管理対象とする。
-  //   pastA(比較認識法問題集ベース)       → 全フレーム表示
-  //   pastB(個別追加の過去問)/forecast(予想問) → 15問以上のフレームのみ表示
-  let k = kind || 'pastA';
-  if(k === 'past') k = 'pastA';
-  if(k === 'pastA') return true; // 過去問A は閾値なし
-  // pastB と forecast は同一 kind の問題数で 15問しきい値を判定
+  if(kind==='past') return true; // 過去問は全フレーム表示対象
+  // 予想問は15問以上のみ
   const count = state.questions.filter(q=>
     lawToSubject(q.law)===subject &&
     q.frameNo===frameNo &&
-    getKind(q)===k
+    (q.kind||'past')==='forecast'
   ).length;
   return count >= FORECAST_FRAME_THRESHOLD;
 }
 
-/* ===== 改修8 Step 3: 進捗管理タブ専用 表示ヘルパー ===== */
-/* 進捗管理タブの kindMode を 'pastA' | 'pastB' | 'forecast' に正規化 */
-function normalizeProgressKindMode(km){
-  if(!km || km === 'past' || km === 'both') return 'pastA';
-  if(km === 'pastA' || km === 'pastB' || km === 'forecast') return km;
-  return 'pastA';
-}
-/* kindMode の表示ラベル(「過去問A」「過去問B」「予想問」) */
-function progressKindLabel(km){
-  const k = normalizeProgressKindMode(km);
-  if(k === 'forecast') return '予想問';
-  if(k === 'pastB') return '過去問B';
-  return '過去問A';
-}
-/* kindMode で「15問しきい値なし=全フレーム表示」かどうか(pastA のみ true) */
-function progressKindShowAll(km){
-  return normalizeProgressKindMode(km) === 'pastA';
-}
-/* kindMode の問題リストに表示する小バッジ */
-function progressKindBadge(km){
-  const k = normalizeProgressKindMode(km);
-  if(k === 'forecast') return '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>';
-  if(k === 'pastB')    return '<span class="kind-badge" style="font-size:9px;margin-left:4px;background:#8B7355;color:#fff;border-color:#8B7355">過B</span>';
-  return ''; // pastA はバッジなし(従来動作)
-}
-
 /* 確認④c: 15問しきい値到達時、既存の解答履歴を「初回演習」として自動取り込み
-   - 対象 kind(forecast / pastB)フレームで 15問以上に達した
-   - frameAttempts[subject|N|kind] がまだない
-   - 該当する問題たちに既存の解答履歴がある
-   → その「最新解答」を初回演習履歴として保存(全問解答済なら history[0] に completed、部分解答なら current に進行中)
-   改修8 Step 1: 仕様書⑤に従い、 pastB も予想問同様に自動取り込み対象とした(generic 化)。 */
-function ensureKindFrameAutoInit(kind){
-  const targetKind = kind || 'forecast';
-  if(targetKind !== 'forecast' && targetKind !== 'pastB') return; // 対象外 kind は何もしない
+   - 予想問フレームで15問以上に達した
+   - frameAttempts[subject|N|forecast] がまだない
+   - 該当する予想問たちに既存の解答履歴がある
+   → その「最新解答」を初回演習履歴として保存(全問解答済なら history[0] に completed、部分解答なら current に進行中) */
+function ensureForecastFrameAutoInit(){
   let initialized = 0;
   for(const subject of SUBJECTS_ORDER){
     const frames = FRAMES[subject] || [];
     for(const fr of frames){
-      const k = frameKey(subject, fr.n, targetKind);
+      const k = frameKey(subject, fr.n, 'forecast');
       if(state.frameAttempts[k]) continue; // 既に存在 → スキップ
       const qs = state.questions.filter(q=>
         lawToSubject(q.law)===subject &&
         q.frameNo===fr.n &&
-        getKind(q)===targetKind
+        (q.kind||'past')==='forecast'
       );
       if(qs.length < FORECAST_FRAME_THRESHOLD) continue; // 15問未満 → スキップ
 
@@ -2590,14 +2661,9 @@ function ensureKindFrameAutoInit(kind){
     }
   }
   if(initialized>0){
-    console.log(`Auto-initialized ${targetKind} frameAttempts for ${initialized} frame(s)`);
+    console.log(`Auto-initialized forecast frameAttempts for ${initialized} frame(s)`);
     saveState();
   }
-}
-// 後方互換 wrapper: 既存呼び出し箇所(forecast 用)はそのまま使える
-function ensureForecastFrameAutoInit(){
-  ensureKindFrameAutoInit('forecast');
-  ensureKindFrameAutoInit('pastB');
 }
 
 /* ===== Sample CASE data: TAC 2025年7月全国模試 労災問2 ===== */
@@ -2858,48 +2924,55 @@ function getFigureImageSrc(fig){
   return '';
 }
 
-// IndexedDB を初期化し、キャッシュ(loadState で退避済) → IndexedDB のマイグレーションと、
-// IndexedDB → キャッシュの逆方向同期を行う。
+// IndexedDB を初期化し、既存 localStorage 内の画像を移行 + キャッシュ構築。
 // 失敗してもアプリは(画像表示の劣化以外は)動作可能。
-// 改修6: loadState で imageData は同期的にキャッシュへ退避済みのため、
-//        この関数は IndexedDB との同期に専念する。
 async function initFigureStorage(){
   const ok = await figureStore.ready();
   if(!ok){
-    console.warn('IndexedDB unavailable - figure images will remain in memory cache only');
-    // フォールバック: loadState で退避済のキャッシュをそのまま使う(画像表示は維持可)
+    console.warn('IndexedDB unavailable - figure images will remain in localStorage');
+    // フォールバック: 既存 imageData がキャッシュに乗るようにしておく
+    for(const fig of (state.figures||[])){
+      if(fig.imageData) figureImageCache.set(fig.id, fig.imageData);
+    }
     return false;
   }
-  // === IDB → キャッシュ: 既存 IDB 内の画像をキャッシュへロード ===
-  const existingInIDB = new Set();
+  // === 既存 localStorage 内の imageData → IndexedDB へ移行 ===
+  const figs = state.figures || [];
+  const pendingPuts = [];
+  for(const fig of figs){
+    if(fig.imageData){
+      pendingPuts.push([fig.id, fig.imageData]);
+      figureImageCache.set(fig.id, fig.imageData);
+    }
+  }
+  if(pendingPuts.length){
+    try{
+      await figureStore.putMany(pendingPuts);
+      // 移行成功: localStorage 側の imageData を除去
+      let removed = 0;
+      for(const fig of figs){
+        if(fig.imageData){ delete fig.imageData; removed++ }
+      }
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        console.log('Migrated '+removed+' figure images to IndexedDB');
+      }catch(e){
+        console.warn('saveState after migration failed', e);
+      }
+    }catch(e){
+      console.warn('Migration to IndexedDB failed (keeping inline data as fallback)', e);
+    }
+  }
+  // === IDB から残り(他端末経由で入った分など)を読み込み ===
   try{
     const all = await figureStore.getAll();
     for(const ent of all){
-      existingInIDB.add(ent.id);
       if(!figureImageCache.has(ent.id)){
         figureImageCache.set(ent.id, ent.dataURL);
       }
     }
   }catch(e){
     console.warn('Loading figures from IndexedDB failed', e);
-  }
-  // === キャッシュ → IDB: キャッシュにあって IDB に無いものを書き込む(マイグレーション) ===
-  const figs = state.figures || [];
-  const pendingPuts = [];
-  for(const fig of figs){
-    if(figureImageCache.has(fig.id) && !existingInIDB.has(fig.id)){
-      pendingPuts.push([fig.id, figureImageCache.get(fig.id)]);
-    }
-  }
-  if(pendingPuts.length){
-    try{
-      await figureStore.putMany(pendingPuts);
-      console.log('Migrated '+pendingPuts.length+' figure images to IndexedDB');
-      // localStorage を縮小確定(loadState で imageData は既に除去済だが、念のため上書き保存)
-      try{ saveState() }catch(e){ console.warn('saveState after migration failed', e) }
-    }catch(e){
-      console.warn('Migration to IndexedDB failed (keeping cache as fallback)', e);
-    }
   }
   // 図表タブが既に表示中なら再描画
   const figView = document.getElementById('view-figures');
@@ -2957,8 +3030,8 @@ function loadState(){
       s.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
       s.caseSession ||= {currentSubIdx:0, answered:{}, userAnswers:{}};
       // 進捗管理のサブモード(過去問/予想問)初期化
-      s.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
-      s.progressView.kindMode ||= 'pastA';
+      s.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
+      s.progressView.kindMode ||= 'past';
       // 条文・解説機能の追加 (後方互換)
       s.articles ||= {};
       s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -3025,54 +3098,6 @@ function loadState(){
       }
       if(lbMigrated>0) console.log(`Migrated ${lbMigrated} questions with empty linkedBlocks`);
 
-      // === 改修8 Migration v5: 過去問A/B 区分の導入 ===
-      // 既存の q.kind === 'past' は、新仕様では「過去問A」として扱う。
-      // (これから JSON インポートで追加される 'pastB' = 過去問B と区別するため)
-      let kindAMigrated = 0;
-      for(const q of s.questions){
-        if(q.kind === 'past'){ q.kind = 'pastA'; kindAMigrated++ }
-      }
-      if(kindAMigrated>0) console.log(`Migrated ${kindAMigrated} questions: kind 'past' → 'pastA'`);
-
-      // frameAttempts キーの '|past' を '|pastA' に変換
-      let faKindMigrated = 0;
-      for(const k of Object.keys(s.frameAttempts)){
-        const parts = k.split('|');
-        if(parts.length === 3 && parts[2] === 'past'){
-          const newKey = parts[0]+'|'+parts[1]+'|pastA';
-          if(!s.frameAttempts[newKey]) s.frameAttempts[newKey] = s.frameAttempts[k];
-          delete s.frameAttempts[k];
-          faKindMigrated++;
-        }
-      }
-      if(faKindMigrated>0) console.log(`Migrated ${faKindMigrated} frameAttempts keys: |past → |pastA`);
-
-      // 改修8 Step 3: progressView.kindMode のマイグレーション
-      //   進捗管理タブの「過去問」モード('past')は新仕様で「過去問A」('pastA')に対応する
-      if(s.progressView && s.progressView.kindMode === 'past'){
-        s.progressView.kindMode = 'pastA';
-        console.log(`Migrated progressView.kindMode: 'past' → 'pastA'`);
-      }
-
-      // === 改修6: 図表 imageData の同期的キャッシュ退避 ===
-      // iOS Safari の localStorage 5MB 制限対策。
-      // ここで state.figures[*].imageData を figureImageCache に同期的に退避して
-      // state からは削除する。これにより、initFigureStorage() による IndexedDB への
-      // 非同期マイグレーションが完了する前に saveState() が呼ばれても、
-      // QuotaExceededError が発生しない。
-      // IndexedDB への永続化は initFigureStorage() で別途行う。
-      if(Array.isArray(s.figures)){
-        let stashed = 0;
-        for(const fig of s.figures){
-          if(fig && fig.imageData){
-            figureImageCache.set(fig.id, fig.imageData);
-            delete fig.imageData;
-            stashed++;
-          }
-        }
-        if(stashed>0) console.log(`Stashed ${stashed} figure images from localStorage to in-memory cache`);
-      }
-
       return s;
     }
   }catch(e){console.warn('Load error',e)}
@@ -3092,32 +3117,14 @@ function loadState(){
     caseHistory: [],
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
-    progressView: {mode:'subjects', subject:null, kindMode:'pastA'},
+    progressView: {mode:'subjects', subject:null, kindMode:'past'},
     articles: {},
     articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
   };
 }
 function saveState(){
-  // 改修6 防御層: 万一 state.figures に imageData が残っていたら、
-  // 書き込み前に figureImageCache へ退避して state からは削除する。
-  // これにより、どんな経路でも localStorage の 5MB 制限超過を未然に防ぐ。
-  if(Array.isArray(state.figures)){
-    for(const fig of state.figures){
-      if(fig && fig.imageData){
-        figureImageCache.set(fig.id, fig.imageData);
-        delete fig.imageData;
-      }
-    }
-  }
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }catch(e){
-    // ここに来るのは、画像以外のメタ情報だけで 5MB を超えた極端なケース。
-    // 画像本体はすでに IndexedDB / キャッシュ側に分離済みなので、再試行しても
-    // 解消しない。ユーザーには明示的に通知する。
-    console.error('saveState failed', e);
-    alert('保存に失敗しました: '+e.message+'\n\n画像本体は IndexedDB に分離済みです。\nブラウザのキャッシュ削除前に「データ」タブから完全バックアップを取得してください。');
-  }
+  try{localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}
+  catch(e){alert('保存に失敗しました: '+e.message)}
 }
 
 /* ===== Question filter / current pool ===== */
@@ -3127,10 +3134,8 @@ function getPool(){
   // フレーム演習モードが有効なら、そのフレームの問題に強制限定
   if(s.frameMode){
     const subj = s.frameMode.subject || s.frameMode.law; // 後方互換
-    // 改修8: frameMode.kind は 'pastA' | 'pastB' | 'forecast'。 旧値 'past' は 'pastA' へ正規化。
-    let fmKind = s.frameMode.kind || 'pastA';
-    if(fmKind === 'past') fmKind = 'pastA';
-    pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo && getKind(q)===fmKind);
+    const fmKind = s.frameMode.kind || 'past';
+    pool = pool.filter(q=>lawToSubject(q.law)===subj && q.frameNo===s.frameMode.frameNo && (q.kind||'past')===fmKind);
     // サブフレーム指定があれば、さらに当該サブフレームに属する法律のみへ絞り込む
     if(s.frameMode.subFrameKey){
       const subs = getSubFrames(subj, s.frameMode.frameNo);
@@ -3140,10 +3145,12 @@ function getPool(){
     return pool; // モード中は他フィルタ無効
   }
   // 種類モード(過去問/予想問/両方)フィルタ
-  // 改修8: questionMatchesKindMode 経由で 6パターン全部に対応。
-  //   'both'/'past'/'forecast'/'pastA'/'pastB'/'pastA_forecast'
   const kindMode = s.kindMode || 'both';
-  pool = pool.filter(q => questionMatchesKindMode(q, kindMode));
+  if(kindMode==='past'){
+    pool = pool.filter(q=>(q.kind||'past')==='past');
+  }else if(kindMode==='forecast'){
+    pool = pool.filter(q=>(q.kind||'past')==='forecast');
+  }
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
   if(s.filterFrame){
     const fn = parseInt(s.filterFrame,10);
@@ -3174,20 +3181,13 @@ function getPool(){
       const idMap = Object.fromEntries(pool.map(q=>[q.id,q]));
       pool = s._randOrder.map(id=>idMap[id]).filter(Boolean);
     }
-  }else if(s.mode==='seq'){
-    // 改修8: 複合モード(複数 kind が混じる)の順番出題は kind 順に並べる。
-    //   優先度: pastA(0) < pastB(1) < forecast(2)
-    //   単独モード(pastA / pastB / forecast)は元から1種別なので並べ替え不要
-    const isMulti = (kindMode === 'both' || kindMode === 'past' || kindMode === 'pastA_forecast');
-    if(isMulti){
-      const ord = q => {
-        const k = getKind(q);
-        if(k === 'pastA') return 0;
-        if(k === 'pastB') return 1;
-        return 2; // forecast
-      };
-      pool.sort((a,b) => ord(a) - ord(b));
-    }
+  }else if(s.mode==='seq' && kindMode==='both'){
+    // 両方モードの順番出題: 過去問→予想問の順に並べる(各内部は登録順を維持)
+    pool.sort((a,b)=>{
+      const ka = (a.kind||'past')==='past' ? 0 : 1;
+      const kb = (b.kind||'past')==='past' ? 0 : 1;
+      return ka - kb;
+    });
   }
   return pool;
 }
@@ -3250,9 +3250,7 @@ function renderQuiz(){
     const fm = state.session.frameMode;
     const subject = fm.subject || fm.law;
     const frameNo = fm.frameNo;
-    // 改修8: fmKind を 'pastA'|'pastB'|'forecast' に正規化(旧'past'→'pastA')
-    let fmKind = fm.kind || 'pastA';
-    if(fmKind === 'past') fmKind = 'pastA';
+    const fmKind = fm.kind || 'past';
     const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
     const k = frameKey(subject, keyN, fmKind);
     const fa = state.frameAttempts[k];
@@ -3312,7 +3310,7 @@ function renderQuiz(){
       ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
-      ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+      ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       <button type="button" class="idx-jump" id="quiz-idx-jump" title="クリックで問題番号を直接指定">[${idx+1}/${pool.length}]</button>
       <div class="progress-track progress-clickable" id="quiz-progress-track" title="クリックで任意の問題へジャンプ"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
@@ -3449,7 +3447,7 @@ function answerQuestion(userAns){
   if(state.session.frameMode){
     const fm = state.session.frameMode;
     const subj = fm.subject || fm.law;
-    let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
+    const fmKind = fm.kind || 'past';
     const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
     const k = frameKey(subj, keyN, fmKind);
     const fa = state.frameAttempts[k];
@@ -3567,13 +3565,9 @@ function toggleBm(qid,color){
 
 /* ===== Frame study mode (フレーム演習) ===== */
 /* 引数 subject: 試験科目名(章名)。例:"雇用保険法"、"社会保険に関する一般常識"
-   引数 kind: 'pastA' | 'pastB' | 'forecast' (省略時は 'pastA')。
-   改修8: 後方互換のため、 旧値 'past' は 'pastA' へ正規化する。 */
+   引数 kind: 'past' | 'forecast' (省略時は 'past')。同じフレームでも過去問と予想問は別管理。 */
 function startFrameAttempt(subject, frameRef, kind){
-  // 改修8: kind 引数を正規化(旧 'past'/'both'/省略 → 'pastA')
-  let normKind = kind || 'pastA';
-  if(normKind === 'past' || normKind === 'both') normKind = 'pastA';
-  kind = normKind;
+  kind = kind || 'past';
   state.session.frameCompleted = null; // 前回完了フラグをクリア
   // frameRef を解析(数値=親フレーム、"2.1"形式=サブフレーム)
   const fref = resolveFrameRef(subject, frameRef);
@@ -3583,8 +3577,7 @@ function startFrameAttempt(subject, frameRef, kind){
   const k = frameKey(subject, keyN, kind);
   state.frameAttempts[k] ||= {history:[], current:null};
   const fa = state.frameAttempts[k];
-  // 改修8: 「過去問A」「過去問B」「予想問」のラベル区別
-  const kindLbl = (kind==='forecast') ? '予想問' : (kind==='pastB') ? '過去問B' : '過去問A';
+  const kindLbl = (kind==='forecast') ? '予想問' : '過去問';
   // 現在進行中の演習があれば確認
   if(fa.current){
     if(!confirm(`このフレーム(${kindLbl})には進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
@@ -3599,8 +3592,7 @@ function startFrameAttempt(subject, frameRef, kind){
     if(!confirm(`このフレーム(${kindLbl})は既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)`)) return;
   }
   // 該当フレームに属する問題のIDを取得(科目=章 + kind + サブフレーム法律でフィルタ)
-  // 改修8: getKind(q) で q.kind を 'pastA'|'pastB'|'forecast' に正規化したものと比較
-  let qFiltered = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref.frameNo && getKind(q)===kind);
+  let qFiltered = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref.frameNo && (q.kind||'past')===kind);
   if(fref.isSubFrame && fref.subFrame){
     qFiltered = qFiltered.filter(q=>questionMatchesSubFrame(q.law, fref.subFrame));
   }
@@ -3617,10 +3609,7 @@ function startFrameAttempt(subject, frameRef, kind){
 }
 
 function enterFrameMode(subject, frameNo, kind, subFrameKey){
-  // 改修8: kind 引数を正規化(旧 'past'/'both'/省略 → 'pastA')
-  let normKind = kind || 'pastA';
-  if(normKind === 'past' || normKind === 'both') normKind = 'pastA';
-  kind = normKind;
+  kind = kind || 'past';
   state.session.frameMode = {subject, frameNo, kind, subFrameKey: subFrameKey || null};
   state.session.mode = 'seq';
   state.session.answered = false;
@@ -3665,7 +3654,7 @@ function abandonFrameAttempt(){
   if(!confirm('現在のフレーム演習を破棄しますか?\n(これまで解答した記録は通算成績には残りますが、進捗管理表からは消えます)')) return;
   const fm = state.session.frameMode;
   const subj = fm.subject || fm.law;
-  let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
+  const fmKind = fm.kind || 'past';
   const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
   const k = frameKey(subj, keyN, fmKind);
   if(state.frameAttempts[k]) state.frameAttempts[k].current = null;
@@ -3678,7 +3667,7 @@ function checkFrameComplete(){
   const fm = state.session.frameMode;
   const subject = fm.subject || fm.law;
   const frameNo = fm.frameNo;
-  let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
+  const fmKind = fm.kind || 'past';
   const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
   const k = frameKey(subject, keyN, fmKind);
   const fa = state.frameAttempts[k];
@@ -3727,9 +3716,8 @@ function renderSidebar(){
   document.getElementById('stat-q-count').textContent = state.questions.length;
 
   // 種類モード(kindMode)カウント
-  // 改修8: 'both'/'past'/'forecast' に加え、 'pastA'/'pastB'/'pastA_forecast' の3パターンも計算
   const oldKindMode = state.session.kindMode;
-  for(const km of ['both','past','pastA_forecast','pastA','pastB','forecast']){
+  for(const km of ['both','past','forecast']){
     state.session.kindMode = km;
     const el = document.getElementById('kmc-'+km);
     if(el) el.textContent = '('+getPool().length+')';
@@ -3757,8 +3745,8 @@ function renderSidebar(){
   // Filter selects(種類モードに応じて絞り込む)
   const kmFilter = q => {
     const km = state.session.kindMode || 'both';
-    if(km==='past') return isPastAny(q);
-    if(km==='forecast') return isForecast(q);
+    if(km==='past') return (q.kind||'past')==='past';
+    if(km==='forecast') return (q.kind||'past')==='forecast';
     return true;
   };
   const kmQs = state.questions.filter(kmFilter);
@@ -3807,7 +3795,7 @@ function renderManage(){
         <span>${escapeHtml(q.year)} ${escapeHtml(q.law)}</span>
         <span>${escapeHtml(q.qno||'')}</span>
         <span>Lv.${escapeHtml(q.difficulty||'-')}</span>
-        ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+        ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       </div>
       <div class="qt">${escapeHtml(q.text)}</div>
       <div class="qa ${q.answer?'o':'x'}">${q.answer?'○':'×'}</div>
@@ -3824,8 +3812,7 @@ let _editModalDraftLinkedBlocks = null;  // 新規問題作成中の紐付け一
 function openEditModal(id){
   const isNew = !id;
   editingId = id;
-  // 改修8: 新規問題のデフォルト kind を 'pastA' に
-  const q = id ? state.questions.find(x=>x.id===id) : {year:'',law:'雇用保険法',qno:'',category:'',text:'',answer:true,difficulty:'C',point:'',explanation:'',legalBasis:'',articleText:'',kind:'pastA',source:'',frameNo:null};
+  const q = id ? state.questions.find(x=>x.id===id) : {year:'',law:'雇用保険法',qno:'',category:'',text:'',answer:true,difficulty:'C',point:'',explanation:'',legalBasis:'',articleText:'',kind:'past',source:'',frameNo:null};
   if(!q) return;
   document.getElementById('modal-title').textContent = isNew?'新規問題':'問題を編集';
   document.getElementById('m-year').value = q.year||'';
@@ -3839,12 +3826,7 @@ function openEditModal(id){
   document.getElementById('m-exp').value = q.explanation||'';
   document.getElementById('m-basis').value = q.legalBasis||'';
   document.getElementById('m-article').value = q.articleText||'';
-  // 改修8: 'past' (旧) も 'pastA' として扱う
-  {
-    let k = q.kind || 'pastA';
-    if(k === 'past') k = 'pastA';
-    document.getElementById('m-kind').value = k;
-  }
+  document.getElementById('m-kind').value = q.kind||'past';
   document.getElementById('m-source').value = q.source||'';
   document.getElementById('m-frame').value = (q.frameNo!=null) ? q.frameNo : '';
   document.getElementById('m-delete').style.display = isNew?'none':'inline-block';
@@ -3873,13 +3855,12 @@ function saveEditModal(){
     explanation:document.getElementById('m-exp').value.trim(),
     legalBasis:document.getElementById('m-basis').value.trim(),
     articleText:document.getElementById('m-article').value.trim(),
-    kind:document.getElementById('m-kind').value || 'pastA',
+    kind:document.getElementById('m-kind').value || 'past',
     source:document.getElementById('m-source').value.trim(),
     frameNo: (isNaN(frameNo) ? null : frameNo)
   };
-  // 改修8: 過去問A は source を持たない(混乱防止)。過去問B・予想問は保持。
-  if(data.kind === 'past') data.kind = 'pastA'; // 旧値の念のため正規化
-  if(data.kind === 'pastA') data.source = '';
+  // 過去問の場合はsourceは空に統一(誤入力対策)
+  if(data.kind === 'past') data.source = '';
   if(editingId){
     const i = state.questions.findIndex(q=>q.id===editingId);
     if(i>=0) state.questions[i] = {...state.questions[i],...data};
@@ -4019,19 +4000,10 @@ function doImport(){
       if(!q.text){skipped++;continue}
       q.id = q.id || ('q'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
       if(state.questions.some(x=>x.id===q.id)){skipped++;continue}
-      // 改修8: kindの正規化。 JSON内で 'forecast' / 'pastB' / 'pastA' / 'past' を受け入れ。
-      //   'past' (旧) → 'pastA' へ自動変換、 未指定/不明 → 'pastA' (デフォルト)
-      if(q.kind === 'forecast'){
-        q.kind = 'forecast';
-      } else if(q.kind === 'pastB'){
-        q.kind = 'pastB';
-      } else if(q.kind === 'pastA' || q.kind === 'past'){
-        q.kind = 'pastA';
-      } else {
-        q.kind = 'pastA';
-      }
-      // 過去問A は source を持たない(混乱防止)。過去問B・予想問は source を保持。
-      if(q.kind === 'pastA' && q.source) q.source = '';
+      // kindのデフォルト値: JSON内で'forecast'と指定があればそれ、なければ'past'
+      q.kind = (q.kind === 'forecast') ? 'forecast' : 'past';
+      // 過去問の場合はsourceを空にして混乱を防ぐ
+      if(q.kind === 'past' && q.source) q.source = '';
       // 条文紐付けフィールド(後方互換)
       if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
       state.questions.push(q);
@@ -4152,8 +4124,8 @@ function restoreBackup(){
         state.cases ||= [];
         state.caseHistory ||= [];
         state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
-        state.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
-        state.progressView.kindMode ||= 'pastA';
+        state.progressView ||= {mode:'subjects', subject:null, kindMode:'past'};
+        state.progressView.kindMode ||= 'past';
         // 条文・解説機能の追加 (後方互換)
         state.articles ||= {};
         state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -4175,25 +4147,6 @@ function restoreBackup(){
         // 既存問題にlinkedBlocks未設定 → 空配列を付与
         for(const q of state.questions){
           if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
-        }
-        // === 改修8 Migration v5: 過去問A/B 区分への移行 ===
-        // 既存 q.kind === 'past' は新仕様で「過去問A」として扱う
-        for(const q of state.questions){
-          if(q.kind === 'past') q.kind = 'pastA';
-        }
-        // frameAttempts キーの '|past' を '|pastA' に変換
-        for(const k of Object.keys(state.frameAttempts)){
-          const parts = k.split('|');
-          if(parts.length === 3 && parts[2] === 'past'){
-            const newKey = parts[0]+'|'+parts[1]+'|pastA';
-            if(!state.frameAttempts[newKey]) state.frameAttempts[newKey] = state.frameAttempts[k];
-            delete state.frameAttempts[k];
-          }
-        }
-        // 改修8 Step 3: progressView.kindMode のマイグレーション
-        //   進捗管理タブの「過去問」モード('past')は新仕様で「過去問A」('pastA')に対応
-        if(state.progressView && state.progressView.kindMode === 'past'){
-          state.progressView.kindMode = 'pastA';
         }
         saveState();
         renderQuiz();renderManage();renderSidebar();
@@ -5138,21 +5091,12 @@ function openArticlePicker(qid, type='question'){
       if(articles[qSubj][fnStr]){
         initialKey = fnStr;
       } else {
-        // 改修7: 問題の law が示すサブフレームを優先して選択する。
-        // 例: 社一 F2(社会保険法規等)配下で、問題の law が「児童手当法」なら
-        //     F2_5(児童手当法)を初期選択する(従来は機械的に F2_1 だった)。
-        // マッチが無い、または条文未投入なら、親フレーム配下の最初のサブフレームへフォールバック。
-        const matchedSub = getSubFrameForQuestion(qSubj, entity.frameNo, entity.law||'');
-        if(matchedSub && articles[qSubj][matchedSub.key]){
-          initialKey = matchedSub.key;
-        } else {
-          // 親フレーム配下の最初のサブフレームを探す(フォールバック)
-          const subStart = frKeys.find(k => {
-            const p = parseSubFrameKey(k);
-            return p && p.parent === entity.frameNo;
-          });
-          if(subStart) initialKey = subStart;
-        }
+        // 親フレーム配下の最初のサブフレームを探す
+        const subStart = frKeys.find(k => {
+          const p = parseSubFrameKey(k);
+          return p && p.parent === entity.frameNo;
+        });
+        if(subStart) initialKey = subStart;
       }
     }
     if(!initialKey && frKeys.length) initialKey = frKeys[0];
@@ -5943,11 +5887,13 @@ function renderArticlesFrames(root, subject){
     const subBadge = hasSubFrames(subject, fr.n)
       ? `<span class="af-sub-badge">中分類 ${subFrameTotal} 個</span>` : '';
     // 数字部分(F2)、タイトル、項目数の表示
+    // 改修3 2026-05-22: 中分類項目を2行目に表示
     html += `<div class="art-frame ${cls}" ${hasData ? `data-fno="${fr.n}"` : ''}>
       <span class="af-n">F${fr.n}</span>
       <span class="af-t">${escapeHtml(fr.t)}${subBadge}</span>
       <span class="af-c ${countCls}">${totalCnt}項目</span>
       ${hasData ? '<span class="af-arrow">›</span>' : ''}
+      ${frameSubsectionsHtmlArt(subject, fr.n)}
     </div>`;
   }
   html += `</div></div>`;
@@ -6204,8 +6150,7 @@ function switchTab(name){
   if(name==='figures') renderFigures();
   if(name==='progress'){
     // kindModeは引き継いで、modeとsubjectだけリセット
-    // 改修8 Step 3: デフォルト・正規化は normalizeProgressKindMode 経由
-    const curKindMode = normalizeProgressKindMode(state.progressView && state.progressView.kindMode);
+    const curKindMode = (state.progressView && state.progressView.kindMode) || 'past';
     state.progressView = {mode:'subjects', subject:null, kindMode: curKindMode};
     renderProgress();
   }
@@ -6234,9 +6179,10 @@ function getWeakPool(){
   const s = state.weakSession;
   // ミスのある問題のみ抽出
   let pool = state.questions.filter(q => getMistakeCount(q.id) > 0);
-  // 種類モードフィルタ(改修8: 6パターン全部に対応)
+  // 種類モードフィルタ(過去/予想/両方)
   const km = s.kindMode || 'both';
-  pool = pool.filter(q => questionMatchesKindMode(q, km));
+  if(km==='past') pool = pool.filter(q=>(q.kind||'past')==='past');
+  else if(km==='forecast') pool = pool.filter(q=>(q.kind||'past')==='forecast');
   // ミス回数フィルタ
   pool = pool.filter(q=>{
     const c = getMistakeCount(q.id);
@@ -6336,12 +6282,9 @@ function renderWeak(){
         </select>
         <label style="margin-left:8px">種類</label>
         <select id="w-kindmode">
-          <option value="both" ${(s.kindMode||'both')==='both'?'selected':''}>すべて(A+B+予想)</option>
-          <option value="past" ${s.kindMode==='past'?'selected':''}>過去問(A+B)</option>
-          <option value="pastA_forecast" ${s.kindMode==='pastA_forecast'?'selected':''}>過去問A+予想問</option>
-          <option value="pastA" ${s.kindMode==='pastA'?'selected':''}>過去問A</option>
-          <option value="pastB" ${s.kindMode==='pastB'?'selected':''}>過去問B</option>
-          <option value="forecast" ${s.kindMode==='forecast'?'selected':''}>予想問</option>
+          <option value="both" ${(s.kindMode||'both')==='both'?'selected':''}>過去問+予想問</option>
+          <option value="past" ${s.kindMode==='past'?'selected':''}>過去問のみ</option>
+          <option value="forecast" ${s.kindMode==='forecast'?'selected':''}>予想問のみ</option>
         </select>
       </div>
       <div class="weak-filter-row">
@@ -6412,7 +6355,7 @@ function renderWeak(){
       ${q.frameNo!=null?`<span class="pill">F${q.frameNo}</span>`:''}
       <span class="pill">${escapeHtml(q.qno||'')}</span>
       ${q.category?`<span class="pill">${escapeHtml(q.category)}</span>`:''}
-      ${isForecast(q)?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
+      ${(q.kind||'past')==='forecast'?`<span class="kind-badge">予想</span>${q.source?`<span class="kind-source">${escapeHtml(q.source)}</span>`:''}`:''}
       <span class="miss-count">ミス${missCount}回</span>
       <span class="miss-pattern">${pattern.split('').map(c=>c==='o'?'<span class="o">○</span>':'<span class="x">×</span>').join('')}</span>
       <span style="font-size:10px;color:var(--ink-muted);margin-left:6px">最終誤答 ${lastDateStr}</span>
@@ -6699,17 +6642,14 @@ function getCaseMistakeCount(caseId){
 /* ===== Progress view ===== */
 function renderProgress(){
   const root = document.getElementById('progress-content');
-  // 改修8 Step 3: kindMode のデフォルトを 'pastA' に変更
-  state.progressView ||= {mode:'subjects', subject:null, parentFrameNo:null, kindMode:'pastA'};
-  state.progressView.kindMode ||= 'pastA';
-  // 旧 'past' は 'pastA' に正規化(loadState で migrate されているが念のため)
-  if(state.progressView.kindMode === 'past') state.progressView.kindMode = 'pastA';
+  state.progressView ||= {mode:'subjects', subject:null, parentFrameNo:null, kindMode:'past'};
+  state.progressView.kindMode ||= 'past';
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
   ensureForecastFrameAutoInit();
   const kindMode = state.progressView.kindMode;
   // === データ概要(診断) ===
-  // kindModeに応じて対象問題を絞り込む(pastA / pastB / forecast)
-  const kFilter = q => questionMatchesKindMode(q, kindMode);
+  // kindModeに応じて対象問題を絞り込む(過去問のみ・予想問のみ)
+  const kFilter = q => (q.kind||'past')===kindMode;
   const targetQs = state.questions.filter(kFilter);
   const total = targetQs.length;
   const noFrame = targetQs.filter(q=>q.frameNo==null).length;
@@ -6722,14 +6662,12 @@ function renderProgress(){
       if(!SUBJECTS_ORDER.includes(subj)) unknownLaws.add(q.law);
     }
   }
-  // 改修8 Step 3: ラベルは新ヘルパーで「過去問A」「過去問B」「予想問」に対応
-  const kindLabel = progressKindLabel(kindMode);
+  const kindLabel = (kindMode==='forecast') ? '予想問' : '過去問';
   let summary = `<div class="diag-line">${kindLabel}の登録総数 <b>${total}問</b>`;
   if(noFrame>0) summary += ` <span class="diag-warn">⚠ フレーム番号未設定: ${noFrame}問</span>`;
   if(unknownLaws.size>0) summary += ` <span class="diag-warn">⚠ 未登録の法律: ${[...unknownLaws].join('、')}</span>`;
-  // 15問しきい値の説明: pastB / forecast の場合に表示(pastA はしきい値なし)
-  if(!progressKindShowAll(kindMode)){
-    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ ${kindLabel}は1フレーム${FORECAST_FRAME_THRESHOLD}問以上のみ表示</span>`;
+  if(kindMode==='forecast'){
+    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ 予想問は1フレーム${FORECAST_FRAME_THRESHOLD}問以上のみ表示</span>`;
   }
   summary += `</div>`;
 
@@ -6751,18 +6689,14 @@ function renderProgress(){
   }
 }
 
-/* 進捗管理のサブタブUI(過去問A/過去問B/予想問)HTML生成 ─ 改修8 Step 3 */
+/* 進捗管理のサブタブUI(過去問/予想問)HTML生成 */
 function progressSubTabsHtml(currentKind){
-  // 後方互換: 'past' は 'pastA' として表示
-  const cur = normalizeProgressKindMode(currentKind);
   // 各kindの登録数を計算
-  const pastACount = state.questions.filter(isPastA).length;
-  const pastBCount = state.questions.filter(isPastB).length;
-  const forecastCount = state.questions.filter(isForecast).length;
+  const pastCount = state.questions.filter(q=>(q.kind||'past')==='past').length;
+  const forecastCount = state.questions.filter(q=>(q.kind||'past')==='forecast').length;
   return `<div class="prog-subtabs">
-    <button class="prog-subtab ${cur==='pastA'?'active':''}" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
-    <button class="prog-subtab ${cur==='pastB'?'active':''}" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
-    <button class="prog-subtab ${cur==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
+    <button class="prog-subtab ${currentKind==='past'?'active':''}" data-kindmode="past">📚 過去問 <span class="pst-count">${pastCount}問</span></button>
+    <button class="prog-subtab ${currentKind==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
   </div>`;
 }
 
@@ -6780,15 +6714,15 @@ function renderProgressSubjects(root, summary, kindMode){
     if(!frames.length) continue;
     let qTotal = 0, completedFrames = 0, inProgressFrames = 0, eligibleFrames = 0;
     for(const fr of frames){
-      const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
+      const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
       // このフレームがサブフレームを持つなら、サブフレームごとに集計
       if(hasSubFrames(subject, fr.n)){
         const subs = getSubFrames(subject, fr.n);
         for(const sf of subs){
           const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
           const cnt = sfQs.length;
-          // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
-          const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
+          // サブフレーム表示対象判定: 過去問なら全表示、予想問は15問以上
+          const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
           if(!eligible){
             qTotal += cnt;
             continue;
@@ -6807,7 +6741,7 @@ function renderProgressSubjects(root, summary, kindMode){
       // 通常(サブフレームなし)フレーム
       const qs = allFrameQs;
       const cnt = qs.length;
-      // 表示対象判定: pastA は全フレーム、 pastB/forecast は15問以上
+      // 表示対象判定: 過去問なら全フレーム、予想問は15問以上
       const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
       if(!eligible){
         // フレーム自体は表示対象外。問題数のみ集計
@@ -6825,18 +6759,13 @@ function renderProgressSubjects(root, summary, kindMode){
     }
     const totalFrames = eligibleFrames; // 表示対象フレーム数
     const status = qTotal===0 ? 'empty' : (totalFrames>0 && completedFrames===totalFrames ? 'done' : (completedFrames>0 || inProgressFrames>0 ? 'partial' : 'fresh'));
-    // 改修8 Step 3: しきい値あり(pastB/forecast)で表示対象フレームが減っている場合に注記
-    const eligibleNote = (!progressKindShowAll(kindMode) && totalFrames < frames.length)
+    const eligibleNote = (kindMode==='forecast' && totalFrames < frames.length)
       ? ` <span style="font-size:10px;color:var(--ink-muted)">(${totalFrames}/${frames.length}対象)</span>` : '';
-    // 改修8 Step 3: 「問題未登録」or 該当 kind なしのラベルを kind 別に
-    const emptyLbl = kindMode==='forecast' ? '予想問なし' :
-                     kindMode==='pastB'    ? '過去問Bなし' :
-                     '問題未登録';
     html += `<div class="subject-card ${status}" data-subject="${escapeHtml(subject)}">
       <div class="sc-name">${escapeHtml(subject)}</div>
       <div class="sc-stats">
         <span class="sc-stat">${qTotal}問 / ${totalFrames}フレーム${eligibleNote}</span>
-        ${qTotal===0 ? `<span class="sc-stat empty">${emptyLbl}</span>` :
+        ${qTotal===0 ? `<span class="sc-stat empty">${kindMode==='forecast'?'予想問なし':'問題未登録'}</span>` :
           (totalFrames===0 ? `<span class="sc-stat empty">15問以上のフレームなし</span>` :
             `<span class="sc-stat">完了 ${completedFrames}/${totalFrames}</span>` +
             (inProgressFrames>0 ? `<span class="sc-stat inprog">演習中 ${inProgressFrames}</span>` : '')
@@ -6911,12 +6840,15 @@ function buildProgressFrameRow(opts){
   }else{
     btn = `<button class="btn btn-sm" data-subj="${escapeHtml(subjectVal)}" data-fno="${escapeHtml(String(dataFno))}" data-kindmode="${kindModeVal}" data-act="start">演習開始</button>`;
   }
-  const kindIcon = progressKindBadge(kindModeVal);
+  const kindIcon = (kindModeVal==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
+  // 改修3 2026-05-22: フレーム中分類項目(雇用保険法など) — 2行目で表示
+  const subsHtml = frameSubsectionsHtml(subjectVal, fkN);
   return `<div class="prog-frame">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}</div>
       ${btn}
     </div>
+    ${subsHtml}
     <div class="pf-slots">${slots}</div>
     <div class="pf-status">${status}</div>
   </div>`;
@@ -6926,13 +6858,12 @@ function buildProgressFrameRow(opts){
    集計: 中分類N個・全X問・完了U/N・演習中V */
 function buildParentFrameSummaryCard(subject, fr, kindMode){
   const subs = getSubFrames(subject, fr.n);
-  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
   let totalQ = 0, completedSubs = 0, inProgressSubs = 0, eligibleSubs = 0;
   for(const sf of subs){
     const cnt = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf)).length;
     totalQ += cnt;
-    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
-    const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
+    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible) continue;
     eligibleSubs++;
     const k = frameKey(subject, sf.key, kindMode);
@@ -6942,16 +6873,17 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
       if((fa.history||[]).length>0) completedSubs++;
     }
   }
-  const kindIcon = progressKindBadge(kindMode);
+  const kindIcon = (kindMode==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:4px">予想</span>' : '';
   const subBadge = `<span class="badge-subframe" style="background:#FFE8B3;color:#7A5A1A;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-left:6px">中分類 ${subs.length} 個</span>`;
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
-    : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
+    : (kindMode==='forecast' ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span></div>
       <div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div>
     </div>
+    ${frameSubsectionsHtml(subject, fr.n)}
     <div class="pf-status" style="font-size:12px;color:var(--ink-muted)">${progressLine}　→ クリックで中分類別の進捗を表示</div>
   </div>`;
 }
@@ -6978,7 +6910,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
       continue;
     }
     // ===== 通常(サブフレーム無し)のフレーム — 従来通り =====
-    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode));
+    const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fr.n && (q.kind||'past')===kindMode);
     const total = allFrameQs.length;
     const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
     if(!eligible){
@@ -6987,6 +6919,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
           <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span></div>
           <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
         </div>
+        ${frameSubsectionsHtml(subject, fr.n)}
         <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - total}問追加されると進捗管理対象になります。</div>
       </div>`;
       continue;
@@ -7006,10 +6939,9 @@ function renderProgressFrames(root, summary, subject, kindMode){
       dataFno: fr.n
     });
   }
-  if(shownFrames===0 && !progressKindShowAll(kindMode)){
-    const lbl = progressKindLabel(kindMode);
+  if(shownFrames===0 && kindMode==='forecast'){
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      この科目の${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上のフレームがありません。<br>
+      この科目の予想問は、まだ${FORECAST_FRAME_THRESHOLD}問以上のフレームがありません。<br>
       問題を追加すると、達成したフレームから自動的にここに表示されます。
     </div>`;
   }
@@ -7076,21 +7008,19 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
   </div>`;
 
   html += `<div class="card prog-chapter"><div class="prog-frames">`;
-  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===parentFrameNo && questionMatchesKindMode(q, kindMode));
+  const allFrameQs = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===parentFrameNo && (q.kind||'past')===kindMode);
   let shownSubs = 0;
   for(const sf of subs){
     const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
     const cnt = sfQs.length;
-    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
-    const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
+    const eligible = (kindMode==='past') ? true : (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible){
-      const lbl = progressKindLabel(kindMode);
       html += `<div class="prog-frame" style="opacity:.55">
         <div class="pf-head">
           <div class="pf-title"><span class="pf-n">F${parentFrameNo}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
           <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
         </div>
-        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「${lbl}」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
       </div>`;
       continue;
     }
@@ -7106,10 +7036,9 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       dataFno: sf.key
     });
   }
-  if(shownSubs===0 && !progressKindShowAll(kindMode)){
-    const lbl = progressKindLabel(kindMode);
+  if(shownSubs===0 && kindMode==='forecast'){
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      このフレームの${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
+      このフレームの予想問は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
     </div>`;
   }
   html += `</div></div>`;
@@ -7195,7 +7124,7 @@ function init(){
     state.session.userAnswer = null;
     // 種類モード切替時、現在のフィルタ(法律/フレーム/年度等)が新しいプールに存在しなければクリア
     const km = state.session.kindMode;
-    const kmf = q => questionMatchesKindMode(q, km);
+    const kmf = q => km==='past'?(q.kind||'past')==='past' : km==='forecast'?(q.kind||'past')==='forecast' : true;
     const newQs = state.questions.filter(kmf);
     if(state.session.filterLaw && !newQs.some(q=>q.law===state.session.filterLaw)) state.session.filterLaw='';
     if(state.session.filterYear && !newQs.some(q=>q.year===state.session.filterYear)) state.session.filterYear='';
