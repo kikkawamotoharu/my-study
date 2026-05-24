@@ -1464,6 +1464,174 @@
     font-size:13.5px;
   }
 
+  /* ===== 改修11: 5why タブ用スタイル ===== */
+  /* 基本構造は条文・解説タブ(.art-*)と同じ。色味で区別する */
+  .why-intro{padding:20px 24px}
+  .why-h2{margin:0 0 6px 0;font-size:20px;font-weight:600}
+  .why-sub{margin-left:8px;font-size:13px;color:var(--ink-muted);font-weight:normal}
+  .why-desc{margin:8px 0 0 0;font-size:12px;color:var(--ink-muted);line-height:1.6}
+  .why-nav{margin-bottom:12px}
+  .why-subjects-card{padding:18px}
+  .why-subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .why-subject-card{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
+  }
+  .why-subject-card:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
+  .why-subject-card .ws-name{flex:1;font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+  .why-subject-card .ws-count{
+    flex:0 0 auto;padding:2px 8px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);font-size:11px;white-space:nowrap;
+  }
+  .why-subject-card .ws-count.has-data{background:#D4E4D7;color:#2C5530}
+  .why-subject-card .ws-arrow{flex:0 0 auto;color:var(--ink-muted);font-size:18px}
+  .why-frames-card{padding:18px}
+  .why-frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+  .why-frame{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    cursor:pointer;transition:transform .15s,border-color .15s,background .15s;
+  }
+  .why-frame.has-items{align-items:flex-start}
+  .why-frame:hover{background:var(--paper);border-color:var(--ink-muted);transform:translateY(-1px)}
+  .why-frame.empty{cursor:default;opacity:.55}
+  .why-frame.empty:hover{background:var(--bg);border-color:var(--line);transform:none}
+  .why-frame .wf-n{
+    flex:0 0 auto;padding:3px 8px;border-radius:4px;
+    background:#2C5530;color:var(--paper);
+    font-size:11px;font-weight:600;font-family:monospace;
+  }
+  .why-frame .wf-t{flex:1;font-size:13px;color:var(--ink);line-height:1.4}
+  .wf-items{
+    display:block;font-size:11px;color:var(--ink-muted);font-weight:400;
+    margin-top:4px;line-height:1.5;word-break:break-all;letter-spacing:.01em;
+  }
+  .why-frame .wf-c{
+    flex:0 0 auto;padding:2px 7px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);
+    font-size:11px;white-space:nowrap;
+  }
+  .why-frame .wf-c.has-data{background:#D4E4D7;color:#2C5530}
+  .why-frame .wf-arrow{flex:0 0 auto;color:var(--ink-muted);font-size:16px}
+  .wf-sub-badge{
+    display:inline-block;margin-left:8px;padding:1px 7px;border-radius:99px;
+    background:#FFE8B3;color:#7A5A1A;font-size:10px;font-weight:600;
+  }
+  /* コンテンツ表示 */
+  .why-content-card{padding:18px}
+  .why-index{margin-bottom:24px}
+  .why-index:last-child{margin-bottom:0}
+  .why-index-title{
+    font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;
+    color:#2C5530;margin:0 0 10px 0;padding-bottom:6px;
+    border-bottom:2px solid #2C5530;
+  }
+  .why-block{margin-bottom:18px}
+  .why-block:last-child{margin-bottom:0}
+  .why-block-header{
+    display:flex;align-items:baseline;gap:8px;margin-bottom:6px;
+    padding-bottom:4px;border-bottom:1px solid var(--line-soft);
+  }
+  .why-block-kind{
+    flex:0 0 auto;padding:1px 7px;border-radius:3px;
+    font-size:10px;font-weight:600;letter-spacing:.05em;
+  }
+  /* kind色分け: selfqa=橙、memory=青、practice=緑 */
+  .why-block-kind.k-selfqa{background:#FFE5CC;color:#8B4F18}
+  .why-block-kind.k-memory{background:#E0EBFA;color:#1A4480}
+  .why-block-kind.k-practice{background:#D4E4D7;color:#2C5530}
+  .why-block-title{flex:1;font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+  .why-block-text{font-size:14px;line-height:1.85;color:var(--ink);white-space:pre-wrap}
+  /* selfqa は質問+回答の構造 */
+  .why-block.k-selfqa{
+    background:#FFF7EE;border-left:4px solid #E5A53A;
+    padding:12px 14px;border-radius:0 6px 6px 0;
+  }
+  .why-block.k-selfqa .why-block-question{
+    font-size:13.5px;font-weight:600;color:#8B4F18;
+    margin-bottom:8px;line-height:1.7;white-space:pre-wrap;
+  }
+  .why-block.k-selfqa .why-block-question::before{content:"Q. ";font-weight:700}
+  .why-block.k-selfqa .why-block-answer{
+    font-size:13.5px;color:var(--ink);line-height:1.85;
+    padding-left:12px;border-left:2px solid #E5A53A;
+    white-space:pre-wrap;
+  }
+  .why-block.k-selfqa .why-block-answer::before{content:"A. ";font-weight:700;color:#8B4F18}
+  /* memory はスッキリ表示 */
+  .why-block.k-memory .why-block-text{
+    background:#F0F6FE;border-left:4px solid #4A8BD8;
+    padding:12px 14px;border-radius:0 6px 6px 0;font-size:13.5px;
+  }
+  /* practice もカード状 */
+  .why-block.k-practice .why-block-text{
+    background:#F0F7F1;border-left:4px solid #5A9A65;
+    padding:12px 14px;border-radius:0 6px 6px 0;font-size:13.5px;
+  }
+
+  /* ===== 改修11 第3弾: 5why タブのアプリ内編集UI ===== */
+  /* インデックス見出し横の操作ボタン */
+  .why-index-actions{
+    display:inline-flex;gap:6px;margin-left:10px;vertical-align:middle;
+  }
+  .why-index-actions button{
+    padding:3px 10px;font-size:11px;font-family:inherit;
+    background:var(--paper);border:1px solid var(--line);color:var(--ink-soft);
+    border-radius:4px;cursor:pointer;transition:all .12s;
+  }
+  .why-index-actions button:hover{
+    background:var(--bg);border-color:var(--ink-muted);color:var(--ink);
+  }
+  .why-index-actions button.delete:hover{
+    background:#FEE5E0;border-color:#C9472A;color:#8B2618;
+  }
+  /* ブロック右上の操作ボタン */
+  .why-block-actions{
+    display:inline-flex;gap:5px;margin-left:auto;
+  }
+  .why-block-actions button{
+    padding:2px 7px;font-size:10.5px;font-family:inherit;
+    background:transparent;border:1px solid var(--line);color:var(--ink-muted);
+    border-radius:3px;cursor:pointer;transition:all .12s;
+  }
+  .why-block-actions button:hover{
+    background:var(--paper);border-color:var(--ink-soft);color:var(--ink);
+  }
+  .why-block-actions button.delete:hover{
+    background:#FEE5E0;border-color:#C9472A;color:#8B2618;
+  }
+  /* 新規追加ボタン */
+  .why-add-block-btn{
+    display:block;width:100%;
+    padding:10px 14px;margin-top:10px;
+    background:var(--paper);border:1px dashed var(--ink-muted);color:var(--ink-soft);
+    border-radius:6px;cursor:pointer;font-family:inherit;font-size:12.5px;
+    transition:all .15s;
+  }
+  .why-add-block-btn:hover{
+    background:var(--bg);border-color:var(--ink-soft);color:var(--ink);
+    border-style:solid;
+  }
+  /* インデックスを追加するボタン(コンテンツ画面の上部) */
+  .why-add-index-bar{
+    display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;
+  }
+  .why-add-index-btn{
+    padding:6px 14px;font-size:12px;font-family:inherit;
+    background:#2C5530;color:var(--paper);border:none;
+    border-radius:4px;cursor:pointer;transition:all .12s;
+  }
+  .why-add-index-btn:hover{background:#1F3E22}
+  .why-add-index-hint{
+    font-size:11px;color:var(--ink-muted);font-style:italic;
+  }
+  /* インデックスを切り替えるタブの上の編集行 */
+  .why-index-edit-row{
+    display:flex;align-items:center;gap:8px;margin-top:4px;margin-bottom:10px;
+    padding:6px 0;font-size:11.5px;color:var(--ink-muted);
+  }
+
   /* ===== 条文・解説ピッカー (Phase 6) ===== */
   .art-picker-content{
     position:relative;z-index:1;background:var(--paper);
@@ -1629,6 +1797,80 @@
     font-size:11.5px;color:var(--ink-muted);font-style:italic;padding:5px 0;
   }
 
+  /* ===== 改修11: 解答後の linked-whys セクション ===== */
+  .linked-whys-section{
+    margin-top:12px;padding:12px 14px;
+    background:#FFFCEC;border:1px solid var(--line);border-left:3px solid #E5A53A;
+    border-radius:5px;
+  }
+  .linked-whys-section.empty{background:transparent;border-style:dashed}
+  .linked-whys-h{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-family:'Shippori Mincho',serif;font-weight:600;
+    font-size:13px;color:var(--ink-soft);margin-bottom:8px;
+  }
+  .linked-whys-h .ico{font-size:15px}
+  .linked-whys-h .lbl-link{
+    margin-left:auto;font-family:inherit;font-weight:400;
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    padding:3px 10px;font-size:11px;border-radius:4px;cursor:pointer;
+    transition:all .12s;
+  }
+  .linked-whys-h .lbl-link:hover{background:var(--paper);color:var(--ink);border-color:var(--ink-muted)}
+  .linked-whys-acc{display:flex;flex-direction:column;gap:5px}
+  .linked-whys-item{
+    border:1px solid var(--line);border-radius:4px;background:var(--paper);overflow:hidden;
+  }
+  .linked-whys-item .acc-head{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    padding:7px 11px;cursor:pointer;background:var(--paper);
+    transition:background .12s;user-select:none;
+  }
+  .linked-whys-item .acc-head:hover{background:var(--bg)}
+  .linked-whys-item .acc-head .kind{
+    flex:0 0 auto;padding:1px 6px;border-radius:3px;
+    font-size:10px;font-weight:600;letter-spacing:.03em;
+  }
+  .linked-whys-item .acc-head .kind.k-selfqa{background:#FFE5CC;color:#8B4F18}
+  .linked-whys-item .acc-head .kind.k-memory{background:#E0EBFA;color:#1A4480}
+  .linked-whys-item .acc-head .kind.k-practice{background:#D4E4D7;color:#2C5530}
+  .linked-whys-item .acc-head .ti{
+    flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--ink);
+  }
+  .linked-whys-item .acc-head .arrow{
+    flex:0 0 auto;font-size:11px;color:var(--ink-muted);transition:transform .15s;
+  }
+  .linked-whys-item.open .acc-head .arrow{transform:rotate(90deg)}
+  .linked-whys-item .acc-body{
+    display:none;padding:10px 13px 12px;
+    border-top:1px solid var(--line-soft);background:var(--paper);
+  }
+  .linked-whys-item.open .acc-body{display:block}
+  /* selfqa は橙背景 */
+  .linked-whys-item.open .acc-body.k-selfqa{background:#FFF7EE}
+  .linked-whys-item.open .acc-body.k-memory{background:#F0F6FE}
+  .linked-whys-item.open .acc-body.k-practice{background:#F0F7F1}
+  .linked-whys-item .acc-body .frame-info{
+    font-size:10.5px;color:var(--ink-muted);margin-bottom:5px;
+  }
+  .linked-whys-item .acc-body .text{
+    font-size:13px;line-height:1.85;color:var(--ink);white-space:pre-wrap;
+  }
+  .linked-whys-item .acc-body .qa-q{
+    font-size:13px;font-weight:600;color:#8B4F18;
+    margin-bottom:6px;line-height:1.7;white-space:pre-wrap;
+  }
+  .linked-whys-item .acc-body .qa-q::before{content:"Q. ";font-weight:700}
+  .linked-whys-item .acc-body .qa-a{
+    font-size:13px;color:var(--ink);line-height:1.85;
+    padding-left:10px;border-left:2px solid #E5A53A;
+    white-space:pre-wrap;
+  }
+  .linked-whys-item .acc-body .qa-a::before{content:"A. ";font-weight:700;color:#8B4F18}
+  .linked-whys-empty{
+    font-size:11.5px;color:var(--ink-muted);font-style:italic;padding:5px 0;
+  }
+
   /* 編集モーダルの条文紐付けセクション */
   .m-art-section{
     margin-top:10px;padding:10px 12px;
@@ -1699,6 +1941,7 @@
       <button class="tab-btn" data-tab="select">選択式</button>
       <button class="tab-btn" data-tab="case">事例</button>
       <button class="tab-btn" data-tab="articles">条文・解説</button>
+      <button class="tab-btn" data-tab="whys">5why</button>
       <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="figures">図表</button>
       <button class="tab-btn" data-tab="progress">進捗</button>
@@ -1876,6 +2119,11 @@
     <div id="articles-content"></div>
   </main>
 
+  <!-- ===== WHYS VIEW (5why 自問自答) — 改修11 ===== -->
+  <main id="view-whys" style="display:none;grid-column:1/-1">
+    <div id="whys-content"></div>
+  </main>
+
   <!-- ===== PROGRESS VIEW ===== -->
   <main id="view-progress" style="display:none;grid-column:1/-1">
     <div id="progress-content"></div>
@@ -2013,10 +2261,74 @@
       <div class="m-art-list" id="m-art-list"></div>
       <div class="m-art-empty-msg" id="m-art-empty-msg">紐付けはまだありません。「条文・解説を選択」から追加してください。</div>
     </div>
+    <!-- 改修11: 5why紐付け -->
+    <div class="m-art-section">
+      <div class="m-art-label">
+        <span>5why(自問自答)の紐付け</span>
+        <span class="count" id="m-why-count">(0件)</span>
+        <button type="button" class="m-art-btn" id="m-why-link-btn" style="margin-left:auto">💡 5whyを選択</button>
+      </div>
+      <div class="m-art-list" id="m-why-list"></div>
+      <div class="m-art-empty-msg" id="m-why-empty-msg">紐付けはまだありません。「5whyを選択」から追加してください。</div>
+    </div>
     <div class="actions">
       <button class="btn ghost" id="m-delete" style="margin-right:auto;color:var(--accent)">削除</button>
       <button class="btn ghost" id="m-cancel">キャンセル</button>
       <button class="btn" id="m-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 改修11 第3弾: 5whyブロック編集モーダル ===== -->
+<div class="modal-back" id="modal-why-block" style="display:none">
+  <div class="modal">
+    <h2 id="mwb-title">5whyブロックを編集</h2>
+    <div class="row" style="margin-bottom:10px">
+      <div style="flex:0 0 180px">
+        <label class="field">種別</label>
+        <select id="mwb-kind">
+          <option value="selfqa">🤔 自問自答</option>
+          <option value="memory">🎯 覚え方</option>
+          <option value="practice">💼 実務ポイント</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label class="field">タイトル(短い見出し)</label>
+        <input type="text" id="mwb-title-input" placeholder="例: なぜ社保と労保で日数が違うのか?">
+      </div>
+    </div>
+    <!-- selfqa の場合: 質問 + 回答 -->
+    <div id="mwb-selfqa-fields">
+      <label class="field" style="margin-top:6px">質問 (Q.)</label>
+      <textarea id="mwb-question" rows="3" placeholder="なぜ◯◯は△△なのか? 何が違うのか?"></textarea>
+      <label class="field" style="margin-top:8px">回答 (A.)</label>
+      <textarea id="mwb-answer" rows="6" placeholder="自問への答え・整理した考えを記載。【強調】を使うと赤太字に。"></textarea>
+    </div>
+    <!-- memory / practice の場合: 本文1つ -->
+    <div id="mwb-text-fields" style="display:none">
+      <label class="field" style="margin-top:6px">本文</label>
+      <textarea id="mwb-text" rows="8" placeholder="覚え方のコツや実務ポイントを記載。【強調】を使うと赤太字に。"></textarea>
+    </div>
+    <p class="section-body dim" style="margin-top:8px;font-size:11px">💡 ヒント: 重要語句を <b>【 】</b> で囲むと赤太字で表示されます。例: 【2か月】、【棄却みなし】</p>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn ghost" id="mwb-delete" style="margin-right:auto;color:var(--accent);display:none">削除</button>
+      <button class="btn ghost" id="mwb-cancel">キャンセル</button>
+      <button class="btn" id="mwb-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 改修11 第3弾: 5whyインデックス編集モーダル ===== -->
+<div class="modal-back" id="modal-why-index" style="display:none">
+  <div class="modal" style="max-width:500px">
+    <h2 id="mwi-title">5whyインデックスを編集</h2>
+    <label class="field">インデックスタイトル</label>
+    <input type="text" id="mwi-title-input" placeholder="例: (1) 審査請求の決定期間 — 社保系2か月 vs 労保系3か月">
+    <p class="section-body dim" style="margin-top:8px;font-size:11px">💡 ヒント: 「(1) ◯◯」「① ◯◯」など、見出しの番号や記号は自由に。後で並び順を変えることもできます。</p>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn ghost" id="mwi-delete" style="margin-right:auto;color:var(--accent);display:none">削除</button>
+      <button class="btn ghost" id="mwi-cancel">キャンセル</button>
+      <button class="btn" id="mwi-save">保存</button>
     </div>
   </div>
 </div>
@@ -2125,6 +2437,34 @@
     <div class="art-picker-foot">
       <button class="btn ghost" id="art-picker-cancel">キャンセル</button>
       <button class="btn" id="art-picker-done">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 改修11: 5whyピッカーモーダル ===== -->
+<div id="why-picker-modal" class="fig-modal" style="display:none">
+  <div class="fig-modal-overlay"></div>
+  <div class="art-picker-content">
+    <button class="fig-modal-close" id="why-picker-close">×</button>
+    <h3 class="art-picker-title">5why(自問自答)を紐付け</h3>
+    <div class="art-picker-desc" id="why-picker-desc"></div>
+    <div class="art-picker-current">
+      <div class="art-picker-current-label">
+        <span>💡 現在の紐付け</span>
+        <span id="why-picker-current-count">(0件)</span>
+      </div>
+      <div class="art-picker-chips" id="why-picker-chips"></div>
+    </div>
+    <div class="art-picker-nav">
+      <span class="lbl">法律</span>
+      <select id="why-picker-law"></select>
+      <span class="lbl">フレーム</span>
+      <select id="why-picker-frame"></select>
+    </div>
+    <div class="art-picker-list" id="why-picker-list"></div>
+    <div class="art-picker-foot">
+      <button class="btn ghost" id="why-picker-cancel">キャンセル</button>
+      <button class="btn" id="why-picker-done">完了</button>
     </div>
   </div>
 </div>
@@ -2256,6 +2596,65 @@ const FRAMES = {
    表示用文字列を組み立てるためだけのもの)。
    構造: { [科目名]: { [フレーム番号]: [項目名, 項目名, ...] } } */
 const FRAME_ITEMS = {
+  "労働基準法": {
+    1:  ["労働条件の原則","労働条件の決定","均等待遇","男女同一賃金の原則",
+         "強制労働の禁止","中間搾取の排除","公民権行使の保障","適用事業",
+         "適用除外","労働者・使用者の定義","労働者派遣・出向"],
+    2:  ["労働契約","労働者の長期人身拘束の防止","解雇","退職時等の証明",
+         "金品の返還","有期労働契約に関する基準"],
+    3:  ["賃金の定義","賃金支払の5原則","非常時払","休業手当",
+         "出来高払制の保障給","平均賃金"],
+    4:  ["労働時間","休憩","休日","労働時間等に関する規定の適用除外"],
+    5:  ["1箇月単位の変形労働時間制","フレックスタイム制",
+         "1年単位の変形労働時間制","1週間単位の非定型的変形労働時間制"],
+    6:  ["非常災害等の場合","労使協定(36協定)による場合","割増賃金"],
+    7:  ["事業場外労働に関するみなし労働時間制","専門業務型裁量労働制",
+         "企画業務型裁量労働制"],
+    8:  ["年次有給休暇の権利の要件","年次有給休暇の付与日数",
+         "年次有給休暇の付与方法","年次有給休暇中の賃金","不利益取扱いの禁止"],
+    9:  ["未成年者の労働契約等","最低年齢","年少者等",
+         "年少者の労働時間及び休憩の原則","年少者の労働時間等の例外",
+         "年少者の深夜業","妊産婦等の就業制限","妊産婦に関する労働時間等"],
+    10: ["就業規則の作成及び手続","就業規則の必要的記載事項","制裁規定の制限",
+         "法令及び労働協約との関係","寄宿舎","周知義務","書類の保存等",
+         "付加金","時効","災害補償","監督機関","罰則"]
+  },
+  "労働安全衛生法": {
+    1:  ["目的","定義","責務","事業者に関する規定の適用","労働災害防止計画",
+         "派遣労働者に係る労働安全衛生法の適用区分"],
+    2:  ["全産業の安全衛生管理体制","委員会等","建設業等における安全衛生管理体制"],
+    3:  ["事業者の講ずべき措置","事業者の行うべき調査等",
+         "元方事業者の講ずべき措置","注文者の講ずべき措置等"],
+    4:  ["特定機械等","法42条の機械等","動力により駆動される機械等","定期自主検査"],
+    5:  ["製造等禁止物質","製造許可物質","表示対象物・通知対象物",
+         "化学物質に関する管理体制","新規化学物質の有害性の調査",
+         "特別の有害性の調査の指示"],
+    6:  ["安全衛生教育","就業制限等"],
+    7:  ["作業環境測定","作業の管理等","健康管理手帳等"],
+    8:  ["一般健康診断","特殊健康診断","その他の健康診断",
+         "健康診断実施後の措置等"],
+    9:  ["長時間労働者に対する面接指導","研究開発業務従事者に対する面接指導",
+         "高度プロフェッショナル制度対象労働者に対する面接指導",
+         "心理的な負担の程度を把握するための検査等"],
+    10: ["特別安全衛生改善計画等","計画の届出等","監督機関","雑則等"]
+  },
+  "労働者災害補償保険法": {
+    1:  ["目的等","適用事業","適用労働者"],
+    2:  ["業務災害の認定","複数業務要因災害の認定","通勤災害の認定"],
+    3:  ["給付基礎日額","スライド","年齢階層別の最低限度額及び最高限度額"],
+    4:  ["保険給付の種類等","療養(補償)等給付","休業(補償)等給付","傷病(補償)等年金"],
+    5:  ["障害(補償)等給付","障害(補償)等年金前払一時金",
+         "障害(補償)等年金差額一時金","介護(補償)等給付"],
+    6:  ["遺族(補償)等年金","遺族(補償)等年金前払一時金",
+         "遺族(補償)等一時金","葬祭料等(葬祭給付)","二次健康診断等給付"],
+    7:  ["保険給付の支払","内払と充当","死亡の推定","未支給の保険給付",
+         "受給権の保護","支給制限等","費用徴収","社会保険との調整",
+         "第三者行為災害と事業主責任災害"],
+    8:  ["社会復帰促進等事業の種類","特別支給金"],
+    9:  ["特別加入の対象者","業務災害、複数業務要因災害及び通勤災害の認定",
+         "給付基礎日額","保険給付","社会復帰促進等事業","支給制限","脱退等"],
+    10: ["労審法による不服申立て","行政不服審査法による不服申立て","雑則","罰則"]
+  },
   "雇用保険法": {
     1:  ["目的","管掌","定義","適用事業","暫定任意適用事業"],
     2:  ["被保険者","適用除外","被保険者の種類","適用事業所に関する届出",
@@ -2273,6 +2672,111 @@ const FRAME_ITEMS = {
     11: ["受給権の保護","未支給の失業等給付","不正利得の返還命令等","不正受給による給付制限",
          "就職拒否等による給付制限","離職理由による給付制限","雇用保険二事業","費用の負担",
          "不服申立て","雑則等"]
+  },
+  "労働保険徴収法": {
+    1:  ["趣旨","適用事業の区分","保険関係の成立","保険関係の消滅"],
+    2:  ["有期事業の一括","請負事業の一括","継続事業の一括"],
+    3:  ["労働保険料の種類","一般保険料","賃金総額","一般保険料率","特別加入保険料の額"],
+    4:  ["概算保険料の申告・納付","概算保険料の延納","増加概算保険料",
+         "概算保険料の追加徴収","概算保険料の認定決定"],
+    5:  ["確定保険料の申告・納付","口座振替納付等"],
+    6:  ["継続事業(一括有期事業を含む。)のメリット制","有期事業のメリット制"],
+    7:  ["印紙保険料の納付","雇用保険印紙","帳簿の調整及び報告","印紙保険料の認定決定"],
+    8:  ["対象事業主","特例納付保険料の額","特例納付保険料の納付"],
+    9:  ["滞納に対する措置","労働保険料の負担","不服申立て","雑則等"],
+    10: ["労働保険事務組合の認可","労働保険事務組合への委託",
+         "労働保険事務組合の責任等","報奨金"]
+  },
+  "労務管理その他の労働に関する一般常識": {
+    1:  ["労働組合法","労働関係調整法"],
+    2:  ["労働契約法","最低賃金法","賃金の支払の確保等に関する法律",
+         "中小企業退職金共済法","労働時間等の設定の改善に関する特別措置法",
+         "個別労働関係紛争解決促進法","パートタイム・有期雇用労働法",
+         "男女雇用機会均等法","育児・介護休業法","次世代育成支援対策推進法",
+         "女性活躍推進法"],
+    3:  ["労働施策総合推進法","職業安定法","労働者派遣法","高年齢者雇用安定法",
+         "障害者雇用促進法","青少年雇用促進法","職業能力開発促進法","求職者支援法"],
+    4:  ["人事情報","雇用管理","能力開発","賃金管理","人間関係管理"],
+    5:  ["統計に関する基礎知識","労働統計の概要"]
+  },
+  "健康保険法": {
+    1:  ["目的等","保険者","全国健康保険協会","健康保険組合","権限の委任等"],
+    2:  ["適用事業所","一般の被保険者等","任意継続被保険者等","被扶養者",
+         "資格の得喪の確認等","被保険者に関する届出"],
+    3:  ["保険医療機関及び保険薬局等","保険医及び保険薬剤師","指定訪問看護事業者"],
+    4:  ["報酬等の定義","標準報酬月額","定時決定","資格取得時決定","随時改定",
+         "育児休業等終了時改定","産前産後休業終了時改定","任意継続被保険者等の標準報酬月額",
+         "標準賞与額"],
+    5:  ["保険給付の種類","療養の給付","入院時食事療養費","入院時生活療養費",
+         "保険外併用療養費","療養費","家族療養費","訪問看護療養費","家族訪問看護療養費",
+         "高額療養費","高額介護合算療養費"],
+    6:  ["移送費","家族移送費","傷病手当金","埋葬料及び埋葬費","家族埋葬料",
+         "出産育児一時金","家族出産育児一時金","出産手当金",
+         "傷病手当金・出産手当金の継続給付","資格喪失後の出産育児一時金",
+         "資格喪失後の埋葬料・埋葬費"],
+    7:  ["国庫負担等","保険料","保険料率","保険料の負担等","保険料の納付",
+         "滞納に対する措置等"],
+    8:  ["保険者","日雇特例被保険者","国庫補助","標準賃金日額","保険料額及び負担割合",
+         "保険料の納付","保険給付"],
+    9:  ["保険給付の方法","受給権の保護","併給調整","給付制限"],
+    10: ["保健福祉事業","不服申立て","雑則等"]
+  },
+  "国民年金法": {
+    1:  ["旧法と新法","目的等","権限の委任等","定義"],
+    2:  ["被保険者の種類","資格の得喪","被保険者期間の計算等","届出",
+         "国民年金原簿等","被保険者に対する情報の提供"],
+    3:  ["国庫負担","基礎年金拠出金","保険料","保険料の免除","追納","滞納に対する措置"],
+    4:  ["給付の種類及び裁定等","支給期間等","旧法の対象者","支給要件",
+         "保険料納付済期間","保険料免除期間","合算対象期間",
+         "第3種被保険者期間(坑内員・船員)の特例","年金額","振替加算"],
+    5:  ["旧法の対象者","一般的な障害基礎年金","事後重症による障害基礎年金",
+         "基準障害による障害基礎年金","20歳前傷病による障害基礎年金",
+         "経過措置による障害基礎年金","併合認定","年金額","年金額の改定",
+         "加額の改定","支給停止","失権"],
+    6:  ["旧法の対象者","支給要件","受給権者","年金額","支給停止","失権"],
+    7:  ["付加年金","寡婦年金","死亡一時金","脱退一時金"],
+    8:  ["国民年金事業の財政","年金額の改定"],
+    9:  ["死亡の推定","失踪宣告の取扱い","未支給年金","受給権者の申出による支給停止",
+         "受給権の保護","年金の支払の調整","併給調整","給付制限等",
+         "損害賠償との調整","不服申立て","国民年金事業の円滑な実施","時効",
+         "調査等","罰則"],
+    10: ["基金の目的・設立・管理等","加入員","給付の基準","解散・合併・分割",
+         "国民年金基金連合会"]
+  },
+  "厚生年金保険法": {
+    1:  ["目的等","権限の委任等","適用事業所","適用事業所に関する届出"],
+    2:  ["当然被保険者","当然被保険者の資格の得喪","70歳以上の使用される者(70歳以上被用者)",
+         "任意単独被保険者","高齢任意加入被保険者","資格の得喪の確認",
+         "被保険者期間","被保険者等に関するその他の届出","受給権者の届出","記録等"],
+    3:  ["報酬及び賞与","標準報酬月額","標準報酬月額の決定・改定",
+         "養育期間中の標準報酬月額の特例","標準賞与額","国庫負担","保険料",
+         "交付金等","滞納に対する措置等"],
+    4:  ["保険給付の種類及び裁定等","2つの老齢厚生年金","本来の老齢厚生年金",
+         "報酬比例部分の額","経過的加算","在職定時改定及び退職改定","加給年金額",
+         "特別加算","65歳以後の在職老齢年金(高在老)","老齢厚生年金の支給の繰上げ",
+         "老齢厚生年金の支給の繰下げ","失権"],
+    5:  ["特別支給の老齢厚生年金","Aゾーン","Bゾーン","Cゾーン","Dゾーン",
+         "支給開始年齢の特例","65歳未満の在職老齢年金(低在老)",
+         "失業等給付との調整","失権"],
+    6:  ["一般的な障害厚生年金","事後重症による障害厚生年金",
+         "基準障害による障害厚生年金","経過措置による障害厚生年金","併合認定",
+         "年金額","加給年金額","年金額の改定","支給停止及び失権","障害手当金"],
+    7:  ["支給要件","遺族","年金額","中高齢寡婦加算","経過的寡婦加算","支給停止",
+         "失権","脱退一時金","脱退手当金","特例老齢年金及び特例遺族年金"],
+    8:  ["合意分割","3号分割"],
+    9:  ["厚生年金保険事業の財政","積立金","厚生年金保険事業の運営改善に関する規定",
+         "死亡の推定","未支給の保険給付","併給の調整","年金の支払の調整",
+         "損害賠償との調整","不正利得の徴収","受給権の保護","給付制限"],
+    10: ["不服申立て","時効等","雑則","罰則","存続厚生年金基金及び存続連合会"]
+  },
+  "社会保険に関する一般常識": {
+    1:  ["総則","登録等","社会保険労務士の義務等","監督","社会保険労務士法人",
+         "社会保険労務士会及び全国社会保険労務士会連合会","罰則"],
+    2:  ["国民健康保険法","船員保険法","高齢者医療確保法","介護保険法","児童手当法","その他の法律"],
+    3:  ["確定拠出年金法","確定給付企業年金法"],
+    4:  ["社会保障制度の発展","平成の30年間の社会保障制度等の改革",
+         "社会保障制度を支える人材の確保"],
+    5:  ["医療(介護)保険制度の沿革","年金制度の沿革"]
   }
 };
 
@@ -2298,7 +2802,8 @@ const SUB_FRAMES = {
       {key:"2.2", n:2, t:"船員保険法",         law:"船員保険法",                     laws:["船員保険法"]},
       {key:"2.3", n:3, t:"高齢者医療確保法",   law:"高齢者の医療の確保に関する法律", laws:["高齢者の医療の確保に関する法律","高齢者医療確保法","高確法"]},
       {key:"2.4", n:4, t:"介護保険法",         law:"介護保険法",                     laws:["介護保険法"]},
-      {key:"2.5", n:5, t:"児童手当法",         law:"児童手当法",                     laws:["児童手当法"]}
+      {key:"2.5", n:5, t:"児童手当法",         law:"児童手当法",                     laws:["児童手当法"]},
+      {key:"2.6", n:6, t:"その他の法律",       law:"その他の法律",                   laws:["社会保険審査官及び社会保険審査会法","子ども・子育て支援法"]}
     ],
     3: [
       {key:"3.1", n:1, t:"確定拠出年金法",     law:"確定拠出年金法",                 laws:["確定拠出年金法"]},
@@ -2489,7 +2994,9 @@ const LAW_TO_SUBJECT = {
   "介護保険法":"社会保険に関する一般常識",
   "児童手当法":"社会保険に関する一般常識",
   "確定拠出年金法":"社会保険に関する一般常識",
-  "確定給付企業年金法":"社会保険に関する一般常識"
+  "確定給付企業年金法":"社会保険に関する一般常識",
+  "社会保険審査官及び社会保険審査会法":"社会保険に関する一般常識",
+  "子ども・子育て支援法":"社会保険に関する一般常識"
 };
 
 function lawToSubject(law){
@@ -3020,6 +3527,10 @@ function loadState(){
       s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
       // 改修2: サブフレーム対応 — subFrameKey と subframes モード追加
       if(typeof s.articleView.subFrameKey === 'undefined') s.articleView.subFrameKey = null;
+      // 改修11: 5why タブの追加 (後方互換)
+      s.whys ||= {};
+      s.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+      if(typeof s.whyView.subFrameKey === 'undefined') s.whyView.subFrameKey = null;
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -3080,6 +3591,14 @@ function loadState(){
         if(!Array.isArray(q.linkedBlocks)){q.linkedBlocks = []; lbMigrated++}
       }
       if(lbMigrated>0) console.log(`Migrated ${lbMigrated} questions with empty linkedBlocks`);
+
+      // === 改修11 Migration: 5why紐付け対応 ===
+      // 既存問題に linkedWhys 未設定 → 空配列を付与(後方互換)
+      let lwMigrated = 0;
+      for(const q of s.questions){
+        if(!Array.isArray(q.linkedWhys)){q.linkedWhys = []; lwMigrated++}
+      }
+      if(lwMigrated>0) console.log(`Migrated ${lwMigrated} questions with empty linkedWhys`);
 
       // === 改修8 Migration v5: 過去問A/B 区分の導入 ===
       // 既存の q.kind === 'past' は、新仕様では「過去問A」として扱う。
@@ -3150,17 +3669,22 @@ function loadState(){
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
     progressView: {mode:'subjects', subject:null, kindMode:'pastA'},
     articles: {},
-    articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
+    articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
+    whys: {},
+    whyView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
   };
 }
 function saveState(){
   // 改修6 防御層: 万一 state.figures に imageData が残っていたら、
   // 書き込み前に figureImageCache へ退避して state からは削除する。
   // これにより、どんな経路でも localStorage の 5MB 制限超過を未然に防ぐ。
+  // 同時に IndexedDB にも書き込んで永続化を保証する(キャッシュは揮発するため)。
   if(Array.isArray(state.figures)){
     for(const fig of state.figures){
       if(fig && fig.imageData){
         figureImageCache.set(fig.id, fig.imageData);
+        // IDB にも非同期で書き込み(失敗しても localStorage を肥大化させない方針を維持)
+        try{ figureStore.put(fig.id, fig.imageData).catch(_=>{}) }catch(_){}
         delete fig.imageData;
       }
     }
@@ -3443,6 +3967,15 @@ function renderQuiz(){
   const artLinkBtnQuiz = document.getElementById('art-link-btn-quiz');
   if(artLinkBtnQuiz) artLinkBtnQuiz.addEventListener('click', ()=>openArticlePicker(q.id));
 
+  // 改修11: 5whyアコーディオン
+  try {
+    wireLinkedWhysAccordion(card);
+    const whyLinkBtnQuiz = document.getElementById('why-link-btn-quiz');
+    if(whyLinkBtnQuiz) whyLinkBtnQuiz.addEventListener('click', ()=>openWhyPicker(q.id));
+  } catch(e) {
+    console.error('[5why] wireLinkedWhysAccordion(quiz) error:', e);
+  }
+
   // フレーム演習バナーのボタン
   const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
   const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
@@ -3489,6 +4022,7 @@ function renderResult(q,correct){
         レベル ${escapeHtml(q.difficulty||'—')}　／　${escapeHtml(q.legalBasis||'—')}
       </div>
       ${renderLinkedArticlesSection(q, 'quiz')}
+      ${(() => { try { return renderLinkedWhysSection(q, 'quiz'); } catch(e) { console.error('[5why] renderLinkedWhysSection(quiz) error:', e); return ''; } })()}
       ${q.articleText?`<div class="section-h">条文等(問題付属) <button class="article-toggle">${artBtnLbl}</button></div><div class="article-box"${artBoxStyle}>${escapeHtml(q.articleText).replace(/\n/g,'<br>')}</div>`:''}
     </div>
   `;
@@ -3877,6 +4411,7 @@ function renderManage(){
 /* ===== Edit modal ===== */
 let editingId = null;
 let _editModalDraftLinkedBlocks = null;  // 新規問題作成中の紐付け一時バッファ (Phase 6)
+let _editModalDraftLinkedWhys = null;    // 改修11: 5why紐付け 一時バッファ
 function openEditModal(id){
   const isNew = !id;
   editingId = id;
@@ -3907,11 +4442,18 @@ function openEditModal(id){
   // 条文・解説 紐付けの初期化
   if(isNew){
     _editModalDraftLinkedBlocks = [];
+    _editModalDraftLinkedWhys = [];  // 改修11
   }
   renderEditModalLinkedList();
+  renderEditModalLinkedWhysList();  // 改修11
   document.getElementById('modal-edit').style.display='flex';
 }
-function closeEditModal(){document.getElementById('modal-edit').style.display='none';editingId=null;_editModalDraftLinkedBlocks=null}
+function closeEditModal(){
+  document.getElementById('modal-edit').style.display='none';
+  editingId=null;
+  _editModalDraftLinkedBlocks=null;
+  _editModalDraftLinkedWhys=null;  // 改修11
+}
 function saveEditModal(){
   const text = document.getElementById('m-text').value.trim();
   if(!text){alert('問題文を入力してください');return}
@@ -3947,9 +4489,16 @@ function saveEditModal(){
     } else {
       data.linkedBlocks = [];
     }
+    // 改修11: 新規問題作成時の5why紐付けバッファを反映
+    if(Array.isArray(_editModalDraftLinkedWhys) && _editModalDraftLinkedWhys.length){
+      data.linkedWhys = _editModalDraftLinkedWhys.slice();
+    } else {
+      data.linkedWhys = [];
+    }
     state.questions.push(data);
   }
   _editModalDraftLinkedBlocks = null;
+  _editModalDraftLinkedWhys = null;  // 改修11
   saveState();
   closeEditModal();
   renderManage();
@@ -4013,15 +4562,46 @@ function doImport(){
     return;
   }
 
-  let addedTakuitsu=0, addedSelect=0, addedCase=0, addedArticleFrame=0, skipped=0;
+  let addedTakuitsu=0, addedSelect=0, addedCase=0, addedArticleFrame=0, addedWhyFrame=0, skipped=0;
   for(const q of arr){
+    // 改修11: 5why フレーム判定: type:"why-frame" + law + frameNo + indices配列
+    const isWhyFrame = q.type === 'why-frame' && q.law && q.frameNo != null && Array.isArray(q.indices);
     // 条文フレーム判定: type:"article-frame" + law + frameNo + indices配列
-    const isArticleFrame = q.type === 'article-frame' && q.law && q.frameNo != null && Array.isArray(q.indices);
+    const isArticleFrame = !isWhyFrame && q.type === 'article-frame' && q.law && q.frameNo != null && Array.isArray(q.indices);
     // 事例判定: type:"case" または subQuestions/caseText 等の存在
-    const isCase = !isArticleFrame && (q.type==='case' || (q.caseText && Array.isArray(q.subQuestions) && q.subQuestions.length));
+    const isCase = !isWhyFrame && !isArticleFrame && (q.type==='case' || (q.caseText && Array.isArray(q.subQuestions) && q.subQuestions.length));
     // 選択式判定: type:"select" または problemText/choices/correctIndexの存在
-    const isSelect = !isArticleFrame && !isCase && (q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number'));
-    if(isArticleFrame){
+    const isSelect = !isWhyFrame && !isArticleFrame && !isCase && (q.type==='select' || (q.problemText && Array.isArray(q.choices) && typeof q.correctIndex==='number'));
+    if(isWhyFrame){
+      // 5whyフレームの取り込み(article-frameと同じロジック)
+      if(!q.indices.length){skipped++;continue}
+      const subject = lawToSubject(q.law);
+      if(!subject){skipped++;continue}
+      state.whys ||= {};
+      state.whys[subject] ||= {};
+      let storageKey;
+      if(typeof q.subFrameNo === 'number' && q.subFrameNo > 0){
+        if(hasSubFrames(subject, q.frameNo)){
+          const subs = getSubFrames(subject, q.frameNo);
+          if(q.subFrameNo <= subs.length){
+            storageKey = `${q.frameNo}.${q.subFrameNo}`;
+          } else {
+            console.warn(`[5why] subFrameNo ${q.subFrameNo} out of range for ${subject} F${q.frameNo} (max ${subs.length}). Storing under integer key.`);
+            storageKey = q.frameNo;
+          }
+        } else {
+          console.warn(`[5why] subFrameNo specified but ${subject} F${q.frameNo} has no SUB_FRAMES. Storing under integer key.`);
+          storageKey = q.frameNo;
+        }
+      } else {
+        storageKey = q.frameNo;
+      }
+      // 既存データがあれば上書き
+      state.whys[subject][storageKey] = {
+        indices: q.indices
+      };
+      addedWhyFrame++;
+    }else if(isArticleFrame){
       // 条文フレームの取り込み
       if(!q.indices.length){skipped++;continue}
       // 法律名は表記揺れ吸収(科目名に正規化)
@@ -4090,6 +4670,8 @@ function doImport(){
       if(q.kind === 'pastA' && q.source) q.source = '';
       // 条文紐付けフィールド(後方互換)
       if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
+      // 改修11: 5why紐付けフィールド(後方互換)
+      if(!Array.isArray(q.linkedWhys)) q.linkedWhys = [];
       state.questions.push(q);
       addedTakuitsu++;
     }
@@ -4103,11 +4685,16 @@ function doImport(){
   if(document.querySelector('.tab-btn.active')?.dataset.tab === 'articles'){
     renderArticles();
   }
+  // 改修11: 5whyタブが表示中なら再描画
+  if(document.querySelector('.tab-btn.active')?.dataset.tab === 'whys'){
+    renderWhys();
+  }
   let msg = '';
   if(addedTakuitsu) msg += `択一: ${addedTakuitsu}問追加\n`;
   if(addedSelect) msg += `選択式: ${addedSelect}問追加\n`;
   if(addedCase) msg += `事例: ${addedCase}問追加\n`;
   if(addedArticleFrame) msg += `条文フレーム: ${addedArticleFrame}件追加\n`;
+  if(addedWhyFrame) msg += `5whyフレーム: ${addedWhyFrame}件追加\n`;
   if(skipped) msg += `(${skipped}件はスキップ ※重複ID・不完全データなど)`;
   alert(msg || '追加された問題はありませんでした。');
 }
@@ -4143,6 +4730,7 @@ async function runStorageDiagnostic(){
       {label:'選択式問題 (selectQuestions)', key:'selectQuestions'},
       {label:'事例問題 (cases)',             key:'cases'},
       {label:'条文・解説 (articles)',        key:'articles'},
+      {label:'5why (whys)',                  key:'whys'},
       {label:'解答履歴 (history)',           key:'history'},
       {label:'選択式履歴 (selectHistory)',   key:'selectHistory'},
       {label:'事例履歴 (caseHistory)',       key:'caseHistory'},
@@ -4416,6 +5004,9 @@ function restoreBackup(){
         state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
         // 改修2: サブフレーム対応
         if(typeof state.articleView.subFrameKey === 'undefined') state.articleView.subFrameKey = null;
+        // 改修11: 5why機能の追加 (後方互換)
+        state.whys ||= {};
+        state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
         // === Migration v3: 予想問対応 ===
         // (a) 既存問題のkind未設定 → 'past' とみなす
         for(const q of state.questions){if(q.kind == null) q.kind = 'past'}
@@ -4432,6 +5023,10 @@ function restoreBackup(){
         // 既存問題にlinkedBlocks未設定 → 空配列を付与
         for(const q of state.questions){
           if(!Array.isArray(q.linkedBlocks)) q.linkedBlocks = [];
+        }
+        // 改修11: 既存問題にlinkedWhys未設定 → 空配列を付与
+        for(const q of state.questions){
+          if(!Array.isArray(q.linkedWhys)) q.linkedWhys = [];
         }
         // === 改修8 Migration v5: 過去問A/B 区分への移行 ===
         // 既存 q.kind === 'past' は新仕様で「過去問A」として扱う
@@ -5290,6 +5885,50 @@ function articleKindMeta(kind){
   return                          {lbl:'条文',     cls:'k-a'};
 }
 
+/* ===== 改修11: 5whyブロック検索ヘルパー =====
+   findArticleBlock と同じ要領で、state.whys から指定 ID のブロックを検索 */
+function findWhyBlock(blockId){
+  const whys = state.whys || {};
+  for(const [law, lawData] of Object.entries(whys)){
+    for(const [keyStr, frData] of Object.entries(lawData || {})){
+      const indices = (frData && frData.indices) || [];
+      for(let i=0; i<indices.length; i++){
+        const idx = indices[i];
+        const blk = (idx.blocks||[]).find(b => b && b.id === blockId);
+        if(blk){
+          const sub = parseSubFrameKey(keyStr);
+          const frameNo = sub ? sub.parent : parseInt(keyStr,10);
+          return {
+            law, frameNo,
+            frameKey: keyStr,
+            subFrameKey: sub ? keyStr : null,
+            subFrameInfo: sub ? (getSubFrames(law, sub.parent).find(s=>s.n===sub.n)||null) : null,
+            indexIdx: i, indexId: idx.id, indexTitle: idx.title || '',
+            block: blk
+          };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/* 5whyブロックの所属フレーム表示文字列 */
+function whyBlockLocationLabel(info){
+  if(!info) return '';
+  if(info.subFrameInfo){
+    return `${info.law} F${info.frameNo}_${info.subFrameInfo.n} ${info.subFrameInfo.t}`;
+  }
+  return `${info.law} F${info.frameNo}`;
+}
+
+/* 5whyブロックkindのラベル/CSSクラス */
+function whyKindMeta(kind){
+  if(kind === 'memory')   return {lbl:'覚え方',     cls:'k-memory'};
+  if(kind === 'practice') return {lbl:'実務ポイント', cls:'k-practice'};
+  return                       {lbl:'自問自答',     cls:'k-selfqa'};
+}
+
 /* 編集モーダル内の紐付け一覧を描画 */
 function renderEditModalLinkedList(){
   const list = document.getElementById('m-art-list');
@@ -5346,6 +5985,59 @@ function renderEditModalLinkedList(){
 }
 
 /* 新規問題編集時の一時バッファ宣言は openEditModal の近く(編集モーダルセクション)に移動済 */
+
+/* ===== 改修11: 編集モーダル内の5why紐付け一覧描画 ===== */
+function renderEditModalLinkedWhysList(){
+  const list = document.getElementById('m-why-list');
+  const count = document.getElementById('m-why-count');
+  const empty = document.getElementById('m-why-empty-msg');
+  if(!list || !count || !empty) return;
+  const q = editingId ? state.questions.find(x=>x.id===editingId) : null;
+  // 新規問題の場合は _editModalDraftLinkedWhys を使う
+  const ids = q ? (q.linkedWhys||[]) : (_editModalDraftLinkedWhys||[]);
+  count.textContent = `(${ids.length}件)`;
+  if(!ids.length){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = ids.map(bid=>{
+    const info = findWhyBlock(bid);
+    if(!info){
+      return `<span class="chip" data-bid="${escapeHtml(bid)}" style="opacity:.5">
+        <span class="chip-ti">(不明: ${escapeHtml(bid)})</span>
+        <button type="button" class="x" title="紐付けを外す">×</button>
+      </span>`;
+    }
+    const meta = whyKindMeta(info.block.kind);
+    const title = info.block.title || '(無題)';
+    const locShort = (info.subFrameInfo)
+      ? `${info.law.length>6?info.law.slice(0,6)+'…':info.law} F${info.frameNo}_${info.subFrameInfo.n}`
+      : `${info.law.length>6?info.law.slice(0,6)+'…':info.law} F${info.frameNo}`;
+    const locFull = whyBlockLocationLabel(info);
+    return `<span class="chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(locFull)} / ${escapeHtml(title)}">
+      <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locShort)})</span></span>
+      <button type="button" class="x" title="紐付けを外す">×</button>
+    </span>`;
+  }).join('');
+  // ×ボタンで紐付け解除
+  list.querySelectorAll('.chip .x').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.preventDefault();
+      const chip = btn.closest('.chip');
+      if(!chip) return;
+      const bid = chip.dataset.bid;
+      if(q){
+        q.linkedWhys = (q.linkedWhys||[]).filter(x=>x!==bid);
+        saveState();
+      } else {
+        _editModalDraftLinkedWhys = (_editModalDraftLinkedWhys||[]).filter(x=>x!==bid);
+      }
+      renderEditModalLinkedWhysList();
+    });
+  });
+}
 
 /* 条文ピッカーを開く */
 function openArticlePicker(qid, type='question'){
@@ -5668,6 +6360,316 @@ function applyArticlePicker(){
   else if(activeTab==='weak') renderWeak();
 }
 
+/* ===== 改修11: 5whyピッカー — 条文ピッカーと同じ仕組み =====
+   状態変数とハンドラ関数群。state.whys から選んで q.linkedWhys に紐付ける。 */
+let _whyPickerTarget = null;     // {id, type:'question'}
+let _whyPickerLinkedSet = null;  // Set<blockId>
+let _whyPickerCurLaw = '';       // 現在閲覧中の法律(科目名)
+let _whyPickerCurFrame = null;   // 現在閲覧中のフレームキー("2" or "2.1" など)
+
+function openWhyPicker(qid, type='question'){
+  let entity;
+  if(qid === '__draft__' && type==='question'){
+    // 新規問題作成時。一時バッファを使う
+    entity = {id:'__draft__', law:document.getElementById('m-law')?.value || '', frameNo: parseInt(document.getElementById('m-frame')?.value||'',10)||null, year:document.getElementById('m-year')?.value||'', qno:document.getElementById('m-qno')?.value||''};
+    entity.linkedWhys = _editModalDraftLinkedWhys || [];
+  } else {
+    entity = state.questions.find(x=>x.id===qid);
+  }
+  if(!entity) return;
+  _whyPickerTarget = {id: qid, type};
+  _whyPickerLinkedSet = new Set(entity.linkedWhys || []);
+
+  // 説明文
+  let descText;
+  if(qid === '__draft__'){
+    descText = '新規問題に紐付ける5why(自問自答)を選択してください。';
+  } else {
+    descText = `問題:${entity.year||''} ${entity.law||''} ${entity.qno||''}`;
+    if(entity.category) descText += ` / ${entity.category}`;
+  }
+  document.getElementById('why-picker-desc').textContent = descText;
+
+  // 初期の法律/フレームを決定(条文ピッカーと同じロジック)
+  const whys = state.whys || {};
+  const lawsWithData = SUBJECTS_ORDER.filter(s => whys[s] && Object.keys(whys[s]).length>0);
+  const qSubj = lawToSubject(entity.law||'');
+  const sortFrameKeys = (keys) => keys.slice().sort((a,b)=>{
+    const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+    const aMain = aSub ? aSub.parent : parseInt(a,10);
+    const bMain = bSub ? bSub.parent : parseInt(b,10);
+    if(aMain !== bMain) return aMain - bMain;
+    const aOrd = aSub ? aSub.n : 0;
+    const bOrd = bSub ? bSub.n : 0;
+    return aOrd - bOrd;
+  });
+  if(qSubj && whys[qSubj] && Object.keys(whys[qSubj]).length>0){
+    _whyPickerCurLaw = qSubj;
+    const frKeys = sortFrameKeys(Object.keys(whys[qSubj]));
+    let initialKey = null;
+    if(entity.frameNo != null){
+      const fnStr = String(entity.frameNo);
+      if(whys[qSubj][fnStr]){
+        initialKey = fnStr;
+      } else {
+        const matchedSub = getSubFrameForQuestion(qSubj, entity.frameNo, entity.law||'');
+        if(matchedSub && whys[qSubj][matchedSub.key]){
+          initialKey = matchedSub.key;
+        } else {
+          const subStart = frKeys.find(k => {
+            const p = parseSubFrameKey(k);
+            return p && p.parent === entity.frameNo;
+          });
+          if(subStart) initialKey = subStart;
+        }
+      }
+    }
+    if(!initialKey && frKeys.length) initialKey = frKeys[0];
+    _whyPickerCurFrame = initialKey;
+  } else if(lawsWithData.length){
+    _whyPickerCurLaw = lawsWithData[0];
+    const frKeys = sortFrameKeys(Object.keys(whys[_whyPickerCurLaw]));
+    _whyPickerCurFrame = frKeys[0] || null;
+  } else {
+    _whyPickerCurLaw = '';
+    _whyPickerCurFrame = null;
+  }
+
+  renderWhyPicker();
+
+  const pm = document.getElementById('why-picker-modal');
+  if(!pm){alert('5whyピッカーモーダル要素が見つかりません');return}
+  pm.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center';
+}
+
+function renderWhyPicker(){
+  const whys = state.whys || {};
+  // 現在の紐付けチップ
+  const chipsEl = document.getElementById('why-picker-chips');
+  const countEl = document.getElementById('why-picker-current-count');
+  const ids = [..._whyPickerLinkedSet];
+  countEl.textContent = `(${ids.length}件)`;
+  if(!ids.length){
+    chipsEl.innerHTML = `<span class="art-picker-chip-empty">まだ紐付けはありません。下のリストから選んでください。</span>`;
+  } else {
+    chipsEl.innerHTML = ids.map(bid=>{
+      const info = findWhyBlock(bid);
+      if(!info){
+        return `<span class="art-picker-chip" data-bid="${escapeHtml(bid)}" style="opacity:.5">
+          <span class="chip-ti">(不明: ${escapeHtml(bid)})</span>
+          <button type="button" class="x" title="紐付けを外す">×</button>
+        </span>`;
+      }
+      const meta = whyKindMeta(info.block.kind);
+      const title = info.block.title || '(無題)';
+      const locFull = whyBlockLocationLabel(info);
+      return `<span class="art-picker-chip" data-bid="${escapeHtml(bid)}" title="${escapeHtml(locFull)}">
+        <span class="chip-ti">[${meta.lbl}] ${escapeHtml(title)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locFull)})</span></span>
+        <button type="button" class="x" title="紐付けを外す">×</button>
+      </span>`;
+    }).join('');
+    chipsEl.querySelectorAll('.art-picker-chip .x').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        const chip = btn.closest('.art-picker-chip');
+        if(!chip) return;
+        _whyPickerLinkedSet.delete(chip.dataset.bid);
+        renderWhyPicker();
+      });
+    });
+  }
+
+  // 法律セレクター
+  const lawSel = document.getElementById('why-picker-law');
+  const lawsWithData = SUBJECTS_ORDER.filter(s => whys[s] && Object.keys(whys[s]).length>0);
+  if(!lawsWithData.length){
+    lawSel.innerHTML = '<option value="">(5whyデータなし)</option>';
+  } else {
+    lawSel.innerHTML = lawsWithData.map(s=>{
+      const sel = (s === _whyPickerCurLaw) ? ' selected' : '';
+      return `<option value="${escapeHtml(s)}"${sel}>${escapeHtml(s)}</option>`;
+    }).join('');
+  }
+  // フレームセレクター
+  const frSel = document.getElementById('why-picker-frame');
+  if(!_whyPickerCurLaw || !whys[_whyPickerCurLaw]){
+    frSel.innerHTML = '<option value="">(なし)</option>';
+  } else {
+    const frKeys = Object.keys(whys[_whyPickerCurLaw]).slice().sort((a,b)=>{
+      const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+      const aMain = aSub ? aSub.parent : parseInt(a,10);
+      const bMain = bSub ? bSub.parent : parseInt(b,10);
+      if(aMain !== bMain) return aMain - bMain;
+      const aOrd = aSub ? aSub.n : 0;
+      const bOrd = bSub ? bSub.n : 0;
+      return aOrd - bOrd;
+    });
+    const frameDefs = FRAMES[_whyPickerCurLaw] || [];
+    frSel.innerHTML = frKeys.map(key=>{
+      const sub = parseSubFrameKey(key);
+      let label;
+      if(sub){
+        const subDef = getSubFrames(_whyPickerCurLaw, sub.parent).find(s=>s.n===sub.n);
+        label = `F${sub.parent}_${sub.n} ${subDef ? subDef.t : ''}`;
+      } else {
+        const n = parseInt(key,10);
+        const def = frameDefs.find(f=>f.n===n);
+        label = `F${n} ${def ? def.t : ''}`;
+      }
+      const sel = (String(key) === String(_whyPickerCurFrame)) ? ' selected' : '';
+      return `<option value="${escapeHtml(String(key))}"${sel}>${escapeHtml(label)}</option>`;
+    }).join('');
+  }
+
+  // ブロック一覧
+  const listEl = document.getElementById('why-picker-list');
+  if(!_whyPickerCurLaw){
+    listEl.innerHTML = `<div class="art-picker-empty">5whyデータが1件も登録されていません。<br>「管理」タブのJSONインポートから <code>type:"why-frame"</code> を取り込んでください。</div>`;
+    return;
+  }
+  if(!_whyPickerCurFrame || !whys[_whyPickerCurLaw][_whyPickerCurFrame]){
+    listEl.innerHTML = `<div class="art-picker-empty">このフレームには5whyデータがありません。</div>`;
+    return;
+  }
+  const indices = (whys[_whyPickerCurLaw][_whyPickerCurFrame] || {}).indices || [];
+  if(!indices.length){
+    listEl.innerHTML = `<div class="art-picker-empty">このフレームにはインデックスがありません。</div>`;
+    return;
+  }
+  let html = '';
+  for(let i=0; i<indices.length; i++){
+    const idx = indices[i];
+    html += `<div class="art-picker-index">
+      <div class="art-picker-index-h">${i+1}. ${escapeHtml(idx.title||'(無題)')}</div>`;
+    const blocks = idx.blocks || [];
+    if(!blocks.length){
+      html += `<div class="art-picker-empty" style="padding:14px;font-size:11.5px">(ブロックがありません)</div>`;
+    } else {
+      for(const blk of blocks){
+        const meta = whyKindMeta(blk.kind);
+        const linked = _whyPickerLinkedSet.has(blk.id);
+        // selfqa は question から、それ以外は text からプレビュー作成
+        const sourceText = (blk.kind === 'selfqa' ? (blk.question || blk.answer || '') : (blk.text || ''));
+        const preview = sourceText.replace(/【([^】]+)】/g,'$1').replace(/\n/g,' ').slice(0,90);
+        html += `<label class="art-picker-block ${linked?'linked':''}" data-bid="${escapeHtml(blk.id)}">
+          <input type="checkbox" ${linked?'checked':''}>
+          <div class="body">
+            <div class="row1">
+              <span class="kind ${meta.cls}">${meta.lbl}</span>
+              <span class="ti">${escapeHtml(blk.title||'(無題)')}</span>
+            </div>
+            <div class="preview">${escapeHtml(preview)}${sourceText.length>90?'…':''}</div>
+          </div>
+        </label>`;
+      }
+    }
+    html += `</div>`;
+  }
+  listEl.innerHTML = html;
+  // チェックボックスのイベント
+  listEl.querySelectorAll('.art-picker-block').forEach(item=>{
+    const cb = item.querySelector('input[type="checkbox"]');
+    if(!cb) return;
+    cb.addEventListener('change', ()=>{
+      const bid = item.dataset.bid;
+      if(cb.checked) _whyPickerLinkedSet.add(bid);
+      else _whyPickerLinkedSet.delete(bid);
+      item.classList.toggle('linked', cb.checked);
+      // 上の「現在の紐付け」を更新
+      const chipsEl2 = document.getElementById('why-picker-chips');
+      const countEl2 = document.getElementById('why-picker-current-count');
+      const ids2 = [..._whyPickerLinkedSet];
+      countEl2.textContent = `(${ids2.length}件)`;
+      if(!ids2.length){
+        chipsEl2.innerHTML = `<span class="art-picker-chip-empty">まだ紐付けはありません。下のリストから選んでください。</span>`;
+      } else {
+        chipsEl2.innerHTML = ids2.map(bid2=>{
+          const info = findWhyBlock(bid2);
+          if(!info){
+            return `<span class="art-picker-chip" data-bid="${escapeHtml(bid2)}" style="opacity:.5">
+              <span class="chip-ti">(不明: ${escapeHtml(bid2)})</span>
+              <button type="button" class="x" title="紐付けを外す">×</button>
+            </span>`;
+          }
+          const m2 = whyKindMeta(info.block.kind);
+          const t2 = info.block.title || '(無題)';
+          const locFull2 = whyBlockLocationLabel(info);
+          return `<span class="art-picker-chip" data-bid="${escapeHtml(bid2)}" title="${escapeHtml(locFull2)}">
+            <span class="chip-ti">[${m2.lbl}] ${escapeHtml(t2)} <span style="color:var(--ink-muted);font-size:10px">(${escapeHtml(locFull2)})</span></span>
+            <button type="button" class="x" title="紐付けを外す">×</button>
+          </span>`;
+        }).join('');
+        chipsEl2.querySelectorAll('.art-picker-chip .x').forEach(btn=>{
+          btn.addEventListener('click', (ev)=>{
+            ev.preventDefault();
+            const chip = btn.closest('.art-picker-chip');
+            if(!chip) return;
+            const bid3 = chip.dataset.bid;
+            _whyPickerLinkedSet.delete(bid3);
+            const it = listEl.querySelector(`.art-picker-block[data-bid="${CSS.escape(bid3)}"]`);
+            if(it){
+              const c = it.querySelector('input[type="checkbox"]');
+              if(c) c.checked = false;
+              it.classList.remove('linked');
+            }
+            renderWhyPicker();
+          });
+        });
+      }
+    });
+  });
+  // 法律/フレームセレクター
+  lawSel.onchange = ()=>{
+    _whyPickerCurLaw = lawSel.value;
+    const whys2 = state.whys || {};
+    const frKeys = whys2[_whyPickerCurLaw] ? Object.keys(whys2[_whyPickerCurLaw]).slice().sort((a,b)=>{
+      const aSub = parseSubFrameKey(a), bSub = parseSubFrameKey(b);
+      const aMain = aSub ? aSub.parent : parseInt(a,10);
+      const bMain = bSub ? bSub.parent : parseInt(b,10);
+      if(aMain !== bMain) return aMain - bMain;
+      const aOrd = aSub ? aSub.n : 0;
+      const bOrd = bSub ? bSub.n : 0;
+      return aOrd - bOrd;
+    }) : [];
+    _whyPickerCurFrame = frKeys[0] || null;
+    renderWhyPicker();
+  };
+  frSel.onchange = ()=>{
+    _whyPickerCurFrame = frSel.value || null;
+    renderWhyPicker();
+  };
+}
+
+function closeWhyPicker(){
+  const pm = document.getElementById('why-picker-modal');
+  if(pm) pm.style.cssText = 'display:none';
+  _whyPickerTarget = null;
+  _whyPickerLinkedSet = null;
+}
+
+function applyWhyPicker(){
+  if(!_whyPickerTarget){closeWhyPicker();return}
+  const {id} = _whyPickerTarget;
+  const newIds = [..._whyPickerLinkedSet];
+  if(id === '__draft__'){
+    _editModalDraftLinkedWhys = newIds;
+    closeWhyPicker();
+    renderEditModalLinkedWhysList();
+    return;
+  }
+  const entity = state.questions.find(x=>x.id===id);
+  if(!entity){closeWhyPicker();return}
+  entity.linkedWhys = newIds;
+  saveState();
+  closeWhyPicker();
+  if(document.getElementById('modal-edit')?.style.display==='flex'){
+    renderEditModalLinkedWhysList();
+  }
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+  if(activeTab==='quiz') renderQuiz();
+  else if(activeTab==='weak') renderWeak();
+}
+
 /* 解答後の紐付けブロック表示(Phase 7) */
 function renderLinkedArticlesSection(q, scope){
   // scope: 'quiz' | 'weak'(ボタンのID重複回避用)
@@ -5721,6 +6723,68 @@ function wireLinkedArticlesAccordion(root){
   root.querySelectorAll('.linked-arts-item .acc-head').forEach(head=>{
     head.addEventListener('click', ()=>{
       const item = head.closest('.linked-arts-item');
+      if(item) item.classList.toggle('open');
+    });
+  });
+}
+
+/* ===== 改修11: 解答後の linked-whys 表示 ===== */
+function renderLinkedWhysSection(q, scope){
+  // scope: 'quiz' | 'weak'(ボタンのID重複回避用)
+  const ids = Array.isArray(q.linkedWhys) ? q.linkedWhys : [];
+  const items = ids.map(bid=>({bid, info: findWhyBlock(bid)})).filter(x=>x.info);
+  const btnId = scope==='weak' ? 'why-link-btn-weak' : 'why-link-btn-quiz';
+  const editBtnLabel = items.length ? '💡 紐付けを変更' : '💡 5why を紐付け';
+  if(!items.length){
+    return `<div class="linked-whys-section empty">
+      <div class="linked-whys-h">
+        <span class="ico">💡</span>紐付けられた5why(自問自答)
+        <button type="button" class="lbl-link" id="${btnId}">${editBtnLabel}</button>
+      </div>
+      <div class="linked-whys-empty">この問題にはまだ5whyが紐付けられていません。</div>
+    </div>`;
+  }
+  const accHtml = items.map((it,i)=>{
+    const info = it.info;
+    const blk = info.block;
+    const meta = whyKindMeta(blk.kind);
+    const title = escapeHtml(blk.title || '(無題)');
+    // selfqa は question/answer 構造、memory/practice は text
+    let bodyContent;
+    if(blk.kind === 'selfqa'){
+      const q = formatArticleText(blk.question || '');
+      const a = formatArticleText(blk.answer || '');
+      bodyContent = `<div class="qa-q">${q}</div><div class="qa-a">${a}</div>`;
+    } else {
+      bodyContent = `<div class="text">${formatArticleText(blk.text || '')}</div>`;
+    }
+    const bodyCls = blk.kind === 'selfqa' ? 'k-selfqa' : (blk.kind === 'memory' ? 'k-memory' : 'k-practice');
+    return `<div class="linked-whys-item" data-accidx="${i}">
+      <div class="acc-head">
+        <span class="kind ${meta.cls}">${meta.lbl}</span>
+        <span class="ti">${title}</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="acc-body ${bodyCls}">
+        <div class="frame-info">${escapeHtml(whyBlockLocationLabel(info))} / ${escapeHtml(info.indexTitle||'')}</div>
+        ${bodyContent}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="linked-whys-section">
+    <div class="linked-whys-h">
+      <span class="ico">💡</span>紐付けられた5why(自問自答) (${items.length}件)
+      <button type="button" class="lbl-link" id="${btnId}">${editBtnLabel}</button>
+    </div>
+    <div class="linked-whys-acc">${accHtml}</div>
+  </div>`;
+}
+
+function wireLinkedWhysAccordion(root){
+  if(!root) return;
+  root.querySelectorAll('.linked-whys-item .acc-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      const item = head.closest('.linked-whys-item');
       if(item) item.classList.toggle('open');
     });
   });
@@ -6428,6 +7492,622 @@ function formatArticleText(raw){
   return esc.replace(/【([^】]+)】/g, '<span class="art-red">$1</span>');
 }
 
+/* ===== 改修11: 5why タブ — レンダリング関数群 =====
+   構造は条文・解説タブと同じ3段階ナビ(科目→フレーム→コンテンツ)。
+   中分類持ち親フレームは中分類選択画面を挟む。
+   ブロックの kind は selfqa / memory / practice の3種類。 */
+
+function renderWhys(){
+  const root = document.getElementById('whys-content');
+  if(!root) return;
+  state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+  state.whys ||= {};
+  const mode = state.whyView.mode;
+  if(mode === 'frames' && state.whyView.subject){
+    renderWhysFrames(root, state.whyView.subject);
+  } else if(mode === 'subframes' && state.whyView.subject && state.whyView.frameNo != null){
+    renderWhysSubFrames(root, state.whyView.subject, state.whyView.frameNo);
+  } else if(mode === 'content' && state.whyView.subject && (state.whyView.frameNo != null || state.whyView.subFrameKey)){
+    const key = state.whyView.subFrameKey || state.whyView.frameNo;
+    renderWhysContent(root, state.whyView.subject, key);
+  } else {
+    renderWhysSubjects(root);
+  }
+}
+
+/* Level 1: 法律一覧 */
+function renderWhysSubjects(root){
+  // 各法律の登録インデックス数を集計(サブフレーム配下のキーも含めて全部カウント)
+  const counts = {};
+  for(const subject of SUBJECTS_ORDER){
+    let n = 0;
+    const lawData = state.whys[subject] || {};
+    for(const key of Object.keys(lawData)){
+      const ind = (lawData[key] || {}).indices || [];
+      n += ind.length;
+    }
+    counts[subject] = n;
+  }
+  let html = `<div class="card why-intro">
+    <h2 class="why-h2">5why <span class="why-sub">WHY × 5 — 自問自答ノート</span></h2>
+    <p class="why-desc">「なぜ、この制度・取扱い・仕組み・日数なのか?」を5回問い続けて、丸暗記ではなく<b>理解で記憶を確実にする</b>ためのノートです。<br>科目をクリックするとフレーム別に、自問自答 / 覚え方 / 実務ポイント が表示されます。</p>
+  </div>`;
+  html += `<div class="card why-subjects-card"><div class="why-subjects-grid">`;
+  for(const subject of SUBJECTS_ORDER){
+    const c = counts[subject] || 0;
+    const cls = c > 0 ? 'has-data' : '';
+    html += `<div class="why-subject-card" data-subject="${escapeHtml(subject)}">
+      <span class="ws-name">${escapeHtml(subject)}</span>
+      <span class="ws-count ${cls}">${c}項目</span>
+      <span class="ws-arrow">›</span>
+    </div>`;
+  }
+  html += `</div></div>`;
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  if(total === 0){
+    html += `<div class="card why-subjects-card">
+      <div style="padding:20px;text-align:center;color:var(--ink-muted);line-height:1.8">
+        まだ5whyデータが1件も登録されていません。<br>
+        「管理」タブの「JSONインポート」から、5whyデータ(<code>type:"why-frame"</code>)を読み込んでください。<br>
+        <span style="font-size:12px">※ JSON形式は「JSON仕様書 v8」のセクション5を参照</span>
+      </div>
+    </div>`;
+  }
+  root.innerHTML = html;
+  // 法律カードクリック
+  root.querySelectorAll('.why-subject-card').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      state.whyView = {mode:'frames', subject:c.dataset.subject, frameNo:null, indexId:null, subFrameKey:null};
+      saveState();
+      renderWhys();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 2: フレーム一覧 */
+function renderWhysFrames(root, subject){
+  const frames = FRAMES[subject] || [];
+  const lawData = state.whys[subject] || {};
+  let html = `<div class="card why-intro">
+    <div class="why-nav">
+      <button class="btn-back" id="why-back-subjects">← 法律一覧に戻る</button>
+    </div>
+    <h2 class="why-h2">${escapeHtml(subject)} <span class="why-sub">フレーム別 5why</span></h2>
+    <p class="why-desc">フレームをクリックすると、そのフレームの自問自答ノートが表示されます。<br><span style="color:var(--ink-muted)">※ 0項目のフレームでも、クリックして「+ 新規インデックス」から新たに登録できます。中分類があるフレームはクリック後に中分類の選択画面が表示されます。</span></p>
+  </div>`;
+  html += `<div class="card why-frames-card"><div class="why-frames">`;
+  for(const fr of frames){
+    const data = lawData[fr.n] || {};
+    const indices = data.indices || [];
+    // サブフレームを持つフレームは、配下の合計項目数もカウント
+    let subCnt = 0;
+    let subFrameTotal = 0;
+    if(hasSubFrames(subject, fr.n)){
+      const subs = getSubFrames(subject, fr.n);
+      subFrameTotal = subs.length;
+      for(const sub of subs){
+        const sd = lawData[sub.key] || {};
+        subCnt += (sd.indices||[]).length;
+      }
+    }
+    const directCnt = indices.length;
+    const totalCnt  = directCnt + subCnt;
+    const hasData   = totalCnt > 0 || hasSubFrames(subject, fr.n);
+    // 改修11 v7.2: 0項目フレームもクリック可能に(アプリ内で初登録できるよう)
+    const countCls = totalCnt > 0 ? 'has-data' : '';
+    const subBadge = hasSubFrames(subject, fr.n)
+      ? `<span class="wf-sub-badge">中分類 ${subFrameTotal} 個</span>` : '';
+    // フレーム中分類項目の併記
+    const itemsLabel = getFrameItemsLabel(subject, fr.n);
+    const itemsHtml = itemsLabel ? `<span class="wf-items">(${escapeHtml(itemsLabel)})</span>` : '';
+    const hasItemsCls = itemsLabel ? 'has-items' : '';
+    // empty クラスは付けず、全フレームを通常表示+クリック可能に
+    html += `<div class="why-frame ${hasItemsCls}" data-fno="${fr.n}">
+      <span class="wf-n">F${fr.n}</span>
+      <span class="wf-t">${escapeHtml(fr.t)}${subBadge}${itemsHtml}</span>
+      <span class="wf-c ${countCls}">${totalCnt}項目</span>
+      <span class="wf-arrow">›</span>
+    </div>`;
+  }
+  html += `</div></div>`;
+  root.innerHTML = html;
+  // 戻るボタン
+  const backBtn = document.getElementById('why-back-subjects');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    state.whyView = {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+    saveState();
+    renderWhys();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // フレームクリック(全フレーム対応:0項目でも初登録できるよう)
+  root.querySelectorAll('.why-frame').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      const fno = parseInt(c.dataset.fno, 10);
+      if(hasSubFrames(subject, fno)){
+        state.whyView = {mode:'subframes', subject:subject, frameNo:fno, indexId:null, subFrameKey:null};
+      } else {
+        state.whyView = {mode:'content', subject:subject, frameNo:fno, indexId:null, subFrameKey:null};
+      }
+      saveState();
+      renderWhys();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 2.5: 中分類(サブフレーム)一覧 */
+function renderWhysSubFrames(root, subject, parentFrameNo){
+  const lawData = state.whys[subject] || {};
+  const subFrames = getSubFrames(subject, parentFrameNo);
+  const parentFr  = (FRAMES[subject]||[]).find(f=>f.n===parentFrameNo);
+  const parentTitle = parentFr ? parentFr.t : '';
+  // レガシー未分類(整数キー配下)も表示
+  const legacyData = lawData[parentFrameNo] || {};
+  const legacyIndices = legacyData.indices || [];
+  const hasLegacy = legacyIndices.length > 0;
+
+  let html = `<div class="card why-intro">
+    <div class="why-nav">
+      <button class="btn-back" id="why-back-frames">← ${escapeHtml(subject)} のフレーム一覧に戻る</button>
+    </div>
+    <h2 class="why-h2">${escapeHtml(subject)} <span class="why-sub">F${parentFrameNo} ${escapeHtml(parentTitle)} — 中分類別 5why</span></h2>
+    <p class="why-desc">学習したい中分類をクリックしてください。</p>
+  </div>`;
+  html += `<div class="card why-frames-card"><div class="why-frames">`;
+  for(const sub of subFrames){
+    const d = lawData[sub.key] || {};
+    const cnt = (d.indices||[]).length;
+    // 改修11 v7.2: 0項目中分類もクリック可能に(初登録できるよう)
+    const countCls = cnt > 0 ? 'has-data' : '';
+    html += `<div class="why-frame" data-subkey="${escapeHtml(sub.key)}">
+      <span class="wf-n">F${parentFrameNo}_${sub.n}</span>
+      <span class="wf-t">${escapeHtml(sub.t)}</span>
+      <span class="wf-c ${countCls}">${cnt}項目</span>
+      <span class="wf-arrow">›</span>
+    </div>`;
+  }
+  // レガシー(親フレーム直接配下)があれば表示
+  if(hasLegacy){
+    html += `<div class="why-frame" data-subkey="${parentFrameNo}" style="border-style:dashed">
+      <span class="wf-n">F${parentFrameNo}</span>
+      <span class="wf-t">(中分類未指定)</span>
+      <span class="wf-c has-data">${legacyIndices.length}項目</span>
+      <span class="wf-arrow">›</span>
+    </div>`;
+  }
+  html += `</div></div>`;
+  root.innerHTML = html;
+  // 戻るボタン
+  const backBtn = document.getElementById('why-back-frames');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    state.whyView = {mode:'frames', subject:subject, frameNo:null, indexId:null, subFrameKey:null};
+    saveState();
+    renderWhys();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // 中分類クリック(全中分類対応:0項目でも初登録できるよう)
+  root.querySelectorAll('.why-frame').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      const k = c.dataset.subkey;
+      state.whyView = {mode:'content', subject:subject, frameNo:null, indexId:null, subFrameKey:k};
+      saveState();
+      renderWhys();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+}
+
+/* Level 3: コンテンツ表示 */
+function renderWhysContent(root, subject, key){
+  const lawData = state.whys[subject] || {};
+  const frData = lawData[key] || {};
+  const indices = frData.indices || [];
+  // 未選択時は先頭のインデックスを自動選択
+  let selectedId = state.whyView.indexId;
+  if(!selectedId && indices.length){
+    selectedId = indices[0].id;
+    state.whyView.indexId = selectedId;
+  }
+  const selected = indices.find(x=>x.id === selectedId) || indices[0];
+
+  // 表示タイトルとパンくず
+  const subParsed = (typeof key === 'string') ? parseSubFrameKey(key) : null;
+  let frameTitleStr, backTargetMode;
+  if(subParsed){
+    const sub = getSubFrames(subject, subParsed.parent).find(s=>s.n===subParsed.n);
+    const parentFr = (FRAMES[subject]||[]).find(f=>f.n===subParsed.parent);
+    const parentT = parentFr ? parentFr.t : '';
+    frameTitleStr = `F${subParsed.parent} ${parentT} / F${subParsed.parent}_${subParsed.n} ${sub ? sub.t : ''}`;
+    backTargetMode = 'subframes';
+  } else {
+    frameTitleStr = frameTitle(subject, parseInt(key,10));
+    backTargetMode = 'frames';
+  }
+
+  let html = `<div class="card why-intro">
+    <div class="why-nav">
+      <button class="btn-back" id="why-back-content">← ${backTargetMode==='subframes' ? `F${subParsed.parent} 中分類一覧` : `${escapeHtml(subject)} のフレーム一覧`}に戻る</button>
+    </div>
+    <h3 class="why-h2" style="font-size:16px">${escapeHtml(subject)} <span class="why-sub">${escapeHtml(frameTitleStr)}</span></h3>
+  </div>`;
+  html += `<div class="card why-content-card">`;
+  // 改修11 第3弾: 「+ 新規インデックス」追加ボタン(常時表示)
+  html += `<div class="why-add-index-bar">
+    <button class="why-add-index-btn" id="why-add-index-btn">+ 新規インデックス</button>
+    <span class="why-add-index-hint">「(1) ◯◯について」のような見出し単位で追加できます</span>
+  </div>`;
+  if(!indices.length){
+    html += `<div style="text-align:center;color:var(--ink-muted);padding:20px;line-height:1.8">
+      このフレームには5whyデータがまだありません。<br>
+      上の「+ 新規インデックス」ボタンから自問自答ノートを作成できます。
+    </div>`;
+  } else {
+    // 横並びインデックスタブ(条文・解説と同じUI)
+    html += `<div class="art-index-tabs">`;
+    indices.forEach((idx, i)=>{
+      const active = idx.id === (selected ? selected.id : '');
+      html += `<button class="art-index-tab ${active?'active':''}" data-idxid="${escapeHtml(idx.id)}">${i+1}. ${escapeHtml(idx.title || '')}</button>`;
+    });
+    html += `</div>`;
+    // 改修11 第3弾: インデックスの編集・削除ボタン行
+    if(selected){
+      html += `<div class="why-index-edit-row">
+        <span>選択中: <b>${escapeHtml(selected.title || '(無題)')}</b></span>
+        <span class="why-index-actions">
+          <button data-action="edit-index" data-idxid="${escapeHtml(selected.id)}">✏ タイトル編集</button>
+          <button class="delete" data-action="delete-index" data-idxid="${escapeHtml(selected.id)}">🗑 インデックス削除</button>
+        </span>
+      </div>`;
+    }
+    // コンテンツ表示
+    if(selected){
+      const blocks = selected.blocks || [];
+      html += `<div class="why-index">`;
+      if(!blocks.length){
+        html += `<div style="text-align:center;color:var(--ink-muted);padding:20px">この項目にはブロックがまだありません。下の「+ 新規ブロック」から追加してください。</div>`;
+      } else {
+        for(const blk of blocks){
+          html += renderWhyBlock(blk, {editMode: true});
+        }
+      }
+      // 改修11 第3弾: 新規ブロック追加ボタン
+      html += `<button class="why-add-block-btn" data-action="add-block" data-idxid="${escapeHtml(selected.id)}">+ 新規ブロック (自問自答・覚え方・実務ポイント)</button>`;
+      html += `</div>`;
+    }
+  }
+  html += `</div>`;
+  root.innerHTML = html;
+  // 戻るボタン
+  const backBtn = document.getElementById('why-back-content');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    if(backTargetMode==='subframes'){
+      state.whyView = {mode:'subframes', subject:subject, frameNo:subParsed.parent, indexId:null, subFrameKey:null};
+    } else {
+      state.whyView = {mode:'frames', subject:subject, frameNo:null, indexId:null, subFrameKey:null};
+    }
+    saveState();
+    renderWhys();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // タブ切替
+  root.querySelectorAll('.art-index-tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      state.whyView.indexId = t.dataset.idxid;
+      saveState();
+      renderWhys();
+    });
+  });
+  // 改修11 第3弾: 編集ボタン群のイベント
+  // 「+ 新規インデックス」
+  const addIdxBtn = document.getElementById('why-add-index-btn');
+  if(addIdxBtn) addIdxBtn.addEventListener('click', ()=>{
+    openWhyIndexModal({mode:'new', subject, key});
+  });
+  // インデックスのタイトル編集・削除
+  root.querySelectorAll('[data-action="edit-index"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openWhyIndexModal({mode:'edit', subject, key, indexId: btn.dataset.idxid});
+    });
+  });
+  root.querySelectorAll('[data-action="delete-index"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      deleteWhyIndex({subject, key, indexId: btn.dataset.idxid});
+    });
+  });
+  // ブロックの編集・削除・追加
+  root.querySelectorAll('[data-action="edit-block"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openWhyBlockModal({mode:'edit', subject, key, indexId: btn.dataset.idxid, blockId: btn.dataset.bid});
+    });
+  });
+  root.querySelectorAll('[data-action="delete-block"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      deleteWhyBlock({subject, key, indexId: btn.dataset.idxid, blockId: btn.dataset.bid});
+    });
+  });
+  root.querySelectorAll('[data-action="add-block"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openWhyBlockModal({mode:'new', subject, key, indexId: btn.dataset.idxid});
+    });
+  });
+}
+
+/* selfqa / memory / practice ブロックのHTML生成
+   options.editMode: true なら編集ボタン(✏ 編集 / 🗑 削除)を表示 */
+function renderWhyBlock(blk, options){
+  const opts = options || {};
+  const editMode = !!opts.editMode;
+  const kind = blk.kind || 'selfqa';
+  let kindLabel, kCls, blkKindCls;
+  if(kind === 'selfqa'){
+    kindLabel = '自問自答'; kCls = 'k-selfqa'; blkKindCls = 'k-selfqa';
+  } else if(kind === 'memory'){
+    kindLabel = '覚え方'; kCls = 'k-memory'; blkKindCls = 'k-memory';
+  } else if(kind === 'practice'){
+    kindLabel = '実務ポイント'; kCls = 'k-practice'; blkKindCls = 'k-practice';
+  } else {
+    // 未知の kind は selfqa 扱い(寛容処理)
+    kindLabel = escapeHtml(kind); kCls = 'k-selfqa'; blkKindCls = 'k-selfqa';
+  }
+  const title = blk.title ? `<span class="why-block-title">${escapeHtml(blk.title)}</span>` : '<span class="why-block-title"></span>';
+  // 改修11 第3弾: 編集ボタン (5whyタブ内のコンテンツ画面でのみ表示)
+  let editButtons = '';
+  if(editMode && blk.id){
+    // 編集対象を特定するため、現在表示中の indexId も埋め込む
+    const idxId = (state.whyView && state.whyView.indexId) || '';
+    editButtons = `<span class="why-block-actions">
+      <button data-action="edit-block" data-bid="${escapeHtml(blk.id)}" data-idxid="${escapeHtml(idxId)}" title="編集">✏ 編集</button>
+      <button class="delete" data-action="delete-block" data-bid="${escapeHtml(blk.id)}" data-idxid="${escapeHtml(idxId)}" title="削除">🗑</button>
+    </span>`;
+  }
+
+  if(kind === 'selfqa'){
+    // selfqa は question/answer の構造
+    const question = formatArticleText(blk.question || '');
+    const answer = formatArticleText(blk.answer || '');
+    return `<div class="why-block ${blkKindCls}">
+      <div class="why-block-header">
+        <span class="why-block-kind ${kCls}">${kindLabel}</span>
+        ${title}
+        ${editButtons}
+      </div>
+      <div class="why-block-question">${question}</div>
+      <div class="why-block-answer">${answer}</div>
+    </div>`;
+  } else {
+    // memory / practice は text 1本
+    const text = formatArticleText(blk.text || '');
+    return `<div class="why-block ${blkKindCls}">
+      <div class="why-block-header">
+        <span class="why-block-kind ${kCls}">${kindLabel}</span>
+        ${title}
+        ${editButtons}
+      </div>
+      <div class="why-block-text">${text}</div>
+    </div>`;
+  }
+}
+
+/* ===== 改修11 第3弾: 5whyの編集モーダル ===== */
+// 編集中の対象を記憶する一時バッファ
+let _whyEditCtx = null;  // {mode, type:'index'|'block', subject, key, indexId, blockId}
+
+/* ----- インデックス編集モーダル ----- */
+function openWhyIndexModal(ctx){
+  // ctx: {mode:'new'|'edit', subject, key, indexId(editのみ)}
+  _whyEditCtx = {...ctx, type:'index'};
+  const titleInput = document.getElementById('mwi-title-input');
+  const titleEl = document.getElementById('mwi-title');
+  const deleteBtn = document.getElementById('mwi-delete');
+  if(ctx.mode === 'new'){
+    titleEl.textContent = '新規インデックスを追加';
+    titleInput.value = '';
+    if(deleteBtn) deleteBtn.style.display = 'none';
+  } else {
+    titleEl.textContent = 'インデックスを編集';
+    const ind = findWhyIndex(ctx.subject, ctx.key, ctx.indexId);
+    titleInput.value = ind ? (ind.title || '') : '';
+    if(deleteBtn) deleteBtn.style.display = 'inline-block';
+  }
+  document.getElementById('modal-why-index').style.display = 'flex';
+  setTimeout(()=>titleInput.focus(), 50);
+}
+function closeWhyIndexModal(){
+  document.getElementById('modal-why-index').style.display = 'none';
+  _whyEditCtx = null;
+}
+function saveWhyIndexModal(){
+  if(!_whyEditCtx || _whyEditCtx.type !== 'index') return;
+  const titleInput = document.getElementById('mwi-title-input');
+  const newTitle = (titleInput.value || '').trim();
+  if(!newTitle){
+    alert('インデックスのタイトルを入力してください。');
+    return;
+  }
+  const {mode, subject, key, indexId} = _whyEditCtx;
+  state.whys ||= {};
+  state.whys[subject] ||= {};
+  state.whys[subject][key] ||= {indices:[]};
+  const indices = state.whys[subject][key].indices;
+  if(mode === 'new'){
+    // 新規追加
+    const newId = 'idx_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    indices.push({id: newId, title: newTitle, blocks: []});
+    state.whyView.indexId = newId;  // 新規追加したものを選択状態に
+  } else {
+    // 編集
+    const ind = indices.find(x=>x.id===indexId);
+    if(ind) ind.title = newTitle;
+  }
+  saveState();
+  closeWhyIndexModal();
+  renderWhys();
+}
+function deleteWhyIndex(ctx){
+  // ctx: {subject, key, indexId}
+  const ind = findWhyIndex(ctx.subject, ctx.key, ctx.indexId);
+  if(!ind) return;
+  const blockCount = (ind.blocks||[]).length;
+  const msg = blockCount > 0
+    ? `インデックス「${ind.title}」を削除しますか?\n配下の ${blockCount} 個のブロックも一緒に削除されます。`
+    : `インデックス「${ind.title}」を削除しますか?`;
+  if(!confirm(msg)) return;
+  // 削除前にIDをキャッシュ(択一問題からの紐付けクリーンアップ用)
+  const deletedBlockIds = new Set((ind.blocks||[]).map(b=>b.id));
+  const indices = state.whys[ctx.subject][ctx.key].indices;
+  state.whys[ctx.subject][ctx.key].indices = indices.filter(x=>x.id !== ctx.indexId);
+  // 選択中なら自動で先頭に戻す
+  if(state.whyView.indexId === ctx.indexId){
+    const remaining = state.whys[ctx.subject][ctx.key].indices;
+    state.whyView.indexId = remaining.length ? remaining[0].id : null;
+  }
+  // 択一問題の linkedWhys から削除されたブロックIDを除外
+  if(deletedBlockIds.size){
+    for(const q of state.questions){
+      if(Array.isArray(q.linkedWhys) && q.linkedWhys.length){
+        q.linkedWhys = q.linkedWhys.filter(bid => !deletedBlockIds.has(bid));
+      }
+    }
+  }
+  saveState();
+  renderWhys();
+}
+
+/* ----- ブロック編集モーダル ----- */
+function openWhyBlockModal(ctx){
+  // ctx: {mode:'new'|'edit', subject, key, indexId, blockId(editのみ)}
+  _whyEditCtx = {...ctx, type:'block'};
+  const titleEl = document.getElementById('mwb-title');
+  const kindSel = document.getElementById('mwb-kind');
+  const titleInput = document.getElementById('mwb-title-input');
+  const qInput = document.getElementById('mwb-question');
+  const aInput = document.getElementById('mwb-answer');
+  const tInput = document.getElementById('mwb-text');
+  const deleteBtn = document.getElementById('mwb-delete');
+
+  if(ctx.mode === 'new'){
+    titleEl.textContent = '新規ブロックを追加';
+    kindSel.value = 'selfqa';
+    titleInput.value = '';
+    qInput.value = '';
+    aInput.value = '';
+    tInput.value = '';
+    if(deleteBtn) deleteBtn.style.display = 'none';
+  } else {
+    titleEl.textContent = 'ブロックを編集';
+    const blk = findWhyBlockByCtx(ctx);
+    if(blk){
+      kindSel.value = blk.kind || 'selfqa';
+      titleInput.value = blk.title || '';
+      qInput.value = blk.question || '';
+      aInput.value = blk.answer || '';
+      tInput.value = blk.text || '';
+    }
+    if(deleteBtn) deleteBtn.style.display = 'inline-block';
+  }
+  toggleWhyBlockKindFields(kindSel.value);
+  document.getElementById('modal-why-block').style.display = 'flex';
+  setTimeout(()=>titleInput.focus(), 50);
+}
+/* kind に応じて表示する入力フィールドを切り替え */
+function toggleWhyBlockKindFields(kind){
+  const selfqaFields = document.getElementById('mwb-selfqa-fields');
+  const textFields = document.getElementById('mwb-text-fields');
+  if(kind === 'selfqa'){
+    if(selfqaFields) selfqaFields.style.display = 'block';
+    if(textFields) textFields.style.display = 'none';
+  } else {
+    if(selfqaFields) selfqaFields.style.display = 'none';
+    if(textFields) textFields.style.display = 'block';
+  }
+}
+function closeWhyBlockModal(){
+  document.getElementById('modal-why-block').style.display = 'none';
+  _whyEditCtx = null;
+}
+function saveWhyBlockModal(){
+  if(!_whyEditCtx || _whyEditCtx.type !== 'block') return;
+  const kind = document.getElementById('mwb-kind').value;
+  const title = (document.getElementById('mwb-title-input').value || '').trim();
+  if(!title){
+    alert('タイトル(短い見出し)を入力してください。');
+    return;
+  }
+  let blkData;
+  if(kind === 'selfqa'){
+    const question = (document.getElementById('mwb-question').value || '').trim();
+    const answer = (document.getElementById('mwb-answer').value || '').trim();
+    if(!question){
+      alert('質問(Q.)を入力してください。');
+      return;
+    }
+    blkData = {kind:'selfqa', title, question, answer};
+  } else {
+    const text = (document.getElementById('mwb-text').value || '').trim();
+    if(!text){
+      alert('本文を入力してください。');
+      return;
+    }
+    blkData = {kind, title, text};
+  }
+  const {mode, subject, key, indexId, blockId} = _whyEditCtx;
+  const ind = findWhyIndex(subject, key, indexId);
+  if(!ind){
+    alert('対象インデックスが見つかりませんでした。');
+    closeWhyBlockModal();
+    return;
+  }
+  ind.blocks ||= [];
+  if(mode === 'new'){
+    const newId = 'wblk_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    blkData.id = newId;
+    ind.blocks.push(blkData);
+  } else {
+    const i = ind.blocks.findIndex(b => b.id === blockId);
+    if(i >= 0){
+      // 既存IDを維持。kind が変更された場合は不要フィールドを除去
+      blkData.id = blockId;
+      ind.blocks[i] = blkData;
+    }
+  }
+  saveState();
+  closeWhyBlockModal();
+  renderWhys();
+}
+function deleteWhyBlock(ctx){
+  // ctx: {subject, key, indexId, blockId}
+  const blk = findWhyBlockByCtx(ctx);
+  if(!blk) return;
+  const blkTitle = blk.title || '(無題)';
+  if(!confirm(`ブロック「${blkTitle}」を削除しますか?\n紐付けている択一問題からも自動的に外れます。`)) return;
+  const ind = findWhyIndex(ctx.subject, ctx.key, ctx.indexId);
+  if(!ind) return;
+  ind.blocks = (ind.blocks||[]).filter(b => b.id !== ctx.blockId);
+  // 択一問題の linkedWhys から、このブロックIDを除外
+  for(const q of state.questions){
+    if(Array.isArray(q.linkedWhys) && q.linkedWhys.length){
+      q.linkedWhys = q.linkedWhys.filter(bid => bid !== ctx.blockId);
+    }
+  }
+  saveState();
+  renderWhys();
+}
+
+/* ヘルパー: state.whys から indexオブジェクトを取得 */
+function findWhyIndex(subject, key, indexId){
+  const lawData = (state.whys && state.whys[subject]) || {};
+  const frData = lawData[key];
+  if(!frData) return null;
+  return (frData.indices || []).find(x => x.id === indexId) || null;
+}
+/* ヘルパー: ctxから block を取得 */
+function findWhyBlockByCtx(ctx){
+  const ind = findWhyIndex(ctx.subject, ctx.key, ctx.indexId);
+  if(!ind) return null;
+  return (ind.blocks || []).find(b => b.id === ctx.blockId) || null;
+}
+
 /* ===== Tabs ===== */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
@@ -6437,6 +8117,7 @@ function switchTab(name){
   document.getElementById('aside-select').style.display = name==='select'?'flex':'none';
   document.getElementById('view-case').style.display = name==='case'?'block':'none';
   document.getElementById('view-articles').style.display = name==='articles'?'block':'none';
+  document.getElementById('view-whys').style.display = name==='whys'?'block':'none';
   document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
   document.getElementById('view-figures').style.display = name==='figures'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
@@ -6460,6 +8141,16 @@ function switchTab(name){
     state.articleView.frameNo = null;
     state.articleView.indexId = null;
     renderArticles();
+  }
+  if(name==='whys'){
+    // 改修11: 5why タブ — 「条文・解説」と同じ3段階ナビ
+    state.whyView = state.whyView || {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+    state.whyView.mode = 'subjects';
+    state.whyView.subject = null;
+    state.whyView.frameNo = null;
+    state.whyView.indexId = null;
+    state.whyView.subFrameKey = null;
+    renderWhys();
   }
   if(name==='weak') renderWeak();
   if(name==='figures') renderFigures();
@@ -6564,6 +8255,27 @@ function currentWeakQuestion(){
 }
 
 function renderWeak(){
+  // 改修11 v6.2: 診断ラッパー — エラーが起きても画面に情報を表示する
+  try {
+    _renderWeakInner();
+  } catch(e) {
+    console.error('[diag] renderWeak failed:', e);
+    const root = document.getElementById('weak-content');
+    if(root){
+      const stack = (e && e.stack) ? String(e.stack).slice(0, 800) : '';
+      root.innerHTML = `<div class="card" style="padding:24px;background:#FFF7E8;border-left:4px solid #C9472A">
+        <h3 style="color:#C9472A;margin:0 0 12px 0;font-size:16px">⚠ 弱点タブの描画でエラーが発生しました</h3>
+        <p style="margin:0 0 12px 0;font-size:13px;line-height:1.6"><b>エラー内容:</b><br>${escapeHtml(e && e.message ? e.message : String(e))}</p>
+        <details style="margin:0 0 12px 0">
+          <summary style="cursor:pointer;font-size:12px;color:#666">詳細(スタックトレース)を表示</summary>
+          <pre style="margin:8px 0 0 0;padding:10px;background:#f5f5f5;font-size:11px;overflow:auto;max-height:300px">${escapeHtml(stack)}</pre>
+        </details>
+        <p style="margin:0;font-size:12px;color:#666;line-height:1.6">このスクリーンショットを開発者に送ってください。<br>もしくは、データタブで「ストレージ状況を確認」「完全バックアップ」を取って共有してください。</p>
+      </div>`;
+    }
+  }
+}
+function _renderWeakInner(){
   const root = document.getElementById('weak-content');
   const s = state.weakSession;
   // 科目選択肢
@@ -6636,8 +8348,22 @@ function renderWeak(){
     wireWeakFilters();
     return;
   }
-  const idx = state.weakSession.currentIndex;
+  // 改修11 v6.2.1: currentIndex の境界保護
+  // pool.length が変化した時(フィルタ変更、データ追加削除、kindMode変更等)、
+  // 過去の currentIndex が範囲外になる可能性があるため、安全に 0 へリセット。
+  let idx = state.weakSession.currentIndex;
+  if(typeof idx !== 'number' || idx < 0 || idx >= pool.length){
+    idx = 0;
+    state.weakSession.currentIndex = 0;
+  }
   const q = pool[idx];
+  if(!q){
+    // 通常はここに来ないが、防御のため empty 表示に切替
+    html += `<div class="weak-empty"><div class="ico">―</div>問題の取得に失敗しました。フィルタを変更してみてください。</div>`;
+    root.innerHTML = html;
+    wireWeakFilters();
+    return;
+  }
   html += `<div class="weak-summary">
     <div>検索結果: <span class="count"><b>${pool.length}</b>件</span></div>
     <div class="weak-pos">現在 ${idx+1} / ${pool.length} 問目</div>
@@ -6735,6 +8461,15 @@ function renderWeak(){
   wireLinkedArticlesAccordion(root);
   const artLinkBtnWeak = document.getElementById('art-link-btn-weak');
   if(artLinkBtnWeak) artLinkBtnWeak.addEventListener('click', ()=>openArticlePicker(q.id));
+
+  // 改修11: 5whyアコーディオン
+  try {
+    wireLinkedWhysAccordion(root);
+    const whyLinkBtnWeak = document.getElementById('why-link-btn-weak');
+    if(whyLinkBtnWeak) whyLinkBtnWeak.addEventListener('click', ()=>openWhyPicker(q.id));
+  } catch(e) {
+    console.error('[5why] wireLinkedWhysAccordion(weak) error:', e);
+  }
 }
 
 function renderWeakResult(q, correct){
@@ -6750,6 +8485,7 @@ function renderWeakResult(q, correct){
       <div class="section-h">出題根拠</div>
       <div class="section-body">${escapeHtml(q.legalBasis||'—')}　／　難易度 ${escapeHtml(q.difficulty||'—')}</div>
       ${renderLinkedArticlesSection(q, 'weak')}
+      ${(() => { try { return renderLinkedWhysSection(q, 'weak'); } catch(e) { console.error('[5why] renderLinkedWhysSection(weak) error:', e); return ''; } })()}
       ${q.articleText?`<button class="article-toggle">&gt;&gt; 条文等を表示</button><div class="article-box" style="display:none">${escapeHtml(q.articleText).replace(/\n/g,'<br>')}</div>`:''}
     </div>
   `;
@@ -7438,6 +9174,56 @@ function init(){
     // editingId があれば既存問題、無ければ新規問題(__draft__)
     openArticlePicker(editingId || '__draft__');
   });
+  // 改修11: 5whyピッカーのイベント
+  try {
+    const whyClose = document.getElementById('why-picker-close');
+    if(whyClose) whyClose.addEventListener('click', closeWhyPicker);
+    const whyCancel = document.getElementById('why-picker-cancel');
+    if(whyCancel) whyCancel.addEventListener('click', closeWhyPicker);
+    const whyOverlay = document.querySelector('#why-picker-modal .fig-modal-overlay');
+    if(whyOverlay) whyOverlay.addEventListener('click', closeWhyPicker);
+    const whyDone = document.getElementById('why-picker-done');
+    if(whyDone) whyDone.addEventListener('click', applyWhyPicker);
+    // 改修11: 編集モーダル内の「5whyを選択」ボタン
+    const mWhyLinkBtn = document.getElementById('m-why-link-btn');
+    if(mWhyLinkBtn) mWhyLinkBtn.addEventListener('click', ()=>{
+      openWhyPicker(editingId || '__draft__');
+    });
+  } catch(e) {
+    console.error('[5why] init event listener error:', e);
+  }
+  // 改修11 第3弾: 5why編集モーダルのイベントリスナー
+  try {
+    // インデックス編集モーダル
+    const mwiCancel = document.getElementById('mwi-cancel');
+    if(mwiCancel) mwiCancel.addEventListener('click', closeWhyIndexModal);
+    const mwiSave = document.getElementById('mwi-save');
+    if(mwiSave) mwiSave.addEventListener('click', saveWhyIndexModal);
+    const mwiDelete = document.getElementById('mwi-delete');
+    if(mwiDelete) mwiDelete.addEventListener('click', ()=>{
+      if(_whyEditCtx && _whyEditCtx.type === 'index' && _whyEditCtx.mode === 'edit'){
+        closeWhyIndexModal();
+        deleteWhyIndex({subject:_whyEditCtx.subject, key:_whyEditCtx.key, indexId:_whyEditCtx.indexId});
+      }
+    });
+    // ブロック編集モーダル
+    const mwbCancel = document.getElementById('mwb-cancel');
+    if(mwbCancel) mwbCancel.addEventListener('click', closeWhyBlockModal);
+    const mwbSave = document.getElementById('mwb-save');
+    if(mwbSave) mwbSave.addEventListener('click', saveWhyBlockModal);
+    const mwbDelete = document.getElementById('mwb-delete');
+    if(mwbDelete) mwbDelete.addEventListener('click', ()=>{
+      if(_whyEditCtx && _whyEditCtx.type === 'block' && _whyEditCtx.mode === 'edit'){
+        closeWhyBlockModal();
+        deleteWhyBlock({subject:_whyEditCtx.subject, key:_whyEditCtx.key, indexId:_whyEditCtx.indexId, blockId:_whyEditCtx.blockId});
+      }
+    });
+    // kind選択時のフィールド切替
+    const mwbKind = document.getElementById('mwb-kind');
+    if(mwbKind) mwbKind.addEventListener('change', ()=>toggleWhyBlockKindFields(mwbKind.value));
+  } catch(e) {
+    console.error('[5why-edit] init event listener error:', e);
+  }
   // 図表メタ情報入力モーダルのイベント
   document.getElementById('fig-meta-close').addEventListener('click', closeFigMetaModal);
   document.querySelector('#fig-meta-modal .fig-modal-overlay').addEventListener('click', closeFigMetaModal);
