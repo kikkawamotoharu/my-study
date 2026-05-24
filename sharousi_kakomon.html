@@ -445,6 +445,17 @@
   .slot.done{background:var(--green);color:#fff}
   .slot.done .slot-n{opacity:.85}
   .slot.done .slot-mark{font-size:13px;font-weight:700;line-height:1}
+  /* 改修02: 復習タイミング色分け(最新完了ラウンドのみ) */
+  .slot.done.warn{background:#E8B923;color:#3a2a00}      /* 黄 = 復習推奨 */
+  .slot.done.warn .slot-n{opacity:.85;color:#3a2a00}
+  .slot.done.warn .slot-mark{color:#3a2a00}
+  .slot.done.overdue{background:#D9534F;color:#fff;animation:pulseOverdue 1.8s infinite}  /* 赤 = 要復習 */
+  @keyframes pulseOverdue{
+    0%,100%{box-shadow:0 0 0 0 rgba(217,83,79,.5)}
+    50%{box-shadow:0 0 0 3px rgba(217,83,79,0)}
+  }
+  /* 改修02: 完了スロット内の正答率%表示 */
+  .slot .slot-pct-done{font-size:9px;font-weight:600;line-height:1;margin-top:1px;opacity:.95}
   .slot.prog{background:var(--amber);color:#fff;animation:pulseSlot 1.6s infinite}
   .slot.prog .slot-pct{font-size:9px;font-weight:600;line-height:1}
   @keyframes pulseSlot{
@@ -455,6 +466,14 @@
   .prog-status.done{color:var(--green);font-weight:500}
   .prog-status.inprog{color:var(--amber);font-weight:500}
   .prog-status.empty{color:var(--ink-muted);opacity:.6;font-style:italic}
+  /* 改修02: 復習バッジ */
+  .review-badge{
+    display:inline-block;font-size:11px;font-weight:600;
+    padding:2px 8px;border-radius:99px;margin-left:6px;letter-spacing:.02em;
+    vertical-align:middle;
+  }
+  .review-badge.warn{background:#FFF3CD;color:#856404;border:1px solid #FFE69A}
+  .review-badge.overdue{background:#F8D7DA;color:#721C24;border:1px solid #F5C2C7}
   .btn-sm{font-size:12px;padding:7px 14px;border-radius:5px}
 
   /* ===== Progress: 科目一覧 ===== */
@@ -647,6 +666,29 @@
     font-size:12px;color:var(--ink-muted);padding:0 22px 12px;
     border-bottom:1px solid var(--line);
   }
+  /* 改修05: 分類タブ */
+  .fig-picker-tabs{
+    display:flex;gap:4px;padding:10px 14px 0;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+  }
+  .fp-tab{
+    background:transparent;border:1px solid var(--line);
+    border-bottom:none;border-radius:5px 5px 0 0;
+    padding:6px 14px;font-size:12px;color:var(--ink-soft);
+    cursor:pointer;font-family:inherit;transition:all .12s;
+    position:relative;top:1px;
+  }
+  .fp-tab:hover{background:var(--bg);color:var(--ink)}
+  .fp-tab.active{
+    background:var(--paper);color:var(--ink);font-weight:600;
+    border-color:var(--line);border-bottom:1px solid var(--paper);
+  }
+  .fp-tab .fp-tab-count{
+    display:inline-block;margin-left:5px;
+    font-size:10px;padding:1px 6px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);
+  }
+  .fp-tab.active .fp-tab-count{background:var(--accent-soft);color:var(--accent)}
   .fig-picker-list{
     flex:1;overflow-y:auto;padding:8px;
     display:flex;flex-direction:column;gap:6px;
@@ -728,6 +770,40 @@
     font-family:inherit;transition:all .12s;
   }
   .link-fig-btn:hover{background:var(--bg);color:var(--ink);border-color:var(--ink-muted)}
+
+  /* ===== 改修04: 解答履歴(〇×の並び)表示 ===== */
+  .ans-history{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    margin:8px 0;padding:7px 12px;
+    background:var(--bg);border:1px solid var(--line);border-radius:5px;
+    font-size:12px;color:var(--ink-soft);
+  }
+  .ah-label{font-size:11px;color:var(--ink-muted);font-weight:500;letter-spacing:.02em}
+  .ah-marks{display:inline-flex;gap:1px;align-items:baseline;line-height:1}
+  .ah-trunc{color:var(--ink-muted);font-size:11px;margin-right:3px}
+  .ah-mark{
+    font-weight:700;font-size:14px;line-height:1;
+    display:inline-block;min-width:14px;text-align:center;
+    font-family:'Hiragino Sans','Yu Gothic','Meiryo',sans-serif;
+  }
+  .ah-mark.ah-o{color:#27ae60}    /* 緑 */
+  .ah-mark.ah-x{color:#c0392b}    /* 赤 */
+  .ah-mark.ah-latest{
+    text-decoration:underline;text-underline-offset:3px;
+    text-decoration-thickness:2px;font-size:15px;
+  }
+  .ah-info{font-size:11px;color:var(--ink-muted)}
+  .ah-badge{
+    margin-left:auto;font-size:11px;font-weight:600;
+    padding:2px 9px;border-radius:99px;letter-spacing:.02em;white-space:nowrap;
+  }
+  .ah-badge.weak{background:#FDECEA;color:#A03524;border:1px solid #F5C6BF}
+  .ah-badge.warn{background:#FEF6E0;color:#7A5A14;border:1px solid #F1D88A}
+  .ah-badge.ok{background:#E6F3EA;color:#1E6A3A;border:1px solid #B8DCC3}
+  @media(max-width:640px){
+    .ans-history{font-size:11px;padding:6px 10px;gap:6px}
+    .ah-badge{margin-left:0}
+  }
 
   @media(max-width:640px){
     .fig-grid{grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:10px}
@@ -1469,7 +1545,9 @@
   .why-intro{padding:20px 24px}
   .why-h2{margin:0 0 6px 0;font-size:20px;font-weight:600}
   .why-sub{margin-left:8px;font-size:13px;color:var(--ink-muted);font-weight:normal}
-  .why-desc{margin:8px 0 0 0;font-size:12px;color:var(--ink-muted);line-height:1.6}
+  .why-desc{margin:8px 0 0 0;font-size:12px;color:var(--ink-muted);line-height:1.6;white-space:pre-wrap}
+  /* 改修03: 5why イントロ編集ボタン */
+  .why-intro-edit-btn{margin-top:10px;font-size:11px;padding:4px 12px;border-radius:4px}
   .why-nav{margin-bottom:12px}
   .why-subjects-card{padding:18px}
   .why-subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
@@ -2318,6 +2396,23 @@
   </div>
 </div>
 
+<!-- ===== 改修03: 5why イントロ編集モーダル ===== -->
+<div class="modal-back" id="modal-why-intro" style="display:none">
+  <div class="modal" style="max-width:560px">
+    <h2>5why イントロを編集</h2>
+    <p class="section-body dim" style="margin:6px 0 10px;font-size:11px">
+      5whyタブのトップに表示される説明文を、自由に書き換えできます。<br>
+      改行はそのまま画面に反映されます。
+    </p>
+    <textarea id="why-intro-input" rows="6" style="width:100%;font-family:inherit;font-size:13px;line-height:1.6;padding:10px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;resize:vertical"></textarea>
+    <div class="actions" style="margin-top:14px;display:flex;align-items:center;gap:8px">
+      <button class="btn ghost" id="why-intro-reset" style="margin-right:auto;color:var(--accent)">デフォルトに戻す</button>
+      <button class="btn ghost" id="why-intro-cancel">キャンセル</button>
+      <button class="btn" id="why-intro-save">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== 改修11 第3弾: 5whyインデックス編集モーダル ===== -->
 <div class="modal-back" id="modal-why-index" style="display:none">
   <div class="modal" style="max-width:500px">
@@ -2373,6 +2468,14 @@
     <button class="fig-modal-close" id="fig-picker-close">×</button>
     <h3 class="fig-picker-title">この問題に紐付ける図表を選択</h3>
     <div class="fig-picker-desc" id="fig-picker-desc"></div>
+    <!-- 改修05: 分類タブ -->
+    <div class="fig-picker-tabs" id="fig-picker-tabs">
+      <button class="fp-tab" data-fptab="frame">フレーム別</button>
+      <button class="fp-tab" data-fptab="subject">科目別</button>
+      <button class="fp-tab" data-fptab="article">条文別</button>
+      <button class="fp-tab" data-fptab="cross">横断整理</button>
+      <button class="fp-tab" data-fptab="all">すべて</button>
+    </div>
     <div class="fig-picker-list" id="fig-picker-list"></div>
     <div class="fig-picker-foot">
       <button class="btn" id="fig-picker-done">完了</button>
@@ -2401,6 +2504,18 @@
         <input type="number" id="fig-meta-input-frame" placeholder="例: 3" min="1" step="1">
         <span class="fig-meta-hint">数値のみ。未指定なら空欄のままでOK</span>
       </label>
+      <!-- 改修05: 条文 -->
+      <label class="fig-meta-field">
+        <span class="fig-meta-label">条文(任意)</span>
+        <input type="text" id="fig-meta-input-article" placeholder="例: 法10条1項、規則3条">
+        <span class="fig-meta-hint">自由記入。設定すると「条文別」タブで表示されます</span>
+      </label>
+      <!-- 改修05: 横断整理フラグ -->
+      <label class="fig-meta-field" style="flex-direction:row;align-items:center;gap:8px">
+        <input type="checkbox" id="fig-meta-input-cross" style="width:18px;height:18px;cursor:pointer">
+        <span class="fig-meta-label" style="margin:0">🌐 横断整理(科目横断的な図表)</span>
+      </label>
+      <span class="fig-meta-hint" style="margin-top:-8px">チェックすると「横断整理」タブで表示されます(科目横断問題で活用)</span>
       <label class="fig-meta-field">
         <span class="fig-meta-label">メモ(任意)</span>
         <textarea id="fig-meta-input-notes" rows="3" placeholder="補足情報など"></textarea>
@@ -2911,6 +3026,15 @@ const SUBJECTS_ORDER = [
   "労働基準法","労働安全衛生法","労働者災害補償保険法","雇用保険法","労働保険徴収法","労務管理その他の労働に関する一般常識",
   "健康保険法","国民年金法","厚生年金保険法","社会保険に関する一般常識"
 ];
+
+/* 改修04 (v2): 弱点モード対象の判定しきい値(累計ミス回数 ≥ N 回で弱点入り、以後は外れない)。
+   ここの数字を変えると、択一タブの「弱点」モードと解答履歴バッジの判定が連動して変わる。 */
+const WEAK_THRESHOLD = 3;
+
+/* 改修03: 5why タブのトップ画面のイントロ文(デフォルト値)。
+   ユーザーが編集すると state.whyIntro に保存され、こちらの値より優先される。
+   「デフォルトに戻す」操作でこの値に戻る。 */
+const DEFAULT_WHY_INTRO = '「なぜ、この制度・取扱い・仕組み・日数なのか?」を5回問い続けて、丸暗記ではなく理解で記憶を確実にするためのノートです。\n科目をクリックするとフレーム別に、自問自答 / 覚え方 / 実務ポイント が表示されます。';
 
 /* 個別法律名 → 試験科目(章)名 のマッピング.
    ここに登録されていない法律は、その法律名自体が科目名となる(例:雇用保険法→雇用保険法)。
@@ -3531,6 +3655,8 @@ function loadState(){
       s.whys ||= {};
       s.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
       if(typeof s.whyView.subFrameKey === 'undefined') s.whyView.subFrameKey = null;
+      // 改修03: 5why タブのイントロ文(ユーザー編集可)
+      if(typeof s.whyIntro === 'undefined' || s.whyIntro === null) s.whyIntro = DEFAULT_WHY_INTRO;
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -3671,20 +3797,18 @@ function loadState(){
     articles: {},
     articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
     whys: {},
-    whyView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null}
+    whyView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
+    whyIntro: DEFAULT_WHY_INTRO
   };
 }
 function saveState(){
   // 改修6 防御層: 万一 state.figures に imageData が残っていたら、
   // 書き込み前に figureImageCache へ退避して state からは削除する。
   // これにより、どんな経路でも localStorage の 5MB 制限超過を未然に防ぐ。
-  // 同時に IndexedDB にも書き込んで永続化を保証する(キャッシュは揮発するため)。
   if(Array.isArray(state.figures)){
     for(const fig of state.figures){
       if(fig && fig.imageData){
         figureImageCache.set(fig.id, fig.imageData);
-        // IDB にも非同期で書き込み(失敗しても localStorage を肥大化させない方針を維持)
-        try{ figureStore.put(fig.id, fig.imageData).catch(_=>{}) }catch(_){}
         delete fig.imageData;
       }
     }
@@ -3724,7 +3848,7 @@ function getPool(){
   //   'both'/'past'/'forecast'/'pastA'/'pastB'/'pastA_forecast'
   const kindMode = s.kindMode || 'both';
   pool = pool.filter(q => questionMatchesKindMode(q, kindMode));
-  if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
+  if(s.filterLaw) pool = pool.filter(q => questionMatchesLawFilter(q, s.filterLaw));
   if(s.filterFrame){
     const fn = parseInt(s.filterFrame,10);
     if(!isNaN(fn)) pool = pool.filter(q=>q.frameNo===fn);
@@ -3734,11 +3858,13 @@ function getPool(){
   if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
 
   if(s.mode==='weak'){
+    // 改修04 (v2): 累計ミス回数が WEAK_THRESHOLD 回以上の問題を弱点扱い。
+    // 一度弱点入りした問題は、その後 ○ で答え直しても外れない(sticky)。
     pool = pool.filter(q=>{
       const hist = state.history.filter(h=>h.qid===q.id);
       if(!hist.length) return false;
-      const last = hist[hist.length-1];
-      return !last.correct;
+      const missCount = hist.filter(h=>!h.correct).length;
+      return missCount >= WEAK_THRESHOLD;
     });
   }else if(s.mode==='unseen'){
     pool = pool.filter(q=>!state.history.some(h=>h.qid===q.id));
@@ -3796,6 +3922,48 @@ function statAllRate(){
 function questionStats(qid){
   const h = state.history.filter(x=>x.qid===qid);
   return {total:h.length, correct:h.filter(x=>x.correct).length, last: h[h.length-1]||null};
+}
+
+/* 改修04: 択一問題の解答履歴を 〇× の並びで表示するHTMLを返す。
+   - 古い解答が左、新しい解答が右(時系列順)
+   - 最新解答に下線
+   - 直近15件のみ表示。それ以前は「…」で省略
+   - 累計ミス回数 ≥ WEAK_THRESHOLD → 「⚠ 弱点モード対象」(sticky)
+   - 累計ミス回数 1 〜 WEAK_THRESHOLD-1   → 「● 累計Nミス」(注意・まだ弱点未満)
+   - 累計ミス回数 0                     → 「✓ 全問正解」
+   - 履歴が無い問題 → 何も表示しない(空文字を返す) */
+function formatAnswerHistory(qid){
+  const h = state.history.filter(x=>x.qid===qid);
+  if(!h.length) return '';
+  const MAX_SHOW = 15;
+  const truncated = h.length > MAX_SHOW;
+  const shown = truncated ? h.slice(-MAX_SHOW) : h;
+  const lastIdx = shown.length - 1;
+  const marks = shown.map((entry, i) => {
+    const cls = entry.correct ? 'ah-o' : 'ah-x';
+    const latestCls = (i === lastIdx) ? ' ah-latest' : '';
+    return `<span class="ah-mark ${cls}${latestCls}">${entry.correct ? '〇' : '×'}</span>`;
+  }).join('');
+  const truncPrefix = truncated ? `<span class="ah-trunc">…</span>` : '';
+  const last = h[h.length-1];
+  const dt = new Date(last.ts);
+  const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+  // 改修04 v2: 累計ミス回数ベースでバッジ判定
+  const missCount = h.filter(x => !x.correct).length;
+  let badge = '';
+  if(missCount >= WEAK_THRESHOLD){
+    badge = `<span class="ah-badge weak">⚠ 弱点モード対象 (累計${missCount}ミス)</span>`;
+  }else if(missCount > 0){
+    badge = `<span class="ah-badge warn">● 累計${missCount}ミス</span>`;
+  }else{
+    badge = `<span class="ah-badge ok">✓ 全問正解</span>`;
+  }
+  return `<div class="ans-history">
+    <span class="ah-label">解答履歴(古→新)</span>
+    <span class="ah-marks">${truncPrefix}${marks}</span>
+    <span class="ah-info">最新 ${dateStr} → ${last.correct ? '〇' : '×'}</span>
+    ${badge}
+  </div>`;
 }
 
 /* ===== Render: quiz ===== */
@@ -3897,6 +4065,8 @@ function renderQuiz(){
       <div class="progress-track progress-clickable" id="quiz-progress-track" title="クリックで任意の問題へジャンプ"><div class="progress-fill" style="width:${((idx+1)/pool.length)*100}%"></div></div>
       ${qs.total?`<span class="pill">正答率 ${Math.round(qs.correct/qs.total*100)}% (${qs.correct}/${qs.total})</span>`:''}
     </div>
+
+    ${formatAnswerHistory(q.id)}
 
     ${linkedFigsHtml}
 
@@ -4352,23 +4522,35 @@ function renderSidebar(){
     return true;
   };
   const kmQs = state.questions.filter(kmFilter);
-  const laws = [...new Set(kmQs.map(q=>q.law))].sort();
+  const laws = [...new Set(kmQs.map(q=>q.law))].filter(Boolean);
   const years = [...new Set(kmQs.map(q=>q.year))].sort();
-  // フレーム: 法律が指定されていれば、その法律のフレームに絞る
+  // 改修01: 法律フィルタが「科目全体」(__SUBJECT__:prefix)のときも考慮して
+  //          フレーム・カテゴリの絞り込み元を構築する
+  const matchesLaw = q => questionMatchesLawFilter(q, state.session.filterLaw);
+  // フレーム: 法律が指定されていれば、その法律(または科目全体)のフレームに絞る
   let frameSource = kmQs.filter(q=>q.frameNo!=null);
-  if(state.session.filterLaw) frameSource = frameSource.filter(q=>q.law===state.session.filterLaw);
+  if(state.session.filterLaw) frameSource = frameSource.filter(matchesLaw);
   const frames = [...new Set(frameSource.map(q=>q.frameNo))].sort((a,b)=>a-b);
   // カテゴリは現在の法律フィルタを考慮して絞る(法律=すべての場合は全カテゴリ)
   let catSource = kmQs;
-  if(state.session.filterLaw) catSource = catSource.filter(q=>q.law===state.session.filterLaw);
+  if(state.session.filterLaw) catSource = catSource.filter(matchesLaw);
   if(state.session.filterFrame) catSource = catSource.filter(q=>q.frameNo===parseInt(state.session.filterFrame,10));
   const cats = [...new Set(catSource.map(q=>q.category).filter(Boolean))].sort();
-  fillSelect('filter-law',laws,state.session.filterLaw);
+  // 改修01: 法律ドロップダウンを SUBJECTS_ORDER 順に整列(optgroup付き)
+  fillLawFilterSelect('filter-law', laws, state.session.filterLaw);
   // フレームは表示テキストを「F11 通則…」形式にする(科目=章のマップを利用)
   const frameSel = document.getElementById('filter-frame');
   frameSel.innerHTML = '<option value="">すべて</option>'+frames.map(n=>{
+    // 改修01: 法律フィルタが「科目全体」のときは、その科目名から FRAMES を引く
     const law = state.session.filterLaw;
-    const subj = law ? lawToSubject(law) : null;
+    let subj = null;
+    if(law){
+      if(law.startsWith(SUBJECT_FILTER_PREFIX)){
+        subj = law.slice(SUBJECT_FILTER_PREFIX.length);
+      } else {
+        subj = lawToSubject(law);
+      }
+    }
     const fr = subj && FRAMES[subj] ? FRAMES[subj].find(f=>f.n===n) : null;
     const label = fr ? `F${n} ${fr.t}` : `F${n}`;
     return `<option value="${n}" ${String(n)===String(state.session.filterFrame)?'selected':''}>${escapeHtml(label)}</option>`;
@@ -4380,6 +4562,82 @@ function renderSidebar(){
 function fillSelect(id,options,current){
   const sel = document.getElementById(id);
   sel.innerHTML = '<option value="">すべて</option>'+options.map(o=>`<option value="${escapeHtml(o)}" ${o===current?'selected':''}>${escapeHtml(o)}</option>`).join('');
+}
+
+/* ===== 改修01: 法律絞り込みプルダウンの SUBJECTS_ORDER 順整列 =====
+   進捗管理・条文・解説タブと同じ並び(労基→安衛→労災→雇用→徴収→労一→健保→国年→厚年→社一)で表示する。
+   労一・社一など個別法律を多く持つ科目は optgroup でグルーピングし、先頭に「※ この科目すべて」オプションを置く。
+   この特殊オプションは値が "__SUBJECT__:科目名" となり、フィルタ側で展開する。
+*/
+const SUBJECT_FILTER_PREFIX = '__SUBJECT__:';
+
+// 法律一覧を SUBJECTS_ORDER 順にグループ化
+//   入力: laws = [law,law,...]
+//   出力: [{subject, laws:[...]}, ...]  (SUBJECTS_ORDER の順、空グループは除外)
+function groupLawsBySubjectOrdered(laws){
+  const bySubj = {};
+  for(const law of laws){
+    if(!law) continue;
+    const subj = lawToSubject(law);
+    (bySubj[subj] ||= []).push(law);
+  }
+  const groups = [];
+  // SUBJECTS_ORDER に従って優先配置
+  for(const subj of SUBJECTS_ORDER){
+    if(bySubj[subj] && bySubj[subj].length){
+      groups.push({subject: subj, laws: [...new Set(bySubj[subj])].sort()});
+      delete bySubj[subj];
+    }
+  }
+  // SUBJECTS_ORDER に含まれない未知科目は末尾に追加(後方互換)
+  for(const subj of Object.keys(bySubj).sort()){
+    groups.push({subject: subj, laws: [...new Set(bySubj[subj])].sort()});
+  }
+  return groups;
+}
+
+// 法律ドロップダウンを構築して指定要素に流し込む
+//   - 単独法律(科目=法律名 1対1)はフラットなoption
+//   - 複数法律ぶら下がり科目は <optgroup> + 「※ この科目すべて」+ 個別法律
+function fillLawFilterSelect(id, laws, current){
+  const targetSel = document.getElementById(id);
+  if(!targetSel) return;
+  const groups = groupLawsBySubjectOrdered(laws);
+  let html = '<option value="">すべて</option>';
+  for(const g of groups){
+    const isSingleton = g.laws.length === 1 && g.laws[0] === g.subject;
+    if(isSingleton){
+      // 科目名=唯一の法律(例:雇用保険法・健康保険法 等)
+      const v = g.laws[0];
+      const selAttr = (v === current) ? 'selected' : '';
+      html += `<option value="${escapeHtml(v)}" ${selAttr}>${escapeHtml(v)}</option>`;
+    } else {
+      // 複数法律を抱える科目 → optgroup でグルーピング
+      html += `<optgroup label="${escapeHtml(g.subject)}">`;
+      const subjVal = SUBJECT_FILTER_PREFIX + g.subject;
+      const subjSelAttr = (subjVal === current) ? 'selected' : '';
+      html += `<option value="${escapeHtml(subjVal)}" ${subjSelAttr}>※ ${escapeHtml(g.subject)} すべて</option>`;
+      for(const law of g.laws){
+        // 個別法律の中に「科目名と同名」が混じる場合もそのまま表示
+        const selAttr = (law === current) ? 'selected' : '';
+        html += `<option value="${escapeHtml(law)}" ${selAttr}>${escapeHtml(law)}</option>`;
+      }
+      html += `</optgroup>`;
+    }
+  }
+  targetSel.innerHTML = html;
+}
+
+// 法律フィルタ値が「科目全体」か「個別法律」かを判定し、問題が一致するか返す
+//   filterLaw: state.session.filterLaw の文字列
+//   q: 問題オブジェクト
+function questionMatchesLawFilter(q, filterLaw){
+  if(!filterLaw) return true;
+  if(filterLaw.startsWith(SUBJECT_FILTER_PREFIX)){
+    const subj = filterLaw.slice(SUBJECT_FILTER_PREFIX.length);
+    return lawToSubject(q.law) === subj;
+  }
+  return q.law === filterLaw;
 }
 
 /* ===== Manage view ===== */
@@ -5007,6 +5265,8 @@ function restoreBackup(){
         // 改修11: 5why機能の追加 (後方互換)
         state.whys ||= {};
         state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+        // 改修03: 5why イントロ(ユーザー編集可)
+        if(typeof state.whyIntro === 'undefined' || state.whyIntro === null) state.whyIntro = DEFAULT_WHY_INTRO;
         // === Migration v3: 予想問対応 ===
         // (a) 既存問題のkind未設定 → 'past' とみなす
         for(const q of state.questions){if(q.kind == null) q.kind = 'past'}
@@ -5431,6 +5691,9 @@ function openFigMetaModal(context){
   const inputSubject = document.getElementById('fig-meta-input-subject');
   const inputFrame = document.getElementById('fig-meta-input-frame');
   const inputNotes = document.getElementById('fig-meta-input-notes');
+  // 改修05: 条文・横断整理フィールド
+  const inputArticle = document.getElementById('fig-meta-input-article');
+  const inputCross = document.getElementById('fig-meta-input-cross');
 
   // 法令プルダウンを構築
   const {main, extras} = buildFigSubjectOptions();
@@ -5456,6 +5719,8 @@ function openFigMetaModal(context){
     inputSubject.value = '';
     inputFrame.value = '';
     inputNotes.value = '';
+    if(inputArticle) inputArticle.value = '';
+    if(inputCross) inputCross.checked = false;
   } else if(context.mode === 'edit'){
     const fig = state.figures.find(f=>f.id===context.figId);
     if(!fig){closeFigMetaModal();return}
@@ -5465,6 +5730,8 @@ function openFigMetaModal(context){
     inputSubject.value = fig.subject || '';
     inputFrame.value = fig.frameNo != null ? String(fig.frameNo) : '';
     inputNotes.value = fig.notes || '';
+    if(inputArticle) inputArticle.value = fig.articleRef || '';
+    if(inputCross) inputCross.checked = !!fig.isCrossSubject;
   }
 
   const m = document.getElementById('fig-meta-modal');
@@ -5488,6 +5755,11 @@ function saveFigMetaModal(){
   const fn = frameInput ? parseInt(frameInput, 10) : null;
   const frameNo = isNaN(fn) ? null : fn;
   const notes = document.getElementById('fig-meta-input-notes').value.trim();
+  // 改修05: 新フィールドの読み取り
+  const articleEl = document.getElementById('fig-meta-input-article');
+  const crossEl = document.getElementById('fig-meta-input-cross');
+  const articleRef = articleEl ? articleEl.value.trim() : '';
+  const isCrossSubject = crossEl ? !!crossEl.checked : false;
 
   if(_figMetaContext.mode === 'create'){
     const newId = 'fig_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
@@ -5498,6 +5770,8 @@ function saveFigMetaModal(){
       subject,
       frameNo,
       notes,
+      articleRef,           // 改修05
+      isCrossSubject,       // 改修05
       createdAt: Date.now()
       // 画像本体は IndexedDB に保存(localStorage 容量逼迫の回避)
     };
@@ -5526,6 +5800,8 @@ function saveFigMetaModal(){
     fig.subject = subject;
     fig.frameNo = frameNo;
     fig.notes = notes;
+    fig.articleRef = articleRef;        // 改修05
+    fig.isCrossSubject = isCrossSubject; // 改修05
     saveState();
   }
 
@@ -5603,6 +5879,8 @@ function renderFigures(){
           <div class="fig-card-meta">
             ${fig.subject?`<span class="pill">${escapeHtml(fig.subject)}</span>`:''}
             ${fig.frameNo!=null?`<span class="pill">F${fig.frameNo}</span>`:''}
+            ${fig.articleRef?`<span class="pill">📜 ${escapeHtml(fig.articleRef)}</span>`:''}
+            ${fig.isCrossSubject?`<span class="pill" style="background:#E4ECF7;color:#1F4F8F">🌐 横断</span>`:''}
             ${linkedCount>0?`<span class="pill">🔗 ${linkedCount}問</span>`:''}
             ${linkedCaseCount>0?`<span class="pill">🎯 ${linkedCaseCount}事例</span>`:''}
           </div>
@@ -5737,7 +6015,7 @@ function navFigureModal(dir){
   renderFigureModal();
 }
 
-let _pickerTarget = null; // {id, type:'question'|'case'}
+let _pickerTarget = null; // {id, type:'question'|'case', activeTab}
 function openFigurePicker(id, type='question'){
   let entity;
   if(type === 'case'){
@@ -5746,9 +6024,16 @@ function openFigurePicker(id, type='question'){
     entity = state.questions.find(x=>x.id===id);
   }
   if(!entity) return;
-  _pickerTarget = {id, type};
 
-  const linked = new Set(entity.figureIds||[]);
+  // 改修05: 問題のコンテキストに応じてデフォルトタブを決定
+  const ctxSubject = lawToSubject(entity.law || '');
+  const ctxFrame = entity.frameNo;
+  let defaultTab = 'all';
+  if(ctxSubject && ctxFrame != null) defaultTab = 'frame';
+  else if(ctxSubject) defaultTab = 'subject';
+
+  _pickerTarget = {id, type, activeTab: defaultTab, ctxSubject, ctxFrame};
+
   let descText;
   if(type === 'case'){
     descText = `事例:${entity.title||entity.id}`;
@@ -5759,45 +6044,118 @@ function openFigurePicker(id, type='question'){
   }
   document.getElementById('fig-picker-desc').textContent = descText;
 
-  const figs = state.figures.slice().sort((a,b)=>{
-    // この対象に関連しそうな図表を上位に
-    const targetSubject = lawToSubject(entity.law||'');
-    const sameLawA = a.subject===targetSubject?1:0;
-    const sameLawB = b.subject===targetSubject?1:0;
-    if(sameLawA!==sameLawB) return sameLawB - sameLawA;
-    const sameFrameA = a.frameNo===entity.frameNo?1:0;
-    const sameFrameB = b.frameNo===entity.frameNo?1:0;
-    if(sameFrameA!==sameFrameB) return sameFrameB - sameFrameA;
+  // 改修05: タブのクリックイベント
+  document.querySelectorAll('#fig-picker-tabs .fp-tab').forEach(t=>{
+    t.onclick = ()=>{
+      _pickerTarget.activeTab = t.dataset.fptab;
+      renderFigurePickerList();
+    };
+  });
+
+  renderFigurePickerList();
+
+  const pm = document.getElementById('fig-picker-modal');
+  if(!pm){alert('ピッカーモーダル要素が見つかりません');return}
+  pm.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center; flex-direction:column';
+}
+
+/* 改修05: 図表ピッカーのタブ別図表絞り込みと描画 */
+function renderFigurePickerList(){
+  if(!_pickerTarget) return;
+  const {id, type, activeTab, ctxSubject, ctxFrame} = _pickerTarget;
+  let entity;
+  if(type === 'case') entity = state.cases.find(x=>x.id===id);
+  else entity = state.questions.find(x=>x.id===id);
+  if(!entity) return;
+
+  const linked = new Set(entity.figureIds || []);
+
+  // 4タブ + すべて の各カテゴリに該当する図表を計算
+  const allFigs = state.figures.slice();
+  const filters = {
+    frame: f => ctxSubject && ctxFrame != null && f.subject === ctxSubject && f.frameNo === ctxFrame,
+    subject: f => ctxSubject && f.subject === ctxSubject,
+    article: f => !!(f.articleRef && f.articleRef.trim()),
+    cross: f => !!f.isCrossSubject,
+    all: f => true
+  };
+
+  // タブのカウントを更新 + active 表示
+  document.querySelectorAll('#fig-picker-tabs .fp-tab').forEach(t=>{
+    const tabKey = t.dataset.fptab;
+    const count = allFigs.filter(filters[tabKey]).length;
+    t.classList.toggle('active', tabKey === activeTab);
+    // ラベルにカウントを追記
+    const baseLabel = {
+      frame: 'フレーム別',
+      subject: '科目別',
+      article: '条文別',
+      cross: '横断整理',
+      all: 'すべて'
+    }[tabKey];
+    t.innerHTML = `${baseLabel} <span class="fp-tab-count">${count}</span>`;
+  });
+
+  // 現在のタブで絞り込み
+  let figs = allFigs.filter(filters[activeTab] || filters.all);
+
+  // ソート: 紐付け済みを上、その後は関連度
+  figs.sort((a,b)=>{
+    const la = linked.has(a.id) ? 1 : 0;
+    const lb = linked.has(b.id) ? 1 : 0;
+    if(la !== lb) return lb - la;
+    const sameSubjA = a.subject===ctxSubject ? 1 : 0;
+    const sameSubjB = b.subject===ctxSubject ? 1 : 0;
+    if(sameSubjA !== sameSubjB) return sameSubjB - sameSubjA;
+    const sameFrA = a.frameNo===ctxFrame ? 1 : 0;
+    const sameFrB = b.frameNo===ctxFrame ? 1 : 0;
+    if(sameFrA !== sameFrB) return sameFrB - sameFrA;
     return (a.title||'').localeCompare(b.title||'');
   });
 
   const listEl = document.getElementById('fig-picker-list');
   if(!figs.length){
-    listEl.innerHTML = `<div class="fig-picker-empty">図表が1つも登録されていません。<br>「図表」タブからアップロードしてください。</div>`;
-  } else {
-    listEl.innerHTML = figs.map(f=>`
-      <label class="fig-picker-item ${linked.has(f.id)?'linked':''}" data-figid="${f.id}">
-        <input type="checkbox" ${linked.has(f.id)?'checked':''}>
-        <img src="${getFigureImageSrc(f)}" alt="">
-        <div class="info">
-          <div class="ti">${escapeHtml(f.title)}</div>
-          <div class="me">
-            ${f.subject?`<span class="pill">${escapeHtml(f.subject)}</span>`:''}
-            ${f.frameNo!=null?`<span class="pill">F${f.frameNo}</span>`:''}
-          </div>
-        </div>
-      </label>
-    `).join('');
-    listEl.querySelectorAll('.fig-picker-item').forEach(item=>{
-      const cb = item.querySelector('input[type="checkbox"]');
-      cb.addEventListener('change',()=>{
-        item.classList.toggle('linked', cb.checked);
-      });
-    });
+    let hint = '';
+    if(activeTab === 'frame'){
+      hint = ctxSubject && ctxFrame != null
+        ? `この問題と同じ「${escapeHtml(ctxSubject)} F${ctxFrame}」に紐付く図表はまだありません。`
+        : 'この問題には科目またはフレームが未設定なので「フレーム別」は使えません。';
+    } else if(activeTab === 'subject'){
+      hint = ctxSubject
+        ? `この問題と同じ「${escapeHtml(ctxSubject)}」の図表はまだありません。`
+        : 'この問題には科目が未設定なので「科目別」は使えません。';
+    } else if(activeTab === 'article'){
+      hint = '条文が登録されている図表はまだありません。「図表」タブから図表を編集して「条文」フィールドを入力してください。';
+    } else if(activeTab === 'cross'){
+      hint = '横断整理に登録された図表はまだありません。「図表」タブから図表を編集して「横断整理」チェックを入れてください。';
+    } else {
+      hint = '図表が1つも登録されていません。「図表」タブからアップロードしてください。';
+    }
+    listEl.innerHTML = `<div class="fig-picker-empty">${hint}</div>`;
+    return;
   }
-  const pm = document.getElementById('fig-picker-modal');
-  if(!pm){alert('ピッカーモーダル要素が見つかりません');return}
-  pm.style.cssText = 'display:flex !important; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; align-items:center; justify-content:center';
+
+  listEl.innerHTML = figs.map(f=>`
+    <label class="fig-picker-item ${linked.has(f.id)?'linked':''}" data-figid="${f.id}">
+      <input type="checkbox" ${linked.has(f.id)?'checked':''}>
+      <img src="${getFigureImageSrc(f)}" alt="">
+      <div class="info">
+        <div class="ti">${escapeHtml(f.title)}</div>
+        <div class="me">
+          ${f.subject?`<span class="pill">${escapeHtml(f.subject)}</span>`:''}
+          ${f.frameNo!=null?`<span class="pill">F${f.frameNo}</span>`:''}
+          ${f.articleRef?`<span class="pill">📜 ${escapeHtml(f.articleRef)}</span>`:''}
+          ${f.isCrossSubject?`<span class="pill">🌐 横断</span>`:''}
+        </div>
+      </div>
+    </label>
+  `).join('');
+  listEl.querySelectorAll('.fig-picker-item').forEach(item=>{
+    const cb = item.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change',()=>{
+      item.classList.toggle('linked', cb.checked);
+    });
+  });
 }
 function closeFigurePicker(){
   const pm = document.getElementById('fig-picker-modal');
@@ -7530,7 +7888,8 @@ function renderWhysSubjects(root){
   }
   let html = `<div class="card why-intro">
     <h2 class="why-h2">5why <span class="why-sub">WHY × 5 — 自問自答ノート</span></h2>
-    <p class="why-desc">「なぜ、この制度・取扱い・仕組み・日数なのか?」を5回問い続けて、丸暗記ではなく<b>理解で記憶を確実にする</b>ためのノートです。<br>科目をクリックするとフレーム別に、自問自答 / 覚え方 / 実務ポイント が表示されます。</p>
+    <p class="why-desc" id="why-intro-text">${escapeHtml(state.whyIntro || DEFAULT_WHY_INTRO)}</p>
+    <button class="btn ghost btn-sm why-intro-edit-btn" id="why-intro-edit-btn">✏️ イントロを編集</button>
   </div>`;
   html += `<div class="card why-subjects-card"><div class="why-subjects-grid">`;
   for(const subject of SUBJECTS_ORDER){
@@ -7554,6 +7913,9 @@ function renderWhysSubjects(root){
     </div>`;
   }
   root.innerHTML = html;
+  // 改修03: 5why イントロ編集ボタン
+  const introBtn = document.getElementById('why-intro-edit-btn');
+  if(introBtn) introBtn.addEventListener('click', openWhyIntroModal);
   // 法律カードクリック
   root.querySelectorAll('.why-subject-card').forEach(c=>{
     c.addEventListener('click', ()=>{
@@ -7972,6 +8334,35 @@ function deleteWhyIndex(ctx){
   }
   saveState();
   renderWhys();
+}
+
+/* ----- 改修03: 5why イントロ編集モーダル ----- */
+function openWhyIntroModal(){
+  const ta = document.getElementById('why-intro-input');
+  if(!ta){alert('モーダル要素が見つかりません');return}
+  ta.value = state.whyIntro || DEFAULT_WHY_INTRO;
+  const m = document.getElementById('modal-why-intro');
+  m.style.display = 'flex';
+  setTimeout(()=>ta.focus(), 60);
+}
+function closeWhyIntroModal(){
+  const m = document.getElementById('modal-why-intro');
+  if(m) m.style.display = 'none';
+}
+function saveWhyIntroModal(){
+  const ta = document.getElementById('why-intro-input');
+  if(!ta) return;
+  // 空はデフォルトに置換(ユーザーが誤って全消去 → ブランクになるのを防ぐ)
+  const v = ta.value.trim();
+  state.whyIntro = v ? ta.value : DEFAULT_WHY_INTRO;
+  saveState();
+  closeWhyIntroModal();
+  renderWhys();
+}
+function resetWhyIntroModal(){
+  if(!confirm('イントロ文をデフォルトの内容に戻しますか?\n(現在編集中の内容は破棄されます)')) return;
+  const ta = document.getElementById('why-intro-input');
+  if(ta) ta.value = DEFAULT_WHY_INTRO;
 }
 
 /* ----- ブロック編集モーダル ----- */
@@ -8868,18 +9259,93 @@ function renderProgressSubjects(root, summary, kindMode){
 
 /* 1フレーム行(進捗バー10マス付き)を描画する共通ヘルパー。
    親フレーム・サブフレームともに使用。 */
+/* ===== 改修02: フレーム演習の詳細表示 + 復習タイミング色分け =====
+   - 各完了ラウンドの正答率を計算
+   - 最新の完了ラウンドからの経過日数で色変化(忘却曲線対応)
+   - ステータス行に正答数/解答数・正答率・相対日数・復習バッジを表示
+*/
+
+// 試行(attempt)の正答数・解答数・総問題数を計算
+// state.history を attempt.startedAt〜completedAt の期間で集計する
+// 同じ問題を複数回解いた場合は「期間内の最新解答」を採用
+function computeAttemptStats(attempt){
+  if(!attempt) return {correct:0, answered:0, total:0};
+  const qSet = new Set(attempt.questionIds || []);
+  const start = attempt.startedAt || 0;
+  const end = attempt.completedAt || Date.now();
+  const lastByQid = {};
+  for(const h of state.history){
+    if(h.ts < start || h.ts > end) continue;
+    if(!qSet.has(h.qid)) continue;
+    // 同一qidの最新解答で上書き
+    if(!lastByQid[h.qid] || lastByQid[h.qid].ts < h.ts) lastByQid[h.qid] = h;
+  }
+  let correct = 0, answered = 0;
+  for(const qid in lastByQid){
+    answered++;
+    if(lastByQid[qid].correct) correct++;
+  }
+  return {correct, answered, total: (attempt.questionIds || []).length};
+}
+
+// 復習タイミング判定
+//   attemptNo: 何回目の完了か (1, 2, 3, ...)
+//   戻り値: 'ok' | 'warn' | 'overdue'
+// 4回目以降は常に 'ok'(色変えなし)
+function getReviewStatus(attempt, attemptNo){
+  if(!attempt || !attempt.completedAt) return 'ok';
+  if(attemptNo >= 4) return 'ok';
+  const days = Math.floor((Date.now() - attempt.completedAt) / (24*60*60*1000));
+  // 完了回数別のしきい値(警告日数 / 超過日数)
+  const thresholds = {
+    1: {warn: 2,  overdue: 5},
+    2: {warn: 7,  overdue: 10},
+    3: {warn: 14, overdue: 30}
+  };
+  const t = thresholds[attemptNo];
+  if(!t) return 'ok';
+  if(days >= t.overdue) return 'overdue';
+  if(days >= t.warn)    return 'warn';
+  return 'ok';
+}
+
+// タイムスタンプを「今日 / 昨日 / N日前」形式で返す
+function formatRelativeDays(ts){
+  if(!ts) return '';
+  const days = Math.floor((Date.now() - ts) / (24*60*60*1000));
+  if(days <= 0) return '今日';
+  if(days === 1) return '昨日';
+  return `${days}日前`;
+}
+
 function buildProgressFrameRow(opts){
   const {displayN, title, totalCount, fkN, subjectVal, kindModeVal, lawBreakdown, dataFno, itemsLabel} = opts;
   const k = frameKey(subjectVal, fkN, kindModeVal);
   const fa = state.frameAttempts[k] || {history:[], current:null};
   const completed = fa.history.length;
   const cur = fa.current;
+  // 改修02: 最新完了ラウンドの復習状態を判定(色分け対象)
+  let latestReviewStatus = 'ok';
+  let latestAttempt = null;
+  if(completed > 0){
+    latestAttempt = fa.history[completed - 1];
+    latestReviewStatus = getReviewStatus(latestAttempt, completed);
+  }
   let slots = '';
   for(let i=0;i<10;i++){
     if(i < fa.history.length){
       const att = fa.history[i];
-      const date = new Date(att.completedAt).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
-      slots += `<div class="slot done" title="完了: ${date}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span></div>`;
+      const isLatest = (i === fa.history.length - 1);
+      // 改修02: 各完了ラウンドの正答数・正答率を計算
+      const st = computeAttemptStats(att);
+      const pct = st.answered > 0 ? Math.round(st.correct/st.answered*100) : null;
+      const date = new Date(att.completedAt || att.startedAt || Date.now()).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+      // 最新完了ラウンドのみ、復習状態に応じて色を変える(warn=黄, overdue=赤)
+      const statusClass = isLatest ? (latestReviewStatus === 'overdue' ? ' overdue' : (latestReviewStatus === 'warn' ? ' warn' : '')) : '';
+      const tipPctPart = pct !== null ? ` ${st.correct}/${st.answered}問正解 (${pct}%)` : ` 解答記録なし`;
+      const tip = `${i+1}回目${tipPctPart}　完了:${date}`;
+      const pctSpan = pct !== null ? `<span class="slot-pct-done">${pct}%</span>` : '';
+      slots += `<div class="slot done${statusClass}" title="${escapeHtml(tip)}"><span class="slot-n">${i+1}</span><span class="slot-mark">✓</span>${pctSpan}</div>`;
     }else if(i === fa.history.length && cur){
       const pct = cur.questionIds.length ? Math.round(cur.answeredIds.length/cur.questionIds.length*100) : 0;
       slots += `<div class="slot prog" title="演習中 ${pct}%"><span class="slot-n">${i+1}</span><span class="slot-pct">${pct}%</span></div>`;
@@ -8891,12 +9357,30 @@ function buildProgressFrameRow(opts){
   if(totalCount===0){
     status = `<span class="prog-status empty">問題未登録</span>`;
   }else if(cur){
+    // 改修02: 演習中の正答数を加算
+    const curStats = computeAttemptStats({
+      questionIds: cur.questionIds,
+      startedAt: cur.startedAt,
+      completedAt: null
+    });
+    const curPctStr = curStats.answered > 0 ? `・${curStats.correct}問正解(${Math.round(curStats.correct/curStats.answered*100)}%)` : '';
     const lastDate = new Date(cur.startedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-    status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
+    status = `<span class="prog-status inprog">演習中 (${cur.answeredIds.length}/${cur.questionIds.length}問解答${curPctStr}・${cur.attemptNo}回目)　開始 ${lastDate}</span>`;
   }else if(completed){
+    // 改修02: 最終ラウンドの正答数・正答率・経過日数・復習バッジを追加
     const lastAtt = fa.history[fa.history.length-1];
+    const lastSt = computeAttemptStats(lastAtt);
+    const lastPct = lastSt.answered > 0 ? Math.round(lastSt.correct/lastSt.answered*100) : null;
     const date = new Date(lastAtt.completedAt).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'});
-    status = `<span class="prog-status done">${completed}回完了　最終 ${date}</span>`;
+    const rel = formatRelativeDays(lastAtt.completedAt);
+    const pctTxt = lastPct !== null ? `(${lastSt.correct}/${lastSt.answered}問正解・${lastPct}%)` : '';
+    let reviewBadge = '';
+    if(latestReviewStatus === 'warn'){
+      reviewBadge = ` <span class="review-badge warn">● 復習推奨</span>`;
+    }else if(latestReviewStatus === 'overdue'){
+      reviewBadge = ` <span class="review-badge overdue">● 要復習</span>`;
+    }
+    status = `<span class="prog-status done">${completed}回完了 ${pctTxt}　最終 ${date} (${rel})</span>${reviewBadge}`;
   }else{
     status = `<span class="prog-status">未着手 (${totalCount}問登録)</span>`;
   }
@@ -9221,6 +9705,13 @@ function init(){
     // kind選択時のフィールド切替
     const mwbKind = document.getElementById('mwb-kind');
     if(mwbKind) mwbKind.addEventListener('change', ()=>toggleWhyBlockKindFields(mwbKind.value));
+    // 改修03: 5whyイントロ編集モーダル
+    const wiCancel = document.getElementById('why-intro-cancel');
+    if(wiCancel) wiCancel.addEventListener('click', closeWhyIntroModal);
+    const wiSave = document.getElementById('why-intro-save');
+    if(wiSave) wiSave.addEventListener('click', saveWhyIntroModal);
+    const wiReset = document.getElementById('why-intro-reset');
+    if(wiReset) wiReset.addEventListener('click', resetWhyIntroModal);
   } catch(e) {
     console.error('[5why-edit] init event listener error:', e);
   }
