@@ -1297,13 +1297,13 @@
     .brand .seal{width:36px;height:36px}
     .brand .sub{display:none}
 
-    /* Tabs: full-width 8-col, big touch targets */
+    /* Tabs: full-width 11-col, big touch targets ─ 改修12: 実績タブ追加で11列化 */
     nav.tabs{
-      display:grid;grid-template-columns:repeat(8,1fr);gap:1px;
+      display:grid;grid-template-columns:repeat(11,1fr);gap:1px;
       background:var(--line-soft);padding:2px;border-radius:8px;
     }
     nav.tabs button{
-      font-size:9.5px;padding:11px 0;border-radius:5px;
+      font-size:8.5px;padding:11px 0;border-radius:5px;
       border-bottom:none;color:var(--ink-soft);min-height:44px;
       letter-spacing:0;
     }
@@ -1423,7 +1423,7 @@
     .brand h1{font-size:18px}
     .btn-ans{font-size:22px;padding:16px 0;min-height:58px}
     .q-box{font-size:14.5px;padding:16px 14px}
-    nav.tabs button{font-size:13px;padding:11px 2px}
+    nav.tabs button{font-size:8px;padding:11px 1px}
   }
   /* ===== 条文・解説タブ(Articles) ===== */
   /* Level 1: 法律一覧 */
@@ -2001,6 +2001,146 @@
     .art-picker-chip .chip-ti{max-width:200px}
     .m-art-list .chip .chip-ti{max-width:180px}
   }
+
+  /* ===== 改修12: 実績タブ(Stats) ===== */
+  .stats-intro{padding:18px 22px;margin-bottom:14px}
+  .stats-h2{margin:0 0 6px 0;font-size:20px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .stats-sub{font-size:12px;color:var(--ink-muted);font-weight:400;letter-spacing:.05em;margin-left:6px}
+  .stats-desc{font-size:12.5px;color:var(--ink-muted);margin:6px 0 0 0;line-height:1.6}
+
+  /* サマリー4カード(本日/期間内/総解答/総正答率) */
+  .stats-summary{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+    margin-bottom:14px;
+  }
+  .stats-sumcard{
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;display:flex;flex-direction:column;gap:4px;
+  }
+  .stats-sumcard .label{font-size:11px;color:var(--ink-muted);letter-spacing:.05em}
+  .stats-sumcard .value{font-size:20px;font-weight:600;color:var(--ink);font-feature-settings:"tnum"}
+  .stats-sumcard .sub{font-size:11px;color:var(--ink-muted);font-feature-settings:"tnum"}
+
+  /* 期間切替・サブタブ */
+  .stats-controls{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    margin-bottom:14px;padding:10px 12px;
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+  }
+  .stats-control-label{font-size:11px;color:var(--ink-muted);letter-spacing:.05em;margin-right:2px}
+  .stats-range-btn,.stats-kind-btn{
+    padding:6px 12px;font-size:12px;border:1px solid var(--line);border-radius:6px;
+    background:var(--paper);color:var(--ink-soft);cursor:pointer;font-family:inherit;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .stats-range-btn:hover,.stats-kind-btn:hover{background:var(--bg);color:var(--ink)}
+  .stats-range-btn.active,.stats-kind-btn.active{
+    background:var(--indigo);color:#fff;border-color:var(--indigo);
+  }
+
+  /* 棒グラフコンテナ */
+  .stats-chart-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:16px;margin-bottom:14px;
+  }
+  .stats-chart-title{
+    font-size:13px;color:var(--ink-soft);font-weight:600;margin-bottom:10px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .stats-chart-empty{
+    text-align:center;color:var(--ink-muted);font-size:13px;padding:40px 12px;
+    background:var(--bg);border-radius:6px;
+  }
+  .stats-chart-svg-wrap{
+    width:100%;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+  .stats-chart-svg{display:block}
+  /* グラフ凡例 */
+  .stats-legend{
+    display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;
+    font-size:11px;color:var(--ink-soft);
+  }
+  .stats-legend-item{display:flex;align-items:center;gap:5px}
+  .stats-legend-swatch{
+    width:12px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.08);
+    display:inline-block;flex:0 0 12px;
+  }
+  .stats-legend-note{
+    font-size:11px;color:var(--ink-muted);margin-top:6px;line-height:1.6;
+  }
+
+  /* 詳細表(アコーディオン) */
+  .stats-detail-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;
+  }
+  .stats-detail-title{font-size:13px;color:var(--ink-soft);font-weight:600;margin-bottom:8px}
+  .stats-day-row{
+    border-bottom:1px solid var(--line-soft);padding:10px 0;
+  }
+  .stats-day-row:last-child{border-bottom:none}
+  .stats-day-head{
+    display:flex;align-items:center;gap:10px;cursor:pointer;
+    padding:6px 4px;border-radius:4px;
+    transition:background .12s;
+  }
+  .stats-day-head:hover{background:var(--bg)}
+  .stats-day-toggle{
+    color:var(--ink-muted);font-size:11px;width:14px;text-align:center;
+    transition:transform .2s;
+  }
+  .stats-day-row.open .stats-day-toggle{transform:rotate(90deg)}
+  .stats-day-date{font-size:13px;font-weight:600;color:var(--ink);font-feature-settings:"tnum"}
+  .stats-day-rel{font-size:11px;color:var(--ink-muted);margin-left:4px}
+  .stats-day-summary{
+    margin-left:auto;font-size:12px;color:var(--ink-soft);font-feature-settings:"tnum";
+  }
+  .stats-day-summary .acc{color:var(--green);font-weight:500;margin-left:6px}
+  .stats-day-body{
+    margin-top:8px;padding-left:24px;display:none;
+  }
+  .stats-day-row.open .stats-day-body{display:block}
+  .stats-frame-line{
+    display:grid;grid-template-columns:14px 1fr auto auto;gap:8px;align-items:center;
+    padding:5px 0;font-size:12.5px;
+  }
+  .stats-frame-swatch{
+    width:12px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.1);
+  }
+  .stats-frame-swatch.in-progress{
+    background-image:linear-gradient(45deg,
+      rgba(255,255,255,.45) 25%, transparent 25%, transparent 50%,
+      rgba(255,255,255,.45) 50%, rgba(255,255,255,.45) 75%, transparent 75%);
+    background-size:6px 6px;
+  }
+  .stats-frame-name{color:var(--ink);font-weight:500;line-height:1.4}
+  .stats-frame-name .att-no{
+    font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:4px;
+  }
+  .stats-frame-state{
+    font-size:10.5px;padding:2px 6px;border-radius:3px;font-weight:500;
+    background:#E8F5E9;color:var(--green);letter-spacing:.04em;
+  }
+  .stats-frame-state.in-progress{background:#FFF4E0;color:var(--amber)}
+  .stats-frame-state.warn{background:#FFF4E0;color:var(--amber)}
+  .stats-frame-state.overdue{background:#FDECEA;color:var(--accent)}
+  .stats-frame-stat{
+    font-size:11.5px;color:var(--ink-soft);font-feature-settings:"tnum";
+    white-space:nowrap;
+  }
+
+  @media(max-width:900px){
+    .stats-summary{grid-template-columns:repeat(2,1fr)}
+    .stats-intro{padding:14px 16px}
+    .stats-h2{font-size:17px}
+    .stats-frame-line{grid-template-columns:14px 1fr auto;gap:6px}
+    .stats-frame-stat{grid-column:2/-1;padding-left:18px;margin-top:-2px}
+  }
+  @media(max-width:380px){
+    .stats-sumcard .value{font-size:17px}
+    .stats-day-summary{font-size:11px}
+  }
 </style>
 </head>
 <body>
@@ -2023,6 +2163,7 @@
       <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="figures">図表</button>
       <button class="tab-btn" data-tab="progress">進捗</button>
+      <button class="tab-btn" data-tab="stats">実績</button>
       <button class="tab-btn" data-tab="manage">管理</button>
       <button class="tab-btn" data-tab="data">データ</button>
     </nav>
@@ -2205,6 +2346,11 @@
   <!-- ===== PROGRESS VIEW ===== -->
   <main id="view-progress" style="display:none;grid-column:1/-1">
     <div id="progress-content"></div>
+  </main>
+
+  <!-- ===== STATS VIEW (実績タブ) ─ 改修12 ===== -->
+  <main id="view-stats" style="display:none;grid-column:1/-1">
+    <div id="stats-content"></div>
   </main>
 
   <!-- ===== MANAGE VIEW ===== -->
@@ -3027,6 +3173,39 @@ const SUBJECTS_ORDER = [
   "健康保険法","国民年金法","厚生年金保険法","社会保険に関する一般常識"
 ];
 
+/* 改修12: 実績タブ用の科目色パレット
+   各科目に固有のHSL色相を割り当て、同一科目内のフレームは明度で濃淡を出す。 */
+const SUBJECT_HUE = {
+  "労働基準法": 355,                            // 赤
+  "労働安全衛生法": 25,                         // オレンジ
+  "労働者災害補償保険法": 45,                   // 黄
+  "雇用保険法": 145,                            // 緑
+  "労働保険徴収法": 175,                        // ティール
+  "労務管理その他の労働に関する一般常識": 220,  // 紺
+  "健康保険法": 200,                            // 青
+  "国民年金法": 270,                            // 紫
+  "厚生年金保険法": 295,                        // マゼンタ寄り
+  "社会保険に関する一般常識": 0                 // 無彩色(saturation=0で扱う)
+};
+
+// 科目+フレーム番号 → HSL色 (saturationは0または50、lightnessはフレーム番号で変化)
+function statsFrameColor(subject, frameNo){
+  const hue = SUBJECT_HUE[subject];
+  if(hue === undefined) return 'hsl(0, 0%, 50%)';  // 未登録
+  const sat = (subject === "社会保険に関する一般常識") ? 0 : 55;
+  // フレーム番号は1〜30程度を想定。明度を 35% 〜 70% の範囲で振る
+  let n = parseInt(frameNo, 10);
+  if(isNaN(n)) n = 1;
+  const idx = Math.max(1, Math.min(30, n));
+  // 奇数フレームと偶数フレームで明度方向を入れ替えると区別しやすい
+  const light = 35 + ((idx * 13) % 36);  // 35〜70の擬似ランダム
+  return `hsl(${hue}, ${sat}%, ${light}%)`;
+}
+// 科目代表色(凡例・サマリーで使用、フレーム1の色を採用)
+function statsSubjectColor(subject){
+  return statsFrameColor(subject, 1);
+}
+
 /* 改修04 (v2): 弱点モード対象の判定しきい値(累計ミス回数 ≥ N 回で弱点入り、以後は外れない)。
    ここの数字を変えると、択一タブの「弱点」モードと解答履歴バッジの判定が連動して変わる。 */
 const WEAK_THRESHOLD = 3;
@@ -3646,6 +3825,11 @@ function loadState(){
       // 進捗管理のサブモード(過去問/予想問)初期化
       s.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
       s.progressView.kindMode ||= 'pastA';
+      // 改修12: 実績タブ用ビュー状態(後方互換)
+      s.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
+      s.statsView.range ||= '7d';
+      s.statsView.kindMode ||= 'pastA';
+      s.statsView.openDates ||= {};
       // 条文・解説機能の追加 (後方互換)
       s.articles ||= {};
       s.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -3794,6 +3978,8 @@ function loadState(){
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
     progressView: {mode:'subjects', subject:null, kindMode:'pastA'},
+    // 改修12: 実績タブ用ビュー状態
+    statsView: {range:'7d', kindMode:'pastA', openDates:{}},
     articles: {},
     articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
     whys: {},
@@ -4202,7 +4388,19 @@ function answerQuestion(userAns){
   const q = currentQuestion();
   if(!q || state.session.answered) return;
   const correct = userAns===q.answer;
-  state.history.push({qid:q.id,ts:Date.now(),userAns,correct});
+  // 改修12: フレーム演習モード中の解答には fm メタを付与し、実績集計の対象とする
+  const histEntry = {qid:q.id,ts:Date.now(),userAns,correct};
+  if(state.session.frameMode){
+    const fm = state.session.frameMode;
+    const subj = fm.subject || fm.law;
+    let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
+    const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
+    const k = frameKey(subj, keyN, fmKind);
+    const fa = state.frameAttempts[k];
+    const attemptNo = (fa && fa.current) ? fa.current.attemptNo : null;
+    histEntry.fm = {s:subj, f:keyN, k:fmKind, a:attemptNo};
+  }
+  state.history.push(histEntry);
   state.session.answered = true;
   state.session.userAnswer = userAns;
   // フレーム演習中なら、その演習の解答記録に追加
@@ -5257,6 +5455,11 @@ function restoreBackup(){
         state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
         state.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
         state.progressView.kindMode ||= 'pastA';
+        // 改修12: 実績タブ用ビュー状態(後方互換)
+        state.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
+        state.statsView.range ||= '7d';
+        state.statsView.kindMode ||= 'pastA';
+        state.statsView.openDates ||= {};
         // 条文・解説機能の追加 (後方互換)
         state.articles ||= {};
         state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null};
@@ -8512,6 +8715,7 @@ function switchTab(name){
   document.getElementById('view-weak').style.display = name==='weak'?'block':'none';
   document.getElementById('view-figures').style.display = name==='figures'?'block':'none';
   document.getElementById('view-progress').style.display = name==='progress'?'block':'none';
+  document.getElementById('view-stats').style.display = name==='stats'?'block':'none';
   document.getElementById('view-manage').style.display = name==='manage'?'block':'none';
   document.getElementById('view-data').style.display = name==='data'?'block':'none';
   if(name==='manage') renderManage();
@@ -8551,6 +8755,11 @@ function switchTab(name){
     const curKindMode = normalizeProgressKindMode(state.progressView && state.progressView.kindMode);
     state.progressView = {mode:'subjects', subject:null, kindMode: curKindMode};
     renderProgress();
+  }
+  if(name==='stats'){
+    // 改修12: 実績タブ
+    state.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
+    renderStats();
   }
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -9628,6 +9837,525 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       startFrameAttempt(subj, fno, km);
     });
   });
+}
+
+/* ===== 改修12: 実績タブ(Stats) =====
+   - 進捗管理モード(フレーム演習)での解答のみを集計対象とする
+   - 過去分は state.frameAttempts.history / current から日付推定して遡及生成
+   - 新規分は state.history[].fm メタを直接参照(将来的にメイン経路)
+   - 日付の境界は startedAt の日付(午前0時切り替え) */
+
+// タイムスタンプ → "YYYY-MM-DD"
+function statsDateKey(ts){
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function statsTodayKey(){ return statsDateKey(Date.now()) }
+function statsDateKeyMinusDays(n){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - n);
+  return statsDateKey(d.getTime());
+}
+
+// 「N日前」「昨日」「今日」のような相対表記(formatRelativeDays と類似だが、日付キー単位で計算)
+function statsRelativeLabel(dateKey){
+  const today = statsTodayKey();
+  if(dateKey === today) return '今日';
+  const yest = statsDateKeyMinusDays(1);
+  if(dateKey === yest) return '昨日';
+  // 何日前かを計算
+  const [y,m,d] = dateKey.split('-').map(Number);
+  const target = new Date(y, m-1, d).getTime();
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+  const days = Math.round((todayDate.getTime() - target) / (24*60*60*1000));
+  if(days > 0) return `${days}日前`;
+  return '';
+}
+
+// dateKey → 表示用ラベル "5/25 (今日)" / "5/24 (昨日)" / "5/23"
+function statsDateLabel(dateKey){
+  const [y,m,d] = dateKey.split('-').map(Number);
+  const rel = statsRelativeLabel(dateKey);
+  return `${m}/${d}${rel ? ' ('+rel+')' : ''}`;
+}
+
+// フレーム単位の集計データを構築
+// 返り値: { dateKey: { date, total, correct, frames: [ {subject, frameRef, kind, attempts:[{attemptNo, answered, correct, completed, startedAt, completedAt}]} ] } }
+//   - kindMode で絞り込み('pastA'|'pastB'|'forecast')
+//   - 過去分(frameAttempts.history)と進行中(current)を統合
+function buildStatsByDay(kindMode){
+  const days = {};
+  const ensureDay = (dk)=>{
+    if(!days[dk]) days[dk] = {date:dk, total:0, correct:0, frames:[]};
+    return days[dk];
+  };
+  // frameAttempts を全走査
+  for(const k in state.frameAttempts){
+    const parts = k.split('|');
+    if(parts.length < 3) continue;
+    const subj = parts[0];
+    const frRef = parts[1]; // 文字列(整数または "2.1")
+    const kd = parts[2];
+    if(kd !== kindMode) continue;
+    const fa = state.frameAttempts[k];
+    // 完了ラウンド
+    for(let i=0;i<(fa.history||[]).length;i++){
+      const att = fa.history[i];
+      if(!att) continue;
+      const startedAt = att.startedAt || att.completedAt || Date.now();
+      const dk = statsDateKey(startedAt);
+      const st = computeAttemptStats(att);
+      if(st.answered === 0) continue; // 解答ゼロのラウンドは計上しない
+      const day = ensureDay(dk);
+      day.total += st.answered;
+      day.correct += st.correct;
+      day.frames.push({
+        subject:subj, frameRef:frRef, kind:kd,
+        attempt:{
+          attemptNo: att.attemptNo || (i+1),
+          answered: st.answered,
+          correct: st.correct,
+          completed: true,
+          startedAt: startedAt,
+          completedAt: att.completedAt || startedAt
+        }
+      });
+    }
+    // 進行中(current)
+    if(fa.current && (fa.current.answeredIds||[]).length > 0){
+      const cur = fa.current;
+      const startedAt = cur.startedAt || Date.now();
+      const dk = statsDateKey(startedAt);
+      const st = computeAttemptStats(cur);
+      if(st.answered === 0) continue;
+      const day = ensureDay(dk);
+      day.total += st.answered;
+      day.correct += st.correct;
+      day.frames.push({
+        subject:subj, frameRef:frRef, kind:kd,
+        attempt:{
+          attemptNo: cur.attemptNo || ((fa.history||[]).length + 1),
+          answered: st.answered,
+          correct: st.correct,
+          completed: false,
+          startedAt: startedAt,
+          completedAt: null
+        }
+      });
+    }
+  }
+  return days;
+}
+
+// 期間('7d'/'30d'/'all')から、表示対象の日付配列を生成(古→新)
+function statsRangeDateKeys(range, daysWithData){
+  if(range === 'all'){
+    if(!daysWithData || !daysWithData.length){
+      return [statsTodayKey()];
+    }
+    // データのある最古日 〜 今日 までを連続生成
+    const sorted = [...daysWithData].sort();
+    const earliest = sorted[0];
+    const today = statsTodayKey();
+    const [y1,m1,d1] = earliest.split('-').map(Number);
+    const [y2,m2,d2] = today.split('-').map(Number);
+    const start = new Date(y1, m1-1, d1);
+    const end = new Date(y2, m2-1, d2);
+    const out = [];
+    for(let cur = new Date(start); cur <= end; cur.setDate(cur.getDate()+1)){
+      out.push(statsDateKey(cur.getTime()));
+    }
+    return out;
+  }
+  const n = range === '30d' ? 30 : 7;
+  const out = [];
+  for(let i=n-1;i>=0;i--){
+    out.push(statsDateKeyMinusDays(i));
+  }
+  return out;
+}
+
+// kindMode のラベル
+function statsKindLabel(km){
+  if(km === 'forecast') return '予想問';
+  if(km === 'pastB') return '過去問B';
+  return '過去問A';
+}
+
+// メインレンダリング
+function renderStats(){
+  const root = document.getElementById('stats-content');
+  state.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
+  state.statsView.range ||= '7d';
+  state.statsView.kindMode ||= 'pastA';
+  state.statsView.openDates ||= {};
+  const range = state.statsView.range;
+  const kindMode = state.statsView.kindMode;
+  const kindLbl = statsKindLabel(kindMode);
+
+  // 集計
+  const byDay = buildStatsByDay(kindMode);
+  const allDateKeys = Object.keys(byDay);
+  const targetDateKeys = statsRangeDateKeys(range, allDateKeys);
+
+  // 期間内サマリー
+  let periodTotal = 0, periodCorrect = 0;
+  for(const dk of targetDateKeys){
+    const d = byDay[dk];
+    if(d){ periodTotal += d.total; periodCorrect += d.correct; }
+  }
+  // 本日サマリー(進捗管理モードの解答に限定)
+  const todayKey = statsTodayKey();
+  const today = byDay[todayKey];
+  const todayTotal = today ? today.total : 0;
+  const todayCorrect = today ? today.correct : 0;
+  // 全期間サマリー(進捗管理モードの解答に限定)
+  let allTotal = 0, allCorrect = 0;
+  for(const dk in byDay){ allTotal += byDay[dk].total; allCorrect += byDay[dk].correct; }
+
+  const pctStr = (n,d)=> d>0 ? Math.round(n/d*100)+'%' : '—';
+  const rangeLbl = range==='7d' ? '直近7日' : (range==='30d' ? '直近30日' : '全期間');
+
+  let html = '';
+
+  // イントロ + サブタブ + 期間切替
+  html += `<div class="card stats-intro">
+    <h2 class="stats-h2">📊 実績 <span class="stats-sub">フレーム演習(進捗管理モード)の日別集計</span></h2>
+    <p class="stats-desc">トップページの「今日の実績」は単発の択一演習も含みますが、こちらは<strong>進捗管理モードのフレーム演習のみ</strong>を集計しています。過去のフレーム演習も自動的に反映されます。</p>
+  </div>`;
+
+  html += `<div class="stats-controls">
+    <span class="stats-control-label">種類</span>
+    <button class="stats-kind-btn ${kindMode==='pastA'?'active':''}" data-kindmode="pastA">📚 過去問A</button>
+    <button class="stats-kind-btn ${kindMode==='pastB'?'active':''}" data-kindmode="pastB">📖 過去問B</button>
+    <button class="stats-kind-btn ${kindMode==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問</button>
+    <span style="flex:1"></span>
+    <span class="stats-control-label">期間</span>
+    <button class="stats-range-btn ${range==='7d'?'active':''}" data-range="7d">7日</button>
+    <button class="stats-range-btn ${range==='30d'?'active':''}" data-range="30d">30日</button>
+    <button class="stats-range-btn ${range==='all'?'active':''}" data-range="all">全期間</button>
+  </div>`;
+
+  // 4カードのサマリー
+  html += `<div class="stats-summary">
+    <div class="stats-sumcard">
+      <span class="label">本日(${kindLbl})</span>
+      <span class="value">${todayTotal}<span style="font-size:13px;font-weight:400;color:var(--ink-muted)">問</span></span>
+      <span class="sub">正答 ${todayCorrect} / ${todayTotal} (${pctStr(todayCorrect, todayTotal)})</span>
+    </div>
+    <div class="stats-sumcard">
+      <span class="label">${rangeLbl}</span>
+      <span class="value">${periodTotal}<span style="font-size:13px;font-weight:400;color:var(--ink-muted)">問</span></span>
+      <span class="sub">正答 ${periodCorrect} / ${periodTotal} (${pctStr(periodCorrect, periodTotal)})</span>
+    </div>
+    <div class="stats-sumcard">
+      <span class="label">累計(${kindLbl})</span>
+      <span class="value">${allTotal}<span style="font-size:13px;font-weight:400;color:var(--ink-muted)">問</span></span>
+      <span class="sub">正答 ${allCorrect} / ${allTotal}</span>
+    </div>
+    <div class="stats-sumcard">
+      <span class="label">累計正答率</span>
+      <span class="value">${pctStr(allCorrect, allTotal)}</span>
+      <span class="sub">${kindLbl} のみ</span>
+    </div>
+  </div>`;
+
+  // グラフ
+  html += `<div class="stats-chart-card">
+    <div class="stats-chart-title">
+      <span>日別 解答数(${kindLbl}・${rangeLbl})</span>
+      <span style="font-size:11px;color:var(--ink-muted);font-weight:400">フレーム別積み上げ + 正答率</span>
+    </div>
+    <div class="stats-chart-svg-wrap">${renderStatsChart(byDay, targetDateKeys)}</div>
+    ${renderStatsLegend(byDay, targetDateKeys)}
+    <div class="stats-legend-note">
+      ・棒の長さ = 解答数(同じフレームを同日に複数回やった場合は積み上げ表示)<br>
+      ・<span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#ccc;background-image:linear-gradient(45deg,rgba(255,255,255,.45) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.45) 50%,rgba(255,255,255,.45) 75%,transparent 75%);background-size:6px 6px;border:1px solid rgba(0,0,0,.1);vertical-align:middle"></span> 斜線 = 同日2回目以降、または演習中(未完了)<br>
+      ・<span style="color:var(--accent);font-weight:600">○</span> = その日の正答率(右Y軸、解答0の日は表示なし)
+    </div>
+  </div>`;
+
+  // 詳細表(アコーディオン)
+  html += `<div class="stats-detail-card">
+    <div class="stats-detail-title">日別詳細 <span style="font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:4px">クリックで内訳を展開</span></div>
+    ${renderStatsDetail(byDay, targetDateKeys)}
+  </div>`;
+
+  root.innerHTML = html;
+
+  // イベント設定
+  root.querySelectorAll('.stats-kind-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      state.statsView.kindMode = b.dataset.kindmode;
+      saveState();
+      renderStats();
+    });
+  });
+  root.querySelectorAll('.stats-range-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      state.statsView.range = b.dataset.range;
+      saveState();
+      renderStats();
+    });
+  });
+  root.querySelectorAll('.stats-day-head').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      const dk = h.dataset.datekey;
+      if(!dk) return;
+      state.statsView.openDates[dk] = !state.statsView.openDates[dk];
+      saveState();
+      // DOM操作のみで開閉(再レンダリングは重い)
+      const row = h.closest('.stats-day-row');
+      if(row) row.classList.toggle('open');
+    });
+  });
+}
+
+// 棒グラフ + 折れ線(正答率)を SVG で描画
+// byDay: buildStatsByDay の出力
+// dateKeys: 表示対象の日付キー配列(古→新)
+function renderStatsChart(byDay, dateKeys){
+  if(!dateKeys.length){
+    return `<div class="stats-chart-empty">表示するデータがありません</div>`;
+  }
+  // データなしのチェック
+  let anyData = false;
+  for(const dk of dateKeys){ if(byDay[dk] && byDay[dk].total > 0){ anyData = true; break } }
+  if(!anyData){
+    return `<div class="stats-chart-empty">この期間にフレーム演習の記録はまだありません。<br><span style="font-size:11px">進捗管理タブからフレームを選んで演習を始めると、ここに表示されます。</span></div>`;
+  }
+  // レイアウト
+  const isMobile = window.innerWidth < 600;
+  const W_PER_BAR = isMobile ? 38 : 48;
+  const margin = {top:20, right:50, bottom:50, left:42};
+  const innerW = dateKeys.length * W_PER_BAR;
+  const innerH = isMobile ? 220 : 260;
+  const W = innerW + margin.left + margin.right;
+  const H = innerH + margin.top + margin.bottom;
+
+  // Y軸スケール(解答数の最大)
+  let maxTotal = 0;
+  for(const dk of dateKeys){
+    const d = byDay[dk];
+    if(d && d.total > maxTotal) maxTotal = d.total;
+  }
+  // 切り上げ(きれいな数字に)
+  if(maxTotal < 10) maxTotal = 10;
+  else if(maxTotal < 50) maxTotal = Math.ceil(maxTotal/10)*10;
+  else if(maxTotal < 200) maxTotal = Math.ceil(maxTotal/25)*25;
+  else maxTotal = Math.ceil(maxTotal/50)*50;
+
+  // Y軸目盛り(4等分)
+  const yTicks = [];
+  for(let i=0;i<=4;i++) yTicks.push(Math.round(maxTotal/4*i));
+
+  // pattern 定義用に「使われたフレーム」を収集(色とパターンID用)
+  const patternDefs = new Map(); // patternId -> {fillColor}
+  const segments = []; // {x, y, w, h, fill, opacity, patternId?, frame, attempt}
+
+  // 各日の棒を構築
+  const barWidth = Math.min(W_PER_BAR - 10, 30);
+  dateKeys.forEach((dk, di)=>{
+    const day = byDay[dk];
+    const xBase = margin.left + di * W_PER_BAR;
+    const xCenter = xBase + W_PER_BAR/2;
+    const xLeft = xCenter - barWidth/2;
+    if(!day || day.total === 0) return;
+
+    // フレームを (subject, frameRef, attemptNo順) でソート
+    const sorted = [...day.frames].sort((a,b)=>{
+      const sa = SUBJECTS_ORDER.indexOf(a.subject);
+      const sb = SUBJECTS_ORDER.indexOf(b.subject);
+      if(sa !== sb) return sa - sb;
+      const fa = parseFloat(a.frameRef);
+      const fb = parseFloat(b.frameRef);
+      if(fa !== fb) return fa - fb;
+      return (a.attempt.attemptNo||0) - (b.attempt.attemptNo||0);
+    });
+
+    let yCursor = innerH + margin.top; // 棒は下から積み上げ
+    for(const fr of sorted){
+      const att = fr.attempt;
+      const segH = (att.answered / maxTotal) * innerH;
+      if(segH <= 0) continue;
+      const baseColor = statsFrameColor(fr.subject, fr.frameRef);
+      // 斜線パターン:同日2回目以降、または演習中
+      const usePattern = (!att.completed) || (att.attemptNo && att.attemptNo >= 2);
+      let patternId = null;
+      if(usePattern){
+        // パターンIDは色から生成(同色の斜線パターンを使い回す)
+        patternId = 'hatch_'+baseColor.replace(/[^a-z0-9]/gi,'_');
+        if(!patternDefs.has(patternId)){
+          patternDefs.set(patternId, baseColor);
+        }
+      }
+      segments.push({
+        x: xLeft,
+        y: yCursor - segH,
+        w: barWidth,
+        h: segH,
+        fill: usePattern ? `url(#${patternId})` : baseColor,
+        baseFill: baseColor,
+        title: `${fr.subject} F${fr.frameRef} ${att.attemptNo}回目${att.completed?'(完了)':'(演習中)'} ${att.answered}問解答 ${att.correct}正解 (${Math.round(att.correct/att.answered*100)}%)`
+      });
+      yCursor -= segH;
+    }
+  });
+
+  // SVG 構築
+  let svg = `<svg class="stats-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // <defs> パターン
+  svg += '<defs>';
+  for(const [pid, color] of patternDefs){
+    svg += `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="6" height="6">
+      <rect width="6" height="6" fill="${color}"/>
+      <line x1="0" y1="0" x2="0" y2="6" stroke="white" stroke-width="1.5" stroke-opacity="0.5"/>
+    </pattern>`;
+  }
+  svg += '</defs>';
+
+  // Y軸グリッドと目盛り(左:解答数)
+  for(const t of yTicks){
+    const y = margin.top + innerH - (t/maxTotal)*innerH;
+    svg += `<line x1="${margin.left}" y1="${y}" x2="${margin.left+innerW}" y2="${y}" stroke="#E5DFD3" stroke-width="1"/>`;
+    svg += `<text x="${margin.left-6}" y="${y+3}" text-anchor="end" font-size="10" fill="#8B867E" font-family="-apple-system,sans-serif">${t}</text>`;
+  }
+  // Y軸ラベル(左)
+  svg += `<text x="${margin.left-32}" y="${margin.top - 6}" font-size="10" fill="#8B867E" font-family="-apple-system,sans-serif">解答数</text>`;
+  // Y軸(右:正答率 0-100%)
+  const yPctTicks = [0, 50, 100];
+  for(const p of yPctTicks){
+    const y = margin.top + innerH - (p/100)*innerH;
+    svg += `<text x="${margin.left+innerW+4}" y="${y+3}" font-size="10" fill="#B83A2E" font-family="-apple-system,sans-serif">${p}%</text>`;
+  }
+  svg += `<text x="${margin.left+innerW+4}" y="${margin.top - 6}" font-size="10" fill="#B83A2E" font-family="-apple-system,sans-serif">正答率</text>`;
+
+  // 棒セグメント
+  for(const s of segments){
+    svg += `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" fill="${s.fill}" stroke="${s.baseFill}" stroke-width="0.5"><title>${escapeHtml(s.title)}</title></rect>`;
+  }
+
+  // X軸ラベル(日付)
+  dateKeys.forEach((dk, di)=>{
+    const xCenter = margin.left + di * W_PER_BAR + W_PER_BAR/2;
+    const [y,m,d] = dk.split('-').map(Number);
+    const lbl = `${m}/${d}`;
+    const isToday = (dk === statsTodayKey());
+    const fontWeight = isToday ? '600' : '400';
+    const color = isToday ? '#B83A2E' : '#5C5852';
+    svg += `<text x="${xCenter}" y="${margin.top + innerH + 14}" text-anchor="middle" font-size="10" fill="${color}" font-weight="${fontWeight}" font-family="-apple-system,sans-serif">${lbl}</text>`;
+  });
+  // X軸線
+  svg += `<line x1="${margin.left}" y1="${margin.top+innerH}" x2="${margin.left+innerW}" y2="${margin.top+innerH}" stroke="#8B867E" stroke-width="1"/>`;
+
+  // 正答率の折れ線
+  const pctPoints = [];
+  dateKeys.forEach((dk, di)=>{
+    const day = byDay[dk];
+    if(!day || day.total === 0) return;
+    const pct = day.correct / day.total * 100;
+    const x = margin.left + di * W_PER_BAR + W_PER_BAR/2;
+    const y = margin.top + innerH - (pct/100)*innerH;
+    pctPoints.push({x, y, pct, dk});
+  });
+  if(pctPoints.length >= 2){
+    let pathD = '';
+    pctPoints.forEach((p, i)=>{
+      pathD += (i===0 ? 'M' : 'L') + p.x + ',' + p.y + ' ';
+    });
+    svg += `<path d="${pathD}" stroke="#B83A2E" stroke-width="1.5" fill="none" stroke-dasharray="2,2" opacity="0.8"/>`;
+  }
+  for(const p of pctPoints){
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#B83A2E" stroke="white" stroke-width="1"><title>${escapeHtml(p.dk + ' 正答率 ' + Math.round(p.pct) + '%')}</title></circle>`;
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+// 凡例(その期間に出現した科目のみを表示)
+function renderStatsLegend(byDay, dateKeys){
+  const subjUsed = new Set();
+  for(const dk of dateKeys){
+    const d = byDay[dk];
+    if(!d) continue;
+    for(const f of d.frames) subjUsed.add(f.subject);
+  }
+  if(!subjUsed.size) return '';
+  let html = `<div class="stats-legend">`;
+  for(const subj of SUBJECTS_ORDER){
+    if(!subjUsed.has(subj)) continue;
+    const c = statsSubjectColor(subj);
+    html += `<span class="stats-legend-item">
+      <span class="stats-legend-swatch" style="background:${c}"></span>
+      <span>${escapeHtml(subj)}</span>
+    </span>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// 詳細表(日別アコーディオン → フレーム別)
+function renderStatsDetail(byDay, dateKeys){
+  // 新しい日が上に来るように降順
+  const desc = [...dateKeys].sort().reverse();
+  // データのある日のみ表示(全期間モードで空日が大量に出るのを避ける)
+  const filtered = desc.filter(dk => byDay[dk] && byDay[dk].total > 0);
+  if(!filtered.length){
+    return `<div style="text-align:center;color:var(--ink-muted);font-size:12.5px;padding:20px">この期間に演習実績はありません</div>`;
+  }
+  let html = '';
+  for(const dk of filtered){
+    const d = byDay[dk];
+    const isOpen = !!(state.statsView.openDates && state.statsView.openDates[dk]);
+    const pct = d.total>0 ? Math.round(d.correct/d.total*100)+'%' : '—';
+    const lbl = statsDateLabel(dk);
+    html += `<div class="stats-day-row${isOpen?' open':''}">
+      <div class="stats-day-head" data-datekey="${dk}">
+        <span class="stats-day-toggle">▶</span>
+        <span class="stats-day-date">${lbl}</span>
+        <span class="stats-day-summary">計 ${d.total}問　正答 ${d.correct}<span class="acc">(${pct})</span></span>
+      </div>
+      <div class="stats-day-body">${renderStatsDayBody(d)}</div>
+    </div>`;
+  }
+  return html;
+}
+
+// 1日分の詳細(フレームごとの行)
+function renderStatsDayBody(day){
+  // フレームを科目順・フレーム番号順・ラウンド順にソート
+  const sorted = [...day.frames].sort((a,b)=>{
+    const sa = SUBJECTS_ORDER.indexOf(a.subject);
+    const sb = SUBJECTS_ORDER.indexOf(b.subject);
+    if(sa !== sb) return sa - sb;
+    const fa = parseFloat(a.frameRef);
+    const fb = parseFloat(b.frameRef);
+    if(fa !== fb) return fa - fb;
+    return (a.attempt.attemptNo||0) - (b.attempt.attemptNo||0);
+  });
+  let html = '';
+  for(const fr of sorted){
+    const att = fr.attempt;
+    const color = statsFrameColor(fr.subject, fr.frameRef);
+    const swatchClass = (!att.completed || (att.attemptNo && att.attemptNo>=2)) ? 'in-progress' : '';
+    const pct = att.answered>0 ? Math.round(att.correct/att.answered*100)+'%' : '—';
+    const stateLbl = att.completed ? '完了' : '演習中';
+    const stateCls = att.completed ? '' : 'in-progress';
+    const fLabel = `${escapeHtml(fr.subject)} F${escapeHtml(fr.frameRef)}`;
+    html += `<div class="stats-frame-line">
+      <span class="stats-frame-swatch ${swatchClass}" style="background-color:${color}"></span>
+      <span class="stats-frame-name">${fLabel}<span class="att-no">${att.attemptNo}回目</span></span>
+      <span class="stats-frame-state ${stateCls}">${stateLbl}</span>
+      <span class="stats-frame-stat">${att.answered}問 / 正答 ${att.correct} (${pct})</span>
+    </div>`;
+  }
+  return html;
 }
 
 /* ===== Wire up ===== */
