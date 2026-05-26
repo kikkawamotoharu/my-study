@@ -9884,15 +9884,28 @@ function statsDateLabel(dateKey){
 }
 
 // フレーム単位の集計データを構築
-// 返り値: { dateKey: { date, total, correct, frames: [ {subject, frameRef, kind, attempts:[{attemptNo, answered, correct, completed, startedAt, completedAt}]} ] } }
+// 返り値: { dateKey: { date, total, correct, frames: [ {subject, frameRef, kind, attempt:{...}} ] } }
 //   - kindMode で絞り込み('pastA'|'pastB'|'forecast')
-//   - 過去分(frameAttempts.history)と進行中(current)を統合
+//   - 改修12-fix: 集計日付は state.history の各解答 ts(=解答日)。
+//     attempt が複数日にまたがる場合、日別に分けて計上する。
+//     「completed: true」表記は attempt が完了済みで、かつ最終解答日のときのみ。
 function buildStatsByDay(kindMode){
   const days = {};
   const ensureDay = (dk)=>{
     if(!days[dk]) days[dk] = {date:dk, total:0, correct:0, frames:[]};
     return days[dk];
   };
+
+  // 高速化: state.history を qid 別に整理(O(N))
+  const histByQid = new Map();
+  for(let i=0;i<state.history.length;i++){
+    const h = state.history[i];
+    if(!h || !h.qid) continue;
+    let arr = histByQid.get(h.qid);
+    if(!arr){ arr = []; histByQid.set(h.qid, arr); }
+    arr.push(h);
+  }
+
   // frameAttempts を全走査
   for(const k in state.frameAttempts){
     const parts = k.split('|');
@@ -9902,50 +9915,71 @@ function buildStatsByDay(kindMode){
     const kd = parts[2];
     if(kd !== kindMode) continue;
     const fa = state.frameAttempts[k];
-    // 完了ラウンド
+
+    // 完了 attempts + 進行中 current を1つの配列にまとめる
+    const attemptsToProcess = [];
     for(let i=0;i<(fa.history||[]).length;i++){
       const att = fa.history[i];
       if(!att) continue;
-      const startedAt = att.startedAt || att.completedAt || Date.now();
-      const dk = statsDateKey(startedAt);
-      const st = computeAttemptStats(att);
-      if(st.answered === 0) continue; // 解答ゼロのラウンドは計上しない
-      const day = ensureDay(dk);
-      day.total += st.answered;
-      day.correct += st.correct;
-      day.frames.push({
-        subject:subj, frameRef:frRef, kind:kd,
-        attempt:{
-          attemptNo: att.attemptNo || (i+1),
-          answered: st.answered,
-          correct: st.correct,
-          completed: true,
-          startedAt: startedAt,
-          completedAt: att.completedAt || startedAt
-        }
+      attemptsToProcess.push({
+        att, isCompleted: true,
+        attemptNo: att.attemptNo || (i+1)
       });
     }
-    // 進行中(current)
-    if(fa.current && (fa.current.answeredIds||[]).length > 0){
-      const cur = fa.current;
-      const startedAt = cur.startedAt || Date.now();
-      const dk = statsDateKey(startedAt);
-      const st = computeAttemptStats(cur);
-      if(st.answered === 0) continue;
-      const day = ensureDay(dk);
-      day.total += st.answered;
-      day.correct += st.correct;
-      day.frames.push({
-        subject:subj, frameRef:frRef, kind:kd,
-        attempt:{
-          attemptNo: cur.attemptNo || ((fa.history||[]).length + 1),
-          answered: st.answered,
-          correct: st.correct,
-          completed: false,
-          startedAt: startedAt,
-          completedAt: null
-        }
+    if(fa.current){
+      attemptsToProcess.push({
+        att: fa.current, isCompleted: false,
+        attemptNo: fa.current.attemptNo || ((fa.history||[]).length + 1)
       });
+    }
+
+    for(const proc of attemptsToProcess){
+      const att = proc.att;
+      const start = att.startedAt || 0;
+      const end = att.completedAt || Date.now();
+      const qids = att.questionIds || [];
+      if(qids.length === 0) continue;
+
+      // 各 qid について、この attempt 期間内の最新解答を取得し、解答日別に振り分け
+      const dayBuckets = {}; // dateKey -> {answered, correct}
+      for(let qi=0;qi<qids.length;qi++){
+        const qid = qids[qi];
+        const hist = histByQid.get(qid);
+        if(!hist) continue;
+        let latest = null;
+        for(let j=0;j<hist.length;j++){
+          const h = hist[j];
+          if(h.ts < start || h.ts > end) continue;
+          if(!latest || h.ts > latest.ts) latest = h;
+        }
+        if(!latest) continue;
+        const dk = statsDateKey(latest.ts);
+        if(!dayBuckets[dk]) dayBuckets[dk] = {answered:0, correct:0};
+        dayBuckets[dk].answered++;
+        if(latest.correct) dayBuckets[dk].correct++;
+      }
+      const sortedDays = Object.keys(dayBuckets).sort();
+      if(sortedDays.length === 0) continue;
+      // 完了表示は最終解答日のみ(かつ attempt が history 側のもの=完了済の場合のみ)
+      const lastDay = sortedDays[sortedDays.length - 1];
+
+      for(const dk of sortedDays){
+        const bucket = dayBuckets[dk];
+        const day = ensureDay(dk);
+        day.total += bucket.answered;
+        day.correct += bucket.correct;
+        day.frames.push({
+          subject: subj, frameRef: frRef, kind: kd,
+          attempt: {
+            attemptNo: proc.attemptNo,
+            answered: bucket.answered,
+            correct: bucket.correct,
+            completed: proc.isCompleted && (dk === lastDay),
+            startedAt: start,
+            completedAt: att.completedAt || null
+          }
+        });
+      }
     }
   }
   return days;
