@@ -10514,14 +10514,19 @@ function _gGetSnapshot(){
   }
   const baseActivityDate = _gParseKey(snap.baseActivityDateKey) || _gTodayDate();
   const startDate = _gAddDays(baseActivityDate, -7);
-  // 改修28-2: 表示範囲を約1か月分に拡大(今後の学習計画を見たい)
-  // 起点(基準日-7日) から +33日 = 合計40日分(約6週間。6月末まで余裕でカバー)
-  const endDate   = _gAddDays(baseActivityDate, +33);
+  // 改修28-4: 表示範囲を社労士試験対策の学習計画用に拡大(8月末まで見たい)
+  // 終点 = 基準日と同じ年の 8/31。基準日が既に 8/31 を過ぎていたら翌年の 8/31。
+  // これにより試験日(例年8月下旬)までの学習計画が一覧できる。
+  const baseY = baseActivityDate.getFullYear();
+  let endDate = new Date(baseY, 7, 31); // 7 = August (0-indexed)
+  if(endDate < baseActivityDate){
+    endDate = new Date(baseY + 1, 7, 31);
+  }
   return {
     baseActivityDate,
     startDate,
     endDate,
-    totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む = 41日
+    totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む
     todayDate: _gTodayDate(),
     capturedAtKey: snap.capturedAtKey,
     baseActivityDateKey: snap.baseActivityDateKey
@@ -10737,7 +10742,21 @@ function renderProgressGantt(root){
 
   // === オーバーレイ(ポイントマーク + 線)の描画 ===
   // DOM 構築後にセル位置を測ってポイントを配置
-  requestAnimationFrame(()=>_gPaintOverlays(groups, dayDates, snap, ganttMode));
+  requestAnimationFrame(()=>{
+    _gPaintOverlays(groups, dayDates, snap, ganttMode);
+    // 改修28-4: 8月末まで表示範囲を拡大したので、初期スクロールを基準日(=「今」)の位置に合わせる
+    // (左端の起点ばかり見えていても今日の状況が把握しづらいため)
+    const scrollWrap = document.getElementById('gantt-scroll');
+    if(scrollWrap){
+      const nowLine = scrollWrap.querySelector('.gantt-now-line');
+      if(nowLine){
+        const lineLeft = parseFloat(nowLine.style.left) || 0;
+        // 基準日が画面の左から 25% の位置に来るようにスクロール
+        // (左に1週間分の過去、右に試験までの未来が見えるバランス)
+        scrollWrap.scrollLeft = Math.max(0, lineLeft - scrollWrap.clientWidth * 0.25);
+      }
+    }
+  });
 
   // === イベント ===
   // サブタブクリック(共通ハンドラ)
