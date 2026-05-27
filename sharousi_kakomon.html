@@ -2432,7 +2432,8 @@
   .gantt-table.compact .gantt-row-meta{min-height:24px;padding:2px 6px}
   .gantt-table.compact .gantt-row-meta .grm-fno{font-size:9px;padding:0 4px}
   .gantt-table.compact .gantt-row-meta .grm-title{font-size:11px}
-  .gantt-table.compact .gantt-row-slots{min-height:24px;padding:2px 4px}
+  .gantt-table.compact .gantt-row-slots{min-height:24px;padding:2px 3px}
+  .gantt-table.compact .gantt-row-slots .gs-grid{gap:1px}
   .gantt-table.compact .gantt-row-slots .gs-slot{min-height:10px;font-size:7px}
   .gantt-table.compact .gantt-day-cell{min-height:24px}
   .gantt-table.compact .gantt-point{width:8px;height:8px;border-width:1px}
@@ -2463,10 +2464,10 @@
     .gantt-controls .gantt-base-info{margin-left:0;width:100%;text-align:left}
     .gantt-h-meta,.gantt-row-meta{font-size:11px;padding:3px 6px}
     .gantt-row-meta .grm-title{font-size:11px}
-    .gantt-h-date{min-width:30px;padding:4px 0}
+    .gantt-h-date{min-width:24px;padding:4px 0}
     .gantt-h-date .gh-date-md{font-size:10px}
     .gantt-h-date .gh-date-dow{font-size:9px}
-    .gantt-day-cell{min-width:30px}
+    .gantt-day-cell{min-width:24px}
     .gantt-point{width:8px;height:8px}
 
     /* 改修28-7: iPhone Safari でガントチャート内部スクロールが
@@ -10663,7 +10664,7 @@ function _gBuildRowData(subject, fr, kindMode, snap){
 
   // ガントチャートの色判定基準時刻(スナップショット基準日の 23:59:59)
   // これにより、「基準日から N 日前」という日数勘定が、当日中ずっと安定する。
-  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+  const refTs = Date.now(); // 改修28-7: 既存 getReviewStatus(進捗管理タブ) と完全一致させるため Date.now() に統一
 
   if(fa){
     if(fa.current && fa.current.startedAt){
@@ -10735,7 +10736,7 @@ function _gBuildSubFrameRowData(subject, parentFr, subFrame, kindMode, snap){
   let pointStatus = 'empty';
   let attemptNo = 0;
   let statusText = '未着手';
-  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+  const refTs = Date.now(); // 改修28-7: 既存 getReviewStatus(進捗管理タブ) と完全一致させるため Date.now() に統一
 
   if(fa){
     if(fa.current && fa.current.startedAt){
@@ -10821,18 +10822,19 @@ function renderProgressGantt(root){
       // 改修28-5: サブフレームを持つ親フレームの場合、サブフレームを1つずつ個別の行として展開する。
       // (旧仕様では親フレーム集約で1行にしていたが、社一・労一など中分類が多い科目で
       //  進捗が見えなくなる問題があったため、個別表示に切り替え)
+      // 改修28-7: 問題未登録(hasNoQ)のフレームも除外しない。
+      //  俯瞰用ガントチャートの目的(=全体を見る)を満たすため、未登録フレームは
+      //  メタ列を薄く(dim+pending)表示するのみで、行自体は残す。
+      //  これにより労働基準法・労一・社一など問題が少ない科目でも全フレームが見える。
       if(typeof hasSubFrames === 'function' && hasSubFrames(subject, fr.n)){
         const subs = getSubFrames(subject, fr.n) || [];
         for(const sf of subs){
           const subRow = _gBuildSubFrameRowData(subject, fr, sf, ganttKindMode, snap);
-          // 問題未登録(0問)のみ除外、それ以外は全表示
-          if(subRow.hasNoQ) continue;
           rows.push(subRow);
         }
       }else{
         // サブフレームを持たない通常フレーム
         const rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
-        if(rowData.hasNoQ) continue;
         rows.push(rowData);
       }
     }
@@ -10980,7 +10982,7 @@ function _gBuildParentFrameRowData(subject, fr, kindMode, snap){
   let inProgress = false;
   let anyEligible = false;
   let maxCompleted = 0;
-  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+  const refTs = Date.now(); // 改修28-7: 既存 getReviewStatus(進捗管理タブ) と完全一致させるため Date.now() に統一
 
   const subs = (typeof getSubFrames === 'function') ? getSubFrames(subject, fr.n) : [];
   for(const sf of subs){
@@ -11054,11 +11056,13 @@ function _gBuildParentFrameRowData(subject, fr, kindMode, snap){
    改修28-2: 各日付セルを grid の直接子要素にして、進捗ハコの番号が日付セルに漏れる
             grid layout 破綻バグを修正。 */
 function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
-  const metaW  = ganttMode === 'all' ? 140 : 160;
-  const slotsW = 170;
-  const dayW   = ganttMode === 'all' ? 30  : 34;
+  // 改修28-7: スマホ(画面幅 640px 以下)では大幅に圧縮してガントチャート本体に画面幅を譲る
+  const isMobile = (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width:640px)').matches);
+  const metaW  = isMobile ?  95 : (ganttMode === 'all' ? 140 : 160);
+  const slotsW = isMobile ? 100 : 170;
+  const dayW   = isMobile ?  24 : (ganttMode === 'all' ?  30 :  34);
   const cols   = `${metaW}px ${slotsW}px ${dayDates.map(()=>`${dayW}px`).join(' ')}`;
-  const compactClass = ganttMode === 'all' ? ' compact' : '';
+  const compactClass = (ganttMode === 'all' || isMobile) ? ' compact' : '';
 
   let html = `<div class="gantt-table${compactClass}" id="gantt-table" style="grid-template-columns:${cols};--gantt-meta-w:${metaW}px;--gantt-slots-w:${slotsW}px;--gantt-day-w:${dayW}px">`;
 
@@ -11081,9 +11085,11 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
     html += `<div class="gantt-subj-divider"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></div>`;
     for(const r of g.rows){
       const dimClass = r.hasNoQ ? ' dim' : '';
-      // 改修28-3: 「未着手」フレーム(まだ1回も完了していない & 演習中でもない)
+      // 改修28-3 / 28-7: 「未着手」フレーム(まだ1回も完了していない & 演習中でもない)
       // → ポイントマークは描画せず、メタ列ボックスをグレー表示することで未着手を示す
-      const isPending = (r.attemptNo === 0 && r.pointStatus !== 'prog' && !r.hasNoQ);
+      // 改修28-7: hasNoQ(問題未登録)も pending として扱う(=ポイントを描画しない)。
+      //  これにより、登録される前のフレームでも俯瞰の場に存在は出る。
+      const isPending = (r.attemptNo === 0 && r.pointStatus !== 'prog');
       const pendingClass = isPending ? ' pending' : '';
       // ポイントが置かれる日付セルのインデックスを計算(未着手でも線を引くため計算する)
       let pointDayIdx;
