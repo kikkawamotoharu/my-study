@@ -10974,7 +10974,11 @@ function renderStats(){
     <div class="stats-legend-note">
       ・棒の長さ = 解答数(同じフレームを同日に複数回やった場合は積み上げ表示)<br>
       ・<span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#ccc;background-image:linear-gradient(45deg,rgba(255,255,255,.45) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.45) 50%,rgba(255,255,255,.45) 75%,transparent 75%);background-size:6px 6px;border:1px solid rgba(0,0,0,.1);vertical-align:middle"></span> 斜線 = 同日2回目以降、または演習中(未完了)<br>
-      ・<span style="color:var(--accent);font-weight:600">○</span> = その日の正答率(右Y軸、解答0の日は表示なし)
+      ・<span style="color:var(--accent);font-weight:600">○ 赤点線</span> = その日全体の正答率(右Y軸、解答0の日は表示なし)<br>
+      <!-- 改修26: 弱点重要4科目の正答率折れ線 -->
+      ・<span style="font-weight:600">○ 実線</span>(科目色) = 弱点重要4科目の正答率推移(雇用・健保・厚年・国年。当該科目の解答が無い日は線を分断)<br>
+      <!-- 改修27: 正答率Y軸ズーム -->
+      ・<strong style="color:var(--accent)">右Y軸は60%〜100%にズーム表示</strong> — 70%後半〜90%台の差を見やすくしています。60%未満は60%位置にクランプ(下向き三角▽印で表示、ホバーで実値確認可)
     </div>
   </div>`;
 
@@ -11126,10 +11130,24 @@ function renderStatsChart(byDay, dateKeys){
   }
   // Y軸ラベル(左)
   svg += `<text x="${margin.left-32}" y="${margin.top - 6}" font-size="10" fill="#8B867E" font-family="-apple-system,sans-serif">解答数</text>`;
-  // Y軸(右:正答率 0-100%)
-  const yPctTicks = [0, 50, 100];
+
+  // 改修27: 正答率Y軸を 60%-100% にズーム(80%前後の差を見える化)
+  //   下限を 60% に上げることで、79% と 89% の差(従来は約10pxしか離れていなかった)が
+  //   2.5倍に拡大されて視覚的に判別しやすくなる。60%未満の値は60%ラインにクランプして
+  //   チャート外に飛び出さないようにし、ツールチップで実値を確認できるようにする。
+  const PCT_AXIS_MIN = 60;
+  const PCT_AXIS_MAX = 100;
+  const PCT_AXIS_RANGE = PCT_AXIS_MAX - PCT_AXIS_MIN; // 40
+  // 内部ヘルパ: 正答率 → Y座標(60-100にクランプして innerH にマップ)
+  function pctToY(pct){
+    const c = Math.max(PCT_AXIS_MIN, Math.min(PCT_AXIS_MAX, pct));
+    return margin.top + innerH - ((c - PCT_AXIS_MIN) / PCT_AXIS_RANGE) * innerH;
+  }
+
+  // Y軸(右:正答率 60-100%)— 5刻みにして左軸の5刻みグリッドと位置が一致するように
+  const yPctTicks = [60, 70, 80, 90, 100];
   for(const p of yPctTicks){
-    const y = margin.top + innerH - (p/100)*innerH;
+    const y = pctToY(p);
     svg += `<text x="${margin.left+innerW+4}" y="${y+3}" font-size="10" fill="#B83A2E" font-family="-apple-system,sans-serif">${p}%</text>`;
   }
   svg += `<text x="${margin.left+innerW+4}" y="${margin.top - 6}" font-size="10" fill="#B83A2E" font-family="-apple-system,sans-serif">正答率</text>`;
@@ -11159,8 +11177,9 @@ function renderStatsChart(byDay, dateKeys){
     if(!day || day.total === 0) return;
     const pct = day.correct / day.total * 100;
     const x = margin.left + di * W_PER_BAR + W_PER_BAR/2;
-    const y = margin.top + innerH - (pct/100)*innerH;
-    pctPoints.push({x, y, pct, dk});
+    // 改修27: Y軸を 60-100% にズーム
+    const y = pctToY(pct);
+    pctPoints.push({x, y, pct, dk, clamped: pct < PCT_AXIS_MIN});
   });
   if(pctPoints.length >= 2){
     let pathD = '';
@@ -11170,7 +11189,59 @@ function renderStatsChart(byDay, dateKeys){
     svg += `<path d="${pathD}" stroke="#B83A2E" stroke-width="1.5" fill="none" stroke-dasharray="2,2" opacity="0.8"/>`;
   }
   for(const p of pctPoints){
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#B83A2E" stroke="white" stroke-width="1"><title>${escapeHtml(p.dk + ' 正答率 ' + Math.round(p.pct) + '%')}</title></circle>`;
+    // 改修27: クランプ時(60%未満)はツールチップに注記、視覚的にも下三角マーカーで示す
+    const tip = p.dk + ' 正答率 ' + Math.round(p.pct) + '%' + (p.clamped ? ' ⚠軸下限60%未満のため60%位置にクランプ' : '');
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#B83A2E" stroke="white" stroke-width="1"><title>${escapeHtml(tip)}</title></circle>`;
+    if(p.clamped){
+      // 下向き三角マーカー(クランプ印)
+      svg += `<polygon points="${p.x-3},${p.y+5} ${p.x+3},${p.y+5} ${p.x},${p.y+10}" fill="#B83A2E" opacity="0.7"><title>${escapeHtml(p.dk + ' 正答率 ' + Math.round(p.pct) + '% (軸範囲外)')}</title></polygon>`;
+    }
+  }
+
+  /* ===== 改修26: 弱点かつ重要4科目の正答率推移を折れ線で重ね描き =====
+     対象: 雇用保険法・健康保険法・厚生年金保険法・国民年金法
+     - 全体の正答率(赤点線)に対して、各科目の正答率を実線で重ねる(科目色を使用)
+     - 当該科目の解答が無い日は線を分断(誤解防止)
+     - 全体線(点線)と科目線(実線)で視覚的に区別 */
+  const SUBJ_LINES = ['雇用保険法', '健康保険法', '厚生年金保険法', '国民年金法'];
+  for(const targetSubj of SUBJ_LINES){
+    const subjPoints = [];
+    dateKeys.forEach((dk, di)=>{
+      const day = byDay[dk];
+      if(!day || !Array.isArray(day.frames)) return;
+      let answered = 0, correct = 0;
+      for(const fr of day.frames){
+        if(fr.subject !== targetSubj) continue;
+        answered += (fr.attempt && fr.attempt.answered) || 0;
+        correct  += (fr.attempt && fr.attempt.correct)  || 0;
+      }
+      if(answered === 0) return; // この日は当該科目の演習なし
+      const pct = correct / answered * 100;
+      const x = margin.left + di * W_PER_BAR + W_PER_BAR/2;
+      // 改修27: Y軸を 60-100% にズーム
+      const y = pctToY(pct);
+      subjPoints.push({x, y, pct, dk, answered, correct, idx: di, clamped: pct < PCT_AXIS_MIN});
+    });
+    if(!subjPoints.length) continue; // 期間中に当該科目の実績ゼロなら描画スキップ
+
+    const lineColor = statsSubjectColor(targetSubj);
+    // 連続した日同士のみ線分でつなぐ(空白日があれば分断)
+    let segPath = '';
+    let lastIdx = -2;
+    for(const p of subjPoints){
+      segPath += (p.idx === lastIdx + 1 ? 'L' : 'M') + p.x + ',' + p.y + ' ';
+      lastIdx = p.idx;
+    }
+    svg += `<path d="${segPath}" stroke="${lineColor}" stroke-width="1.8" fill="none" opacity="0.85" stroke-linejoin="round" stroke-linecap="round"/>`;
+    for(const p of subjPoints){
+      // 改修27: クランプ時(60%未満)はツールチップに注記し、下三角マーカーで示す
+      const baseTip = targetSubj + ' ' + p.dk + ' 正答率 ' + Math.round(p.pct) + '% (' + p.correct + '/' + p.answered + '問)';
+      const tip = baseTip + (p.clamped ? ' ⚠軸下限60%未満のためクランプ' : '');
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${lineColor}" stroke="white" stroke-width="1"><title>${escapeHtml(tip)}</title></circle>`;
+      if(p.clamped){
+        svg += `<polygon points="${p.x-2.5},${p.y+5} ${p.x+2.5},${p.y+5} ${p.x},${p.y+9}" fill="${lineColor}" opacity="0.7"><title>${escapeHtml(baseTip + ' (軸範囲外)')}</title></polygon>`;
+      }
+    }
   }
 
   svg += '</svg>';
