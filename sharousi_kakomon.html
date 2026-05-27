@@ -2236,6 +2236,219 @@
     .stats-sumcard .value{font-size:17px}
     .stats-day-summary{font-size:11px}
   }
+
+  /* ============================================================
+     改修28: 進捗管理タブ「ガントチャート」サブタブ
+     - 縦軸: 科目→フレーム  横軸: 日付(基準日±数日)
+     - 基準日 = 最終演習日(問題やらないと右に進まない)
+     - ポイントマーク: 各フレームの最終演習日に色付きマーク
+     - 線: 縦に隣接するフレーム間の点を結ぶジグザグ線
+     - 「アプリ起動日固定」スナップショット
+     ============================================================ */
+  .gantt-wrap{margin-top:8px}
+  .gantt-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    padding:10px 12px;background:var(--bg);border:1px solid var(--line);
+    border-radius:6px;margin-bottom:10px;font-size:12px;
+  }
+  .gantt-controls label{color:var(--ink-soft);font-weight:500;margin-right:4px}
+  .gantt-controls select{
+    padding:5px 10px;border:1px solid var(--line);border-radius:4px;
+    font-family:inherit;font-size:12px;background:var(--paper);color:var(--ink);
+  }
+  .gantt-controls .gantt-base-info{
+    margin-left:auto;color:var(--ink-muted);font-size:11px;line-height:1.5;
+  }
+  .gantt-controls .gantt-base-info b{color:var(--ink-soft)}
+
+  .gantt-legend{
+    display:flex;flex-wrap:wrap;gap:10px;font-size:11px;
+    padding:6px 12px;color:var(--ink-muted);align-items:center;
+  }
+  .gantt-legend .leg{display:inline-flex;align-items:center;gap:4px}
+  .gantt-legend .leg-dot{
+    display:inline-block;width:11px;height:11px;border-radius:50%;
+    border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);
+  }
+  .gantt-legend .leg-dot.empty{background:#cfd4dc}
+  .gantt-legend .leg-dot.ok{background:var(--green)}
+  .gantt-legend .leg-dot.warn{background:#E8B923}
+  .gantt-legend .leg-dot.overdue{background:#D9534F}
+  .gantt-legend .leg-dot.prog{background:var(--amber)}
+
+  /* スクロール領域 */
+  .gantt-scroll{
+    overflow:auto;border:1px solid var(--line);border-radius:6px;
+    background:var(--paper);max-height:78vh;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* テーブル(grid) */
+  .gantt-table{
+    display:grid;
+    /* grid-template-columns は JS から動的に設定 */
+    position:relative;font-size:12px;line-height:1.3;
+    min-width:max-content;
+  }
+  /* ヘッダー行 */
+  .gantt-h-meta,.gantt-h-slots,.gantt-h-date{
+    position:sticky;top:0;z-index:3;
+    background:var(--bg);border-bottom:2px solid var(--line);
+    padding:6px 8px;font-weight:600;color:var(--ink-soft);
+    font-size:11px;text-align:center;
+  }
+  .gantt-h-meta{
+    text-align:left;left:0;z-index:5;background:var(--bg);
+    border-right:1px solid var(--line);
+  }
+  .gantt-h-slots{
+    left:var(--gantt-meta-w,160px);z-index:4;background:var(--bg);
+    border-right:1px solid var(--line);
+  }
+  .gantt-h-date{
+    border-right:1px solid var(--line-soft);min-width:34px;
+    font-variant-numeric:tabular-nums;
+  }
+  .gantt-h-date .gh-date-md{font-size:11px;color:var(--ink-soft);font-weight:600}
+  .gantt-h-date .gh-date-dow{font-size:10px;color:var(--ink-muted);font-weight:500;display:block}
+  .gantt-h-date.sat .gh-date-dow{color:#3366cc}
+  .gantt-h-date.sun .gh-date-dow{color:#cc3333}
+  .gantt-h-date.weekend{background:#f0f1f4}
+  .gantt-h-date.base{background:#fff7d6;border-left:2px solid #c98d00;border-right:2px solid #c98d00}
+
+  /* 科目区切り (全体モード時) */
+  .gantt-subj-divider{
+    grid-column:1/-1;
+    background:linear-gradient(to right,var(--line-soft),transparent);
+    padding:6px 10px;font-weight:600;color:var(--ink-soft);font-size:12px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line-soft);
+    position:sticky;left:0;z-index:2;
+  }
+  .gantt-subj-divider .gsd-name{font-size:13px}
+  .gantt-subj-divider .gsd-count{font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:8px}
+
+  /* データ行 */
+  .gantt-row-meta,.gantt-row-slots,.gantt-row-chart{
+    border-bottom:1px solid var(--line-soft);padding:4px 6px;
+    background:var(--paper);min-height:34px;display:flex;align-items:center;
+  }
+  .gantt-row-meta{
+    position:sticky;left:0;z-index:2;background:var(--paper);
+    border-right:1px solid var(--line);
+    flex-direction:column;align-items:flex-start;gap:1px;
+    padding:4px 8px;
+  }
+  .gantt-row-meta .grm-fno{
+    font-size:10px;font-weight:600;color:var(--ink-muted);
+    background:var(--line-soft);padding:1px 6px;border-radius:99px;
+    line-height:1.4;
+  }
+  .gantt-row-meta .grm-title{
+    font-size:12px;color:var(--ink);line-height:1.3;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    max-width:100%;
+  }
+  .gantt-row-slots{
+    position:sticky;left:var(--gantt-meta-w,160px);z-index:1;
+    background:var(--paper);border-right:1px solid var(--line);
+    padding:4px 6px;
+  }
+  .gantt-row-slots .gs-grid{
+    display:grid;grid-template-columns:repeat(10,1fr);gap:2px;
+    width:100%;
+  }
+  .gantt-row-slots .gs-slot{
+    aspect-ratio:1;border-radius:3px;font-size:8px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--paper);border:1px dashed var(--line);color:var(--ink-muted);
+    min-height:14px;
+  }
+  .gantt-row-slots .gs-slot.done{background:var(--green);color:#fff;border:none}
+  .gantt-row-slots .gs-slot.done.warn{background:#E8B923;color:#3a2a00}
+  .gantt-row-slots .gs-slot.done.overdue{background:#D9534F;color:#fff}
+  .gantt-row-slots .gs-slot.prog{background:var(--amber);color:#fff;border:none}
+
+  /* チャート領域(各日付セル) */
+  .gantt-row-chart{
+    position:relative;padding:0;
+    /* グリッド線は背景で描画 */
+  }
+  .gantt-cell{
+    border-right:1px solid var(--line-soft);min-width:34px;
+    align-self:stretch;flex:0 0 auto;
+  }
+  .gantt-cell.weekend{background:#f5f6f8}
+  .gantt-cell.base{background:rgba(201,141,0,.08)}
+
+  /* チャート行のオーバーレイ(SVG 線 + ポイント) */
+  .gantt-overlay{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    pointer-events:none;overflow:visible;
+  }
+  .gantt-point{
+    position:absolute;width:14px;height:14px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    border:2px solid #fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+    z-index:2;pointer-events:auto;cursor:default;
+  }
+  .gantt-point.empty{background:#cfd4dc}
+  .gantt-point.ok{background:var(--green)}
+  .gantt-point.warn{background:#E8B923}
+  .gantt-point.overdue{background:#D9534F}
+  .gantt-point.prog{background:var(--amber)}
+  .gantt-point .gp-num{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:8px;color:#fff;font-weight:700;line-height:1;pointer-events:none;
+  }
+  .gantt-point.warn .gp-num{color:#3a2a00}
+  .gantt-point.empty .gp-num{color:#666}
+
+  /* 「今」を示す縦ライン */
+  .gantt-now-line{
+    position:absolute;top:0;bottom:0;width:2px;
+    background:#c98d00;z-index:1;pointer-events:none;
+    box-shadow:0 0 0 0.5px rgba(201,141,0,.3);
+  }
+
+  /* 全体モード = コンパクト表示 */
+  .gantt-table.compact .gantt-row-meta{min-height:26px;padding:2px 6px}
+  .gantt-table.compact .gantt-row-meta .grm-fno{font-size:9px;padding:0 4px}
+  .gantt-table.compact .gantt-row-meta .grm-title{font-size:11px}
+  .gantt-table.compact .gantt-row-slots{min-height:26px;padding:2px 4px}
+  .gantt-table.compact .gantt-row-slots .gs-slot{min-height:11px}
+  .gantt-table.compact .gantt-row-chart{min-height:26px}
+  .gantt-table.compact .gantt-point{width:11px;height:11px;border-width:1.5px}
+  .gantt-table.compact .gantt-point .gp-num{font-size:7px}
+
+  /* 問題未登録/対象外フレームは薄く */
+  .gantt-row-meta.dim,.gantt-row-slots.dim,.gantt-row-chart.dim{opacity:.45}
+
+  /* SVG 線のスタイル */
+  .gantt-line-svg{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    pointer-events:none;overflow:visible;
+  }
+  .gantt-line-svg polyline{
+    fill:none;stroke:#7a8a99;stroke-width:1.5;stroke-linejoin:round;
+    stroke-linecap:round;opacity:.65;
+  }
+  .gantt-line-svg polyline.subject-line{
+    stroke:#5a6b7a;opacity:.75;
+  }
+
+  /* モバイル */
+  @media(max-width:640px){
+    .gantt-controls{padding:8px;font-size:11px;gap:6px}
+    .gantt-controls select{padding:4px 7px;font-size:11px}
+    .gantt-controls .gantt-base-info{margin-left:0;width:100%;text-align:left}
+    .gantt-h-meta,.gantt-row-meta{font-size:11px;padding:3px 6px}
+    .gantt-row-meta .grm-title{font-size:11px}
+    .gantt-h-date{min-width:30px;padding:4px 2px}
+    .gantt-cell{min-width:30px}
+    .gantt-point{width:12px;height:12px}
+    .gantt-point .gp-num{font-size:7px}
+  }
 </style>
 </head>
 <body>
@@ -4078,6 +4291,11 @@ function loadState(){
       // 進捗管理のサブモード(過去問/予想問)初期化
       s.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
       s.progressView.kindMode ||= 'pastA';
+      // 改修28: 進捗管理タブのガントチャート関連の初期化(後方互換)
+      s.progressView.tab ||= 'kind'; // 'kind' (従来) | 'gantt'
+      s.progressView.ganttMode ||= 'all'; // 'all' | 'subject'
+      s.progressView.ganttSubject ||= '労働基準法';
+      s.progressView.ganttKindMode ||= 'pastA';
       // 改修12: 実績タブ用ビュー状態(後方互換)
       s.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
       s.statsView.range ||= '7d';
@@ -4230,7 +4448,7 @@ function loadState(){
     caseHistory: [],
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
     caseSession: {currentSubIdx:0, answered:{}, userAnswers:{}},
-    progressView: {mode:'subjects', subject:null, kindMode:'pastA'},
+    progressView: {mode:'subjects', subject:null, kindMode:'pastA', tab:'kind', ganttMode:'all', ganttSubject:'労働基準法', ganttKindMode:'pastA'},
     // 改修12: 実績タブ用ビュー状態
     statsView: {range:'7d', kindMode:'pastA', openDates:{}},
     articles: {},
@@ -10166,6 +10384,14 @@ function renderProgress(){
   state.progressView.kindMode ||= 'pastA';
   // 旧 'past' は 'pastA' に正規化(loadState で migrate されているが念のため)
   if(state.progressView.kindMode === 'past') state.progressView.kindMode = 'pastA';
+  // 改修28: tab(='gantt'|'kind')の初期化。既定は kind(従来動作)
+  state.progressView.tab ||= 'kind';
+  if(state.progressView.tab !== 'gantt' && state.progressView.tab !== 'kind') state.progressView.tab = 'kind';
+  // ガントチャートタブが選択されていれば、そちらを描画して終了
+  if(state.progressView.tab === 'gantt'){
+    renderProgressGantt(root);
+    return;
+  }
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
   ensureForecastFrameAutoInit();
   const kindMode = state.progressView.kindMode;
@@ -10213,19 +10439,671 @@ function renderProgress(){
   }
 }
 
-/* 進捗管理のサブタブUI(過去問A/過去問B/予想問)HTML生成 ─ 改修8 Step 3 */
+/* ============================================================
+   改修28: 進捗管理タブ「ガントチャート」サブタブ
+   ============================================================ */
+
+/* 日付ユーティリティ ----------------------------------------- */
+function _gDateKey(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const da = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${da}`;
+}
+function _gParseKey(s){
+  if(!s || typeof s !== 'string') return null;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m) return null;
+  return new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10));
+}
+function _gAddDays(d, n){
+  const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  r.setDate(r.getDate() + n);
+  return r;
+}
+function _gDayDiff(a, b){
+  // a, b は同じ時刻(0:00)に揃った Date を想定
+  const A = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime();
+  const B = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime();
+  return Math.round((A - B) / (24*60*60*1000));
+}
+function _gTodayDate(){
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+/* 全 frameAttempts を見て、最新の演習活動日(YYYY-MM-DD)を返す。
+   活動とは、フレーム演習の completedAt または startedAt(current/history)。
+   過去問A/B/予想問すべてを横断的に見る(ガントチャートは活動全体を表示)。
+   何もなければ null を返す。 */
+function _gComputeLatestActivityDateKey(){
+  let latest = 0;
+  const fa = state.frameAttempts || {};
+  for(const k in fa){
+    const r = fa[k];
+    if(!r) continue;
+    if(r.current && r.current.startedAt) latest = Math.max(latest, r.current.startedAt);
+    if(Array.isArray(r.history)){
+      for(const h of r.history){
+        if(h.completedAt) latest = Math.max(latest, h.completedAt);
+        else if(h.startedAt) latest = Math.max(latest, h.startedAt);
+      }
+    }
+  }
+  if(latest === 0) return null;
+  return _gDateKey(new Date(latest));
+}
+
+/* ガントチャートの「アプリ起動日固定スナップショット」を取得
+   - 今日と異なる日付に取得済みなら新たに撮り直す
+   - 同じ日付なら使い回す
+   - スナップショットには baseActivityDateKey を保存(その日の最終活動日)
+   返り値: {
+     baseActivityDate: Date(0:00),  // チャート基準日(=「今」を意味する縦ライン)
+     startDate:        Date(0:00),  // 表示の左端(基準日 - 7日)
+     endDate:          Date(0:00),  // 表示の右端(基準日 + 2日)
+     totalDays:        number,      // 表示日数(=10)
+     todayDate:        Date(0:00),  // 実時間の今日
+     capturedAtKey:    string       // スナップショット取得日(YYYY-MM-DD)
+   }
+*/
+function _gGetSnapshot(){
+  const todayKey = _gDateKey(new Date());
+  let snap = state.ganttSnapshot;
+  // 日付が変わったら撮り直し
+  if(!snap || snap.capturedAtKey !== todayKey){
+    const latestKey = _gComputeLatestActivityDateKey();
+    // 活動が一度もない → 今日を基準にする(未着手のフレームはすべて起点に並ぶ)
+    snap = {
+      capturedAtKey: todayKey,
+      baseActivityDateKey: latestKey || todayKey
+    };
+    state.ganttSnapshot = snap;
+    try{ saveState() }catch(_){}
+  }
+  const baseActivityDate = _gParseKey(snap.baseActivityDateKey) || _gTodayDate();
+  const startDate = _gAddDays(baseActivityDate, -7);
+  const endDate   = _gAddDays(baseActivityDate, +2);
+  return {
+    baseActivityDate,
+    startDate,
+    endDate,
+    totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む
+    todayDate: _gTodayDate(),
+    capturedAtKey: snap.capturedAtKey,
+    baseActivityDateKey: snap.baseActivityDateKey
+  };
+}
+
+/* スナップショットを強制的に撮り直す(「最新化」ボタン用) */
+function _gRefreshSnapshot(){
+  const todayKey = _gDateKey(new Date());
+  const latestKey = _gComputeLatestActivityDateKey();
+  state.ganttSnapshot = {
+    capturedAtKey: todayKey,
+    baseActivityDateKey: latestKey || todayKey
+  };
+  try{ saveState() }catch(_){}
+}
+
+/* 復習ステータス判定(既存 getReviewStatus と同ロジックだが、基準日をスナップショット基準日にできるバージョン)
+   - referenceTs: 判定の基準時刻(ミリ秒)
+   - attemptNo: 何回目の完了か
+   返り値: 'ok' | 'warn' | 'overdue'  */
+function _gReviewStatus(attempt, attemptNo, referenceTs){
+  if(!attempt || !attempt.completedAt) return 'ok';
+  if(attemptNo >= 4) return 'ok';
+  const days = Math.floor((referenceTs - attempt.completedAt) / (24*60*60*1000));
+  const thresholds = {
+    1:{warn:2, overdue:5},
+    2:{warn:7, overdue:10},
+    3:{warn:14,overdue:30}
+  };
+  const t = thresholds[attemptNo];
+  if(!t) return 'ok';
+  if(days >= t.overdue) return 'overdue';
+  if(days >= t.warn)    return 'warn';
+  return 'ok';
+}
+
+/* 1フレーム分のガント行データを構築。
+   返り値: { subject, frame, totalQs, eligible, pointDate, pointStatus, attemptNo, slotsHtml, statusText, hasNoQ } */
+function _gBuildRowData(subject, fr, kindMode, snap){
+  const k = frameKey(subject, fr.n, kindMode);
+  const fa = state.frameAttempts[k];
+  const totalQs = state.questions.filter(q=>
+    lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q, kindMode)
+  ).length;
+  const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
+
+  // ポイントの位置と色を計算
+  let pointDate = null;     // null なら起点(左端)に表示
+  let pointStatus = 'empty';
+  let attemptNo = 0;
+  let statusText = '未着手';
+
+  // ガントチャートの色判定基準時刻(スナップショット基準日の 23:59:59)
+  // これにより、「基準日から N 日前」という日数勘定が、当日中ずっと安定する。
+  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+
+  if(fa){
+    if(fa.current && fa.current.startedAt){
+      pointDate = new Date(fa.current.startedAt);
+      pointStatus = 'prog';
+      attemptNo = (fa.history||[]).length + 1;
+      const answered = (fa.current.answeredIds||[]).length;
+      const totalC = (fa.current.questionIds||[]).length;
+      statusText = `${attemptNo}回目演習中 ${answered}/${totalC}問`;
+    }else if(Array.isArray(fa.history) && fa.history.length > 0){
+      const lastAtt = fa.history[fa.history.length - 1];
+      const ts = lastAtt.completedAt || lastAtt.startedAt;
+      pointDate = ts ? new Date(ts) : null;
+      const st = _gReviewStatus(lastAtt, fa.history.length, refTs);
+      pointStatus = st; // 'ok'|'warn'|'overdue'
+      attemptNo = fa.history.length;
+      statusText = `${attemptNo}回完了`;
+    }
+  }
+
+  // スロット(10ハコ)。既存 buildProgressFrameRow と同じ形式だが「%」非表示。
+  const completed = fa ? (fa.history||[]).length : 0;
+  const cur = fa ? fa.current : null;
+  let slotsHtml = '<div class="gs-grid">';
+  for(let i=0;i<10;i++){
+    if(fa && i < completed){
+      const isLatest = (i === completed - 1);
+      const st = isLatest ? _gReviewStatus(fa.history[i], completed, refTs) : 'ok';
+      const cls = st === 'overdue' ? ' overdue' : (st === 'warn' ? ' warn' : '');
+      slotsHtml += `<div class="gs-slot done${cls}" title="${i+1}回目完了">${i+1}</div>`;
+    }else if(fa && i === completed && cur){
+      slotsHtml += `<div class="gs-slot prog" title="演習中">${i+1}</div>`;
+    }else{
+      slotsHtml += `<div class="gs-slot">${i+1}</div>`;
+    }
+  }
+  slotsHtml += '</div>';
+
+  return {
+    subject, frame: fr, totalQs, eligible,
+    pointDate, pointStatus, attemptNo, slotsHtml, statusText,
+    hasNoQ: totalQs === 0
+  };
+}
+
+/* ガントチャート本体の描画 */
+function renderProgressGantt(root){
+  const snap = _gGetSnapshot();
+  // ガントチャート用のサブ状態
+  state.progressView.ganttMode    ||= 'all';      // 'all' | 'subject'
+  state.progressView.ganttSubject ||= SUBJECTS_ORDER[0];
+  state.progressView.ganttKindMode ||= 'pastA';  // 'pastA' | 'pastB' | 'forecast'
+  const ganttMode = state.progressView.ganttMode;
+  const ganttSubject = state.progressView.ganttSubject;
+  const ganttKindMode = state.progressView.ganttKindMode;
+
+  // 対象科目リスト
+  let subjects;
+  if(ganttMode === 'subject'){
+    subjects = [ganttSubject];
+  }else{
+    subjects = SUBJECTS_ORDER.slice();
+  }
+
+  // 行データを集める(科目→フレーム順)
+  // 全体モードでは「対象外」「問題未登録」フレームは非表示にする(俯瞰性確保)
+  // 単一科目モードでは可能な限り全フレームを表示(対象外は薄く)
+  const groups = []; // [{subject, rows:[...]}, ...]
+  for(const subject of subjects){
+    const frames = FRAMES[subject] || [];
+    const rows = [];
+    for(const fr of frames){
+      // サブフレームを持つフレームは「親フレーム集約」した1行で表示する。
+      //   ─ 親フレーム全体(全サブフレームの問題) を1フレームとして扱う ─
+      // この場合、frameAttempts キーが (subject, fr.n, kindMode) で個別に存在することは少なく、
+      // サブフレームごとのキーが分散している。簡略化のため、
+      // 親フレーム n に対し subject|n|kind の frameAttempts を見るが、なければサブフレームたちを集約する。
+      // → 第1段では「親フレーム集約」を簡易実装: 親フレーム配下の全サブフレーム合計の最終演習日を使う
+      let rowData;
+      if(typeof hasSubFrames === 'function' && hasSubFrames(subject, fr.n)){
+        rowData = _gBuildParentFrameRowData(subject, fr, ganttKindMode, snap);
+      }else{
+        rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
+      }
+      // 全体モード: 対象外(15問未満)& 未着手 を間引く
+      if(ganttMode === 'all'){
+        if(!rowData.eligible && rowData.attemptNo === 0) continue;
+        // 問題未登録(0問)も除外
+        if(rowData.hasNoQ) continue;
+      }
+      rows.push(rowData);
+    }
+    if(rows.length > 0 || ganttMode === 'subject'){
+      groups.push({subject, rows});
+    }
+  }
+
+  // HTML 構築
+  const startD = snap.startDate;
+  const totalDays = snap.totalDays;
+  // 日付ヘッダ用配列
+  const dayDates = [];
+  for(let i=0;i<totalDays;i++){
+    dayDates.push(_gAddDays(startD, i));
+  }
+
+  const ganttKindLabel = progressKindLabel(ganttKindMode);
+  const baseDateStr = `${snap.baseActivityDate.getMonth()+1}/${snap.baseActivityDate.getDate()}`;
+  const todayStr = `${snap.todayDate.getMonth()+1}/${snap.todayDate.getDate()}`;
+  const sameAsToday = _gDateKey(snap.baseActivityDate) === _gDateKey(snap.todayDate);
+  const baseInfo = sameAsToday
+    ? `基準日: <b>${baseDateStr}</b>(今日)`
+    : `基準日: <b>${baseDateStr}</b>　今日: ${todayStr}　<span style="color:#c98d00">※ 基準日以降に演習がないため止まっています</span>`;
+
+  // 科目セレクタ(単一科目モード用)
+  const subjectOptions = SUBJECTS_ORDER.map(s=>
+    `<option value="${escapeHtml(s)}"${s===ganttSubject?' selected':''}>${escapeHtml(s)}</option>`
+  ).join('');
+
+  let html = `<div class="card progress-intro">
+    <h2 class="prog-h2">進捗管理 <span class="prog-sub">ガントチャート(俯瞰)</span></h2>
+    ${progressSubTabsHtml(state.progressView.kindMode)}
+    <p class="prog-desc">各フレームの最終演習日に色付きマークが付きます。<b>マークが左にある = それだけ遅れています。</b>線で繋がっているのは縦に並んだフレームの実施位置で、ジグザグが大きいほど進捗のバラつきを意味します。</p>
+  </div>
+
+  <div class="card gantt-wrap">
+    <div class="gantt-controls">
+      <label>表示モード</label>
+      <select id="gantt-mode-sel">
+        <option value="all"${ganttMode==='all'?' selected':''}>全体(全科目)</option>
+        <option value="subject"${ganttMode==='subject'?' selected':''}>単一科目</option>
+      </select>
+      <span id="gantt-subj-wrap" style="${ganttMode==='subject'?'':'display:none'}">
+        <label>科目</label>
+        <select id="gantt-subject-sel">${subjectOptions}</select>
+      </span>
+      <label style="margin-left:8px">問題区分</label>
+      <select id="gantt-kind-sel">
+        <option value="pastA"${ganttKindMode==='pastA'?' selected':''}>過去問A</option>
+        <option value="pastB"${ganttKindMode==='pastB'?' selected':''}>過去問B</option>
+        <option value="forecast"${ganttKindMode==='forecast'?' selected':''}>予想問</option>
+      </select>
+      <button id="gantt-refresh-btn" class="btn ghost btn-sm" style="margin-left:8px" title="基準日を最新の演習日に更新します">🔄 最新化</button>
+      <div class="gantt-base-info">${baseInfo}</div>
+    </div>
+    <div class="gantt-legend">
+      <span class="leg"><span class="leg-dot ok"></span> 直近完了(順調)</span>
+      <span class="leg"><span class="leg-dot warn"></span> 復習推奨(黄)</span>
+      <span class="leg"><span class="leg-dot overdue"></span> 要復習(赤)</span>
+      <span class="leg"><span class="leg-dot prog"></span> 演習中</span>
+      <span class="leg"><span class="leg-dot empty"></span> 未着手(起点に固定)</span>
+      <span style="margin-left:auto;font-size:10.5px;color:var(--ink-muted)">縦の黄色ライン = 基準日(=「今」)</span>
+    </div>
+    <div class="gantt-scroll" id="gantt-scroll">
+      ${_gBuildGanttTableHtml(groups, dayDates, snap, ganttMode)}
+    </div>
+  </div>`;
+
+  root.innerHTML = html;
+
+  // === オーバーレイ(ポイントマーク + 線)の描画 ===
+  // DOM 構築後にセル位置を測ってポイントを配置
+  requestAnimationFrame(()=>_gPaintOverlays(groups, dayDates, snap, ganttMode));
+
+  // === イベント ===
+  // サブタブクリック(共通ハンドラ)
+  root.querySelectorAll('.prog-subtab').forEach(t=>{
+    t.addEventListener('click', ()=>_handleProgSubTabClick(t));
+  });
+  const modeSel = document.getElementById('gantt-mode-sel');
+  if(modeSel) modeSel.addEventListener('change', ()=>{
+    state.progressView.ganttMode = modeSel.value;
+    saveState();
+    renderProgress();
+  });
+  const subjSel = document.getElementById('gantt-subject-sel');
+  if(subjSel) subjSel.addEventListener('change', ()=>{
+    state.progressView.ganttSubject = subjSel.value;
+    saveState();
+    renderProgress();
+  });
+  const kindSel = document.getElementById('gantt-kind-sel');
+  if(kindSel) kindSel.addEventListener('change', ()=>{
+    state.progressView.ganttKindMode = kindSel.value;
+    saveState();
+    renderProgress();
+  });
+  const refreshBtn = document.getElementById('gantt-refresh-btn');
+  if(refreshBtn) refreshBtn.addEventListener('click', ()=>{
+    _gRefreshSnapshot();
+    renderProgress();
+  });
+  // ウィンドウリサイズ時にもオーバーレイを再描画
+  if(!window._ganttResizeBound){
+    window._ganttResizeBound = true;
+    let _gRT = null;
+    window.addEventListener('resize', ()=>{
+      if(state.progressView && state.progressView.tab === 'gantt'){
+        if(_gRT) clearTimeout(_gRT);
+        _gRT = setTimeout(()=>{
+          if(state.progressView.tab === 'gantt') renderProgress();
+        }, 200);
+      }
+    });
+  }
+}
+
+/* サブフレームを持つ親フレーム用の行データ構築(集約版)。
+   親フレーム配下の各サブフレームのうち、最も新しい演習活動を採用して1行にまとめる。 */
+function _gBuildParentFrameRowData(subject, fr, kindMode, snap){
+  let totalQs = 0;
+  let bestPointDate = null;
+  let bestPointTs = 0;
+  let bestStatus = 'empty';
+  let bestAttemptNo = 0;
+  let inProgress = false;
+  let anyEligible = false;
+  let maxCompleted = 0;
+  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+
+  const subs = (typeof getSubFrames === 'function') ? getSubFrames(subject, fr.n) : [];
+  for(const sf of subs){
+    const k = frameKey(subject, sf.key, kindMode);
+    const fa = state.frameAttempts[k];
+    // 問題数集計
+    const cnt = state.questions.filter(q=>
+      lawToSubject(q.law)===subject && q.frameNo===fr.n && questionMatchesKindMode(q,kindMode) &&
+      (typeof questionMatchesSubFrame==='function' ? questionMatchesSubFrame(q.law, sf) : true)
+    ).length;
+    totalQs += cnt;
+    const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
+    if(eligible) anyEligible = true;
+    if(!fa) continue;
+    if(fa.current && fa.current.startedAt){
+      inProgress = true;
+      if(fa.current.startedAt > bestPointTs){
+        bestPointTs = fa.current.startedAt;
+        bestPointDate = new Date(fa.current.startedAt);
+        bestStatus = 'prog';
+        bestAttemptNo = (fa.history||[]).length + 1;
+      }
+    }
+    if(Array.isArray(fa.history) && fa.history.length > 0){
+      const lastAtt = fa.history[fa.history.length-1];
+      const ts = lastAtt.completedAt || lastAtt.startedAt;
+      if(ts && ts > bestPointTs){
+        bestPointTs = ts;
+        bestPointDate = new Date(ts);
+        const st = _gReviewStatus(lastAtt, fa.history.length, refTs);
+        bestStatus = st;
+        bestAttemptNo = fa.history.length;
+      }
+      if(fa.history.length > maxCompleted) maxCompleted = fa.history.length;
+    }
+  }
+
+  let statusText = '未着手';
+  if(inProgress)            statusText = `${bestAttemptNo}回目演習中`;
+  else if(maxCompleted>0)   statusText = `${maxCompleted}回完了(中分類最大)`;
+
+  // スロット(集約: 最大完了回数を done で埋める)
+  let slotsHtml = '<div class="gs-grid">';
+  for(let i=0;i<10;i++){
+    if(i < maxCompleted){
+      const isLatest = (i === maxCompleted - 1);
+      const cls = isLatest ? (bestStatus === 'overdue' ? ' overdue' : (bestStatus === 'warn' ? ' warn' : '')) : '';
+      slotsHtml += `<div class="gs-slot done${cls}">${i+1}</div>`;
+    }else if(i === maxCompleted && inProgress){
+      slotsHtml += `<div class="gs-slot prog">${i+1}</div>`;
+    }else{
+      slotsHtml += `<div class="gs-slot">${i+1}</div>`;
+    }
+  }
+  slotsHtml += '</div>';
+
+  return {
+    subject, frame: fr, totalQs,
+    eligible: anyEligible,
+    pointDate: bestPointDate,
+    pointStatus: bestPointDate ? bestStatus : 'empty',
+    attemptNo: bestAttemptNo,
+    slotsHtml,
+    statusText,
+    hasNoQ: totalQs === 0,
+    isParent: true
+  };
+}
+
+/* 日付ヘッダ + データ行(ポイント等は別途オーバーレイで描画)を組む */
+function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
+  const metaW = ganttMode === 'all' ? 150 : 170;
+  const slotsW = 180; // 進捗10ハコの列幅
+  const dayW = 36;
+  // grid-template-columns: [meta] [slots] [days...]
+  const cols = `${metaW}px ${slotsW}px ${dayDates.map(()=>`${dayW}px`).join(' ')}`;
+  const compactClass = ganttMode === 'all' ? ' compact' : '';
+
+  let html = `<div class="gantt-table${compactClass}" id="gantt-table" style="grid-template-columns:${cols};--gantt-meta-w:${metaW}px;--gantt-slots-w:${slotsW}px;--gantt-day-w:${dayW}px">`;
+  // ヘッダ行
+  html += `<div class="gantt-h-meta">科目 / フレーム</div>`;
+  html += `<div class="gantt-h-slots">進捗(10回分)</div>`;
+  for(const d of dayDates){
+    const dow = d.getDay(); // 0=Sun, 6=Sat
+    const dowClass = dow===0 ? ' sun weekend' : (dow===6 ? ' sat weekend' : '');
+    const isBase = _gDateKey(d) === _gDateKey(snap.baseActivityDate);
+    const baseClass = isBase ? ' base' : '';
+    const dowLabel = ['日','月','火','水','木','金','土'][dow];
+    html += `<div class="gantt-h-date${dowClass}${baseClass}"><div class="gh-date-md">${d.getMonth()+1}/${d.getDate()}</div><span class="gh-date-dow">${dowLabel}</span></div>`;
+  }
+
+  // データ行
+  let rowIndex = 0;
+  for(const g of groups){
+    // 科目区切り(全体モードでは表示、単一科目モードでも科目1個分の区切りを出す)
+    html += `<div class="gantt-subj-divider"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></div>`;
+    for(const r of g.rows){
+      const dimClass = (r.hasNoQ || (!r.eligible && r.attemptNo===0)) ? ' dim' : '';
+      // メタ列
+      html += `<div class="gantt-row-meta${dimClass}" data-row-idx="${rowIndex}">
+        <span class="grm-fno">F${r.frame.n}</span>
+        <span class="grm-title" title="${escapeHtml(r.frame.t)}">${escapeHtml(r.frame.t)}</span>
+      </div>`;
+      // スロット列
+      html += `<div class="gantt-row-slots${dimClass}">${r.slotsHtml}</div>`;
+      // チャート列(各日付ごとに cell を並べる。ポイントとラインはオーバーレイで描画)
+      html += `<div class="gantt-row-chart${dimClass}" data-row-idx="${rowIndex}">`;
+      for(const d of dayDates){
+        const dow = d.getDay();
+        const dowClass = (dow===0 || dow===6) ? ' weekend' : '';
+        const isBase = _gDateKey(d) === _gDateKey(snap.baseActivityDate);
+        const baseClass = isBase ? ' base' : '';
+        html += `<div class="gantt-cell${dowClass}${baseClass}"></div>`;
+      }
+      html += `</div>`;
+      rowIndex++;
+    }
+  }
+  html += `</div>`;
+  return html;
+}
+
+/* オーバーレイ(ポイントマーク + 線)を SVG/DOM で描画。
+   DOM 構築後に呼ぶこと(セル位置を実測してから配置するため)。 */
+function _gPaintOverlays(groups, dayDates, snap, ganttMode){
+  const table = document.getElementById('gantt-table');
+  if(!table) return;
+  const scrollWrap = document.getElementById('gantt-scroll');
+  if(!scrollWrap) return;
+
+  // 既存オーバーレイは消す
+  table.querySelectorAll('.gantt-overlay,.gantt-line-svg,.gantt-now-line').forEach(el=>el.remove());
+
+  // 各行(gantt-row-chart)について、ポイント要素を行内に absolute 配置する
+  const allRows = [];
+  let flatRowIdx = 0;
+  for(const g of groups){
+    for(const r of g.rows){
+      allRows.push({group:g, row:r, idx: flatRowIdx});
+      flatRowIdx++;
+    }
+  }
+
+  // dayDates の最初のセルを基準に X 位置を計算
+  // 各日付セルの幅は CSS で固定(36px)。X位置 = dayIdx*dayW + dayW/2
+  const dayW = ganttMode === 'all' ? 36 : 36;
+  // 実際にレンダリングされた dayW を測定して使う(モバイル等で異なる場合に備える)
+  const firstCellRow = table.querySelector('.gantt-row-chart');
+  let measuredDayW = dayW;
+  if(firstCellRow){
+    const firstCell = firstCellRow.querySelector('.gantt-cell');
+    if(firstCell){
+      const w = firstCell.getBoundingClientRect().width;
+      if(w > 0) measuredDayW = w;
+    }
+  }
+
+  // 各行にポイントマークを配置
+  const rowChartEls = table.querySelectorAll('.gantt-row-chart');
+  const pointPositions = []; // {x, yCenter, status, idx} — 後で線を引くため
+  rowChartEls.forEach((el)=>{
+    const idx = parseInt(el.dataset.rowIdx, 10);
+    const r = allRows[idx];
+    if(!r) return;
+    const rowData = r.row;
+    // ポイントの x 位置(日付セルのインデックスを計算)
+    let dayIdx;
+    if(!rowData.pointDate){
+      // 未着手 → 起点(左端)に
+      dayIdx = 0;
+    }else{
+      const diff = _gDayDiff(rowData.pointDate, snap.startDate);
+      // 範囲外(過去すぎる)は左端に寄せる
+      if(diff < 0) dayIdx = 0;
+      else if(diff >= dayDates.length) dayIdx = dayDates.length - 1;
+      else dayIdx = diff;
+    }
+    const x = dayIdx * measuredDayW + measuredDayW/2;
+
+    // ポイント DOM 作成
+    const pt = document.createElement('div');
+    pt.className = `gantt-point ${rowData.pointStatus}`;
+    pt.style.left = x + 'px';
+    pt.style.top = '50%';
+    // ツールチップ
+    const datePart = rowData.pointDate
+      ? `${rowData.pointDate.getMonth()+1}/${rowData.pointDate.getDate()}`
+      : '未着手';
+    const tipText = `${rowData.subject} F${rowData.frame.n} ${rowData.frame.t}\n${rowData.statusText}\n${datePart}`;
+    pt.title = tipText;
+    // 数字(回数)を表示(小さく)
+    if(rowData.attemptNo > 0){
+      const num = document.createElement('span');
+      num.className = 'gp-num';
+      num.textContent = String(rowData.attemptNo);
+      pt.appendChild(num);
+    }
+    el.appendChild(pt);
+
+    // 位置を記録(線描画用) — el の getBoundingClientRect().height を使えば中心 y が出る
+    const rect = el.getBoundingClientRect();
+    pointPositions.push({
+      flatIdx: idx,
+      group: r.group.subject,
+      el,
+      x,
+      yCenter: rect.height/2,
+      yTop: el.offsetTop,
+      height: rect.height,
+      status: rowData.pointStatus,
+      hasPoint: true
+    });
+  });
+
+  // === 線を引く(科目ごとに) ===
+  // 各科目内の行を縦に順に結ぶ。
+  // 線は table 全体にかぶせる SVG を1枚作って polyline を描く。
+  const tableRect = table.getBoundingClientRect();
+  const tableW = table.scrollWidth;
+  const tableH = table.scrollHeight;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','gantt-line-svg');
+  svg.setAttribute('width', tableW);
+  svg.setAttribute('height', tableH);
+  svg.style.left = '0';
+  svg.style.top = '0';
+  svg.style.width = tableW + 'px';
+  svg.style.height = tableH + 'px';
+  // チャート領域(meta+slots列以降)の x オフセットを計算
+  const cs = getComputedStyle(table);
+  const metaW = parseFloat(cs.getPropertyValue('--gantt-meta-w')) || 150;
+  const slotsW = parseFloat(cs.getPropertyValue('--gantt-slots-w')) || 180;
+  const chartXOffset = metaW + slotsW;
+
+  // 各 row-chart の絶対Y位置(table 内座標) を取得
+  // → row-chart 要素の offsetTop を使う
+  for(let gi=0; gi<groups.length; gi++){
+    const group = groups[gi];
+    if(group.rows.length < 1) continue;
+    // この科目に属する pointPositions を集める
+    const pts = pointPositions.filter(p=>p.group === group.subject);
+    if(pts.length < 1) continue;
+    // 各点を線でつなぐ
+    const coords = pts.map(p=>{
+      const x = chartXOffset + p.x;
+      const y = p.yTop + p.height/2;
+      return `${x},${y}`;
+    }).join(' ');
+    const pl = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    pl.setAttribute('points', coords);
+    pl.setAttribute('class','subject-line');
+    svg.appendChild(pl);
+  }
+  table.appendChild(svg);
+
+  // === 基準日(=「今」)の縦ライン ===
+  const baseDiff = _gDayDiff(snap.baseActivityDate, snap.startDate);
+  if(baseDiff >= 0 && baseDiff < dayDates.length){
+    const lineX = chartXOffset + baseDiff * measuredDayW + measuredDayW/2;
+    const ln = document.createElement('div');
+    ln.className = 'gantt-now-line';
+    ln.style.left = lineX + 'px';
+    ln.style.height = tableH + 'px';
+    table.appendChild(ln);
+  }
+}
+
+
+/* 進捗管理のサブタブUI(過去問A/過去問B/予想問)HTML生成 ─ 改修8 Step 3 / 改修28 でガントチャート追加 */
 function progressSubTabsHtml(currentKind){
+  // 改修28: tab='gantt' のときは kindMode に関わらずガントチャート選択中
+  const currentTab = (state.progressView && state.progressView.tab) || 'kind';
   // 後方互換: 'past' は 'pastA' として表示
   const cur = normalizeProgressKindMode(currentKind);
   // 各kindの登録数を計算
   const pastACount = state.questions.filter(isPastA).length;
   const pastBCount = state.questions.filter(isPastB).length;
   const forecastCount = state.questions.filter(isForecast).length;
+  const ganttActive = currentTab === 'gantt';
   return `<div class="prog-subtabs">
-    <button class="prog-subtab ${cur==='pastA'?'active':''}" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
-    <button class="prog-subtab ${cur==='pastB'?'active':''}" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
-    <button class="prog-subtab ${cur==='forecast'?'active':''}" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
+    <button class="prog-subtab ${ganttActive?'active':''}" data-tab="gantt">📊 進捗管理</button>
+    <button class="prog-subtab ${!ganttActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
+    <button class="prog-subtab ${!ganttActive&&cur==='pastB'?'active':''}" data-tab="kind" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
+    <button class="prog-subtab ${!ganttActive&&cur==='forecast'?'active':''}" data-tab="kind" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
   </div>`;
+}
+
+/* 改修28: 進捗管理サブタブのクリック共通ハンドラ
+   - data-tab="gantt" → ガントチャートタブへ
+   - data-tab="kind"  → 既存の kind モード(過去問A/B/予想問)へ */
+function _handleProgSubTabClick(t){
+  if(t.dataset.tab === 'gantt'){
+    state.progressView.tab = 'gantt';
+  }else{
+    state.progressView.tab = 'kind';
+    if(t.dataset.kindmode) state.progressView.kindMode = t.dataset.kindmode;
+  }
+  saveState();
+  renderProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function renderProgressSubjects(root, summary, kindMode){
@@ -10313,12 +11191,7 @@ function renderProgressSubjects(root, summary, kindMode){
   root.innerHTML = html;
   // サブタブクリック
   root.querySelectorAll('.prog-subtab').forEach(t=>{
-    t.addEventListener('click', ()=>{
-      state.progressView.kindMode = t.dataset.kindmode;
-      saveState();
-      renderProgress();
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
+    t.addEventListener('click', ()=>_handleProgSubTabClick(t));
   });
   // 科目カードクリック
   root.querySelectorAll('.subject-card').forEach(c=>{
@@ -10582,12 +11455,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
   root.innerHTML = html;
   // サブタブクリック
   root.querySelectorAll('.prog-subtab').forEach(t=>{
-    t.addEventListener('click', ()=>{
-      state.progressView.kindMode = t.dataset.kindmode;
-      saveState();
-      renderProgress();
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
+    t.addEventListener('click', ()=>_handleProgSubTabClick(t));
   });
   document.getElementById('prog-back').addEventListener('click', ()=>{
     state.progressView = {mode:'subjects', subject:null, parentFrameNo:null, kindMode: state.progressView.kindMode};
@@ -10680,12 +11548,7 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
 
   root.innerHTML = html;
   root.querySelectorAll('.prog-subtab').forEach(t=>{
-    t.addEventListener('click', ()=>{
-      state.progressView.kindMode = t.dataset.kindmode;
-      saveState();
-      renderProgress();
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
+    t.addEventListener('click', ()=>_handleProgSubTabClick(t));
   });
   document.getElementById('prog-back-frames').addEventListener('click', ()=>{
     state.progressView = {mode:'frames', subject:subject, parentFrameNo:null, kindMode: state.progressView.kindMode};
