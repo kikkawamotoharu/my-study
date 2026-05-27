@@ -2283,6 +2283,31 @@
     -webkit-overflow-scrolling:touch;
   }
 
+  /* 改修28-6: 上部シャドウスクロールバー — 「下のスクロールバーまで遠い」問題対策。
+     日付ヘッダのすぐ上に同期する横スクロールバーを置き、ガントチャート表示直後から
+     左右スクロールが手元で操作できるようにする。 */
+  .gantt-scroll-top{
+    overflow-x:auto;overflow-y:hidden;
+    border:1px solid var(--line);border-bottom:none;
+    border-radius:6px 6px 0 0;
+    background:var(--bg);
+    /* スクロールバー本体だけ見えるサイズ。OS によって 14〜18px くらい必要 */
+    height:16px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .gantt-scroll-top + .gantt-scroll{
+    border-top-left-radius:0;border-top-right-radius:0;
+    border-top:none;
+  }
+  .gantt-scroll-top-inner{height:1px}
+  /* iOS Safari でも横スクロールバーが見えるよう、スクロールバースタイル指定 */
+  .gantt-scroll-top::-webkit-scrollbar{height:12px;-webkit-appearance:none}
+  .gantt-scroll-top::-webkit-scrollbar-thumb{
+    background:rgba(0,0,0,.35);border-radius:6px;
+    border:2px solid var(--bg);
+  }
+  .gantt-scroll-top::-webkit-scrollbar-track{background:var(--bg)}
+
   /* テーブル(grid) */
   .gantt-table{
     display:grid;
@@ -2305,12 +2330,14 @@
     left:var(--gantt-meta-w,160px);z-index:4;background:var(--bg);
     border-right:1px solid var(--line);
   }
+  /* 日付ヘッダ — 改修28-6: padding を削減して「5/28」「水」が確実に1行で収まるよう調整 */
   .gantt-h-date{
     border-right:1px solid var(--line-soft);min-width:34px;
-    font-variant-numeric:tabular-nums;
+    padding:5px 1px;
+    font-variant-numeric:tabular-nums;line-height:1.15;
   }
-  .gantt-h-date .gh-date-md{font-size:11px;color:var(--ink-soft);font-weight:600}
-  .gantt-h-date .gh-date-dow{font-size:10px;color:var(--ink-muted);font-weight:500;display:block}
+  .gantt-h-date .gh-date-md{font-size:10.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;letter-spacing:-0.3px}
+  .gantt-h-date .gh-date-dow{font-size:9.5px;color:var(--ink-muted);font-weight:500;display:block;white-space:nowrap}
   .gantt-h-date.sat .gh-date-dow{color:#3366cc}
   .gantt-h-date.sun .gh-date-dow{color:#cc3333}
   .gantt-h-date.weekend{background:#f0f1f4}
@@ -2436,7 +2463,9 @@
     .gantt-controls .gantt-base-info{margin-left:0;width:100%;text-align:left}
     .gantt-h-meta,.gantt-row-meta{font-size:11px;padding:3px 6px}
     .gantt-row-meta .grm-title{font-size:11px}
-    .gantt-h-date{min-width:30px;padding:4px 2px}
+    .gantt-h-date{min-width:30px;padding:4px 0}
+    .gantt-h-date .gh-date-md{font-size:10px}
+    .gantt-h-date .gh-date-dow{font-size:9px}
     .gantt-day-cell{min-width:30px}
     .gantt-point{width:8px;height:8px}
   }
@@ -10844,6 +10873,9 @@ function renderProgressGantt(root){
       <span class="leg" style="color:var(--ink-muted)">フレーム名がグレー = 未着手</span>
       <span style="margin-left:auto;font-size:10.5px;color:var(--ink-muted)">縦の黄色ライン = 基準日(=「今」)</span>
     </div>
+    <div class="gantt-scroll-top" id="gantt-scroll-top">
+      <div class="gantt-scroll-top-inner" id="gantt-scroll-top-inner"></div>
+    </div>
     <div class="gantt-scroll" id="gantt-scroll">
       ${_gBuildGanttTableHtml(groups, dayDates, snap, ganttMode)}
     </div>
@@ -10867,6 +10899,9 @@ function renderProgressGantt(root){
         scrollWrap.scrollLeft = Math.max(0, lineLeft - scrollWrap.clientWidth * 0.25);
       }
     }
+    // 改修28-6: 上部シャドウスクロールバーの同期セットアップ
+    // (本体スクロールバーが画面下まで遠いので、上にも横スクロールバーを置いて操作性向上)
+    _gSetupShadowScrollbar();
   });
 
   // === イベント ===
@@ -11146,6 +11181,43 @@ function _gPaintOverlays(groups, dayDates, snap, ganttMode){
       table.appendChild(ln);
     }
   }
+}
+
+/* 改修28-6: 上部シャドウスクロールバーのセットアップ
+   - 上下2つのスクロールバー(`gantt-scroll-top` と `gantt-scroll`)を双方向同期
+   - 上の inner 要素の幅をテーブルの scrollWidth に合わせる(これでスクロールバーの長さが本体と一致)
+   - 同期は scroll イベントで実現(無限ループ防止のため syncing フラグでガード) */
+function _gSetupShadowScrollbar(){
+  const top   = document.getElementById('gantt-scroll-top');
+  const body  = document.getElementById('gantt-scroll');
+  const inner = document.getElementById('gantt-scroll-top-inner');
+  const table = document.getElementById('gantt-table');
+  if(!top || !body || !inner || !table) return;
+
+  // inner の幅をテーブルの scrollWidth に揃える → 上のスクロールバーの可動範囲が本体と一致
+  inner.style.width = table.scrollWidth + 'px';
+
+  // 既にイベントが付いていれば外す(再描画時の重複防止)
+  if(top._gSyncBound){ return; }
+  top._gSyncBound = true;
+
+  let syncing = false;
+  top.addEventListener('scroll', ()=>{
+    if(syncing) return;
+    syncing = true;
+    body.scrollLeft = top.scrollLeft;
+    // requestAnimationFrame で確実にフラグ解除
+    requestAnimationFrame(()=>{ syncing = false; });
+  });
+  body.addEventListener('scroll', ()=>{
+    if(syncing) return;
+    syncing = true;
+    top.scrollLeft = body.scrollLeft;
+    requestAnimationFrame(()=>{ syncing = false; });
+  });
+
+  // 初期化時点で本体スクロール位置(基準日合わせ)を上にも反映
+  top.scrollLeft = body.scrollLeft;
 }
 
 
