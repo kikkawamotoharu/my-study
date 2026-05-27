@@ -2413,6 +2413,12 @@
   /* 問題未登録/対象外フレームは薄く */
   .gantt-row-meta.dim,.gantt-row-slots.dim,.gantt-day-cell.dim{opacity:.5}
 
+  /* 改修28-3: 未着手フレーム(まだスタートしていない) — メタ列(フレーム名)をグレー表示
+     ポイントマークは描画しないが、フレーム名ボックスのグレー色で「未着手」と分かる */
+  .gantt-row-meta.pending{background:#e8eaed}
+  .gantt-row-meta.pending .grm-fno{background:#cfd4dc;color:#666}
+  .gantt-row-meta.pending .grm-title{color:#666}
+
   /* SVG 線のスタイル */
   .gantt-line-svg{
     position:absolute;top:0;left:0;
@@ -10719,7 +10725,7 @@ function renderProgressGantt(root){
       <span class="leg"><span class="leg-dot warn"></span> 復習推奨(黄)</span>
       <span class="leg"><span class="leg-dot overdue"></span> 要復習(赤)</span>
       <span class="leg"><span class="leg-dot prog"></span> 演習中</span>
-      <span class="leg"><span class="leg-dot empty"></span> 未着手(起点に固定)</span>
+      <span class="leg" style="color:var(--ink-muted)">フレーム名がグレー = 未着手</span>
       <span style="margin-left:auto;font-size:10.5px;color:var(--ink-muted)">縦の黄色ライン = 基準日(=「今」)</span>
     </div>
     <div class="gantt-scroll" id="gantt-scroll">
@@ -10888,7 +10894,11 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
     html += `<div class="gantt-subj-divider"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></div>`;
     for(const r of g.rows){
       const dimClass = r.hasNoQ ? ' dim' : '';
-      // ポイントが置かれる日付セルのインデックスを計算
+      // 改修28-3: 「未着手」フレーム(まだ1回も完了していない & 演習中でもない)
+      // → ポイントマークは描画せず、メタ列ボックスをグレー表示することで未着手を示す
+      const isPending = (r.attemptNo === 0 && r.pointStatus !== 'prog' && !r.hasNoQ);
+      const pendingClass = isPending ? ' pending' : '';
+      // ポイントが置かれる日付セルのインデックスを計算(未着手でも線を引くため計算する)
       let pointDayIdx;
       if(r.pointDate){
         const diff = _gDayDiff(r.pointDate, snap.startDate);
@@ -10899,7 +10909,7 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
         pointDayIdx = 0; // 未着手は起点(左端)に固定
       }
       // 1. メタ列
-      html += `<div class="gantt-row-meta${dimClass}" data-row-idx="${rowIndex}"><span class="grm-fno">F${r.frame.n}</span><span class="grm-title" title="${escapeHtml(r.frame.t)}">${escapeHtml(r.frame.t)}</span></div>`;
+      html += `<div class="gantt-row-meta${dimClass}${pendingClass}" data-row-idx="${rowIndex}" data-point-day-idx="${pointDayIdx}"><span class="grm-fno">F${r.frame.n}</span><span class="grm-title" title="${escapeHtml(r.frame.t)}">${escapeHtml(r.frame.t)}</span></div>`;
       // 2. スロット列
       html += `<div class="gantt-row-slots${dimClass}" data-row-idx="${rowIndex}">${r.slotsHtml}</div>`;
       // 3. 日付列 × N(個別の grid 直接子要素として)
@@ -10911,10 +10921,12 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
         const baseClass = isBase ? ' base' : '';
         const isPoint = (i === pointDayIdx);
         html += `<div class="gantt-day-cell${dowClass}${baseClass}${dimClass}" data-row-idx="${rowIndex}" data-day-idx="${i}">`;
-        if(isPoint){
+        // 改修28-3: 未着手フレームではポイントマークを描画しない(メタ列のグレーで判別)
+        // ただし、線は通過させるため pointDayIdx は別途記録済み
+        if(isPoint && !isPending){
           const datePart = r.pointDate
             ? `${r.pointDate.getMonth()+1}/${r.pointDate.getDate()}`
-            : '未着手(起点に固定)';
+            : '';
           const tipText = `${r.subject} F${r.frame.n} ${r.frame.t}\n${r.statusText}\n${datePart}`;
           html += `<div class="gantt-point ${r.pointStatus}" title="${escapeHtml(tipText)}"></div>`;
         }
@@ -10951,28 +10963,41 @@ function _gPaintOverlays(groups, dayDates, snap, ganttMode){
   svg.style.width  = tableW + 'px';
   svg.style.height = tableH + 'px';
 
-  // 科目ごとに、フレーム順でポイントを polyline で結ぶ
+  // 改修28-3: 全行を1本の polyline で結ぶ(科目をまたいで連続)
+  // 未着手フレームではポイント要素が無いので、その場合は該当する日付セルから直接座標を計算する。
+  const coords = [];
   let rowIndex = 0;
   for(let gi=0; gi<groups.length; gi++){
     const group = groups[gi];
-    const coords = [];
     for(let ri=0; ri<group.rows.length; ri++){
-      // この行のポイント要素を取得(必ず1個ある)
+      let x, y;
       const pt = table.querySelector(`.gantt-day-cell[data-row-idx="${rowIndex}"] .gantt-point`);
       if(pt){
+        // 描画済みのポイント要素から実位置を取得
         const ptRect = pt.getBoundingClientRect();
-        // table 内の絶対座標に変換(横スクロール対応)
-        const x = (ptRect.left + ptRect.width/2)  - tableRect.left + table.scrollLeft;
-        const y = (ptRect.top  + ptRect.height/2) - tableRect.top  + table.scrollTop;
+        x = (ptRect.left + ptRect.width/2)  - tableRect.left + table.scrollLeft;
+        y = (ptRect.top  + ptRect.height/2) - tableRect.top  + table.scrollTop;
+      }else{
+        // 未着手フレーム — メタ列の data-point-day-idx に格納した日付セルから座標計算
+        const metaEl = table.querySelector(`.gantt-row-meta[data-row-idx="${rowIndex}"]`);
+        const pointDayIdx = metaEl ? parseInt(metaEl.dataset.pointDayIdx || '0', 10) : 0;
+        const cell = table.querySelector(`.gantt-day-cell[data-row-idx="${rowIndex}"][data-day-idx="${pointDayIdx}"]`);
+        if(cell){
+          const cellRect = cell.getBoundingClientRect();
+          x = (cellRect.left + cellRect.width/2) - tableRect.left + table.scrollLeft;
+          y = (cellRect.top  + cellRect.height/2) - tableRect.top  + table.scrollTop;
+        }
+      }
+      if(x !== undefined && y !== undefined){
         coords.push(`${x.toFixed(1)},${y.toFixed(1)}`);
       }
       rowIndex++;
     }
-    if(coords.length >= 2){
-      const pl = document.createElementNS(svgNS,'polyline');
-      pl.setAttribute('points', coords.join(' '));
-      svg.appendChild(pl);
-    }
+  }
+  if(coords.length >= 2){
+    const pl = document.createElementNS(svgNS,'polyline');
+    pl.setAttribute('points', coords.join(' '));
+    svg.appendChild(pl);
   }
   table.appendChild(svg);
 
