@@ -10498,25 +10498,53 @@ function _gComputeLatestActivityDateKey(){
      capturedAtKey:    string       // スナップショット取得日(YYYY-MM-DD)
    }
 */
+/* ガントチャートの「アプリ起動日固定スナップショット」
+   改修28-5(2026/5/28 修正):
+   - 基準日(=「今」を表す縦線) = **実時間の今日** (毎日自動で動く)
+   - 起点(左端) = **初回表示時の (今日-7日) を固定保存** (一度決めたら動かない)
+     → これにより、問題演習しなくても起点が右に進まず、過去の進捗が見え続ける。
+       一方、基準日縦線は実時間に追従するので、「今がいつか」も明確になる。
+   - 終点 = 基準日と同じ年の 8/31 (試験日までの学習計画を俯瞰するため)
+   返り値: {
+     baseActivityDate: Date(0:00),  // チャート基準日(=「今」=実時間の今日)
+     startDate:        Date(0:00),  // 表示の左端(固定済の起点)
+     endDate:          Date(0:00),  // 表示の右端(その年の 8/31)
+     totalDays:        number,
+     todayDate:        Date(0:00),  // 実時間の今日(= baseActivityDate と同じ)
+     startDateKey:     string       // 起点の YYYY-MM-DD
+   }
+*/
 function _gGetSnapshot(){
-  const todayKey = _gDateKey(new Date());
+  const today = _gTodayDate();
+  const todayKey = _gDateKey(today);
   let snap = state.ganttSnapshot;
-  // 日付が変わったら撮り直し
-  if(!snap || snap.capturedAtKey !== todayKey){
-    const latestKey = _gComputeLatestActivityDateKey();
-    // 活動が一度もない → 今日を基準にする(未着手のフレームはすべて起点に並ぶ)
+  // 初回 or 古い構造(startDateKey が無い)の場合: 起点を新規確定して保存
+  if(!snap || !snap.startDateKey){
+    let startDate;
+    // 既存ユーザー対応: 旧スナップショット(capturedAtKey が「ユーザーが初めて開いた日」)があれば、
+    // そこから起点(=旧基準日 - 7日)を推測して継承する。これにより 5/27 に初回起動した
+    // ユーザーは起点が 5/20 のまま維持される。
+    if(snap && snap.capturedAtKey){
+      const oldBaseDate = _gParseKey(snap.capturedAtKey);
+      if(oldBaseDate) startDate = _gAddDays(oldBaseDate, -7);
+    }
+    if(!startDate){
+      // 完全新規ユーザー: 今日-7日を起点に
+      startDate = _gAddDays(today, -7);
+    }
     snap = {
-      capturedAtKey: todayKey,
-      baseActivityDateKey: latestKey || todayKey
+      startDateKey: _gDateKey(startDate),
+      // 後方互換のため旧フィールドも残す(以後参照されないが、削除はしない)
+      capturedAtKey: snap && snap.capturedAtKey ? snap.capturedAtKey : todayKey,
+      baseActivityDateKey: snap && snap.baseActivityDateKey ? snap.baseActivityDateKey : todayKey
     };
     state.ganttSnapshot = snap;
     try{ saveState() }catch(_){}
   }
-  const baseActivityDate = _gParseKey(snap.baseActivityDateKey) || _gTodayDate();
-  const startDate = _gAddDays(baseActivityDate, -7);
-  // 改修28-4: 表示範囲を社労士試験対策の学習計画用に拡大(8月末まで見たい)
-  // 終点 = 基準日と同じ年の 8/31。基準日が既に 8/31 を過ぎていたら翌年の 8/31。
-  // これにより試験日(例年8月下旬)までの学習計画が一覧できる。
+  const startDate = _gParseKey(snap.startDateKey) || _gAddDays(today, -7);
+  // 基準日 = 実時間の今日 (毎日自動で動く)
+  const baseActivityDate = today;
+  // 終点 = 基準日と同じ年の 8/31。既に超えていたら翌年の 8/31。
   const baseY = baseActivityDate.getFullYear();
   let endDate = new Date(baseY, 7, 31); // 7 = August (0-indexed)
   if(endDate < baseActivityDate){
@@ -10527,19 +10555,21 @@ function _gGetSnapshot(){
     startDate,
     endDate,
     totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む
-    todayDate: _gTodayDate(),
-    capturedAtKey: snap.capturedAtKey,
-    baseActivityDateKey: snap.baseActivityDateKey
+    todayDate: today,
+    startDateKey: snap.startDateKey
   };
 }
 
-/* スナップショットを強制的に撮り直す(「最新化」ボタン用) */
+/* 「最新化」ボタン用: 起点を「今日-7日」にリセットする
+   改修28-5: 古いユーザーで startDateKey が違う日付に固定されている場合に、
+   ボタンを押すことで起点を当日基準にやり直せる。 */
 function _gRefreshSnapshot(){
-  const todayKey = _gDateKey(new Date());
-  const latestKey = _gComputeLatestActivityDateKey();
+  const today = _gTodayDate();
+  const startDate = _gAddDays(today, -7);
   state.ganttSnapshot = {
-    capturedAtKey: todayKey,
-    baseActivityDateKey: latestKey || todayKey
+    startDateKey: _gDateKey(startDate),
+    capturedAtKey: _gDateKey(today),
+    baseActivityDateKey: _gDateKey(today)
   };
   try{ saveState() }catch(_){}
 }
@@ -10628,6 +10658,88 @@ function _gBuildRowData(subject, fr, kindMode, snap){
   };
 }
 
+/* 改修28-5: 1サブフレーム分のガント行データを構築
+   サブフレームを持つ親フレーム配下の各サブフレームを1行ずつ展開するため。
+   _gBuildRowData とロジックはほぼ同じだが、
+   - frameKey は subject|"<parent>.<n>"|kindMode で取る(既存仕様)
+   - 問題集計時に questionMatchesSubFrame でフィルタする
+   - 表示する frame.n は "2.1" 形式の文字列(=サブフレームのキー)
+   - 表示する frame.t はサブフレームの t (中分類名) */
+function _gBuildSubFrameRowData(subject, parentFr, subFrame, kindMode, snap){
+  const k = frameKey(subject, subFrame.key, kindMode);
+  const fa = state.frameAttempts[k];
+  // 問題数: 親フレームの問題集合のうち、このサブフレームに該当するもの
+  const totalQs = state.questions.filter(q=>
+    lawToSubject(q.law)===subject && q.frameNo===parentFr.n &&
+    questionMatchesKindMode(q, kindMode) &&
+    questionMatchesSubFrame(q.law, subFrame)
+  ).length;
+  // 進捗管理の対象かどうか(過去問A/B は全フレーム対象、予想問は15問しきい値)
+  const eligible = (typeof isFrameInProgressManagement === 'function')
+    ? isFrameInProgressManagement(subject, subFrame.key, kindMode)
+    : (progressKindShowAll(kindMode) || totalQs >= FORECAST_FRAME_THRESHOLD);
+
+  // ポイントの位置と色を計算(_gBuildRowData と同じロジック)
+  let pointDate = null;
+  let pointStatus = 'empty';
+  let attemptNo = 0;
+  let statusText = '未着手';
+  const refTs = snap.baseActivityDate.getTime() + (24*60*60*1000 - 1);
+
+  if(fa){
+    if(fa.current && fa.current.startedAt){
+      pointDate = new Date(fa.current.startedAt);
+      pointStatus = 'prog';
+      attemptNo = (fa.history||[]).length + 1;
+      const answered = (fa.current.answeredIds||[]).length;
+      const totalC = (fa.current.questionIds||[]).length;
+      statusText = `${attemptNo}回目演習中 ${answered}/${totalC}問`;
+    }else if(Array.isArray(fa.history) && fa.history.length > 0){
+      const lastAtt = fa.history[fa.history.length - 1];
+      const ts = lastAtt.completedAt || lastAtt.startedAt;
+      pointDate = ts ? new Date(ts) : null;
+      const st = _gReviewStatus(lastAtt, fa.history.length, refTs);
+      pointStatus = st;
+      attemptNo = fa.history.length;
+      statusText = `${attemptNo}回完了`;
+    }
+  }
+
+  // スロット(10ハコ)
+  const completed = fa ? (fa.history||[]).length : 0;
+  const cur = fa ? fa.current : null;
+  let slotsHtml = '<div class="gs-grid">';
+  for(let i=0;i<10;i++){
+    if(fa && i < completed){
+      const isLatest = (i === completed - 1);
+      const st = isLatest ? _gReviewStatus(fa.history[i], completed, refTs) : 'ok';
+      const cls = st === 'overdue' ? ' overdue' : (st === 'warn' ? ' warn' : '');
+      slotsHtml += `<div class="gs-slot done${cls}">${i+1}</div>`;
+    }else if(fa && i === completed && cur){
+      slotsHtml += `<div class="gs-slot prog">${i+1}</div>`;
+    }else{
+      slotsHtml += `<div class="gs-slot">${i+1}</div>`;
+    }
+  }
+  slotsHtml += '</div>';
+
+  return {
+    subject,
+    // 親フレーム n とサブフレームの key を組み合わせて表示用フレームを作る
+    // 例: F2-1 国民健康保険法 (subFrame.key = "2.1", subFrame.t = "国民健康保険法")
+    frame: {
+      n: subFrame.key,           // "2.1" 形式の文字列
+      t: subFrame.t,             // 中分類名
+      _parentN: parentFr.n,      // 親フレーム番号(後方拡張用)
+      _isSubFrame: true
+    },
+    totalQs, eligible,
+    pointDate, pointStatus, attemptNo, slotsHtml, statusText,
+    hasNoQ: totalQs === 0,
+    isSubFrame: true
+  };
+}
+
 /* ガントチャート本体の描画 */
 function renderProgressGantt(root){
   const snap = _gGetSnapshot();
@@ -10655,22 +10767,23 @@ function renderProgressGantt(root){
     const frames = FRAMES[subject] || [];
     const rows = [];
     for(const fr of frames){
-      // サブフレームを持つフレームは「親フレーム集約」した1行で表示する。
-      //   ─ 親フレーム全体(全サブフレームの問題) を1フレームとして扱う ─
-      // この場合、frameAttempts キーが (subject, fr.n, kindMode) で個別に存在することは少なく、
-      // サブフレームごとのキーが分散している。簡略化のため、
-      // 親フレーム n に対し subject|n|kind の frameAttempts を見るが、なければサブフレームたちを集約する。
-      // → 第1段では「親フレーム集約」を簡易実装: 親フレーム配下の全サブフレーム合計の最終演習日を使う
-      let rowData;
+      // 改修28-5: サブフレームを持つ親フレームの場合、サブフレームを1つずつ個別の行として展開する。
+      // (旧仕様では親フレーム集約で1行にしていたが、社一・労一など中分類が多い科目で
+      //  進捗が見えなくなる問題があったため、個別表示に切り替え)
       if(typeof hasSubFrames === 'function' && hasSubFrames(subject, fr.n)){
-        rowData = _gBuildParentFrameRowData(subject, fr, ganttKindMode, snap);
+        const subs = getSubFrames(subject, fr.n) || [];
+        for(const sf of subs){
+          const subRow = _gBuildSubFrameRowData(subject, fr, sf, ganttKindMode, snap);
+          // 問題未登録(0問)のみ除外、それ以外は全表示
+          if(subRow.hasNoQ) continue;
+          rows.push(subRow);
+        }
       }else{
-        rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
+        // サブフレームを持たない通常フレーム
+        const rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
+        if(rowData.hasNoQ) continue;
+        rows.push(rowData);
       }
-      // 改修28-2: フレーム除外ロジックを緩和 - 問題未登録のみ除外し、それ以外は全表示
-      // (ユーザーが「すべて表記してください」と要望)
-      if(rowData.hasNoQ) continue; // 問題未登録(0問)のみ除外
-      rows.push(rowData);
     }
     if(rows.length > 0 || ganttMode === 'subject'){
       groups.push({subject, rows});
@@ -10688,11 +10801,9 @@ function renderProgressGantt(root){
 
   const ganttKindLabel = progressKindLabel(ganttKindMode);
   const baseDateStr = `${snap.baseActivityDate.getMonth()+1}/${snap.baseActivityDate.getDate()}`;
-  const todayStr = `${snap.todayDate.getMonth()+1}/${snap.todayDate.getDate()}`;
-  const sameAsToday = _gDateKey(snap.baseActivityDate) === _gDateKey(snap.todayDate);
-  const baseInfo = sameAsToday
-    ? `基準日: <b>${baseDateStr}</b>(今日)`
-    : `基準日: <b>${baseDateStr}</b>　今日: ${todayStr}　<span style="color:#c98d00">※ 基準日以降に演習がないため止まっています</span>`;
+  const startDateStr = `${snap.startDate.getMonth()+1}/${snap.startDate.getDate()}`;
+  // 改修28-5: 基準日は常に「今日」(実時間追従)。起点は固定済。
+  const baseInfo = `起点: <b>${startDateStr}</b>(固定)　基準日: <b>${baseDateStr}</b>(今日)`;
 
   // 科目セレクタ(単一科目モード用)
   const subjectOptions = SUBJECTS_ORDER.map(s=>
@@ -10722,7 +10833,7 @@ function renderProgressGantt(root){
         <option value="pastB"${ganttKindMode==='pastB'?' selected':''}>過去問B</option>
         <option value="forecast"${ganttKindMode==='forecast'?' selected':''}>予想問</option>
       </select>
-      <button id="gantt-refresh-btn" class="btn ghost btn-sm" style="margin-left:8px" title="基準日を最新の演習日に更新します">🔄 最新化</button>
+      <button id="gantt-refresh-btn" class="btn ghost btn-sm" style="margin-left:8px" title="起点(左端)を「今日-7日」にリセットします">🔄 起点リセット</button>
       <div class="gantt-base-info">${baseInfo}</div>
     </div>
     <div class="gantt-legend">
