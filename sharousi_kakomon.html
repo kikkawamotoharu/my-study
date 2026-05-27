@@ -2328,15 +2328,15 @@
   .gantt-subj-divider .gsd-count{font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:8px}
 
   /* データ行 */
-  .gantt-row-meta,.gantt-row-slots,.gantt-row-chart{
+  .gantt-row-meta,.gantt-row-slots{
     border-bottom:1px solid var(--line-soft);padding:4px 6px;
-    background:var(--paper);min-height:34px;display:flex;align-items:center;
+    background:var(--paper);min-height:32px;display:flex;align-items:center;
   }
   .gantt-row-meta{
     position:sticky;left:0;z-index:2;background:var(--paper);
     border-right:1px solid var(--line);
     flex-direction:column;align-items:flex-start;gap:1px;
-    padding:4px 8px;
+    padding:4px 8px;justify-content:center;
   }
   .gantt-row-meta .grm-fno{
     font-size:10px;font-weight:600;color:var(--ink-muted);
@@ -2349,7 +2349,7 @@
     max-width:100%;
   }
   .gantt-row-slots{
-    position:sticky;left:var(--gantt-meta-w,160px);z-index:1;
+    position:sticky;left:var(--gantt-meta-w,150px);z-index:1;
     background:var(--paper);border-right:1px solid var(--line);
     padding:4px 6px;
   }
@@ -2368,41 +2368,31 @@
   .gantt-row-slots .gs-slot.done.overdue{background:#D9534F;color:#fff}
   .gantt-row-slots .gs-slot.prog{background:var(--amber);color:#fff;border:none}
 
-  /* チャート領域(各日付セル) */
-  .gantt-row-chart{
-    position:relative;padding:0;
-    /* グリッド線は背景で描画 */
+  /* 日付セル(grid 直接子) — 改修28-2: grid破綻の修正 */
+  .gantt-day-cell{
+    border-right:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+    background:var(--paper);min-height:32px;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
   }
-  .gantt-cell{
-    border-right:1px solid var(--line-soft);min-width:34px;
-    align-self:stretch;flex:0 0 auto;
-  }
-  .gantt-cell.weekend{background:#f5f6f8}
-  .gantt-cell.base{background:rgba(201,141,0,.08)}
+  .gantt-day-cell.weekend{background:#f5f6f8}
+  .gantt-day-cell.base{background:rgba(201,141,0,.08)}
 
-  /* チャート行のオーバーレイ(SVG 線 + ポイント) */
-  .gantt-overlay{
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    pointer-events:none;overflow:visible;
-  }
+  /* ポイントマーク(各日付セルの中央に flex で配置) */
   .gantt-point{
-    position:absolute;width:14px;height:14px;border-radius:50%;
-    transform:translate(-50%,-50%);
-    border:2px solid #fff;
-    box-shadow:0 1px 3px rgba(0,0,0,.25);
-    z-index:2;pointer-events:auto;cursor:default;
+    width:9px;height:9px;border-radius:50%;
+    border:1.5px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,.18);
+    z-index:2;cursor:default;flex-shrink:0;
+    transition:transform .1s;
   }
+  .gantt-point:hover{transform:scale(1.5);z-index:5}
   .gantt-point.empty{background:#cfd4dc}
   .gantt-point.ok{background:var(--green)}
   .gantt-point.warn{background:#E8B923}
   .gantt-point.overdue{background:#D9534F}
   .gantt-point.prog{background:var(--amber)}
-  .gantt-point .gp-num{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    font-size:8px;color:#fff;font-weight:700;line-height:1;pointer-events:none;
-  }
-  .gantt-point.warn .gp-num{color:#3a2a00}
-  .gantt-point.empty .gp-num{color:#666}
 
   /* 「今」を示す縦ライン */
   .gantt-now-line{
@@ -2412,29 +2402,25 @@
   }
 
   /* 全体モード = コンパクト表示 */
-  .gantt-table.compact .gantt-row-meta{min-height:26px;padding:2px 6px}
+  .gantt-table.compact .gantt-row-meta{min-height:24px;padding:2px 6px}
   .gantt-table.compact .gantt-row-meta .grm-fno{font-size:9px;padding:0 4px}
   .gantt-table.compact .gantt-row-meta .grm-title{font-size:11px}
-  .gantt-table.compact .gantt-row-slots{min-height:26px;padding:2px 4px}
-  .gantt-table.compact .gantt-row-slots .gs-slot{min-height:11px}
-  .gantt-table.compact .gantt-row-chart{min-height:26px}
-  .gantt-table.compact .gantt-point{width:11px;height:11px;border-width:1.5px}
-  .gantt-table.compact .gantt-point .gp-num{font-size:7px}
+  .gantt-table.compact .gantt-row-slots{min-height:24px;padding:2px 4px}
+  .gantt-table.compact .gantt-row-slots .gs-slot{min-height:10px;font-size:7px}
+  .gantt-table.compact .gantt-day-cell{min-height:24px}
+  .gantt-table.compact .gantt-point{width:8px;height:8px;border-width:1px}
 
   /* 問題未登録/対象外フレームは薄く */
-  .gantt-row-meta.dim,.gantt-row-slots.dim,.gantt-row-chart.dim{opacity:.45}
+  .gantt-row-meta.dim,.gantt-row-slots.dim,.gantt-day-cell.dim{opacity:.5}
 
   /* SVG 線のスタイル */
   .gantt-line-svg{
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    pointer-events:none;overflow:visible;
+    position:absolute;top:0;left:0;
+    pointer-events:none;overflow:visible;z-index:1;
   }
   .gantt-line-svg polyline{
-    fill:none;stroke:#7a8a99;stroke-width:1.5;stroke-linejoin:round;
-    stroke-linecap:round;opacity:.65;
-  }
-  .gantt-line-svg polyline.subject-line{
-    stroke:#5a6b7a;opacity:.75;
+    fill:none;stroke:#6b7a8a;stroke-width:1.4;stroke-linejoin:round;
+    stroke-linecap:round;opacity:.7;
   }
 
   /* モバイル */
@@ -2445,9 +2431,8 @@
     .gantt-h-meta,.gantt-row-meta{font-size:11px;padding:3px 6px}
     .gantt-row-meta .grm-title{font-size:11px}
     .gantt-h-date{min-width:30px;padding:4px 2px}
-    .gantt-cell{min-width:30px}
-    .gantt-point{width:12px;height:12px}
-    .gantt-point .gp-num{font-size:7px}
+    .gantt-day-cell{min-width:30px}
+    .gantt-point{width:8px;height:8px}
   }
 </style>
 </head>
@@ -10523,12 +10508,14 @@ function _gGetSnapshot(){
   }
   const baseActivityDate = _gParseKey(snap.baseActivityDateKey) || _gTodayDate();
   const startDate = _gAddDays(baseActivityDate, -7);
-  const endDate   = _gAddDays(baseActivityDate, +2);
+  // 改修28-2: 表示範囲を約1か月分に拡大(今後の学習計画を見たい)
+  // 起点(基準日-7日) から +33日 = 合計40日分(約6週間。6月末まで余裕でカバー)
+  const endDate   = _gAddDays(baseActivityDate, +33);
   return {
     baseActivityDate,
     startDate,
     endDate,
-    totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む
+    totalDays: _gDayDiff(endDate, startDate) + 1, // 両端含む = 41日
     todayDate: _gTodayDate(),
     capturedAtKey: snap.capturedAtKey,
     baseActivityDateKey: snap.baseActivityDateKey
@@ -10669,12 +10656,9 @@ function renderProgressGantt(root){
       }else{
         rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
       }
-      // 全体モード: 対象外(15問未満)& 未着手 を間引く
-      if(ganttMode === 'all'){
-        if(!rowData.eligible && rowData.attemptNo === 0) continue;
-        // 問題未登録(0問)も除外
-        if(rowData.hasNoQ) continue;
-      }
+      // 改修28-2: フレーム除外ロジックを緩和 - 問題未登録のみ除外し、それ以外は全表示
+      // (ユーザーが「すべて表記してください」と要望)
+      if(rowData.hasNoQ) continue; // 問題未登録(0問)のみ除外
       rows.push(rowData);
     }
     if(rows.length > 0 || ganttMode === 'subject'){
@@ -10873,17 +10857,19 @@ function _gBuildParentFrameRowData(subject, fr, kindMode, snap){
   };
 }
 
-/* 日付ヘッダ + データ行(ポイント等は別途オーバーレイで描画)を組む */
+/* 日付ヘッダ + データ行(grid 直接子要素方式)を組む
+   改修28-2: 各日付セルを grid の直接子要素にして、進捗ハコの番号が日付セルに漏れる
+            grid layout 破綻バグを修正。 */
 function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
-  const metaW = ganttMode === 'all' ? 150 : 170;
-  const slotsW = 180; // 進捗10ハコの列幅
-  const dayW = 36;
-  // grid-template-columns: [meta] [slots] [days...]
-  const cols = `${metaW}px ${slotsW}px ${dayDates.map(()=>`${dayW}px`).join(' ')}`;
+  const metaW  = ganttMode === 'all' ? 140 : 160;
+  const slotsW = 170;
+  const dayW   = ganttMode === 'all' ? 30  : 34;
+  const cols   = `${metaW}px ${slotsW}px ${dayDates.map(()=>`${dayW}px`).join(' ')}`;
   const compactClass = ganttMode === 'all' ? ' compact' : '';
 
   let html = `<div class="gantt-table${compactClass}" id="gantt-table" style="grid-template-columns:${cols};--gantt-meta-w:${metaW}px;--gantt-slots-w:${slotsW}px;--gantt-day-w:${dayW}px">`;
-  // ヘッダ行
+
+  // ヘッダ行(grid の最初の N+2 要素)
   html += `<div class="gantt-h-meta">科目 / フレーム</div>`;
   html += `<div class="gantt-h-slots">進捗(10回分)</div>`;
   for(const d of dayDates){
@@ -10895,30 +10881,45 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
     html += `<div class="gantt-h-date${dowClass}${baseClass}"><div class="gh-date-md">${d.getMonth()+1}/${d.getDate()}</div><span class="gh-date-dow">${dowLabel}</span></div>`;
   }
 
-  // データ行
+  // データ行 — 各日付セルを grid の直接子要素として配置
   let rowIndex = 0;
   for(const g of groups){
-    // 科目区切り(全体モードでは表示、単一科目モードでも科目1個分の区切りを出す)
+    // 科目区切り(grid-column: 1/-1)
     html += `<div class="gantt-subj-divider"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></div>`;
     for(const r of g.rows){
-      const dimClass = (r.hasNoQ || (!r.eligible && r.attemptNo===0)) ? ' dim' : '';
-      // メタ列
-      html += `<div class="gantt-row-meta${dimClass}" data-row-idx="${rowIndex}">
-        <span class="grm-fno">F${r.frame.n}</span>
-        <span class="grm-title" title="${escapeHtml(r.frame.t)}">${escapeHtml(r.frame.t)}</span>
-      </div>`;
-      // スロット列
-      html += `<div class="gantt-row-slots${dimClass}">${r.slotsHtml}</div>`;
-      // チャート列(各日付ごとに cell を並べる。ポイントとラインはオーバーレイで描画)
-      html += `<div class="gantt-row-chart${dimClass}" data-row-idx="${rowIndex}">`;
-      for(const d of dayDates){
+      const dimClass = r.hasNoQ ? ' dim' : '';
+      // ポイントが置かれる日付セルのインデックスを計算
+      let pointDayIdx;
+      if(r.pointDate){
+        const diff = _gDayDiff(r.pointDate, snap.startDate);
+        if(diff < 0) pointDayIdx = 0;
+        else if(diff >= dayDates.length) pointDayIdx = dayDates.length - 1;
+        else pointDayIdx = diff;
+      }else{
+        pointDayIdx = 0; // 未着手は起点(左端)に固定
+      }
+      // 1. メタ列
+      html += `<div class="gantt-row-meta${dimClass}" data-row-idx="${rowIndex}"><span class="grm-fno">F${r.frame.n}</span><span class="grm-title" title="${escapeHtml(r.frame.t)}">${escapeHtml(r.frame.t)}</span></div>`;
+      // 2. スロット列
+      html += `<div class="gantt-row-slots${dimClass}" data-row-idx="${rowIndex}">${r.slotsHtml}</div>`;
+      // 3. 日付列 × N(個別の grid 直接子要素として)
+      for(let i=0; i<dayDates.length; i++){
+        const d = dayDates[i];
         const dow = d.getDay();
         const dowClass = (dow===0 || dow===6) ? ' weekend' : '';
         const isBase = _gDateKey(d) === _gDateKey(snap.baseActivityDate);
         const baseClass = isBase ? ' base' : '';
-        html += `<div class="gantt-cell${dowClass}${baseClass}"></div>`;
+        const isPoint = (i === pointDayIdx);
+        html += `<div class="gantt-day-cell${dowClass}${baseClass}${dimClass}" data-row-idx="${rowIndex}" data-day-idx="${i}">`;
+        if(isPoint){
+          const datePart = r.pointDate
+            ? `${r.pointDate.getMonth()+1}/${r.pointDate.getDate()}`
+            : '未着手(起点に固定)';
+          const tipText = `${r.subject} F${r.frame.n} ${r.frame.t}\n${r.statusText}\n${datePart}`;
+          html += `<div class="gantt-point ${r.pointStatus}" title="${escapeHtml(tipText)}"></div>`;
+        }
+        html += `</div>`;
       }
-      html += `</div>`;
       rowIndex++;
     }
   }
@@ -10926,148 +10927,69 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
   return html;
 }
 
-/* オーバーレイ(ポイントマーク + 線)を SVG/DOM で描画。
-   DOM 構築後に呼ぶこと(セル位置を実測してから配置するため)。 */
+/* オーバーレイ(線 + 「今」縦ライン)を描画。
+   改修28-2: ポイントマーク自体は _gBuildGanttTableHtml で既に各日付セル内に
+            flex 配置済みなので、ここでは線と縦ラインだけ描く。 */
 function _gPaintOverlays(groups, dayDates, snap, ganttMode){
   const table = document.getElementById('gantt-table');
   if(!table) return;
-  const scrollWrap = document.getElementById('gantt-scroll');
-  if(!scrollWrap) return;
 
   // 既存オーバーレイは消す
-  table.querySelectorAll('.gantt-overlay,.gantt-line-svg,.gantt-now-line').forEach(el=>el.remove());
+  table.querySelectorAll('.gantt-line-svg,.gantt-now-line').forEach(el=>el.remove());
 
-  // 各行(gantt-row-chart)について、ポイント要素を行内に absolute 配置する
-  const allRows = [];
-  let flatRowIdx = 0;
-  for(const g of groups){
-    for(const r of g.rows){
-      allRows.push({group:g, row:r, idx: flatRowIdx});
-      flatRowIdx++;
-    }
-  }
-
-  // dayDates の最初のセルを基準に X 位置を計算
-  // 各日付セルの幅は CSS で固定(36px)。X位置 = dayIdx*dayW + dayW/2
-  const dayW = ganttMode === 'all' ? 36 : 36;
-  // 実際にレンダリングされた dayW を測定して使う(モバイル等で異なる場合に備える)
-  const firstCellRow = table.querySelector('.gantt-row-chart');
-  let measuredDayW = dayW;
-  if(firstCellRow){
-    const firstCell = firstCellRow.querySelector('.gantt-cell');
-    if(firstCell){
-      const w = firstCell.getBoundingClientRect().width;
-      if(w > 0) measuredDayW = w;
-    }
-  }
-
-  // 各行にポイントマークを配置
-  const rowChartEls = table.querySelectorAll('.gantt-row-chart');
-  const pointPositions = []; // {x, yCenter, status, idx} — 後で線を引くため
-  rowChartEls.forEach((el)=>{
-    const idx = parseInt(el.dataset.rowIdx, 10);
-    const r = allRows[idx];
-    if(!r) return;
-    const rowData = r.row;
-    // ポイントの x 位置(日付セルのインデックスを計算)
-    let dayIdx;
-    if(!rowData.pointDate){
-      // 未着手 → 起点(左端)に
-      dayIdx = 0;
-    }else{
-      const diff = _gDayDiff(rowData.pointDate, snap.startDate);
-      // 範囲外(過去すぎる)は左端に寄せる
-      if(diff < 0) dayIdx = 0;
-      else if(diff >= dayDates.length) dayIdx = dayDates.length - 1;
-      else dayIdx = diff;
-    }
-    const x = dayIdx * measuredDayW + measuredDayW/2;
-
-    // ポイント DOM 作成
-    const pt = document.createElement('div');
-    pt.className = `gantt-point ${rowData.pointStatus}`;
-    pt.style.left = x + 'px';
-    pt.style.top = '50%';
-    // ツールチップ
-    const datePart = rowData.pointDate
-      ? `${rowData.pointDate.getMonth()+1}/${rowData.pointDate.getDate()}`
-      : '未着手';
-    const tipText = `${rowData.subject} F${rowData.frame.n} ${rowData.frame.t}\n${rowData.statusText}\n${datePart}`;
-    pt.title = tipText;
-    // 数字(回数)を表示(小さく)
-    if(rowData.attemptNo > 0){
-      const num = document.createElement('span');
-      num.className = 'gp-num';
-      num.textContent = String(rowData.attemptNo);
-      pt.appendChild(num);
-    }
-    el.appendChild(pt);
-
-    // 位置を記録(線描画用) — el の getBoundingClientRect().height を使えば中心 y が出る
-    const rect = el.getBoundingClientRect();
-    pointPositions.push({
-      flatIdx: idx,
-      group: r.group.subject,
-      el,
-      x,
-      yCenter: rect.height/2,
-      yTop: el.offsetTop,
-      height: rect.height,
-      status: rowData.pointStatus,
-      hasPoint: true
-    });
-  });
-
-  // === 線を引く(科目ごとに) ===
-  // 各科目内の行を縦に順に結ぶ。
-  // 線は table 全体にかぶせる SVG を1枚作って polyline を描く。
+  // table 全体のサイズ(scrollWidth/Height は内容全体の寸法)
   const tableRect = table.getBoundingClientRect();
   const tableW = table.scrollWidth;
   const tableH = table.scrollHeight;
-  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+
+  // SVG レイヤー作成(table 直下に absolute 配置)
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS,'svg');
   svg.setAttribute('class','gantt-line-svg');
   svg.setAttribute('width', tableW);
   svg.setAttribute('height', tableH);
-  svg.style.left = '0';
-  svg.style.top = '0';
-  svg.style.width = tableW + 'px';
+  svg.style.width  = tableW + 'px';
   svg.style.height = tableH + 'px';
-  // チャート領域(meta+slots列以降)の x オフセットを計算
-  const cs = getComputedStyle(table);
-  const metaW = parseFloat(cs.getPropertyValue('--gantt-meta-w')) || 150;
-  const slotsW = parseFloat(cs.getPropertyValue('--gantt-slots-w')) || 180;
-  const chartXOffset = metaW + slotsW;
 
-  // 各 row-chart の絶対Y位置(table 内座標) を取得
-  // → row-chart 要素の offsetTop を使う
+  // 科目ごとに、フレーム順でポイントを polyline で結ぶ
+  let rowIndex = 0;
   for(let gi=0; gi<groups.length; gi++){
     const group = groups[gi];
-    if(group.rows.length < 1) continue;
-    // この科目に属する pointPositions を集める
-    const pts = pointPositions.filter(p=>p.group === group.subject);
-    if(pts.length < 1) continue;
-    // 各点を線でつなぐ
-    const coords = pts.map(p=>{
-      const x = chartXOffset + p.x;
-      const y = p.yTop + p.height/2;
-      return `${x},${y}`;
-    }).join(' ');
-    const pl = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-    pl.setAttribute('points', coords);
-    pl.setAttribute('class','subject-line');
-    svg.appendChild(pl);
+    const coords = [];
+    for(let ri=0; ri<group.rows.length; ri++){
+      // この行のポイント要素を取得(必ず1個ある)
+      const pt = table.querySelector(`.gantt-day-cell[data-row-idx="${rowIndex}"] .gantt-point`);
+      if(pt){
+        const ptRect = pt.getBoundingClientRect();
+        // table 内の絶対座標に変換(横スクロール対応)
+        const x = (ptRect.left + ptRect.width/2)  - tableRect.left + table.scrollLeft;
+        const y = (ptRect.top  + ptRect.height/2) - tableRect.top  + table.scrollTop;
+        coords.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+      rowIndex++;
+    }
+    if(coords.length >= 2){
+      const pl = document.createElementNS(svgNS,'polyline');
+      pl.setAttribute('points', coords.join(' '));
+      svg.appendChild(pl);
+    }
   }
   table.appendChild(svg);
 
   // === 基準日(=「今」)の縦ライン ===
   const baseDiff = _gDayDiff(snap.baseActivityDate, snap.startDate);
   if(baseDiff >= 0 && baseDiff < dayDates.length){
-    const lineX = chartXOffset + baseDiff * measuredDayW + measuredDayW/2;
-    const ln = document.createElement('div');
-    ln.className = 'gantt-now-line';
-    ln.style.left = lineX + 'px';
-    ln.style.height = tableH + 'px';
-    table.appendChild(ln);
+    // 任意の行の基準日セルから X 位置を取得
+    const baseCell = table.querySelector(`.gantt-day-cell[data-day-idx="${baseDiff}"]`);
+    if(baseCell){
+      const cellRect = baseCell.getBoundingClientRect();
+      const lineX = (cellRect.left + cellRect.width/2) - tableRect.left + table.scrollLeft;
+      const ln = document.createElement('div');
+      ln.className = 'gantt-now-line';
+      ln.style.left = lineX + 'px';
+      ln.style.height = tableH + 'px';
+      table.appendChild(ln);
+    }
   }
 }
 
