@@ -59,6 +59,18 @@
     font-family:'Shippori Mincho',serif;font-weight:700;
     font-size:26px;letter-spacing:.04em;
   }
+  /* 改修15: h1 内のインライン SVG 絵文字。
+     周囲のテキストサイズに対して1emで揃え、ベースラインから少し上に上げて文字の中心と合わせる。
+     vertical-align は明朝体の x-ハイト/キャップハイトに合わせて微調整。
+     改修19: ペン延長に伴い viewBox を 36 → 48 に拡大したため、見た目の錠前サイズを
+            従来と同等に保つよう、CSSサイズも .95em → 1.25em に引き上げ。
+            vertical-align は SVG が縦に大きくなった分、より深く下げて文字中心に合わせる。 */
+  .emoji-lockpen{
+    width:1.25em;height:1.25em;
+    vertical-align:-.3em;
+    margin:0 .02em;
+    display:inline-block;
+  }
   .brand .seal{
     display:inline-flex;align-items:center;justify-content:center;
     width:44px;height:44px;border-radius:6px;
@@ -319,6 +331,82 @@
   .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
   textarea{font-family:'Shippori Mincho',serif;line-height:1.7;resize:vertical;min-height:80px}
+
+  /* ===== 改修25: 差分マージ復元モーダル ===== */
+  .merge-slot{
+    border:1.5px solid var(--line);border-radius:6px;
+    background:var(--paper);padding:10px 12px;
+    transition:border-color .15s, background .15s;
+  }
+  .merge-slot.is-newer{border-color:var(--indigo);background:#F4F7FB}
+  .merge-slot.is-older{border-color:var(--line);background:var(--bg)}
+  .merge-slot-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line-soft);
+  }
+  .merge-slot-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--ink-muted);color:#fff;font-size:11px;font-weight:600;flex-shrink:0;
+  }
+  .merge-slot.is-newer .merge-slot-num{background:var(--indigo)}
+  .merge-slot-name{
+    font-size:12.5px;font-weight:500;color:var(--ink);
+    flex:1;min-width:0;word-break:break-all;
+  }
+  .merge-slot-tag{
+    font-size:10.5px;padding:2px 8px;border-radius:99px;
+    background:var(--line-soft);color:var(--ink-muted);
+    letter-spacing:.04em;flex-shrink:0;
+  }
+  .merge-slot.is-newer .merge-slot-tag{background:var(--indigo-soft);color:var(--indigo);font-weight:500}
+  .merge-slot.is-older .merge-slot-tag{background:var(--line-soft);color:var(--ink-muted)}
+  .merge-slot-body{font-size:11.5px;color:var(--ink-soft);line-height:1.6}
+  .merge-slot-body table{width:100%;border-collapse:collapse}
+  .merge-slot-body th{
+    text-align:left;font-weight:400;color:var(--ink-muted);
+    padding:2px 0;font-size:11px;
+  }
+  .merge-slot-body td{
+    text-align:right;padding:2px 0;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;font-size:11.5px;
+  }
+  .merge-slot-body .latest-row{border-top:1px solid var(--line-soft);padding-top:4px}
+  .merge-slot-body .latest-row th,.merge-slot-body .latest-row td{padding-top:5px;font-weight:500;color:var(--ink)}
+
+  .merge-preview-table{
+    width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;
+  }
+  .merge-preview-table th{
+    text-align:left;padding:6px 10px;border-bottom:1.5px solid var(--line);
+    font-weight:500;color:var(--ink-soft);font-size:11px;letter-spacing:.04em;
+  }
+  .merge-preview-table td{padding:5px 10px;border-bottom:1px solid var(--line-soft)}
+  .merge-preview-table th:nth-child(n+2),.merge-preview-table td:nth-child(n+2){
+    text-align:right;font-variant-numeric:tabular-nums;
+  }
+  .merge-preview-table tr.added td{background:#EEF6F0}
+  .merge-preview-table tr.added td:nth-child(3){color:var(--green);font-weight:500}
+  .merge-preview-table tr.sub td{color:var(--ink-muted);font-size:11.5px;padding-left:24px}
+  .merge-no-diff{
+    background:var(--line-soft);border-left:3px solid var(--ink-muted);
+    padding:10px 12px;border-radius:0 4px 4px 0;
+    font-size:12px;color:var(--ink-soft);margin-top:10px;
+  }
+  .merge-conflicts{
+    background:#FFF7E8;border-left:3px solid var(--amber);
+    padding:10px 12px;border-radius:0 4px 4px 0;
+    font-size:11.5px;color:var(--ink-soft);margin-top:10px;
+  }
+  .merge-conflicts ul{max-height:140px;overflow-y:auto;padding-left:18px;margin-top:6px}
+  .merge-conflicts li{margin-bottom:2px}
+  .merge-conflicts code{
+    background:var(--paper);padding:1px 5px;border-radius:3px;
+    font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--accent);
+  }
+  @media(max-width:560px){
+    #merge-slots{grid-template-columns:1fr !important}
+  }
 
   /* Empty state */
   .empty{text-align:center;padding:48px 20px;color:var(--ink-muted)}
@@ -2151,13 +2239,98 @@
 </style>
 </head>
 <body>
+
+<!-- 改修15-23: SVG絵文字としての🔏を派生改変版Twemoji + カスタム万年筆デザインで実装。
+     ライセンス: Twemoji is licensed under CC-BY 4.0 (© Twitter, Inc.)
+     経緯: 斜め→刀→ゴールドニブ→錠前貫通→モダン万年筆→シルバーニブ+グラデ
+           +ハイライト→紡錘形→Montblanc風(中央リング+ドーム後端)。
+     改修24: さらに細く・長く + ゴールドリング → ガンメタルグレーへ。
+           - 本体をさらにスリムに(bulge height 11→7)、ガンメタル路線で現代的高級感
+           - 長さを延長(x=33→37、ニブ先 -13→-15)
+           - グリップ&中央リングをゴールド → ガンメタルグラデへ
+             (ロックのゴールドとの色ぶつかりを解消、ニブのシルバーとも調和)
+           - イメージは Pilot Custom Heritage や Lamy 2000 のような現代スリム万年筆 -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="emoji-lockpen" viewBox="-6 -6 48 48">
+    <defs>
+      <!-- ゴールドのグラデーション(錠前用) -->
+      <linearGradient id="elp-goldG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#F4E1A0"/>
+        <stop offset="50%"  stop-color="#D6B95C"/>
+        <stop offset="100%" stop-color="#9F7E22"/>
+      </linearGradient>
+      <!-- シルバーのグラデーション(ニブ用) -->
+      <linearGradient id="elp-silverG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#F1F3F6"/>
+        <stop offset="45%"  stop-color="#C0C7D2"/>
+        <stop offset="100%" stop-color="#6E7888"/>
+      </linearGradient>
+      <!-- 錠前の弦用シルバーグラデーション -->
+      <linearGradient id="elp-shackleG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#E0E6EE"/>
+        <stop offset="50%"  stop-color="#B7BEC9"/>
+        <stop offset="100%" stop-color="#828B98"/>
+      </linearGradient>
+      <!-- 濃紺のグラデーション(ペン本体用) -->
+      <linearGradient id="elp-navyG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#3A4D6E"/>
+        <stop offset="50%"  stop-color="#1B2942"/>
+        <stop offset="100%" stop-color="#0A1228"/>
+      </linearGradient>
+      <!-- ガンメタルのグラデーション(改修24で新規追加、ペンリング用) -->
+      <linearGradient id="elp-gunmetalG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#8B95A2"/>
+        <stop offset="50%"  stop-color="#5A6371"/>
+        <stop offset="100%" stop-color="#383F4D"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 錠前の弦(シルバーグラデ) -->
+    <path fill="url(#elp-shackleG)" d="M13 3C7.477 3 3 7.477 3 13v10h4V13c0-3.313 2.686-5.999 6-5.999S19 9.687 19 13v10h4V13c0-5.523-4.477-10-10-10z"/>
+    <!-- 弦の光沢ハイライト -->
+    <path fill="#FFFFFF" opacity="0.27" d="M11 6 C 7 6.5 5 9 4.5 12 L 5.8 12 C 6.3 9.5 8 7.6 11 7.2 Z"/>
+
+    <!-- 錠前の本体(ゴールドグラデ) -->
+    <path fill="url(#elp-goldG)" d="M26 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V20c0-2.209 1.791-4 4-4h18c2.209 0 4 1.791 4 4v12z"/>
+    <!-- 本体上部の光沢帯 -->
+    <rect x="2" y="17.5" width="22" height="1.6" rx="0.8" fill="#FFFFFF" opacity="0.30"/>
+
+    <!-- 万年筆(改修24: スリム・ロング・ガンメタルリング) -->
+    <g transform="rotate(-45 18 18)">
+      <!-- 本体(濃紺グラデ、スリム紡錘形 + ドーム後端、より長く x=37 まで) -->
+      <path fill="url(#elp-navyG)" d="M 5 16.3 C 9 15.3 13 14.7 17 14.5 C 24 14.6 31 14.9 37 15.5 C 38 15.8 38 20.2 37 20.5 C 31 21.1 24 21.4 17 21.5 C 13 21.3 9 20.7 5 19.7 Z"/>
+      <!-- 本体上部のハイライト(スリム曲線に沿って) -->
+      <path fill="#FFFFFF" opacity="0.22" d="M 6.5 16.3 C 10 15.5 14 15 17 14.9 C 24 15 31 15.3 36 15.8 L 36 16.5 C 31 16.1 24 15.9 17 15.9 C 14 15.9 10 16.4 6.5 17.1 Z"/>
+
+      <!-- ニブ(シルバーグラデ、シャープ三角、ニブ先を x=-15 まで延長) -->
+      <path fill="url(#elp-silverG)" d="M 5 15 L -15 18 L 5 21 Z"/>
+      <!-- ニブのハイライト -->
+      <path fill="#FFFFFF" opacity="0.18" d="M 5 15 L -15 18 L 5 18 Z"/>
+      <!-- ニブのスリット -->
+      <line x1="-14" y1="18" x2="5" y2="18" stroke="#4A5563" stroke-width="0.5"/>
+      <!-- ニブの呼吸穴 -->
+      <circle cx="-4" cy="18" r="1" fill="#4A5563"/>
+
+      <!-- グリップリング(ダークグレー = ガンメタル、ゴールドから変更) -->
+      <rect x="4.5" y="15.3" width="1.5" height="5.5" rx="0.3" fill="url(#elp-gunmetalG)"/>
+      <!-- グリップリングの艶 -->
+      <rect x="4.7" y="15.6" width="0.4" height="4.9" fill="#FFFFFF" opacity="0.30"/>
+
+      <!-- 中央ジョイントリング(ダークグレー = ガンメタル、ゴールドから変更) -->
+      <rect x="21" y="14.8" width="1.8" height="6.5" rx="0.4" fill="url(#elp-gunmetalG)"/>
+      <!-- 中央リングの艶 -->
+      <rect x="21.2" y="15.1" width="0.5" height="5.9" fill="#FFFFFF" opacity="0.30"/>
+    </g>
+  </symbol>
+</svg>
+
 <div class="app">
 
   <header class="top">
     <div class="brand">
       <span class="seal"><img id="brand-icon" src="" alt="LS_過去問ロック"></span>
       <div>
-        <h1>LS_過去問ロック🔏🔏🔏</h1>
+        <h1>LS_過去問ロック<svg class="emoji-lockpen" aria-hidden="true"><use href="#emoji-lockpen"/></svg><svg class="emoji-lockpen" aria-hidden="true"><use href="#emoji-lockpen"/></svg><svg class="emoji-lockpen" aria-hidden="true"><use href="#emoji-lockpen"/></svg></h1>
         <div class="sub">LS · KAKOMON LOCK</div>
       </div>
     </div>
@@ -2379,10 +2552,16 @@
       <h2 style="font-family:'Shippori Mincho',serif;font-size:18px;margin-bottom:16px">データ管理</h2>
       <div class="section-h">バックアップ</div>
       <p class="section-body dim">演習結果は、お使いのブラウザに自動保存されています。別のPCで使う・万一に備えるため、定期的にJSONとして書き出してください。</p>
-      <div style="display:flex;gap:8px;margin-top:12px">
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <button class="btn" id="btn-backup">完全バックアップ(JSON)</button>
-        <button class="btn ghost" id="btn-restore">バックアップ復元</button>
+        <button class="btn ghost" id="btn-restore">バックアップ復元(全置換)</button>
+        <button class="btn ghost" id="btn-merge-restore">差分マージ復元</button>
       </div>
+      <!-- 改修25: 差分マージ復元の説明 -->
+      <p class="section-body dim" style="margin-top:10px;font-size:12px;line-height:1.6">
+        <strong style="color:var(--ink)">差分マージ復元</strong>とは: 現在のデータを保ったまま、選択した JSON ファイルにある「不足分」(解答履歴・フレーム履歴・ブックマーク・問題・図表など)を追加します。
+        <br>例: 事務所PCで作り忘れたバックアップを後から自宅PCのデータに統合したい場合に使用します。同一IDのデータで内容が違う場合は「新しい方」を採用します(初期判定は最終解答日時で自動判定、UIで切替可)。
+      </p>
 
       <!-- 改修: ストレージ診断機能 -->
       <div class="section-h" style="margin-top:24px">ストレージ診断</div>
@@ -2590,6 +2769,57 @@
     <div class="actions">
       <button class="btn ghost" id="import-cancel">キャンセル</button>
       <button class="btn" id="import-do">インポート実行</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 改修25: 差分マージ復元モーダル =====
+     現在のデータを保ったまま、選択した JSON ファイルから不足分だけを追加する。
+     UI は2スロット形式(現在 vs ファイル)で、どちらを「新しい方」とみなすかを切替可能。 -->
+<div class="modal-back" id="modal-merge-restore" style="display:none">
+  <div class="modal" style="max-width:760px">
+    <h2>差分マージ復元</h2>
+    <p class="section-body dim" style="margin-bottom:14px;font-size:12.5px;line-height:1.7">
+      現在使用中のデータと、選択したファイルを比較し、不足分を追加します。
+      <strong style="color:var(--ink)">同一IDで内容が違う場合は「新しい方」を優先</strong>します。
+      解答履歴・フレーム履歴・ブックマークなどは時系列で重複を除いた上で結合されます。
+    </p>
+
+    <div id="merge-slots" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <!-- 現在のデータ -->
+      <div id="merge-slot-current" class="merge-slot">
+        <div class="merge-slot-head">
+          <span class="merge-slot-num">A</span>
+          <span class="merge-slot-name">現在のデータ</span>
+          <span class="merge-slot-tag" id="merge-tag-current">新しい方</span>
+        </div>
+        <div class="merge-slot-body" id="merge-info-current">読込中…</div>
+      </div>
+      <!-- ファイル -->
+      <div id="merge-slot-file" class="merge-slot">
+        <div class="merge-slot-head">
+          <span class="merge-slot-num">B</span>
+          <span class="merge-slot-name" id="merge-file-name">(ファイル未選択)</span>
+          <span class="merge-slot-tag" id="merge-tag-file">古い方</span>
+        </div>
+        <div class="merge-slot-body" id="merge-info-file">ファイルを選択してください</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn ghost" id="merge-pick-file" style="padding:7px 14px;font-size:12.5px">ファイルを選択…</button>
+      <button class="btn ghost" id="merge-swap" style="padding:7px 14px;font-size:12.5px" disabled>⇄ AとBを入れ替え</button>
+      <span id="merge-swap-hint" style="font-size:11.5px;color:var(--ink-muted)"></span>
+    </div>
+
+    <div id="merge-preview" style="display:none">
+      <div class="section-h" style="margin-top:4px">差分プレビュー(古い方Bから新しい方Aへ追加されるもの)</div>
+      <div id="merge-preview-body"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="merge-cancel">キャンセル</button>
+      <button class="btn" id="merge-apply" disabled>マージして保存</button>
     </div>
   </div>
 </div>
@@ -5413,6 +5643,598 @@ async function backupAll(){
     alert('バックアップ作成に失敗しました: '+err.message);
   }
 }
+
+/* ============================================================
+   改修25: 差分マージ復元
+   現在のデータを保ったまま、選択した JSON ファイルから不足分を追加する。
+   ロジックの設計はスタンドアロン版 sharoushi_backup_merge.html と同等。
+   ============================================================ */
+
+// --- マージ状態(モーダル内) ---
+const _mergeState = {
+  fileData: null,
+  fileName: '',
+  currentSnapshot: null,
+  // 'current' = current is newer (default if current's latestTs >= file's), 'file' = file is newer
+  newerSide: 'current'
+};
+
+// 現在の state を、バックアップ JSON と同じ形式に正規化(画像も埋め込む)
+async function _buildCurrentSnapshot(){
+  const imageMap = new Map();
+  try{
+    const all = await figureStore.getAll();
+    for(const ent of all) imageMap.set(ent.id, ent.dataURL);
+  }catch(_){}
+  for(const [id, url] of figureImageCache){
+    if(!imageMap.has(id)) imageMap.set(id, url);
+  }
+  const snap = JSON.parse(JSON.stringify(state));
+  if(Array.isArray(snap.figures)){
+    for(const f of snap.figures){
+      if(imageMap.has(f.id) && !f.imageData){
+        f.imageData = imageMap.get(f.id);
+      }
+    }
+  }
+  return snap;
+}
+
+// 集計(モーダル左右の info パネル用)
+function _analyzeForMerge(data){
+  const r = {
+    questions:(data.questions||[]).length,
+    selectQuestions:(data.selectQuestions||[]).length,
+    cases:(data.cases||[]).length,
+    figures:(data.figures||[]).length,
+    figuresWithImage:(data.figures||[]).filter(f=>f&&f.imageData).length,
+    history:(data.history||[]).length,
+    selectHistory:(data.selectHistory||[]).length,
+    caseHistory:(data.caseHistory||[]).length,
+    frameAttempts:Object.keys(data.frameAttempts||{}).length,
+    bookmarks:Object.values(data.bookmarks||{}).filter(v=>v).length,
+    latestTs:0
+  };
+  const allTs=[];
+  for(const h of (data.history||[])) if(h&&h.ts) allTs.push(h.ts);
+  for(const h of (data.selectHistory||[])) if(h&&h.ts) allTs.push(h.ts);
+  for(const h of (data.caseHistory||[])) if(h&&h.ts) allTs.push(h.ts);
+  if(allTs.length) r.latestTs=Math.max(...allTs);
+  return r;
+}
+
+// 日時表示
+function _mergeFmtDate(ts){
+  if(!ts || ts<=0) return '—';
+  const d=new Date(ts);
+  return d.getFullYear()+'-'+
+    String(d.getMonth()+1).padStart(2,'0')+'-'+
+    String(d.getDate()).padStart(2,'0')+' '+
+    String(d.getHours()).padStart(2,'0')+':'+
+    String(d.getMinutes()).padStart(2,'0');
+}
+
+// マージのコアロジック(スタンドアロン版と同等。oldD = 古い方、newD = 新しい方)
+function _mergeBackupsCore(oldD, newD){
+  let result;
+  try{ result = (typeof structuredClone==='function') ? structuredClone(newD) : JSON.parse(JSON.stringify(newD)); }
+  catch(_){ result = JSON.parse(JSON.stringify(newD)); }
+
+  const stats = {
+    questions:{added:0,before:0,after:0},
+    selectQuestions:{added:0,before:0,after:0},
+    cases:{added:0,before:0,after:0},
+    figures:{added:0,before:0,after:0,imageSupplemented:0},
+    history:{added:0,before:0,after:0},
+    selectHistory:{added:0,before:0,after:0},
+    caseHistory:{added:0,before:0,after:0},
+    frameAttempts:{addedKeys:0,addedAttempts:0,beforeKeys:0,afterKeys:0},
+    bookmarks:{added:0,before:0,after:0},
+    articles:{addedPaths:0},
+    whys:{addedPaths:0},
+    conflicts:[]
+  };
+
+  // 1. ID ベースのエンティティ(questions / selectQuestions / cases)
+  for(const key of ['questions','selectQuestions','cases']){
+    const oldArr = Array.isArray(oldD[key]) ? oldD[key] : [];
+    const newArr = Array.isArray(result[key]) ? result[key] : [];
+    stats[key].before = newArr.length;
+    const newMap = new Map();
+    for(const it of newArr) if(it && it.id) newMap.set(it.id, it);
+    for(const oit of oldArr){
+      if(!oit || !oit.id) continue;
+      if(!newMap.has(oit.id)){
+        newArr.push(oit);
+        stats[key].added++;
+      }else{
+        const nit = newMap.get(oit.id);
+        let a,b;
+        try{ a=JSON.stringify(oit); b=JSON.stringify(nit); }catch(_){ a=''; b=''; }
+        if(a&&b&&a!==b){
+          stats.conflicts.push({type:key, id:oit.id, label:oit.title||oit.question||oit.law||''});
+        }
+      }
+    }
+    result[key] = newArr;
+    stats[key].after = newArr.length;
+  }
+
+  // 2. 図表(imageData 補完を伴う特別処理)
+  {
+    const oldArr = Array.isArray(oldD.figures) ? oldD.figures : [];
+    const newArr = Array.isArray(result.figures) ? result.figures : [];
+    stats.figures.before = newArr.length;
+    const newMap = new Map();
+    for(const it of newArr) if(it && it.id) newMap.set(it.id, it);
+    for(const oit of oldArr){
+      if(!oit || !oit.id) continue;
+      if(!newMap.has(oit.id)){
+        newArr.push(oit);
+        stats.figures.added++;
+      }else{
+        const nit = newMap.get(oit.id);
+        if(!nit.imageData && oit.imageData){
+          nit.imageData = oit.imageData;
+          stats.figures.imageSupplemented++;
+        }
+        const cleanO = Object.assign({}, oit); delete cleanO.imageData;
+        const cleanN = Object.assign({}, nit); delete cleanN.imageData;
+        let a,b;
+        try{ a=JSON.stringify(cleanO); b=JSON.stringify(cleanN); }catch(_){ a=''; b=''; }
+        if(a&&b&&a!==b){
+          stats.conflicts.push({type:'figures', id:oit.id, label:oit.title||''});
+        }
+      }
+    }
+    result.figures = newArr;
+    stats.figures.after = newArr.length;
+  }
+
+  // 3. 履歴(タイムスタンプ付き) — qid+ts / caseId+subLabel+ts で dedupe
+  function mergeHistArr(oldArr, newArr, keyFn){
+    if(!Array.isArray(oldArr)) return 0;
+    if(!Array.isArray(newArr)) return 0;
+    const seen = new Set();
+    for(const it of newArr) seen.add(keyFn(it));
+    let added = 0;
+    for(const it of oldArr){
+      const k = keyFn(it);
+      if(!seen.has(k)){
+        newArr.push(it);
+        seen.add(k);
+        added++;
+      }
+    }
+    return added;
+  }
+
+  result.history = Array.isArray(result.history) ? result.history : [];
+  stats.history.before = result.history.length;
+  stats.history.added = mergeHistArr(oldD.history||[], result.history, h=>`${h&&h.qid||''}|${h&&h.ts||''}`);
+  result.history.sort((a,b)=>(a&&a.ts||0)-(b&&b.ts||0));
+  stats.history.after = result.history.length;
+
+  result.selectHistory = Array.isArray(result.selectHistory) ? result.selectHistory : [];
+  stats.selectHistory.before = result.selectHistory.length;
+  stats.selectHistory.added = mergeHistArr(oldD.selectHistory||[], result.selectHistory, h=>`${h&&h.qid||''}|${h&&h.ts||''}`);
+  result.selectHistory.sort((a,b)=>(a&&a.ts||0)-(b&&b.ts||0));
+  stats.selectHistory.after = result.selectHistory.length;
+
+  result.caseHistory = Array.isArray(result.caseHistory) ? result.caseHistory : [];
+  stats.caseHistory.before = result.caseHistory.length;
+  stats.caseHistory.added = mergeHistArr(oldD.caseHistory||[], result.caseHistory,
+    h=>`${h&&h.caseId||''}|${h&&h.subLabel||''}|${h&&h.ts||''}`);
+  result.caseHistory.sort((a,b)=>(a&&a.ts||0)-(b&&b.ts||0));
+  stats.caseHistory.after = result.caseHistory.length;
+
+  // 4. frameAttempts
+  result.frameAttempts = (result.frameAttempts && typeof result.frameAttempts==='object') ? result.frameAttempts : {};
+  stats.frameAttempts.beforeKeys = Object.keys(result.frameAttempts).length;
+  const oldFA = (oldD.frameAttempts && typeof oldD.frameAttempts==='object') ? oldD.frameAttempts : {};
+  for(const k of Object.keys(oldFA)){
+    if(!(k in result.frameAttempts)){
+      try{ result.frameAttempts[k] = JSON.parse(JSON.stringify(oldFA[k])); }catch(_){ result.frameAttempts[k] = oldFA[k]; }
+      stats.frameAttempts.addedKeys++;
+    }else{
+      const oldH = Array.isArray(oldFA[k].history) ? oldFA[k].history : [];
+      const newH = Array.isArray(result.frameAttempts[k].history) ? result.frameAttempts[k].history : [];
+      const seen = new Set();
+      for(const h of newH) seen.add(`${h&&h.attemptNo||''}|${h&&h.startedAt||''}`);
+      for(const h of oldH){
+        const key = `${h&&h.attemptNo||''}|${h&&h.startedAt||''}`;
+        if(!seen.has(key)){
+          newH.push(h);
+          seen.add(key);
+          stats.frameAttempts.addedAttempts++;
+        }
+      }
+      newH.sort((a,b)=>(a&&a.startedAt||0)-(b&&b.startedAt||0));
+      result.frameAttempts[k].history = newH;
+      if(!result.frameAttempts[k].current && oldFA[k].current){
+        result.frameAttempts[k].current = oldFA[k].current;
+      }
+    }
+  }
+  stats.frameAttempts.afterKeys = Object.keys(result.frameAttempts).length;
+
+  // 5. bookmarks (論理和)
+  result.bookmarks = (result.bookmarks && typeof result.bookmarks==='object') ? result.bookmarks : {};
+  stats.bookmarks.before = Object.keys(result.bookmarks).filter(k=>result.bookmarks[k]).length;
+  const oldBm = (oldD.bookmarks && typeof oldD.bookmarks==='object') ? oldD.bookmarks : {};
+  for(const qid of Object.keys(oldBm)){
+    if(oldBm[qid] && !result.bookmarks[qid]){
+      result.bookmarks[qid] = true;
+      stats.bookmarks.added++;
+    }
+  }
+  stats.bookmarks.after = Object.keys(result.bookmarks).filter(k=>result.bookmarks[k]).length;
+
+  // 6. articles / whys (階層マージ・追加のみ)
+  function deepMergeAddOnly(oldObj, newObj, ctx){
+    if(typeof oldObj!=='object' || oldObj===null || Array.isArray(oldObj)) return;
+    if(typeof newObj!=='object' || newObj===null || Array.isArray(newObj)) return;
+    for(const k of Object.keys(oldObj)){
+      if(!(k in newObj)){
+        try{ newObj[k] = JSON.parse(JSON.stringify(oldObj[k])); }catch(_){ newObj[k] = oldObj[k]; }
+        ctx.addedPaths++;
+      }else if(
+        typeof oldObj[k]==='object' && oldObj[k]!==null && !Array.isArray(oldObj[k]) &&
+        typeof newObj[k]==='object' && newObj[k]!==null && !Array.isArray(newObj[k])
+      ){
+        deepMergeAddOnly(oldObj[k], newObj[k], ctx);
+      }
+    }
+  }
+  result.articles = (result.articles && typeof result.articles==='object') ? result.articles : {};
+  deepMergeAddOnly(oldD.articles||{}, result.articles, stats.articles);
+  result.whys = (result.whys && typeof result.whys==='object') ? result.whys : {};
+  deepMergeAddOnly(oldD.whys||{}, result.whys, stats.whys);
+
+  if(!result.whyIntro && oldD.whyIntro){
+    result.whyIntro = oldD.whyIntro;
+  }
+
+  return {merged:result, stats};
+}
+
+// モーダルを開く
+async function openMergeRestoreModal(){
+  _mergeState.fileData = null;
+  _mergeState.fileName = '';
+  _mergeState.currentSnapshot = null;
+  _mergeState.newerSide = 'current'; // 初期判定: current is newer
+
+  const modal = document.getElementById('modal-merge-restore');
+  modal.style.display = 'flex';
+
+  // 現在の状態のスナップショットを構築
+  try{
+    _mergeState.currentSnapshot = await _buildCurrentSnapshot();
+  }catch(e){
+    document.getElementById('merge-info-current').innerHTML =
+      `<div style="color:var(--accent)">現在の状態の読込に失敗: ${escapeHtml(e.message)}</div>`;
+    return;
+  }
+  renderMergeUI();
+}
+
+function closeMergeRestoreModal(){
+  document.getElementById('modal-merge-restore').style.display = 'none';
+  // 状態クリア
+  _mergeState.fileData = null;
+  _mergeState.fileName = '';
+  _mergeState.currentSnapshot = null;
+}
+
+// 現在の状態、ファイルの状態、新旧判定をUIに反映
+function renderMergeUI(){
+  const cur = _mergeState.currentSnapshot;
+  const file = _mergeState.fileData;
+  const curInfoEl = document.getElementById('merge-info-current');
+  const fileInfoEl = document.getElementById('merge-info-file');
+  const curSlot = document.getElementById('merge-slot-current');
+  const fileSlot = document.getElementById('merge-slot-file');
+  const curTag = document.getElementById('merge-tag-current');
+  const fileTag = document.getElementById('merge-tag-file');
+  const fileNameEl = document.getElementById('merge-file-name');
+  const swapBtn = document.getElementById('merge-swap');
+  const swapHint = document.getElementById('merge-swap-hint');
+  const applyBtn = document.getElementById('merge-apply');
+
+  // 現在の状態の表示
+  if(cur){
+    const a = _analyzeForMerge(cur);
+    curInfoEl.innerHTML = `
+      <table>
+        <tr><th>択一</th><td>${a.questions.toLocaleString()}問</td></tr>
+        <tr><th>選択式</th><td>${a.selectQuestions.toLocaleString()}問</td></tr>
+        <tr><th>事例</th><td>${a.cases.toLocaleString()}件</td></tr>
+        <tr><th>図表</th><td>${a.figures.toLocaleString()}件</td></tr>
+        <tr><th>解答履歴</th><td>${a.history.toLocaleString()}件</td></tr>
+        <tr><th>フレーム</th><td>${a.frameAttempts.toLocaleString()}件</td></tr>
+        <tr><th>ブックマーク</th><td>${a.bookmarks.toLocaleString()}件</td></tr>
+        <tr class="latest-row"><th>最新解答</th><td>${_mergeFmtDate(a.latestTs)}</td></tr>
+      </table>
+    `;
+  }
+
+  // ファイルの表示
+  if(file){
+    const b = _analyzeForMerge(file);
+    fileNameEl.textContent = '📄 ' + _mergeState.fileName;
+    fileInfoEl.innerHTML = `
+      <table>
+        <tr><th>択一</th><td>${b.questions.toLocaleString()}問</td></tr>
+        <tr><th>選択式</th><td>${b.selectQuestions.toLocaleString()}問</td></tr>
+        <tr><th>事例</th><td>${b.cases.toLocaleString()}件</td></tr>
+        <tr><th>図表</th><td>${b.figures.toLocaleString()}件 ${b.figuresWithImage<b.figures?'<span style="color:var(--amber);font-size:10.5px">(画像なし '+(b.figures-b.figuresWithImage)+')</span>':''}</td></tr>
+        <tr><th>解答履歴</th><td>${b.history.toLocaleString()}件</td></tr>
+        <tr><th>フレーム</th><td>${b.frameAttempts.toLocaleString()}件</td></tr>
+        <tr><th>ブックマーク</th><td>${b.bookmarks.toLocaleString()}件</td></tr>
+        <tr class="latest-row"><th>最新解答</th><td>${_mergeFmtDate(b.latestTs)}</td></tr>
+      </table>
+    `;
+    swapBtn.disabled = false;
+
+    // 自動判定: ファイルの方が最新なら自動で newer = 'file' に
+    // ただし手動で切り替えた後は維持する → 初回ロード時のみ判定
+    if(!_mergeState._autoDetected){
+      _mergeState._autoDetected = true;
+      const curA = _analyzeForMerge(cur);
+      const fileA = _analyzeForMerge(file);
+      if(fileA.latestTs > curA.latestTs && fileA.latestTs>0 && curA.latestTs>0){
+        _mergeState.newerSide = 'file';
+        swapHint.textContent = `自動判定: ファイルの方が解答日時が新しいため、ファイルを「新しい方」にしました。`;
+      }else{
+        swapHint.textContent = `自動判定: 現在のデータの方が新しいか同じです。`;
+      }
+    }
+  }else{
+    fileNameEl.textContent = '(ファイル未選択)';
+    fileInfoEl.innerHTML = '<div style="color:var(--ink-muted);font-size:12px">ファイルを選択してください</div>';
+    swapBtn.disabled = true;
+    applyBtn.disabled = true;
+    document.getElementById('merge-preview').style.display = 'none';
+    swapHint.textContent = '';
+  }
+
+  // 新旧タグの反映
+  if(_mergeState.newerSide === 'current'){
+    curSlot.classList.add('is-newer'); curSlot.classList.remove('is-older');
+    fileSlot.classList.add('is-older'); fileSlot.classList.remove('is-newer');
+    curTag.textContent = '新しい方(A・基準)';
+    fileTag.textContent = '古い方(B・差分元)';
+  }else{
+    fileSlot.classList.add('is-newer'); fileSlot.classList.remove('is-older');
+    curSlot.classList.add('is-older'); curSlot.classList.remove('is-newer');
+    fileTag.textContent = '新しい方(B・基準)';
+    curTag.textContent = '古い方(A・差分元)';
+  }
+
+  // ファイルが揃ったらプレビュー生成
+  if(cur && file){
+    renderMergePreview();
+    applyBtn.disabled = false;
+  }
+}
+
+// 差分プレビュー
+function renderMergePreview(){
+  const cur = _mergeState.currentSnapshot;
+  const file = _mergeState.fileData;
+  if(!cur || !file) return;
+
+  // newer / older 振り分け
+  const newer = (_mergeState.newerSide === 'current') ? cur : file;
+  const older = (_mergeState.newerSide === 'current') ? file : cur;
+
+  let stats;
+  try{
+    const r = _mergeBackupsCore(older, newer);
+    stats = r.stats;
+  }catch(e){
+    document.getElementById('merge-preview-body').innerHTML =
+      `<div style="color:var(--accent)">プレビュー生成エラー: ${escapeHtml(e.message)}</div>`;
+    document.getElementById('merge-preview').style.display = 'block';
+    return;
+  }
+
+  const totalAdded =
+    stats.questions.added + stats.selectQuestions.added + stats.cases.added + stats.figures.added +
+    stats.history.added + stats.selectHistory.added + stats.caseHistory.added +
+    stats.frameAttempts.addedKeys + stats.frameAttempts.addedAttempts +
+    stats.bookmarks.added + stats.articles.addedPaths + stats.whys.addedPaths +
+    stats.figures.imageSupplemented;
+
+  let html = '<table class="merge-preview-table">';
+  html += '<thead><tr><th>項目</th><th>新しい方</th><th>追加</th><th>結果</th></tr></thead><tbody>';
+  function row(label, before, added, after){
+    const cls = added>0 ? 'added' : '';
+    const plus = added>0 ? '+'+added.toLocaleString() : '0';
+    html += `<tr class="${cls}"><td>${escapeHtml(label)}</td>`+
+      `<td>${before.toLocaleString()}</td>`+
+      `<td>${plus}</td>`+
+      `<td>${after.toLocaleString()}</td></tr>`;
+  }
+  function subrow(label, value){
+    html += `<tr class="sub added"><td>${escapeHtml(label)}</td><td>—</td><td style="color:var(--green);font-weight:500">+${value.toLocaleString()}</td><td>—</td></tr>`;
+  }
+  row('択一問題', stats.questions.before, stats.questions.added, stats.questions.after);
+  row('選択式問題', stats.selectQuestions.before, stats.selectQuestions.added, stats.selectQuestions.after);
+  row('事例', stats.cases.before, stats.cases.added, stats.cases.after);
+  row('図表', stats.figures.before, stats.figures.added, stats.figures.after);
+  if(stats.figures.imageSupplemented>0){
+    subrow('└ うち画像補完(新側に欠落)', stats.figures.imageSupplemented);
+  }
+  row('解答履歴', stats.history.before, stats.history.added, stats.history.after);
+  row('選択式履歴', stats.selectHistory.before, stats.selectHistory.added, stats.selectHistory.after);
+  row('事例履歴', stats.caseHistory.before, stats.caseHistory.added, stats.caseHistory.after);
+  row('フレーム履歴(キー)', stats.frameAttempts.beforeKeys, stats.frameAttempts.addedKeys, stats.frameAttempts.afterKeys);
+  if(stats.frameAttempts.addedAttempts>0){
+    subrow('└ 既存キー内の追加挑戦記録', stats.frameAttempts.addedAttempts);
+  }
+  row('ブックマーク', stats.bookmarks.before, stats.bookmarks.added, stats.bookmarks.after);
+  if(stats.articles.addedPaths>0) subrow('条文・解説(階層)', stats.articles.addedPaths);
+  if(stats.whys.addedPaths>0) subrow('5why(階層)', stats.whys.addedPaths);
+  html += '</tbody></table>';
+
+  if(totalAdded === 0){
+    html += `<div class="merge-no-diff"><strong>差分なし</strong> — 古い方の内容はすべて新しい方に含まれています。マージしても変化はありません。</div>`;
+  }
+  if(stats.conflicts.length > 0){
+    html += `<div class="merge-conflicts"><strong>⚠️ 内容が異なる同一ID: ${stats.conflicts.length}件</strong> — 新しい方の内容を採用します。`;
+    html += '<ul>';
+    const SHOW = 15;
+    for(const c of stats.conflicts.slice(0, SHOW)){
+      const lbl = c.label ? ' — '+String(c.label).substring(0,40) : '';
+      html += `<li><code>[${escapeHtml(c.type)}]</code> ${escapeHtml(c.id)}${escapeHtml(lbl)}</li>`;
+    }
+    if(stats.conflicts.length > SHOW){
+      html += `<li style="font-style:italic">…他 ${stats.conflicts.length - SHOW}件</li>`;
+    }
+    html += '</ul></div>';
+  }
+
+  document.getElementById('merge-preview-body').innerHTML = html;
+  document.getElementById('merge-preview').style.display = 'block';
+  // applyBtn の有効化はファイルが揃ったタイミングで行う(renderMergeUI 側)
+}
+
+// ファイル選択
+function _pickMergeFile(){
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!data || typeof data!=='object' || !Array.isArray(data.questions)){
+          alert('このファイルは有効なバックアップ形式ではありません(questions 配列が見つかりません)');
+          return;
+        }
+        _mergeState.fileData = data;
+        _mergeState.fileName = f.name;
+        _mergeState._autoDetected = false; // 自動判定を再実行
+        renderMergeUI();
+      }catch(err){
+        alert('JSON の解析に失敗しました: '+err.message);
+      }
+    };
+    r.onerror = ()=> alert('ファイル読込に失敗しました');
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+// 入れ替え
+function _swapMergeSides(){
+  _mergeState.newerSide = (_mergeState.newerSide === 'current') ? 'file' : 'current';
+  document.getElementById('merge-swap-hint').textContent =
+    '手動で切替: ' + (_mergeState.newerSide==='current' ? '現在のデータが新しい方' : 'ファイルが新しい方');
+  renderMergeUI();
+}
+
+// マージを実行して state へ反映
+async function _applyMergeRestore(){
+  const cur = _mergeState.currentSnapshot;
+  const file = _mergeState.fileData;
+  if(!cur || !file){ alert('現在の状態とファイルの両方が必要です'); return }
+
+  const newer = (_mergeState.newerSide === 'current') ? cur : file;
+  const older = (_mergeState.newerSide === 'current') ? file : cur;
+
+  if(!confirm('マージを実行して、現在のデータに反映します。よろしいですか?\n\n念のため、実行前に「完全バックアップ」を取得しておくことを推奨します。')) return;
+
+  let merged;
+  try{
+    const r = _mergeBackupsCore(older, newer);
+    merged = r.merged;
+  }catch(e){
+    alert('マージ処理でエラーが発生しました: '+e.message);
+    return;
+  }
+
+  // === 図表画像を IndexedDB へ移し、state からは imageData を取り除く(restoreBackup と同じ流れ) ===
+  const figEntries = [];
+  if(Array.isArray(merged.figures)){
+    for(const fig of merged.figures){
+      if(fig.imageData){
+        figEntries.push([fig.id, fig.imageData]);
+        delete fig.imageData;
+      }
+    }
+  }
+  // 既存 IDB をクリアして書き戻し
+  try{
+    await figureStore.clear();
+    if(figEntries.length){
+      await figureStore.putMany(figEntries);
+    }
+  }catch(idbErr){
+    console.warn('IndexedDB write during merge restore failed', idbErr);
+    // 失敗時は state.figures に imageData を戻して従来動作にフォールバック
+    if(Array.isArray(merged.figures)){
+      for(const [id, url] of figEntries){
+        const fig = merged.figures.find(x=>x.id===id);
+        if(fig) fig.imageData = url;
+      }
+    }
+  }
+  // キャッシュも置き換え
+  figureImageCache.clear();
+  for(const [id, url] of figEntries){
+    figureImageCache.set(id, url);
+  }
+
+  // state 置換 + 後方互換の初期化(restoreBackup と同じガード)
+  state = merged;
+  state.questions ||= [];
+  state.history ||= [];
+  state.bookmarks ||= {};
+  state.frameAttempts ||= {};
+  state.selectQuestions ||= [];
+  state.selectHistory ||= [];
+  state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null,kindMode:'both'};
+  state.session.kindMode ||= 'both';
+  state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
+  state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
+  state.weakSession.kindMode ||= 'both';
+  state.figures ||= [];
+  state.figuresView ||= {filterSubject:'',filterFrame:''};
+  state.cases ||= [];
+  state.caseHistory ||= [];
+  state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
+  state.caseSession ||= {currentSubIdx:0, answered:{}, userAnswers:{}};
+  state.progressView ||= {mode:'subjects', subject:null, kindMode:'pastA'};
+  state.progressView.kindMode ||= 'pastA';
+  state.statsView ||= {range:'7d', kindMode:'pastA', openDates:{}};
+  state.articles ||= {};
+  state.articleView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+  state.whys ||= {};
+  state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
+  if(typeof state.whyIntro === 'undefined' || state.whyIntro === null) state.whyIntro = DEFAULT_WHY_INTRO;
+
+  saveState();
+  closeMergeRestoreModal();
+
+  // 集計を表示
+  // (renderMergePreview の stats を表示済なので、ここでは件数サマリを alert で出す)
+  const a = _analyzeForMerge(state);
+  alert(`マージ復元が完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式: ${state.selectQuestions.length}問\n■ 事例: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 解答履歴: ${state.history.length}件\n■ フレーム履歴: ${Object.keys(state.frameAttempts).length}件`);
+
+  // 画面再描画
+  try{ renderQuiz() }catch(_){}
+  try{ renderSidebar() }catch(_){}
+  // 図表タブ等が開いていれば再描画
+  try{ if(typeof renderFigures==='function') renderFigures() }catch(_){}
+}
+
+
 function restoreBackup(){
   const inp = document.createElement('input');
   inp.type='file';inp.accept='.json';
@@ -10646,11 +11468,31 @@ function init(){
   const btnDiag = document.getElementById('btn-storage-diag');
   if(btnDiag) btnDiag.addEventListener('click', runStorageDiagnostic);
 
+  // 改修25: 差分マージ復元
+  const btnMergeRestore = document.getElementById('btn-merge-restore');
+  if(btnMergeRestore) btnMergeRestore.addEventListener('click', openMergeRestoreModal);
+  const btnMergePick = document.getElementById('merge-pick-file');
+  if(btnMergePick) btnMergePick.addEventListener('click', _pickMergeFile);
+  const btnMergeSwap = document.getElementById('merge-swap');
+  if(btnMergeSwap) btnMergeSwap.addEventListener('click', _swapMergeSides);
+  const btnMergeCancel = document.getElementById('merge-cancel');
+  if(btnMergeCancel) btnMergeCancel.addEventListener('click', closeMergeRestoreModal);
+  const btnMergeApply = document.getElementById('merge-apply');
+  if(btnMergeApply) btnMergeApply.addEventListener('click', _applyMergeRestore);
+  // モーダル背景クリックで閉じる
+  const mergeModal = document.getElementById('modal-merge-restore');
+  if(mergeModal) mergeModal.addEventListener('click', e=>{
+    if(e.target === mergeModal) closeMergeRestoreModal();
+  });
+
   // Keyboard shortcuts
   document.addEventListener('keydown',e=>{
     if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
     if(document.getElementById('modal-edit').style.display==='flex') return;
     if(document.getElementById('modal-import').style.display==='flex') return;
+    // 改修25: 差分マージ復元モーダル表示中はショートカット無効
+    const mmr = document.getElementById('modal-merge-restore');
+    if(mmr && mmr.style.display==='flex') return;
     if(document.getElementById('view-quiz').style.display==='none') return;
     const k = e.key.toLowerCase();
     if(k==='1'||k==='o'){e.preventDefault();if(!state.session.answered)answerQuestion(true)}
@@ -10670,4 +11512,3 @@ init();
 </script>
 </body>
 </html>
-
