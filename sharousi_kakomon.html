@@ -2468,6 +2468,28 @@
     .gantt-h-date .gh-date-dow{font-size:9px}
     .gantt-day-cell{min-width:30px}
     .gantt-point{width:8px;height:8px}
+
+    /* 改修28-7: iPhone Safari でガントチャート内部スクロールが
+       ページ全体スクロールを完全に吸ってしまう問題の解決。
+       モバイルでは内部縦スクロールをやめ、ページ全体のスクロールに任せる。
+       横スクロールは引き続き内部スクロール(上部シャドウスクロールバーで操作可能)。 */
+    .gantt-scroll{
+      max-height:none;       /* 高さ制限を解除 → 内部縦スクロール無効化 */
+      overflow-y:visible;    /* 縦スクロールはページ全体に */
+      /* overflow-x:auto は親 .gantt-scroll{overflow:auto} から継承し、横スクロールは内部で維持 */
+    }
+    /* sticky top をモバイルでは解除(縦は内部スクロールが無いので不要)。
+       ただし sticky left は維持したいので、top:auto + left は CSS の元定義値を継続。 */
+    .gantt-h-meta,.gantt-h-slots,.gantt-h-date{
+      top:auto;              /* 縦 sticky 解除(横 sticky は left 定義により維持) */
+      position:relative;     /* sticky → relative にしてレイアウト崩れを防ぐ */
+    }
+    /* meta列・slots列の sticky left は維持(横スクロール時に左固定したい) */
+    .gantt-h-meta{position:sticky;left:0}
+    .gantt-h-slots{position:sticky;left:var(--gantt-meta-w,140px)}
+    .gantt-row-meta,.gantt-row-slots{
+      /* sticky left は元 CSS の通り維持 */
+    }
   }
 </style>
 </head>
