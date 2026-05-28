@@ -1304,6 +1304,12 @@
   .plan-done-btn:hover{background:#345e41}
   .plan-done-btn.is-done{background:var(--paper);color:var(--green);border:1px solid var(--green)}
   .plan-done-mark{font-size:11.5px;color:var(--green);font-weight:700;white-space:nowrap}
+  .plan-edit-inline{
+    background:var(--indigo-soft);color:var(--indigo);border:1px solid #c9d6e2;cursor:pointer;
+    font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:6px;
+    white-space:nowrap;transition:all .12s;
+  }
+  .plan-edit-inline:hover{background:#d3e0ec}
   .plan-empty{text-align:center;color:var(--ink-muted);font-size:13px;padding:36px 16px;line-height:1.7}
   /* 予定編集モーダル(fig-modal の枠組みを流用) */
   .plan-form{padding:8px 22px 4px;display:flex;flex-direction:column;gap:14px;max-height:62vh;overflow-y:auto}
@@ -2683,9 +2689,9 @@
     </div>
     <nav class="tabs">
       <button class="tab-btn active" data-tab="quiz">択一</button>
-      <button class="tab-btn" data-tab="select">選択式</button>
+      <button class="tab-btn" data-tab="select">選択</button>
       <button class="tab-btn" data-tab="case">事例</button>
-      <button class="tab-btn" data-tab="articles">条文・解説</button>
+      <button class="tab-btn" data-tab="articles">条解</button>
       <button class="tab-btn" data-tab="whys">5why</button>
       <button class="tab-btn" data-tab="weak">弱点</button>
       <button class="tab-btn" data-tab="figures">図表</button>
@@ -10970,6 +10976,7 @@ function renderProgressPlan(root){
         </div>
         <div class="plan-box-action">
           ${o.done?'<span class="plan-done-mark">✓ 完了</span>':''}
+          <button class="plan-edit-inline" data-planedit="1" data-subj="${escapeHtml(o.subject)}" data-fref="${escapeHtml(String(o.frameRef))}">編集</button>
           <button class="plan-done-btn ${o.done?'is-done':''}" data-plankey="${escapeHtml(o.key)}" data-date="${dateKey}">${o.done?'完了を取消':'完了にする'}</button>
         </div>
       </div>`;
@@ -10982,6 +10989,15 @@ function renderProgressPlan(root){
   // 完了ボタン
   root.querySelectorAll('.plan-done-btn').forEach(b=>{
     b.addEventListener('click', ()=> togglePlanDone(b.dataset.plankey, b.dataset.date));
+  });
+  // 改修30c: ボックスから直接「予定_編集」を開く
+  root.querySelectorAll('button[data-planedit]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const subj = b.dataset.subj;
+      const ref = b.dataset.fref;
+      if(subj && ref) openPlanEditModal(subj, ref);
+    });
   });
 }
 
@@ -11753,8 +11769,8 @@ function progressSubTabsHtml(currentKind){
   const planActive = currentTab === 'plan';
   return `<div class="prog-subtabs">
     <button class="prog-subtab ${ganttActive?'active':''}" data-tab="gantt">📊 進捗管理</button>
-    <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
     <button class="prog-subtab ${planActive?'active':''}" data-tab="plan">📅 予定</button>
+    <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
     <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastB'?'active':''}" data-tab="kind" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
     <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='forecast'?'active':''}" data-tab="kind" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
   </div>`;
