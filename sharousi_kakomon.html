@@ -2440,13 +2440,19 @@
   .gantt-h-date.weekend{background:#f0f1f4}
   .gantt-h-date.base{background:#fff7d6;border-left:2px solid #c98d00;border-right:2px solid #c98d00}
 
-  /* 科目区切り (全体モード時) */
+  /* 科目区切り (全体モード時) — 改修28b: 中身を内側 sticky で左固定 */
   .gantt-subj-divider{
     grid-column:1/-1;
-    background:linear-gradient(to right,var(--line-soft),transparent);
-    padding:6px 10px;font-weight:600;color:var(--ink-soft);font-size:12px;
+    background:var(--line-soft);
+    padding:0;font-weight:600;color:var(--ink-soft);font-size:12px;
     border-top:1px solid var(--line);border-bottom:1px solid var(--line-soft);
-    position:sticky;left:0;z-index:2;
+    position:relative;z-index:2;
+  }
+  .gantt-subj-divider .gsd-inner{
+    position:sticky;left:0;z-index:1;
+    display:inline-flex;align-items:center;
+    padding:6px 14px 6px 10px;background:var(--line-soft);
+    border-radius:0 6px 6px 0;
   }
   .gantt-subj-divider .gsd-name{font-size:13px}
   .gantt-subj-divider .gsd-count{font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:8px}
@@ -2567,27 +2573,17 @@
     .gantt-day-cell{min-width:24px}
     .gantt-point{width:8px;height:8px}
 
-    /* 改修28-7: iPhone Safari でガントチャート内部スクロールが
-       ページ全体スクロールを完全に吸ってしまう問題の解決。
-       モバイルでは内部縦スクロールをやめ、ページ全体のスクロールに任せる。
-       横スクロールは引き続き内部スクロール(上部シャドウスクロールバーで操作可能)。 */
+    /* 改修28b: モバイルでも内部縦スクロールを有効化し、日付ヘッダの縦固定(sticky top)を復活。
+       高さを 70vh に制限して、チャート上下に余白を残す(ページ全体スクロールも周囲で可能)。
+       これにより、縦スクロール時に日付ヘッダ、横スクロール時に科目/フレーム列が固定される。 */
     .gantt-scroll{
-      max-height:none;       /* 高さ制限を解除 → 内部縦スクロール無効化 */
-      overflow-y:visible;    /* 縦スクロールはページ全体に */
-      /* overflow-x:auto は親 .gantt-scroll{overflow:auto} から継承し、横スクロールは内部で維持 */
+      max-height:70vh;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
     }
-    /* sticky top をモバイルでは解除(縦は内部スクロールが無いので不要)。
-       ただし sticky left は維持したいので、top:auto + left は CSS の元定義値を継続。 */
-    .gantt-h-meta,.gantt-h-slots,.gantt-h-date{
-      top:auto;              /* 縦 sticky 解除(横 sticky は left 定義により維持) */
-      position:relative;     /* sticky → relative にしてレイアウト崩れを防ぐ */
-    }
-    /* meta列・slots列の sticky left は維持(横スクロール時に左固定したい) */
+    /* ヘッダの sticky(top:0 / left)は基本CSSの定義を維持する(上書きしない) */
     .gantt-h-meta{position:sticky;left:0}
     .gantt-h-slots{position:sticky;left:var(--gantt-meta-w,140px)}
-    .gantt-row-meta,.gantt-row-slots{
-      /* sticky left は元 CSS の通り維持 */
-    }
   }
 </style>
 </head>
@@ -11588,7 +11584,7 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
   let rowIndex = 0;
   for(const g of groups){
     // 科目区切り(grid-column: 1/-1)
-    html += `<div class="gantt-subj-divider"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></div>`;
+    html += `<div class="gantt-subj-divider"><span class="gsd-inner"><span class="gsd-name">${escapeHtml(g.subject)}</span><span class="gsd-count">${g.rows.length}フレーム</span></span></div>`;
     for(const r of g.rows){
       const dimClass = r.hasNoQ ? ' dim' : '';
       // 改修28-3 / 28-7: 「未着手」フレーム(まだ1回も完了していない & 演習中でもない)
