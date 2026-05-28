@@ -2470,20 +2470,33 @@
     .gantt-day-cell{min-width:24px}
     .gantt-point{width:8px;height:8px}
 
-    /* 改修28-8 (28-7のリベンジ): sticky 機能を維持しつつ、ページ全体スクロールも
-       両立させる正しいアプローチ。
-       - 内部スクロール (横・縦とも) を base から継承して維持
-       - sticky top (日付ヘッダ) と sticky left (科目名) を維持
-       - max-height を 78vh → 70vh に縮小し、ガントチャート外に
-         「ページ全体スクロール可能な余白」を確保 → タッチ操作が
-         内部スクロールに閉じ込められる問題を回避
-       - -webkit-overflow-scrolling:touch は base から継承
-       - 改修28-7 で追加した「sticky 解除」「overflow-y:visible」は撤回
-    */
+    /* 改修28-8: モバイルでのスクロール領域設定。 max-height を 70vh に縮小して
+       ガントチャート外に「ページ全体スクロール可能な余白」を確保。 */
     .gantt-scroll{
-      max-height:70vh;       /* 78vh → 70vh : 上下に余白を残してページスクロール可能に */
-      /* overflow:auto / -webkit-overflow-scrolling:touch は base から継承 */
+      max-height:70vh;
     }
+
+    /* 改修28-9: iPhone Safari では position:sticky;left:0 が grid 子要素に
+       対して期待通り動作しないケースがある(特に -webkit-overflow-scrolling:touch との
+       組合せ)。モバイルでは CSS の sticky left を解除し、JS の transform-based
+       擬似 sticky (_gSetupMobileStickyLeft) で代替する。
+       縦方向の sticky top はそのまま機能するので、上書きしない。 */
+    .gantt-h-meta,.gantt-row-meta,
+    .gantt-h-slots,.gantt-row-slots{
+      position:relative;
+      left:auto;
+    }
+    /* ヘッダだけは縦 sticky top を別途明示的に復活させる(上書きで position:sticky;top:0) */
+    .gantt-h-meta,.gantt-h-slots,.gantt-h-date{
+      position:sticky;
+      top:0;
+      /* left は上の指定で auto のままになる(縦のみ sticky) */
+    }
+    /* JS sticky で transform するときに、本体チャートの上に乗せるため z-index を上げる */
+    .gantt-row-meta{z-index:6;background:var(--paper)}
+    .gantt-row-slots{z-index:5;background:var(--paper)}
+    .gantt-h-meta{z-index:8;background:var(--bg)}
+    .gantt-h-slots{z-index:7;background:var(--bg)}
   }
 </style>
 </head>
@@ -10904,21 +10917,33 @@ function renderProgressGantt(root){
   // DOM 構築後にセル位置を測ってポイントを配置
   requestAnimationFrame(()=>{
     _gPaintOverlays(groups, dayDates, snap, ganttMode);
-    // 改修28-4: 8月末まで表示範囲を拡大したので、初期スクロールを基準日(=「今」)の位置に合わせる
-    // (左端の起点ばかり見えていても今日の状況が把握しづらいため)
+    // 改修28-9: 初期スクロール位置の改善。
+    // 単純に「clientWidth の 25%」だと、左の sticky 列(科目名+進捗ハコ)の幅を
+    // 考慮していないので、スマホでは sticky 列の右側が画面の30%しか残らず、
+    // 基準日が画面の右端に近すぎる位置になる。
+    // sticky 列の幅を引いた残りの表示領域(=実チャート可視幅)の中で
+    // 基準日が「左から25%」の位置に来るよう計算する。
     const scrollWrap = document.getElementById('gantt-scroll');
     if(scrollWrap){
       const nowLine = scrollWrap.querySelector('.gantt-now-line');
-      if(nowLine){
+      const tbl = document.getElementById('gantt-table');
+      if(nowLine && tbl){
         const lineLeft = parseFloat(nowLine.style.left) || 0;
-        // 基準日が画面の左から 25% の位置に来るようにスクロール
-        // (左に1週間分の過去、右に試験までの未来が見えるバランス)
-        scrollWrap.scrollLeft = Math.max(0, lineLeft - scrollWrap.clientWidth * 0.25);
+        const cs = getComputedStyle(tbl);
+        const stickyW = (parseFloat(cs.getPropertyValue('--gantt-meta-w'))||0)
+                      + (parseFloat(cs.getPropertyValue('--gantt-slots-w'))||0);
+        const visibleChartW = Math.max(80, scrollWrap.clientWidth - stickyW);
+        // 基準日が「sticky列の右端から visibleChartW*0.25 の位置」に来るように
+        // (= 画面の絶対座標で stickyW + visibleChartW*0.25 の位置)
+        const target = lineLeft - stickyW - visibleChartW * 0.25;
+        scrollWrap.scrollLeft = Math.max(0, target);
       }
     }
     // 改修28-6: 上部シャドウスクロールバーの同期セットアップ
-    // (本体スクロールバーが画面下まで遠いので、上にも横スクロールバーを置いて操作性向上)
     _gSetupShadowScrollbar();
+    // 改修28-9: モバイルで CSS sticky left が機能しない問題対策。
+    // JS の transform で疑似 sticky を実装。
+    _gSetupMobileStickyLeft();
   });
 
   // === イベント ===
@@ -11239,6 +11264,56 @@ function _gSetupShadowScrollbar(){
 
   // 初期化時点で本体スクロール位置(基準日合わせ)を上にも反映
   top.scrollLeft = body.scrollLeft;
+}
+
+/* 改修28-9: モバイルでの「科目名・進捗ハコ列」の擬似 sticky left。
+   iPhone Safari では position:sticky;left:0 が grid 子要素に対して効かない
+   ケースがある(特に内部スクロール領域の中)。CSS sticky を解除して、
+   JS で scroll イベント時に transform:translateX(scrollLeft) を適用することで
+   視覚的に左端に固定する。 */
+function _gSetupMobileStickyLeft(){
+  if(typeof window === 'undefined' || !window.matchMedia) return;
+  // モバイル判定(画面幅 640px 以下)
+  if(!window.matchMedia('(max-width:640px)').matches) return;
+
+  const scrollWrap = document.getElementById('gantt-scroll');
+  if(!scrollWrap) return;
+
+  // 重複バインド防止
+  if(scrollWrap._gMobStickyBound) return;
+  scrollWrap._gMobStickyBound = true;
+
+  // sticky 対象: メタ列(科目名)とスロット列(進捗ハコ)。ヘッダ行とデータ行両方。
+  // 注意: 動的に再描画されると要素が入れ替わるので、毎回 querySelectorAll で取り直す
+  const refresh = ()=>{
+    return {
+      metas: scrollWrap.querySelectorAll('.gantt-row-meta, .gantt-h-meta'),
+      slots: scrollWrap.querySelectorAll('.gantt-row-slots, .gantt-h-slots')
+    };
+  };
+
+  let cache = refresh();
+  let ticking = false;
+  const update = ()=>{
+    const sl = scrollWrap.scrollLeft;
+    const tx = `translateX(${sl}px)`;
+    cache.metas.forEach(el=>{ el.style.transform = tx; });
+    cache.slots.forEach(el=>{ el.style.transform = tx; });
+    ticking = false;
+  };
+  // 初期適用
+  update();
+  scrollWrap.addEventListener('scroll', ()=>{
+    if(!ticking){
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  });
+
+  // ガントチャート再描画時(科目/モード切替時)に、要素キャッシュを更新するため
+  // MutationObserver で監視 — ただし、renderProgress() で全 root を再構築するので、
+  // 次回 _gSetupMobileStickyLeft() が呼ばれて、新しい scrollWrap に対して再バインドされる。
+  // (前の scrollWrap は DOM から消えるのでガベージコレクション対象になる)
 }
 
 
