@@ -1276,39 +1276,37 @@
     font-size:12.5px;color:var(--ink-soft);padding:3px 0;
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   }
-  /* 予定ボックス */
+  /* 予定ボックス(改修30b: 低背・横並びレイアウト) */
   .plan-box{
     background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--indigo);
-    border-radius:8px;padding:13px 15px;margin-bottom:11px;box-shadow:var(--shadow);
-    transition:all .15s;
+    border-radius:7px;padding:8px 13px;margin-bottom:7px;box-shadow:var(--shadow);
+    transition:all .15s;display:flex;align-items:center;gap:12px;
   }
-  .plan-box.done{
-    border-left-color:var(--green);background:#f1f7f2;opacity:.92;
-  }
-  .plan-box.is-review{border-left-color:var(--amber)}
-  .plan-box.done.is-review{border-left-color:var(--green)}
-  .plan-box-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-  .plan-box-time{font-size:13px;font-weight:700;color:var(--ink)}
-  .plan-box-dur{font-size:11.5px;color:var(--ink-muted)}
+  .plan-box.done{background:#f1f7f2;opacity:.9}
+  .plan-box-main{flex:1;min-width:0}
+  .plan-box-action{flex-shrink:0;display:flex;align-items:center;gap:8px}
+  .plan-box-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:1px}
+  .plan-box-time{font-size:12px;font-weight:700;color:var(--ink)}
+  .plan-box-dur{font-size:11px;color:var(--ink-muted)}
   .plan-badge{
-    font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;
+    font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px;
   }
   .plan-badge.first{background:var(--indigo-soft);color:var(--indigo)}
   .plan-badge.review{background:#FBEFD3;color:#8A6308}
-  .plan-box-title{font-size:14px;font-weight:600;color:var(--ink);margin:2px 0 3px;line-height:1.4}
-  .plan-box-items{font-size:12px;color:var(--ink-muted);line-height:1.5}
-  .plan-box-foot{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .plan-subj-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .plan-box-title{font-size:13px;font-weight:600;color:var(--ink);margin:1px 0 1px;line-height:1.35;display:flex;align-items:center;gap:6px}
+  .plan-box-items{font-size:11px;color:var(--ink-muted);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .plan-done-btn{
     background:var(--green);color:#fff;border:none;cursor:pointer;
-    font-family:inherit;font-size:12.5px;font-weight:600;
-    padding:7px 16px;border-radius:6px;transition:all .12s;
+    font-family:inherit;font-size:11.5px;font-weight:600;
+    padding:6px 13px;border-radius:6px;transition:all .12s;white-space:nowrap;
   }
   .plan-done-btn:hover{background:#345e41}
   .plan-done-btn.is-done{background:var(--paper);color:var(--green);border:1px solid var(--green)}
-  .plan-done-mark{font-size:12.5px;color:var(--green);font-weight:700}
+  .plan-done-mark{font-size:11.5px;color:var(--green);font-weight:700;white-space:nowrap}
   .plan-empty{text-align:center;color:var(--ink-muted);font-size:13px;padding:36px 16px;line-height:1.7}
   /* 予定編集モーダル(fig-modal の枠組みを流用) */
-  .plan-form{display:flex;flex-direction:column;gap:14px;margin:8px 0 4px}
+  .plan-form{padding:8px 22px 4px;display:flex;flex-direction:column;gap:14px;max-height:62vh;overflow-y:auto}
   .plan-field{display:flex;flex-direction:column;gap:5px}
   .plan-field-label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
   .plan-field-hint{font-size:11px;color:var(--ink-muted)}
@@ -10687,8 +10685,21 @@ function _gTodayDate(){
 // 復習タイミングの選択肢(日後)
 const PLAN_REVIEW_OPTIONS = [1,2,3,4,5,6,7,10,14,30];
 
-// 予定キー: "科目|フレーム番号"(過去問A のみ・フレーム単位)
-function planKey(subject, frameNo){ return subject + '|' + frameNo; }
+// 予定キー: "科目|フレーム参照"。フレーム参照は数値文字列("4")または中分類キー("2.1")。
+function planKey(subject, frameRef){ return subject + '|' + frameRef; }
+
+// 予定キーを {subject, frameRef} に分解
+function splitPlanKey(key){
+  const sep = key.indexOf('|');
+  if(sep<0) return null;
+  return {subject: key.slice(0,sep), frameRef: key.slice(sep+1)};
+}
+
+// 並び順用: 親フレーム番号と中分類番号(なければ0)を返す
+function planSortIndex(subject, frameRef){
+  const r = resolveFrameRef(subject, frameRef);
+  return {fno: (r.frameNo!=null ? r.frameNo : 999), sub: (r.subFrame ? r.subFrame.n : 0)};
+}
 
 // 予定の「発生日」を列挙する。
 //   初回(開始日) + 各復習(開始日 + offset 日)。
@@ -10712,14 +10723,19 @@ function enumeratePlanOccurrences(plan){
   return out;
 }
 
-// 「主な学習内容」テキストを組み立てる(FRAME_ITEMS の先頭2項目程度)
-function planLearningContent(subject, frameNo){
+// 「主な学習内容」テキストを組み立てる
+//   親フレーム: FRAME_ITEMS の先頭2項目程度。中分類: その中分類名(タイトル)。
+function planLearningContent(subject, frameRef){
+  const r = resolveFrameRef(subject, frameRef);
+  if(r.isSubFrame){
+    return r.subFrame ? r.subFrame.t : '';
+  }
+  const frameNo = r.frameNo;
   const items = (FRAME_ITEMS[subject] && FRAME_ITEMS[subject][frameNo]) || [];
   if(items.length){
     const head = items.slice(0,2).join('／');
     return items.length>2 ? head + ' ほか' : head;
   }
-  // フォールバック: フレームタイトル
   const fr = (FRAMES[subject]||[]).find(f=>f.n===frameNo);
   return fr ? fr.t : '';
 }
@@ -10731,15 +10747,12 @@ function getPlanOccurrencesForDate(dateKey){
   for(const key of Object.keys(plans)){
     const plan = plans[key];
     if(!plan || !plan.startDate) continue;
-    const sep = key.indexOf('|');
-    if(sep<0) continue;
-    const subject = key.slice(0, sep);
-    const frameNo = parseInt(key.slice(sep+1), 10);
-    if(isNaN(frameNo)) continue;
+    const sp = splitPlanKey(key);
+    if(!sp) continue;
     for(const occ of enumeratePlanOccurrences(plan)){
       if(occ.dateKey !== dateKey) continue;
       list.push({
-        key, subject, frameNo,
+        key, subject: sp.subject, frameRef: sp.frameRef,
         startTime: plan.startTime || '',
         endTime: plan.endTime || '',
         durationMin: (plan.durationMin!=null ? plan.durationMin : null),
@@ -10749,7 +10762,7 @@ function getPlanOccurrencesForDate(dateKey){
       });
     }
   }
-  // 開始時刻昇順 → バッティング時は SUBJECTS_ORDER 順 → フレーム番号順
+  // 開始時刻昇順 → バッティング時は SUBJECTS_ORDER 順 → フレーム番号順 → 中分類番号順
   list.sort((a,b)=>{
     const ta = a.startTime || '99:99';
     const tb = b.startTime || '99:99';
@@ -10757,7 +10770,9 @@ function getPlanOccurrencesForDate(dateKey){
     const sa = SUBJECTS_ORDER.indexOf(a.subject); const sb = SUBJECTS_ORDER.indexOf(b.subject);
     const sai = sa<0?999:sa; const sbi = sb<0?999:sb;
     if(sai !== sbi) return sai - sbi;
-    return a.frameNo - b.frameNo;
+    const ia = planSortIndex(a.subject, a.frameRef); const ib = planSortIndex(b.subject, b.frameRef);
+    if(ia.fno !== ib.fno) return ia.fno - ib.fno;
+    return ia.sub - ib.sub;
   });
   return list;
 }
@@ -10769,16 +10784,13 @@ function getOverduePlanOccurrences(beforeDateKey){
   for(const key of Object.keys(plans)){
     const plan = plans[key];
     if(!plan || !plan.startDate) continue;
-    const sep = key.indexOf('|');
-    if(sep<0) continue;
-    const subject = key.slice(0, sep);
-    const frameNo = parseInt(key.slice(sep+1), 10);
-    if(isNaN(frameNo)) continue;
+    const sp = splitPlanKey(key);
+    if(!sp) continue;
     for(const occ of enumeratePlanOccurrences(plan)){
       if(occ.dateKey >= beforeDateKey) continue; // 当日以降は遅れではない
       const done = !!(plan.done && plan.done[occ.dateKey]);
       if(done) continue;
-      out.push({key, subject, frameNo, dateKey:occ.dateKey, kind:occ.kind, offset:occ.offset, startTime: plan.startTime||''});
+      out.push({key, subject: sp.subject, frameRef: sp.frameRef, dateKey:occ.dateKey, kind:occ.kind, offset:occ.offset, startTime: plan.startTime||''});
     }
   }
   out.sort((a,b)=> a.dateKey < b.dateKey ? 1 : (a.dateKey > b.dateKey ? -1 : 0));
@@ -10806,14 +10818,14 @@ function planDateLabel(dateKey){
 
 /* ===== 予定編集モーダル ===== */
 let _planEditKey = null;
-function openPlanEditModal(subject, frameNo){
-  _planEditKey = planKey(subject, frameNo);
+function openPlanEditModal(subject, frameRef){
+  // frameRef は数値・数字文字列("4")または中分類キー("2.1")
+  _planEditKey = planKey(subject, frameRef);
   const plan = (state.studyPlans && state.studyPlans[_planEditKey]) || {};
-  const fr = (FRAMES[subject]||[]).find(f=>f.n===frameNo);
   const titleEl = document.getElementById('plan-edit-title');
   const descEl = document.getElementById('plan-edit-desc');
   if(titleEl) titleEl.textContent = '学習予定の設定';
-  if(descEl) descEl.textContent = `${subject} F${frameNo}　${fr?fr.t:''}`;
+  if(descEl) descEl.textContent = `${subject}　${frameOrSubFrameLabel(subject, frameRef)}`;
   // 既存値を流し込み(なければ初期値: 開始日=明日)
   const def = _gDateKey(_gAddDays(_gTodayDate(), 1));
   document.getElementById('plan-input-startdate').value = plan.startDate || def;
@@ -10914,9 +10926,11 @@ function renderProgressPlan(root){
       <div class="pos-title">⚠ 遅れている予定: ${overdue.length}件(今日より前で未完了)</div>`;
     for(const o of shown){
       const lbl = o.kind==='review' ? `復習(${o.offset}日後)` : '初回';
+      const col = statsSubjectColor(o.subject);
       html += `<div class="plan-overdue-item">
         <span style="color:var(--accent);font-weight:600">${planDateLabel(o.dateKey)}</span>
-        ${escapeHtml(o.subject)} F${o.frameNo} ${escapeHtml((FRAMES[o.subject]||[]).find(f=>f.n===o.frameNo)?.t||'')}
+        <span class="plan-subj-dot" style="background:${col}"></span>
+        ${escapeHtml(o.subject)}　${escapeHtml(frameOrSubFrameLabel(o.subject, o.frameRef))}
         <span class="plan-badge ${o.kind==='review'?'review':'first'}">${lbl}</span>
       </div>`;
     }
@@ -10935,23 +10949,28 @@ function renderProgressPlan(root){
     html += `<div style="font-size:12.5px;color:var(--ink-muted);margin-bottom:10px">この日の予定: ${occs.length}件　完了: ${doneCount}/${occs.length}</div>`;
     for(let i=0;i<occs.length;i++){
       const o = occs[i];
-      const fr = (FRAMES[o.subject]||[]).find(f=>f.n===o.frameNo);
-      const frTitle = fr ? fr.t : '';
-      const content = planLearningContent(o.subject, o.frameNo);
+      const label = frameOrSubFrameLabel(o.subject, o.frameRef);  // "F4 標準報酬" / "F2_1 国民健康保険法"
+      const content = planLearningContent(o.subject, o.frameRef);
+      const subjCol = statsSubjectColor(o.subject);  // 改修30b: 科目カラー
       const timeStr = o.startTime ? (o.endTime ? `${o.startTime}〜${o.endTime}` : `${o.startTime}〜`) : '時刻未設定';
       const durStr = (o.durationMin!=null && o.durationMin>0) ? `<span class="plan-box-dur">(見込み ${o.durationMin}分)</span>` : '';
       const badge = o.kind==='review'
         ? `<span class="plan-badge review">復習 ${o.offset}日後</span>`
         : `<span class="plan-badge first">初回</span>`;
-      html += `<div class="plan-box ${o.done?'done':''} ${o.kind==='review'?'is-review':''}">
-        <div class="plan-box-top">
-          <span class="plan-box-time">🕒 ${timeStr}</span>${durStr}${badge}
+      // 中分類名は label に含まれるため、content が label 末尾と重複する場合は省略
+      const showContent = content && !label.endsWith(content);
+      const itemsHtml = showContent ? `<div class="plan-box-items">${escapeHtml(content)}</div>` : '';
+      html += `<div class="plan-box ${o.done?'done':''}" style="border-left-color:${subjCol}">
+        <div class="plan-box-main">
+          <div class="plan-box-top">
+            <span class="plan-box-time">🕒 ${timeStr}</span>${durStr}${badge}
+          </div>
+          <div class="plan-box-title"><span class="plan-subj-dot" style="background:${subjCol}"></span>${escapeHtml(o.subject)}　${escapeHtml(label)}</div>
+          ${itemsHtml}
         </div>
-        <div class="plan-box-title">${escapeHtml(o.subject)} F${o.frameNo}　${escapeHtml(frTitle)}</div>
-        <div class="plan-box-items">${escapeHtml(content)}</div>
-        <div class="plan-box-foot">
+        <div class="plan-box-action">
+          ${o.done?'<span class="plan-done-mark">✓ 完了</span>':''}
           <button class="plan-done-btn ${o.done?'is-done':''}" data-plankey="${escapeHtml(o.key)}" data-date="${dateKey}">${o.done?'完了を取消':'完了にする'}</button>
-          ${o.done?'<span class="plan-done-mark">✓ 完了済み</span>':''}
         </div>
       </div>`;
     }
@@ -11994,12 +12013,13 @@ function buildProgressFrameRow(opts){
   const kindIcon = progressKindBadge(kindModeVal);
   // 改修: フレーム中分類項目の併記
   const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
-  // 改修30: 過去問A のフレームには「予定_編集」ボタンを表示
+  // 改修30: 過去問A のフレーム/中分類には「予定_編集」ボタンを表示
   let planBtn = '';
   if(opts.planTarget){
-    const pk = planKey(opts.planTarget.subject, opts.planTarget.frameNo);
+    const ref = opts.planTarget.frameRef;
+    const pk = planKey(opts.planTarget.subject, ref);
     const hasPlan = !!(state.studyPlans && state.studyPlans[pk]);
-    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(opts.planTarget.subject)}" data-fno="${opts.planTarget.frameNo}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
+    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(opts.planTarget.subject)}" data-fref="${escapeHtml(String(ref))}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
   }
   return `<div class="prog-frame">
     <div class="pf-head">
@@ -12039,17 +12059,11 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
     : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
-  // 改修30: 過去問A の親フレームにも「予定_編集」ボタン(フレーム単位で予定設定)
-  let planBtn = '';
-  if(kindMode==='pastA'){
-    const pk = planKey(subject, fr.n);
-    const hasPlan = !!(state.studyPlans && state.studyPlans[pk]);
-    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
-  }
+  // 改修30: 中分類を持つ親フレーム自体には予定ボタンを置かない(予定は中分類側で設定)
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span>${itemsHtml}</div>
-      <div style="display:flex;align-items:center;gap:8px">${planBtn}<div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div></div>
+      <div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div>
     </div>
     <div class="pf-status" style="font-size:12px;color:var(--ink-muted)">${progressLine}　→ クリックで中分類別の進捗を表示</div>
   </div>`;
@@ -12107,7 +12121,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
       lawBreakdown: lawBreakdown,
       dataFno: fr.n,
       itemsLabel: frItemsLabel,  // 改修
-      planTarget: (kindMode==='pastA') ? {subject:subject, frameNo:fr.n} : null  // 改修30: 過去問A のみ予定ボタン
+      planTarget: (kindMode==='pastA') ? {subject:subject, frameRef:fr.n} : null  // 改修30: 過去問A のみ予定ボタン
     });
   }
   if(shownFrames===0 && !progressKindShowAll(kindMode)){
@@ -12156,8 +12170,8 @@ function renderProgressFrames(root, summary, subject, kindMode){
     b.addEventListener('click', (e)=>{
       e.stopPropagation();
       const subj = b.dataset.subj;
-      const fno = parseInt(b.dataset.fno, 10);
-      if(subj && !isNaN(fno)) openPlanEditModal(subj, fno);
+      const ref = b.dataset.fref;  // "4" または "2.1"
+      if(subj && ref) openPlanEditModal(subj, ref);
     });
   });
 }
@@ -12211,7 +12225,8 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       subjectVal: subject,
       kindModeVal: kindMode,
       lawBreakdown: '',
-      dataFno: sf.key
+      dataFno: sf.key,
+      planTarget: (kindMode==='pastA') ? {subject:subject, frameRef:sf.key} : null  // 改修30: 中分類単位で予定設定(過去問Aのみ)
     });
   }
   if(shownSubs===0 && !progressKindShowAll(kindMode)){
@@ -12239,6 +12254,15 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       const fno = /^\d+$/.test(fnoStr) ? parseInt(fnoStr,10) : fnoStr;
       const km = b.dataset.kindmode || 'past';
       startFrameAttempt(subj, fno, km);
+    });
+  });
+  // 改修30: 中分類の「予定_編集」ボタン
+  root.querySelectorAll('button[data-planedit]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const subj = b.dataset.subj;
+      const ref = b.dataset.fref;
+      if(subj && ref) openPlanEditModal(subj, ref);
     });
   });
 }
