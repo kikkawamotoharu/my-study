@@ -1238,6 +1238,99 @@
   }
   .prog-subtab.active .pst-count{color:var(--green)}
 
+  /* ===== 改修30: 勉強の予定(予定タブ) ===== */
+  /* フレーム行の「予定_編集」ボタン */
+  .plan-edit-btn{
+    background:var(--indigo-soft);color:var(--indigo);border:1px solid #c9d6e2;
+    cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:600;
+    padding:5px 10px;border-radius:6px;white-space:nowrap;transition:all .12s;
+    margin-left:6px;
+  }
+  .plan-edit-btn:hover{background:#d3e0ec}
+  .plan-edit-btn.has-plan{background:var(--green);color:#fff;border-color:var(--green)}
+  .plan-edit-btn.has-plan:hover{background:#345e41}
+  /* 予定タブ ツールバー(日付ナビ) */
+  .plan-toolbar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin:6px 0 14px;padding:12px;background:var(--line-soft);border-radius:8px;
+  }
+  .plan-daybtn{
+    background:var(--paper);border:1px solid var(--line);cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--ink-soft);font-weight:600;
+    padding:8px 14px;border-radius:6px;transition:all .12s;
+  }
+  .plan-daybtn:hover{background:var(--indigo-soft);color:var(--indigo)}
+  .plan-daybtn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+  .plan-toolbar input[type=date]{
+    padding:7px 10px;border:1px solid var(--line);border-radius:6px;
+    font-family:inherit;font-size:13px;background:var(--paper);color:var(--ink);
+  }
+  .plan-date-label{font-size:14px;font-weight:700;color:var(--ink);margin-left:auto}
+  /* 遅れサマリー */
+  .plan-overdue-summary{
+    background:var(--accent-soft);border:1px solid #e6bcb5;border-radius:8px;
+    padding:12px 14px;margin-bottom:14px;
+  }
+  .plan-overdue-summary .pos-title{font-weight:700;color:var(--accent);font-size:13px;margin-bottom:6px}
+  .plan-overdue-item{
+    font-size:12.5px;color:var(--ink-soft);padding:3px 0;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  /* 予定ボックス */
+  .plan-box{
+    background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--indigo);
+    border-radius:8px;padding:13px 15px;margin-bottom:11px;box-shadow:var(--shadow);
+    transition:all .15s;
+  }
+  .plan-box.done{
+    border-left-color:var(--green);background:#f1f7f2;opacity:.92;
+  }
+  .plan-box.is-review{border-left-color:var(--amber)}
+  .plan-box.done.is-review{border-left-color:var(--green)}
+  .plan-box-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .plan-box-time{font-size:13px;font-weight:700;color:var(--ink)}
+  .plan-box-dur{font-size:11.5px;color:var(--ink-muted)}
+  .plan-badge{
+    font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;
+  }
+  .plan-badge.first{background:var(--indigo-soft);color:var(--indigo)}
+  .plan-badge.review{background:#FBEFD3;color:#8A6308}
+  .plan-box-title{font-size:14px;font-weight:600;color:var(--ink);margin:2px 0 3px;line-height:1.4}
+  .plan-box-items{font-size:12px;color:var(--ink-muted);line-height:1.5}
+  .plan-box-foot{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .plan-done-btn{
+    background:var(--green);color:#fff;border:none;cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:600;
+    padding:7px 16px;border-radius:6px;transition:all .12s;
+  }
+  .plan-done-btn:hover{background:#345e41}
+  .plan-done-btn.is-done{background:var(--paper);color:var(--green);border:1px solid var(--green)}
+  .plan-done-mark{font-size:12.5px;color:var(--green);font-weight:700}
+  .plan-empty{text-align:center;color:var(--ink-muted);font-size:13px;padding:36px 16px;line-height:1.7}
+  /* 予定編集モーダル(fig-modal の枠組みを流用) */
+  .plan-form{display:flex;flex-direction:column;gap:14px;margin:8px 0 4px}
+  .plan-field{display:flex;flex-direction:column;gap:5px}
+  .plan-field-label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  .plan-field-hint{font-size:11px;color:var(--ink-muted)}
+  .plan-field input[type=date],.plan-field input[type=time],.plan-field input[type=number]{
+    padding:9px 11px;border:1px solid var(--line);border-radius:6px;
+    font-family:inherit;font-size:14px;background:var(--paper);color:var(--ink);
+  }
+  .plan-time-row{display:flex;gap:10px;align-items:flex-end}
+  .plan-time-row > div{flex:1;display:flex;flex-direction:column;gap:5px}
+  .plan-review-grid{display:flex;flex-wrap:wrap;gap:7px}
+  .plan-review-chip{
+    border:1px solid var(--line);border-radius:16px;padding:6px 13px;cursor:pointer;
+    font-size:12.5px;color:var(--ink-soft);background:var(--paper);transition:all .12s;
+    user-select:none;
+  }
+  .plan-review-chip:hover{border-color:var(--amber)}
+  .plan-review-chip.sel{background:var(--amber);color:#fff;border-color:var(--amber);font-weight:600}
+  @media(max-width:640px){
+    .plan-time-row{flex-direction:column;align-items:stretch}
+    .plan-date-label{margin-left:0;width:100%}
+  }
+
   /* 編集モーダル内 予想問フィールド */
   .m-kind-row{display:flex;gap:10px;margin-top:10px;align-items:flex-end}
   .m-kind-row select,.m-kind-row input{padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:13px;background:var(--paper);color:var(--ink);width:100%}
@@ -2470,33 +2563,27 @@
     .gantt-day-cell{min-width:24px}
     .gantt-point{width:8px;height:8px}
 
-    /* 改修28-8: モバイルでのスクロール領域設定。 max-height を 70vh に縮小して
-       ガントチャート外に「ページ全体スクロール可能な余白」を確保。 */
+    /* 改修28-7: iPhone Safari でガントチャート内部スクロールが
+       ページ全体スクロールを完全に吸ってしまう問題の解決。
+       モバイルでは内部縦スクロールをやめ、ページ全体のスクロールに任せる。
+       横スクロールは引き続き内部スクロール(上部シャドウスクロールバーで操作可能)。 */
     .gantt-scroll{
-      max-height:70vh;
+      max-height:none;       /* 高さ制限を解除 → 内部縦スクロール無効化 */
+      overflow-y:visible;    /* 縦スクロールはページ全体に */
+      /* overflow-x:auto は親 .gantt-scroll{overflow:auto} から継承し、横スクロールは内部で維持 */
     }
-
-    /* 改修28-9: iPhone Safari では position:sticky;left:0 が grid 子要素に
-       対して期待通り動作しないケースがある(特に -webkit-overflow-scrolling:touch との
-       組合せ)。モバイルでは CSS の sticky left を解除し、JS の transform-based
-       擬似 sticky (_gSetupMobileStickyLeft) で代替する。
-       縦方向の sticky top はそのまま機能するので、上書きしない。 */
-    .gantt-h-meta,.gantt-row-meta,
-    .gantt-h-slots,.gantt-row-slots{
-      position:relative;
-      left:auto;
-    }
-    /* ヘッダだけは縦 sticky top を別途明示的に復活させる(上書きで position:sticky;top:0) */
+    /* sticky top をモバイルでは解除(縦は内部スクロールが無いので不要)。
+       ただし sticky left は維持したいので、top:auto + left は CSS の元定義値を継続。 */
     .gantt-h-meta,.gantt-h-slots,.gantt-h-date{
-      position:sticky;
-      top:0;
-      /* left は上の指定で auto のままになる(縦のみ sticky) */
+      top:auto;              /* 縦 sticky 解除(横 sticky は left 定義により維持) */
+      position:relative;     /* sticky → relative にしてレイアウト崩れを防ぐ */
     }
-    /* JS sticky で transform するときに、本体チャートの上に乗せるため z-index を上げる */
-    .gantt-row-meta{z-index:6;background:var(--paper)}
-    .gantt-row-slots{z-index:5;background:var(--paper)}
-    .gantt-h-meta{z-index:8;background:var(--bg)}
-    .gantt-h-slots{z-index:7;background:var(--bg)}
+    /* meta列・slots列の sticky left は維持(横スクロール時に左固定したい) */
+    .gantt-h-meta{position:sticky;left:0}
+    .gantt-h-slots{position:sticky;left:var(--gantt-meta-w,140px)}
+    .gantt-row-meta,.gantt-row-slots{
+      /* sticky left は元 CSS の通り維持 */
+    }
   }
 </style>
 </head>
@@ -3171,6 +3258,54 @@
     <div class="fig-picker-foot" style="gap:8px">
       <button class="btn ghost" id="fig-meta-cancel">キャンセル</button>
       <button class="btn" id="fig-meta-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 改修30: 予定編集モーダル(過去問A フレームの学習予定を設定)===== -->
+<div id="plan-edit-modal" class="fig-modal" style="display:none">
+  <div class="fig-modal-overlay"></div>
+  <div class="fig-picker-content">
+    <button class="fig-modal-close" id="plan-edit-close">×</button>
+    <h3 class="fig-picker-title" id="plan-edit-title">学習予定の設定</h3>
+    <div class="fig-picker-desc" id="plan-edit-desc"></div>
+    <div class="plan-form">
+      <div class="plan-field">
+        <span class="plan-field-label">① 学習を開始する日</span>
+        <input type="date" id="plan-input-startdate">
+        <span class="plan-field-hint">この日に「初回」の予定ボックスが並びます</span>
+      </div>
+      <div class="plan-field">
+        <span class="plan-field-label">② 学習する時間帯</span>
+        <div class="plan-time-row">
+          <div>
+            <span class="plan-field-hint">開始時刻</span>
+            <input type="time" id="plan-input-starttime">
+          </div>
+          <div>
+            <span class="plan-field-hint">終了時刻</span>
+            <input type="time" id="plan-input-endtime">
+          </div>
+        </div>
+        <span class="plan-field-hint">開始時刻の早い順に、その日の予定が上から並びます</span>
+      </div>
+      <div class="plan-field">
+        <span class="plan-field-label">③ 学習に要する時間の見込み(分)</span>
+        <input type="number" id="plan-input-duration" min="0" step="5" placeholder="例: 20">
+        <span class="plan-field-hint">数字のみ。ボリュームの目安として表示されます</span>
+      </div>
+      <div class="plan-field">
+        <span class="plan-field-label">④ 復習のタイミング(複数選択可)</span>
+        <div class="plan-review-grid" id="plan-review-grid"></div>
+        <span class="plan-field-hint">開始日からの経過日数。選んだ日数後にも「復習」の予定ボックスが自動で並びます</span>
+      </div>
+    </div>
+    <div class="fig-picker-foot" style="gap:8px;justify-content:space-between">
+      <button class="btn ghost" id="plan-edit-delete" style="color:var(--accent)">予定を削除</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" id="plan-edit-cancel">キャンセル</button>
+        <button class="btn" id="plan-edit-save">保存</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4330,6 +4465,10 @@ function loadState(){
       // 図表機能の追加 (後方互換)
       s.figures ||= [];
       s.figuresView ||= {filterSubject:'',filterFrame:''};
+      // 改修30: 勉強の予定機能の追加 (後方互換)
+      //   studyPlans: { "科目|フレーム番号": {startDate, startTime, endTime, durationMin, reviewOffsets:[], done:{}} }
+      s.studyPlans ||= {};
+      s.planView ||= {date:null};
       // 事例問題機能の追加 (後方互換)
       if(!s.cases || !s.cases.length){
         s.cases = SAMPLE_CASES.slice();
@@ -4493,6 +4632,8 @@ function loadState(){
     weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'},
     figures: [],
     figuresView: {filterSubject:'',filterFrame:''},
+    studyPlans: {},
+    planView: {date:null},
     cases: SAMPLE_CASES.slice(),
     caseHistory: [],
     caseView: {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''},
@@ -5999,6 +6140,7 @@ function _mergeBackupsCore(oldD, newD){
     bookmarks:{added:0,before:0,after:0},
     articles:{addedPaths:0},
     whys:{addedPaths:0},
+    studyPlans:{addedPaths:0},
     conflicts:[]
   };
 
@@ -6157,6 +6299,9 @@ function _mergeBackupsCore(oldD, newD){
   deepMergeAddOnly(oldD.articles||{}, result.articles, stats.articles);
   result.whys = (result.whys && typeof result.whys==='object') ? result.whys : {};
   deepMergeAddOnly(oldD.whys||{}, result.whys, stats.whys);
+  // 改修30: 勉強の予定も add-only マージ(現在の予定・完了記録を失わない)
+  result.studyPlans = (result.studyPlans && typeof result.studyPlans==='object') ? result.studyPlans : {};
+  deepMergeAddOnly(oldD.studyPlans||{}, result.studyPlans, stats.studyPlans);
 
   if(!result.whyIntro && oldD.whyIntro){
     result.whyIntro = oldD.whyIntro;
@@ -6473,6 +6618,8 @@ async function _applyMergeRestore(){
   state.weakSession.kindMode ||= 'both';
   state.figures ||= [];
   state.figuresView ||= {filterSubject:'',filterFrame:''};
+  state.studyPlans ||= {};
+  state.planView ||= {date:null};
   state.cases ||= [];
   state.caseHistory ||= [];
   state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
@@ -6562,6 +6709,8 @@ function restoreBackup(){
         state.weakSession.kindMode ||= 'both';
         state.figures ||= [];
         state.figuresView ||= {filterSubject:'',filterFrame:''};
+        state.studyPlans ||= {};
+        state.planView ||= {date:null};
         state.cases ||= [];
         state.caseHistory ||= [];
         state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
@@ -10434,11 +10583,17 @@ function renderProgress(){
   // 旧 'past' は 'pastA' に正規化(loadState で migrate されているが念のため)
   if(state.progressView.kindMode === 'past') state.progressView.kindMode = 'pastA';
   // 改修28: tab(='gantt'|'kind')の初期化。既定は kind(従来動作)
+  // 改修30: 'plan'(勉強の予定)を追加
   state.progressView.tab ||= 'kind';
-  if(state.progressView.tab !== 'gantt' && state.progressView.tab !== 'kind') state.progressView.tab = 'kind';
+  if(!['gantt','kind','plan'].includes(state.progressView.tab)) state.progressView.tab = 'kind';
   // ガントチャートタブが選択されていれば、そちらを描画して終了
   if(state.progressView.tab === 'gantt'){
     renderProgressGantt(root);
+    return;
+  }
+  // 改修30: 予定タブが選択されていれば、そちらを描画して終了
+  if(state.progressView.tab === 'plan'){
+    renderProgressPlan(root);
     return;
   }
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
@@ -10519,6 +10674,316 @@ function _gDayDiff(a, b){
 function _gTodayDate(){
   const n = new Date();
   return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+/* ============================================================
+   改修30: 勉強の予定(予定タブ)
+   - 過去問A のフレームごとに「開始日・時間帯・所要時間・復習サイクル」を設定
+   - 設定に基づき、指定日に学習すべきフレームを開始時刻順のボックスで表示
+   - 各ボックスに完了ボタン(完了で色が変わる)
+   - データは state.studyPlans に保存(画像なし=localStorage 軽量)
+   ============================================================ */
+
+// 復習タイミングの選択肢(日後)
+const PLAN_REVIEW_OPTIONS = [1,2,3,4,5,6,7,10,14,30];
+
+// 予定キー: "科目|フレーム番号"(過去問A のみ・フレーム単位)
+function planKey(subject, frameNo){ return subject + '|' + frameNo; }
+
+// 予定の「発生日」を列挙する。
+//   初回(開始日) + 各復習(開始日 + offset 日)。
+//   返り値: [{dateKey, kind:'first'|'review', offset}]
+function enumeratePlanOccurrences(plan){
+  const out = [];
+  if(!plan || !plan.startDate) return out;
+  const base = _gParseKey(plan.startDate);
+  if(!base) return out;
+  out.push({dateKey: plan.startDate, kind:'first', offset:0});
+  const offsets = Array.isArray(plan.reviewOffsets) ? plan.reviewOffsets : [];
+  const seen = new Set([plan.startDate]);
+  for(const off of offsets){
+    const n = parseInt(off,10);
+    if(isNaN(n) || n<=0) continue;
+    const dk = _gDateKey(_gAddDays(base, n));
+    if(seen.has(dk)) continue; // 同日重複は除外
+    seen.add(dk);
+    out.push({dateKey: dk, kind:'review', offset:n});
+  }
+  return out;
+}
+
+// 「主な学習内容」テキストを組み立てる(FRAME_ITEMS の先頭2項目程度)
+function planLearningContent(subject, frameNo){
+  const items = (FRAME_ITEMS[subject] && FRAME_ITEMS[subject][frameNo]) || [];
+  if(items.length){
+    const head = items.slice(0,2).join('／');
+    return items.length>2 ? head + ' ほか' : head;
+  }
+  // フォールバック: フレームタイトル
+  const fr = (FRAMES[subject]||[]).find(f=>f.n===frameNo);
+  return fr ? fr.t : '';
+}
+
+// 指定日(dateKey)に発生する予定オカレンスを、開始時刻順 → 科目/フレーム順 で返す
+function getPlanOccurrencesForDate(dateKey){
+  const list = [];
+  const plans = state.studyPlans || {};
+  for(const key of Object.keys(plans)){
+    const plan = plans[key];
+    if(!plan || !plan.startDate) continue;
+    const sep = key.indexOf('|');
+    if(sep<0) continue;
+    const subject = key.slice(0, sep);
+    const frameNo = parseInt(key.slice(sep+1), 10);
+    if(isNaN(frameNo)) continue;
+    for(const occ of enumeratePlanOccurrences(plan)){
+      if(occ.dateKey !== dateKey) continue;
+      list.push({
+        key, subject, frameNo,
+        startTime: plan.startTime || '',
+        endTime: plan.endTime || '',
+        durationMin: (plan.durationMin!=null ? plan.durationMin : null),
+        kind: occ.kind,
+        offset: occ.offset,
+        done: !!(plan.done && plan.done[dateKey])
+      });
+    }
+  }
+  // 開始時刻昇順 → バッティング時は SUBJECTS_ORDER 順 → フレーム番号順
+  list.sort((a,b)=>{
+    const ta = a.startTime || '99:99';
+    const tb = b.startTime || '99:99';
+    if(ta !== tb) return ta < tb ? -1 : 1;
+    const sa = SUBJECTS_ORDER.indexOf(a.subject); const sb = SUBJECTS_ORDER.indexOf(b.subject);
+    const sai = sa<0?999:sa; const sbi = sb<0?999:sb;
+    if(sai !== sbi) return sai - sbi;
+    return a.frameNo - b.frameNo;
+  });
+  return list;
+}
+
+// 指定日より前で、未完了の予定オカレンスを列挙(遅れの把握用)。新しい順。
+function getOverduePlanOccurrences(beforeDateKey){
+  const out = [];
+  const plans = state.studyPlans || {};
+  for(const key of Object.keys(plans)){
+    const plan = plans[key];
+    if(!plan || !plan.startDate) continue;
+    const sep = key.indexOf('|');
+    if(sep<0) continue;
+    const subject = key.slice(0, sep);
+    const frameNo = parseInt(key.slice(sep+1), 10);
+    if(isNaN(frameNo)) continue;
+    for(const occ of enumeratePlanOccurrences(plan)){
+      if(occ.dateKey >= beforeDateKey) continue; // 当日以降は遅れではない
+      const done = !!(plan.done && plan.done[occ.dateKey]);
+      if(done) continue;
+      out.push({key, subject, frameNo, dateKey:occ.dateKey, kind:occ.kind, offset:occ.offset, startTime: plan.startTime||''});
+    }
+  }
+  out.sort((a,b)=> a.dateKey < b.dateKey ? 1 : (a.dateKey > b.dateKey ? -1 : 0));
+  return out;
+}
+
+// 予定ボックスの完了トグル
+function togglePlanDone(key, dateKey){
+  const plan = state.studyPlans && state.studyPlans[key];
+  if(!plan) return;
+  plan.done ||= {};
+  if(plan.done[dateKey]){ delete plan.done[dateKey]; }
+  else { plan.done[dateKey] = true; }
+  saveState();
+  renderProgress();
+}
+
+// 日付の和名ラベル(例: 2026/5/29(金))
+function planDateLabel(dateKey){
+  const d = _gParseKey(dateKey);
+  if(!d) return dateKey;
+  const w = ['日','月','火','水','木','金','土'][d.getDay()];
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}(${w})`;
+}
+
+/* ===== 予定編集モーダル ===== */
+let _planEditKey = null;
+function openPlanEditModal(subject, frameNo){
+  _planEditKey = planKey(subject, frameNo);
+  const plan = (state.studyPlans && state.studyPlans[_planEditKey]) || {};
+  const fr = (FRAMES[subject]||[]).find(f=>f.n===frameNo);
+  const titleEl = document.getElementById('plan-edit-title');
+  const descEl = document.getElementById('plan-edit-desc');
+  if(titleEl) titleEl.textContent = '学習予定の設定';
+  if(descEl) descEl.textContent = `${subject} F${frameNo}　${fr?fr.t:''}`;
+  // 既存値を流し込み(なければ初期値: 開始日=明日)
+  const def = _gDateKey(_gAddDays(_gTodayDate(), 1));
+  document.getElementById('plan-input-startdate').value = plan.startDate || def;
+  document.getElementById('plan-input-starttime').value = plan.startTime || '';
+  document.getElementById('plan-input-endtime').value = plan.endTime || '';
+  document.getElementById('plan-input-duration').value = (plan.durationMin!=null ? plan.durationMin : '');
+  // 復習チップ生成
+  const grid = document.getElementById('plan-review-grid');
+  const sel = new Set((plan.reviewOffsets||[]).map(n=>parseInt(n,10)));
+  grid.innerHTML = PLAN_REVIEW_OPTIONS.map(n=>
+    `<span class="plan-review-chip ${sel.has(n)?'sel':''}" data-off="${n}">${n}日後</span>`
+  ).join('');
+  grid.querySelectorAll('.plan-review-chip').forEach(c=>{
+    c.addEventListener('click', ()=> c.classList.toggle('sel'));
+  });
+  // 削除ボタンは既存予定があるときのみ
+  const delBtn = document.getElementById('plan-edit-delete');
+  if(delBtn) delBtn.style.display = (state.studyPlans && state.studyPlans[_planEditKey]) ? '' : 'none';
+  document.getElementById('plan-edit-modal').style.display = 'flex';
+}
+function closePlanEditModal(){
+  document.getElementById('plan-edit-modal').style.display = 'none';
+  _planEditKey = null;
+}
+function savePlanEdit(){
+  if(!_planEditKey) { closePlanEditModal(); return; }
+  const startDate = document.getElementById('plan-input-startdate').value;
+  if(!startDate){ alert('学習を開始する日を指定してください'); return; }
+  const startTime = document.getElementById('plan-input-starttime').value || '';
+  const endTime = document.getElementById('plan-input-endtime').value || '';
+  const durRaw = document.getElementById('plan-input-duration').value;
+  const durationMin = (durRaw==='' || durRaw==null) ? null : Math.max(0, parseInt(durRaw,10) || 0);
+  const offsets = [...document.querySelectorAll('#plan-review-grid .plan-review-chip.sel')]
+    .map(c=>parseInt(c.dataset.off,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+  // 既存の done(完了履歴)は保持する
+  const prev = (state.studyPlans && state.studyPlans[_planEditKey]) || {};
+  state.studyPlans ||= {};
+  state.studyPlans[_planEditKey] = {
+    startDate, startTime, endTime, durationMin,
+    reviewOffsets: offsets,
+    done: prev.done || {}
+  };
+  saveState();
+  closePlanEditModal();
+  renderProgress();
+}
+function deletePlanEdit(){
+  if(!_planEditKey){ closePlanEditModal(); return; }
+  if(!confirm('このフレームの学習予定(完了記録を含む)を削除しますか?')) return;
+  if(state.studyPlans) delete state.studyPlans[_planEditKey];
+  saveState();
+  closePlanEditModal();
+  renderProgress();
+}
+
+/* ===== 予定タブの描画 ===== */
+function renderProgressPlan(root){
+  // 表示対象日(なければ今日)
+  const todayKey = _gDateKey(_gTodayDate());
+  state.planView ||= {date:null};
+  let dateKey = state.planView.date || todayKey;
+  if(!_gParseKey(dateKey)) dateKey = todayKey;
+  const tomorrowKey = _gDateKey(_gAddDays(_gTodayDate(), 1));
+
+  const planCount = Object.keys(state.studyPlans||{}).length;
+
+  let html = `<div class="card progress-intro">
+    <h2 class="prog-h2">勉強の予定 <span class="prog-sub">過去問A・翌日の学習を着実に</span></h2>
+    ${progressSubTabsHtml(state.progressView.kindMode)}
+    <p class="prog-desc">「過去問A」タブで各フレームの <b>予定_編集</b> ボタンから開始日・時間帯・復習サイクルを設定すると、その日に学習すべきフレームが開始時刻順にボックスで並びます。各ボックスの「完了」を押すと色が変わります。</p>
+  </div>`;
+
+  // 日付ナビ
+  const isToday = dateKey===todayKey;
+  const isTomorrow = dateKey===tomorrowKey;
+  html += `<div class="card">
+    <div class="plan-toolbar">
+      <button class="plan-daybtn ${isToday?'active':''}" id="plan-today">今日</button>
+      <button class="plan-daybtn ${isTomorrow?'active':''}" id="plan-tomorrow">明日</button>
+      <button class="plan-daybtn" id="plan-prev">‹ 前日</button>
+      <button class="plan-daybtn" id="plan-next">翌日 ›</button>
+      <input type="date" id="plan-datepick" value="${dateKey}">
+      <span class="plan-date-label">${planDateLabel(dateKey)}${isToday?' 〈今日〉':(isTomorrow?' 〈明日〉':'')}</span>
+    </div>`;
+
+  if(planCount===0){
+    html += `<div class="plan-empty">まだ予定が設定されていません。<br>「過去問A」タブを開き、各フレーム名の右にある <b>予定_編集</b> ボタンから設定してください。</div></div>`;
+    root.innerHTML = html;
+    _wirePlanCommon(root);
+    return;
+  }
+
+  // 遅れサマリー(今日より前の未完了)
+  const overdue = getOverduePlanOccurrences(todayKey);
+  if(overdue.length){
+    const shown = overdue.slice(0,8);
+    html += `<div class="plan-overdue-summary">
+      <div class="pos-title">⚠ 遅れている予定: ${overdue.length}件(今日より前で未完了)</div>`;
+    for(const o of shown){
+      const lbl = o.kind==='review' ? `復習(${o.offset}日後)` : '初回';
+      html += `<div class="plan-overdue-item">
+        <span style="color:var(--accent);font-weight:600">${planDateLabel(o.dateKey)}</span>
+        ${escapeHtml(o.subject)} F${o.frameNo} ${escapeHtml((FRAMES[o.subject]||[]).find(f=>f.n===o.frameNo)?.t||'')}
+        <span class="plan-badge ${o.kind==='review'?'review':'first'}">${lbl}</span>
+      </div>`;
+    }
+    if(overdue.length>shown.length){
+      html += `<div class="plan-overdue-item" style="color:var(--ink-muted)">…ほか ${overdue.length-shown.length}件</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // 当日の予定ボックス
+  const occs = getPlanOccurrencesForDate(dateKey);
+  if(!occs.length){
+    html += `<div class="plan-empty">この日に予定されているフレームはありません。</div>`;
+  }else{
+    const doneCount = occs.filter(o=>o.done).length;
+    html += `<div style="font-size:12.5px;color:var(--ink-muted);margin-bottom:10px">この日の予定: ${occs.length}件　完了: ${doneCount}/${occs.length}</div>`;
+    for(let i=0;i<occs.length;i++){
+      const o = occs[i];
+      const fr = (FRAMES[o.subject]||[]).find(f=>f.n===o.frameNo);
+      const frTitle = fr ? fr.t : '';
+      const content = planLearningContent(o.subject, o.frameNo);
+      const timeStr = o.startTime ? (o.endTime ? `${o.startTime}〜${o.endTime}` : `${o.startTime}〜`) : '時刻未設定';
+      const durStr = (o.durationMin!=null && o.durationMin>0) ? `<span class="plan-box-dur">(見込み ${o.durationMin}分)</span>` : '';
+      const badge = o.kind==='review'
+        ? `<span class="plan-badge review">復習 ${o.offset}日後</span>`
+        : `<span class="plan-badge first">初回</span>`;
+      html += `<div class="plan-box ${o.done?'done':''} ${o.kind==='review'?'is-review':''}">
+        <div class="plan-box-top">
+          <span class="plan-box-time">🕒 ${timeStr}</span>${durStr}${badge}
+        </div>
+        <div class="plan-box-title">${escapeHtml(o.subject)} F${o.frameNo}　${escapeHtml(frTitle)}</div>
+        <div class="plan-box-items">${escapeHtml(content)}</div>
+        <div class="plan-box-foot">
+          <button class="plan-done-btn ${o.done?'is-done':''}" data-plankey="${escapeHtml(o.key)}" data-date="${dateKey}">${o.done?'完了を取消':'完了にする'}</button>
+          ${o.done?'<span class="plan-done-mark">✓ 完了済み</span>':''}
+        </div>
+      </div>`;
+    }
+  }
+  html += `</div>`;
+
+  root.innerHTML = html;
+  _wirePlanCommon(root);
+  // 完了ボタン
+  root.querySelectorAll('.plan-done-btn').forEach(b=>{
+    b.addEventListener('click', ()=> togglePlanDone(b.dataset.plankey, b.dataset.date));
+  });
+}
+
+// 予定タブ共通の配線(サブタブ・日付ナビ)
+function _wirePlanCommon(root){
+  root.querySelectorAll('.prog-subtab').forEach(t=>{
+    t.addEventListener('click', ()=>_handleProgSubTabClick(t));
+  });
+  const todayKey = _gDateKey(_gTodayDate());
+  const setDate = (dk)=>{ state.planView ||= {date:null}; state.planView.date = dk; saveState(); renderProgress(); };
+  const cur = (state.planView && state.planView.date) || todayKey;
+  const today = document.getElementById('plan-today');
+  if(today) today.addEventListener('click', ()=> setDate(todayKey));
+  const tom = document.getElementById('plan-tomorrow');
+  if(tom) tom.addEventListener('click', ()=> setDate(_gDateKey(_gAddDays(_gTodayDate(),1))));
+  const prev = document.getElementById('plan-prev');
+  if(prev) prev.addEventListener('click', ()=>{ const d=_gParseKey(cur)||_gTodayDate(); setDate(_gDateKey(_gAddDays(d,-1))); });
+  const next = document.getElementById('plan-next');
+  if(next) next.addEventListener('click', ()=>{ const d=_gParseKey(cur)||_gTodayDate(); setDate(_gDateKey(_gAddDays(d,1))); });
+  const pick = document.getElementById('plan-datepick');
+  if(pick) pick.addEventListener('change', ()=>{ if(pick.value) setDate(pick.value); });
 }
 
 /* 全 frameAttempts を見て、最新の演習活動日(YYYY-MM-DD)を返す。
@@ -10917,33 +11382,21 @@ function renderProgressGantt(root){
   // DOM 構築後にセル位置を測ってポイントを配置
   requestAnimationFrame(()=>{
     _gPaintOverlays(groups, dayDates, snap, ganttMode);
-    // 改修28-9: 初期スクロール位置の改善。
-    // 単純に「clientWidth の 25%」だと、左の sticky 列(科目名+進捗ハコ)の幅を
-    // 考慮していないので、スマホでは sticky 列の右側が画面の30%しか残らず、
-    // 基準日が画面の右端に近すぎる位置になる。
-    // sticky 列の幅を引いた残りの表示領域(=実チャート可視幅)の中で
-    // 基準日が「左から25%」の位置に来るよう計算する。
+    // 改修28-4: 8月末まで表示範囲を拡大したので、初期スクロールを基準日(=「今」)の位置に合わせる
+    // (左端の起点ばかり見えていても今日の状況が把握しづらいため)
     const scrollWrap = document.getElementById('gantt-scroll');
     if(scrollWrap){
       const nowLine = scrollWrap.querySelector('.gantt-now-line');
-      const tbl = document.getElementById('gantt-table');
-      if(nowLine && tbl){
+      if(nowLine){
         const lineLeft = parseFloat(nowLine.style.left) || 0;
-        const cs = getComputedStyle(tbl);
-        const stickyW = (parseFloat(cs.getPropertyValue('--gantt-meta-w'))||0)
-                      + (parseFloat(cs.getPropertyValue('--gantt-slots-w'))||0);
-        const visibleChartW = Math.max(80, scrollWrap.clientWidth - stickyW);
-        // 基準日が「sticky列の右端から visibleChartW*0.25 の位置」に来るように
-        // (= 画面の絶対座標で stickyW + visibleChartW*0.25 の位置)
-        const target = lineLeft - stickyW - visibleChartW * 0.25;
-        scrollWrap.scrollLeft = Math.max(0, target);
+        // 基準日が画面の左から 25% の位置に来るようにスクロール
+        // (左に1週間分の過去、右に試験までの未来が見えるバランス)
+        scrollWrap.scrollLeft = Math.max(0, lineLeft - scrollWrap.clientWidth * 0.25);
       }
     }
     // 改修28-6: 上部シャドウスクロールバーの同期セットアップ
+    // (本体スクロールバーが画面下まで遠いので、上にも横スクロールバーを置いて操作性向上)
     _gSetupShadowScrollbar();
-    // 改修28-9: モバイルで CSS sticky left が機能しない問題対策。
-    // JS の transform で疑似 sticky を実装。
-    _gSetupMobileStickyLeft();
   });
 
   // === イベント ===
@@ -11266,56 +11719,6 @@ function _gSetupShadowScrollbar(){
   top.scrollLeft = body.scrollLeft;
 }
 
-/* 改修28-9: モバイルでの「科目名・進捗ハコ列」の擬似 sticky left。
-   iPhone Safari では position:sticky;left:0 が grid 子要素に対して効かない
-   ケースがある(特に内部スクロール領域の中)。CSS sticky を解除して、
-   JS で scroll イベント時に transform:translateX(scrollLeft) を適用することで
-   視覚的に左端に固定する。 */
-function _gSetupMobileStickyLeft(){
-  if(typeof window === 'undefined' || !window.matchMedia) return;
-  // モバイル判定(画面幅 640px 以下)
-  if(!window.matchMedia('(max-width:640px)').matches) return;
-
-  const scrollWrap = document.getElementById('gantt-scroll');
-  if(!scrollWrap) return;
-
-  // 重複バインド防止
-  if(scrollWrap._gMobStickyBound) return;
-  scrollWrap._gMobStickyBound = true;
-
-  // sticky 対象: メタ列(科目名)とスロット列(進捗ハコ)。ヘッダ行とデータ行両方。
-  // 注意: 動的に再描画されると要素が入れ替わるので、毎回 querySelectorAll で取り直す
-  const refresh = ()=>{
-    return {
-      metas: scrollWrap.querySelectorAll('.gantt-row-meta, .gantt-h-meta'),
-      slots: scrollWrap.querySelectorAll('.gantt-row-slots, .gantt-h-slots')
-    };
-  };
-
-  let cache = refresh();
-  let ticking = false;
-  const update = ()=>{
-    const sl = scrollWrap.scrollLeft;
-    const tx = `translateX(${sl}px)`;
-    cache.metas.forEach(el=>{ el.style.transform = tx; });
-    cache.slots.forEach(el=>{ el.style.transform = tx; });
-    ticking = false;
-  };
-  // 初期適用
-  update();
-  scrollWrap.addEventListener('scroll', ()=>{
-    if(!ticking){
-      requestAnimationFrame(update);
-      ticking = true;
-    }
-  });
-
-  // ガントチャート再描画時(科目/モード切替時)に、要素キャッシュを更新するため
-  // MutationObserver で監視 — ただし、renderProgress() で全 root を再構築するので、
-  // 次回 _gSetupMobileStickyLeft() が呼ばれて、新しい scrollWrap に対して再バインドされる。
-  // (前の scrollWrap は DOM から消えるのでガベージコレクション対象になる)
-}
-
 
 /* 進捗管理のサブタブUI(過去問A/過去問B/予想問)HTML生成 ─ 改修8 Step 3 / 改修28 でガントチャート追加 */
 function progressSubTabsHtml(currentKind){
@@ -11328,11 +11731,13 @@ function progressSubTabsHtml(currentKind){
   const pastBCount = state.questions.filter(isPastB).length;
   const forecastCount = state.questions.filter(isForecast).length;
   const ganttActive = currentTab === 'gantt';
+  const planActive = currentTab === 'plan';
   return `<div class="prog-subtabs">
     <button class="prog-subtab ${ganttActive?'active':''}" data-tab="gantt">📊 進捗管理</button>
-    <button class="prog-subtab ${!ganttActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
-    <button class="prog-subtab ${!ganttActive&&cur==='pastB'?'active':''}" data-tab="kind" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
-    <button class="prog-subtab ${!ganttActive&&cur==='forecast'?'active':''}" data-tab="kind" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
+    <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
+    <button class="prog-subtab ${planActive?'active':''}" data-tab="plan">📅 予定</button>
+    <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastB'?'active':''}" data-tab="kind" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
+    <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='forecast'?'active':''}" data-tab="kind" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
   </div>`;
 }
 
@@ -11342,6 +11747,8 @@ function progressSubTabsHtml(currentKind){
 function _handleProgSubTabClick(t){
   if(t.dataset.tab === 'gantt'){
     state.progressView.tab = 'gantt';
+  }else if(t.dataset.tab === 'plan'){
+    state.progressView.tab = 'plan';
   }else{
     state.progressView.tab = 'kind';
     if(t.dataset.kindmode) state.progressView.kindMode = t.dataset.kindmode;
@@ -11587,10 +11994,17 @@ function buildProgressFrameRow(opts){
   const kindIcon = progressKindBadge(kindModeVal);
   // 改修: フレーム中分類項目の併記
   const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
+  // 改修30: 過去問A のフレームには「予定_編集」ボタンを表示
+  let planBtn = '';
+  if(opts.planTarget){
+    const pk = planKey(opts.planTarget.subject, opts.planTarget.frameNo);
+    const hasPlan = !!(state.studyPlans && state.studyPlans[pk]);
+    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(opts.planTarget.subject)}" data-fno="${opts.planTarget.frameNo}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
+  }
   return `<div class="prog-frame">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}${itemsHtml}</div>
-      ${btn}
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${btn}${planBtn}</div>
     </div>
     <div class="pf-slots">${slots}</div>
     <div class="pf-status">${status}</div>
@@ -11625,10 +12039,17 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
     : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
+  // 改修30: 過去問A の親フレームにも「予定_編集」ボタン(フレーム単位で予定設定)
+  let planBtn = '';
+  if(kindMode==='pastA'){
+    const pk = planKey(subject, fr.n);
+    const hasPlan = !!(state.studyPlans && state.studyPlans[pk]);
+    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(subject)}" data-fno="${fr.n}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
+  }
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)}${kindIcon}${subBadge} <span class="pf-q">(全${totalQ}問)</span>${itemsHtml}</div>
-      <div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div>
+      <div style="display:flex;align-items:center;gap:8px">${planBtn}<div style="font-size:22px;color:var(--ink-muted);font-weight:300">›</div></div>
     </div>
     <div class="pf-status" style="font-size:12px;color:var(--ink-muted)">${progressLine}　→ クリックで中分類別の進捗を表示</div>
   </div>`;
@@ -11685,7 +12106,8 @@ function renderProgressFrames(root, summary, subject, kindMode){
       kindModeVal: kindMode,
       lawBreakdown: lawBreakdown,
       dataFno: fr.n,
-      itemsLabel: frItemsLabel  // 改修
+      itemsLabel: frItemsLabel,  // 改修
+      planTarget: (kindMode==='pastA') ? {subject:subject, frameNo:fr.n} : null  // 改修30: 過去問A のみ予定ボタン
     });
   }
   if(shownFrames===0 && !progressKindShowAll(kindMode)){
@@ -11727,6 +12149,15 @@ function renderProgressFrames(root, summary, subject, kindMode){
       const fno = /^\d+$/.test(fnoStr) ? parseInt(fnoStr,10) : fnoStr;
       const km = b.dataset.kindmode || 'past';
       startFrameAttempt(subj, fno, km);
+    });
+  });
+  // 改修30: 「予定_編集」ボタンクリック(サマリーカードのドリルダウンは抑止)
+  root.querySelectorAll('button[data-planedit]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const subj = b.dataset.subj;
+      const fno = parseInt(b.dataset.fno, 10);
+      if(subj && !isNaN(fno)) openPlanEditModal(subj, fno);
     });
   });
 }
@@ -12526,6 +12957,13 @@ function init(){
   document.querySelector('#fig-meta-modal .fig-modal-overlay').addEventListener('click', closeFigMetaModal);
   document.getElementById('fig-meta-cancel').addEventListener('click', closeFigMetaModal);
   document.getElementById('fig-meta-save').addEventListener('click', saveFigMetaModal);
+
+  // 改修30: 予定編集モーダルの配線
+  document.getElementById('plan-edit-close').addEventListener('click', closePlanEditModal);
+  document.querySelector('#plan-edit-modal .fig-modal-overlay').addEventListener('click', closePlanEditModal);
+  document.getElementById('plan-edit-cancel').addEventListener('click', closePlanEditModal);
+  document.getElementById('plan-edit-save').addEventListener('click', savePlanEdit);
+  document.getElementById('plan-edit-delete').addEventListener('click', deletePlanEdit);
 
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
