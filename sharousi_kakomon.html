@@ -11413,16 +11413,25 @@ function renderProgressGantt(root){
   // DOM 構築後にセル位置を測ってポイントを配置
   requestAnimationFrame(()=>{
     _gPaintOverlays(groups, dayDates, snap, ganttMode);
-    // 改修28-4: 8月末まで表示範囲を拡大したので、初期スクロールを基準日(=「今」)の位置に合わせる
-    // (左端の起点ばかり見えていても今日の状況が把握しづらいため)
+    // 改修28-4 / 28c: 8月末まで表示範囲を拡大したので、初期スクロールを基準日(=「今」)の位置に合わせる。
+    // 旧実装は clientWidth*0.25 を左マージンにしていたが、左側の固定列(科目/フレーム列+進捗列)の
+    // 幅(約300px)より小さくなり、今日の縦線が固定列の裏に隠れて「数日後」が左端に見える不具合があった。
+    // → 固定列の幅を実測し、その右側の「日付エリア」内で今日が少し左寄り(18%)に来るようにする。
     const scrollWrap = document.getElementById('gantt-scroll');
-    if(scrollWrap){
+    const tableEl = document.getElementById('gantt-table');
+    if(scrollWrap && tableEl){
       const nowLine = scrollWrap.querySelector('.gantt-now-line');
       if(nowLine){
         const lineLeft = parseFloat(nowLine.style.left) || 0;
-        // 基準日が画面の左から 25% の位置に来るようにスクロール
-        // (左に1週間分の過去、右に試験までの未来が見えるバランス)
-        scrollWrap.scrollLeft = Math.max(0, lineLeft - scrollWrap.clientWidth * 0.25);
+        // 固定列の幅 = 先頭の日付セル(day-idx=0)の左端オフセット(この時点で scrollLeft は 0)
+        const tableRect = tableEl.getBoundingClientRect();
+        const firstDay = tableEl.querySelector('.gantt-day-cell[data-day-idx="0"]');
+        const stickyW = firstDay ? (firstDay.getBoundingClientRect().left - tableRect.left) : 0;
+        const dateAreaW = Math.max(120, scrollWrap.clientWidth - stickyW);
+        // 今日(基準日)を「固定列のすぐ右」から日付エリア幅の 18% の位置に置く
+        // → 今日の左に数日分の過去、右に試験までの未来が見えるバランス。今日が固定列に隠れない。
+        const targetX = stickyW + dateAreaW * 0.18;
+        scrollWrap.scrollLeft = Math.max(0, lineLeft - targetX);
       }
     }
     // 改修28-6: 上部シャドウスクロールバーの同期セットアップ
