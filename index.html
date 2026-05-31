@@ -2289,14 +2289,23 @@
   .taipa-hline{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--line-soft,rgba(0,0,0,.06))}
   .taipa-block{
     position:absolute;left:2px;right:2px;border-left:3px solid #999;border-radius:3px;
-    padding:1px 4px;overflow:hidden;font-size:9.5px;line-height:1.15;
+    padding:2px 5px;overflow:hidden;font-size:11.5px;line-height:1.25;
     box-shadow:0 1px 2px rgba(0,0,0,.06);
   }
   .taipa-block.plan{border-style:dashed;border-left-style:solid}
-  .taipa-block.plan.done{opacity:.5}
-  .taipa-block-sub{font-weight:700;color:var(--ink);display:flex;align-items:center;gap:3px}
-  .taipa-block-frame{color:var(--ink-soft);font-size:9px}
-  .taipa-mini-badge{font-size:8px;padding:0 3px;border-radius:3px;background:var(--ink-muted);color:#fff;font-weight:600}
+  .taipa-block.plan.done{opacity:.62}
+  /* 改修05: 予定ハコのドラッグ移動・長さ変更 */
+  .taipa-block.plan{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+  .taipa-block.plan:active{cursor:grabbing}
+  .taipa-resize{position:absolute;left:0;right:0;height:8px;cursor:ns-resize;z-index:2}
+  .taipa-resize.top{top:0}
+  .taipa-resize.bottom{bottom:0}
+  .taipa-block.dragging{opacity:.85;box-shadow:0 3px 10px rgba(0,0,0,.25);z-index:10}
+  .taipa-block.dragging .taipa-block-sub{color:var(--indigo)}
+  .taipa-drag-time{position:absolute;right:3px;top:1px;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(255,255,255,.9);border-radius:2px;padding:0 3px;pointer-events:none;z-index:11}
+  .taipa-block-sub{font-weight:700;color:var(--ink);display:flex;align-items:center;gap:3px;font-size:12px}
+  .taipa-block-frame{color:var(--ink-soft);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .taipa-mini-badge{font-size:9.5px;padding:0 4px;border-radius:3px;background:var(--ink-muted);color:#fff;font-weight:600}
   .taipa-mini-badge.first{background:var(--green)}
   .taipa-mini-badge.act{background:var(--indigo)}
   .taipa-mini-badge.partial{background:#c98d00}
@@ -2974,9 +2983,14 @@
     </div>
   </aside>
 
-  <!-- ===== WEAK VIEW (弱点問題) ===== -->
+  <!-- ===== WEAK VIEW (弱点問題 + 千本ノック) ===== -->
   <main id="view-weak" style="display:none;grid-column:1/-1">
+    <div class="prog-subtabs" id="weak-subtabs">
+      <button class="prog-subtab active" data-weaktab="weak">🩹 弱点問題</button>
+      <button class="prog-subtab" data-weaktab="senbon">🔫 千本ノック</button>
+    </div>
     <div id="weak-content"></div>
+    <div id="senbon-content" style="display:none"></div>
   </main>
 
   <!-- ===== FIGURES VIEW (図表) ===== -->
@@ -3410,11 +3424,11 @@
             <input type="time" id="plan-input-starttime">
           </div>
           <div>
-            <span class="plan-field-hint">終了時刻</span>
+            <span class="plan-field-hint">終了時刻(自動)</span>
             <input type="time" id="plan-input-endtime">
           </div>
         </div>
-        <span class="plan-field-hint">開始時刻の早い順に、その日の予定が上から並びます</span>
+        <span class="plan-field-hint">開始時刻と③の見込み時間を入れると、終了時刻は自動で計算されます(手入力も可)</span>
       </div>
       <div class="plan-field">
         <span class="plan-field-label">③ 学習に要する時間の見込み(分)</span>
@@ -4084,6 +4098,23 @@ function lawToSubject(law){
   return LAW_TO_SUBJECT[law] || law;
 }
 
+/* 改修04: 中分類の法令選択に対応する科目(一般常識など、複数法令を内包する科目) */
+const SUBJECTS_WITH_SUBLAW = [
+  '労務管理その他の労働に関する一般常識',
+  '社会保険に関する一般常識'
+];
+/* 指定科目に属する個別法令のうち、実際に問題が存在するものの一覧を返す。
+   q.law が略称等で入っていても lawToSubject で同じ科目に解決されるものをすべて拾う。
+   表記ゆれ(正式名と略称)が混在しても、出現した q.law 値を母集団とするので破綻しない。 */
+function getSubLaws(subject){
+  if(!subject) return [];
+  const set = new Set();
+  state.questions.forEach(q=>{
+    if(q.law && lawToSubject(q.law)===subject) set.add(q.law);
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'ja'));
+}
+
 function frameTitle(law, n){
   const fr = (FRAMES[law]||[]).find(f=>f.n===n);
   return fr ? `フレーム${n} ${fr.t}` : `フレーム${n}`;
@@ -4585,7 +4616,7 @@ function loadState(){
       s.selectSession.userChoice ??= null;
       s.selectSession.filterCat ??= '';
       // 弱点問題の追加 (後方互換)
-      s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu'};
+      s.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu'};
       s.weakSession.answered ||= false;
       s.weakSession.userAnswer ??= null;
       s.weakSession.questionType ||= 'takuitsu';
@@ -4593,6 +4624,18 @@ function loadState(){
       // 図表機能の追加 (後方互換)
       s.figures ||= [];
       s.figuresView ||= {filterSubject:'',filterFrame:''};
+      // 千本ノック機能の追加 (後方互換)
+      //   senbon: 一問一答データ本体の配列。各要素:
+      //     { id, subject, frameNo, category('A'|'B'|'C'|'D'), q, a(bool), note, createdAt }
+      //   senbonHistory: 解答ログ { id, ts, correct, category, subject, frameNo, level }
+      s.senbon = Array.isArray(s.senbon) ? s.senbon : [];
+      s.senbonHistory = Array.isArray(s.senbonHistory) ? s.senbonHistory : [];
+      s.senbonSession ||= {category:'',subject:'',frame:'',level:3,running:false,idx:0,order:[],results:[]};
+      s.senbonSession.level ||= 3;
+      // 進捗タブの千本ノック配置用ビュー状態
+      s.senbonView ||= {mode:'subjects',subject:null,frameNo:null};
+      s.senbonView.tab ||= 'list'; // 弱点タブ内のサブタブ: 'list'(設定)|'run'(演習中)
+      s.senbonView.weakSub ||= 'weak'; // 弱点タブのサブタブ: 'weak'|'senbon'
       // 改修30: 勉強の予定機能の追加 (後方互換)
       //   studyPlans: { "科目|フレーム番号": {startDate, startTime, endTime, durationMin, reviewOffsets:[], done:{}} }
       s.studyPlans ||= {};
@@ -4770,7 +4813,7 @@ function loadState(){
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
     selectHistory: [],
     selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null},
-    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'},
+    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'},
     figures: [],
     figuresView: {filterSubject:'',filterFrame:''},
     studyPlans: {},
@@ -6419,6 +6462,8 @@ function _mergeBackupsCore(oldD, newD){
     articles:{addedPaths:0},
     whys:{addedPaths:0},
     studyPlans:{addedPaths:0},
+    myNotes:{addedPaths:0},
+    studySessions:{addedPaths:0},
     conflicts:[]
   };
 
@@ -6580,6 +6625,28 @@ function _mergeBackupsCore(oldD, newD){
   // 改修30: 勉強の予定も add-only マージ(現在の予定・完了記録を失わない)
   result.studyPlans = (result.studyPlans && typeof result.studyPlans==='object') ? result.studyPlans : {};
   deepMergeAddOnly(oldD.studyPlans||{}, result.studyPlans, stats.studyPlans);
+  // 改修(追記メモ): 自分の追記メモも add-only マージ(片方にしかないメモを失わない)
+  result.myNotes = (result.myNotes && typeof result.myNotes==='object') ? result.myNotes : {};
+  deepMergeAddOnly(oldD.myNotes||{}, result.myNotes, stats.myNotes);
+
+  // 改修31d: タイパの計測セッション(studySessions)も差分マージ対象にする。
+  //   studySessions は配列のため deepMergeAddOnly(オブジェクト専用)では扱えない。
+  //   各セッションは一意の id を持つので、id 基準で「片方にしかないセッションを足す」add-only マージを行う。
+  //   (これを忘れると端末間の差分マージ復元でタイパ実績が失われる。0.2 の3点セットの実例)
+  {
+    const oldArr = Array.isArray(oldD.studySessions) ? oldD.studySessions : [];
+    result.studySessions = Array.isArray(result.studySessions) ? result.studySessions : [];
+    const seen = new Set(result.studySessions.map(s=> s && s.id).filter(Boolean));
+    stats.studySessions ||= {addedPaths:0};
+    for(const s of oldArr){
+      if(s && s.id && !seen.has(s.id)){
+        try{ result.studySessions.push(JSON.parse(JSON.stringify(s))); }
+        catch(_){ result.studySessions.push(s); }
+        seen.add(s.id);
+        stats.studySessions.addedPaths++;
+      }
+    }
+  }
 
   if(!result.whyIntro && oldD.whyIntro){
     result.whyIntro = oldD.whyIntro;
@@ -6735,6 +6802,9 @@ function renderMergePreview(){
     stats.history.added + stats.selectHistory.added + stats.caseHistory.added +
     stats.frameAttempts.addedKeys + stats.frameAttempts.addedAttempts +
     stats.bookmarks.added + stats.articles.addedPaths + stats.whys.addedPaths +
+    (stats.studyPlans?stats.studyPlans.addedPaths:0) +
+    (stats.myNotes?stats.myNotes.addedPaths:0) +
+    (stats.studySessions?stats.studySessions.addedPaths:0) +
     stats.figures.imageSupplemented;
 
   let html = '<table class="merge-preview-table">';
@@ -6767,6 +6837,9 @@ function renderMergePreview(){
   row('ブックマーク', stats.bookmarks.before, stats.bookmarks.added, stats.bookmarks.after);
   if(stats.articles.addedPaths>0) subrow('条文・解説(階層)', stats.articles.addedPaths);
   if(stats.whys.addedPaths>0) subrow('5why(階層)', stats.whys.addedPaths);
+  if(stats.studyPlans && stats.studyPlans.addedPaths>0) subrow('勉強の予定', stats.studyPlans.addedPaths);
+  if(stats.myNotes && stats.myNotes.addedPaths>0) subrow('自分の追記メモ', stats.myNotes.addedPaths);
+  if(stats.studySessions && stats.studySessions.addedPaths>0) subrow('タイパ計測セッション', stats.studySessions.addedPaths);
   html += '</tbody></table>';
 
   if(totalAdded === 0){
@@ -6893,12 +6966,14 @@ async function _applyMergeRestore(){
   state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null,kindMode:'both'};
   state.session.kindMode ||= 'both';
   state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
-  state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
+  state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
   state.weakSession.kindMode ||= 'both';
   state.figures ||= [];
   state.figuresView ||= {filterSubject:'',filterFrame:''};
-  state.studyPlans ||= {};
-  state.planView ||= {date:null};
+  state.senbon = Array.isArray(state.senbon) ? state.senbon : [];
+  state.senbonHistory = Array.isArray(state.senbonHistory) ? state.senbonHistory : [];
+  state.senbonSession ||= {category:'',subject:'',frame:'',level:3,running:false,idx:0,order:[],results:[]};
+  state.senbonView ||= {mode:'subjects',subject:null,frameNo:null,tab:'list',weakSub:'weak'};
   state.cases ||= [];
   state.caseHistory ||= [];
   state.caseView ||= {mode:'list', selectedCaseId:null, filterSubject:'', filterFrame:''};
@@ -6918,7 +6993,7 @@ async function _applyMergeRestore(){
   // 集計を表示
   // (renderMergePreview の stats を表示済なので、ここでは件数サマリを alert で出す)
   const a = _analyzeForMerge(state);
-  alert(`マージ復元が完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式: ${state.selectQuestions.length}問\n■ 事例: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 解答履歴: ${state.history.length}件\n■ フレーム履歴: ${Object.keys(state.frameAttempts).length}件`);
+  alert(`マージ復元が完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式: ${state.selectQuestions.length}問\n■ 事例: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 千本ノック: ${(state.senbon||[]).length}問\n■ 解答履歴: ${state.history.length}件\n■ フレーム履歴: ${Object.keys(state.frameAttempts).length}件`);
 
   // 画面再描画
   try{ renderQuiz() }catch(_){}
@@ -6985,10 +7060,14 @@ function restoreBackup(){
         state.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null,kindMode:'both'};
         state.session.kindMode ||= 'both';
         state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null};
-        state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
+        state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
         state.weakSession.kindMode ||= 'both';
         state.figures ||= [];
         state.figuresView ||= {filterSubject:'',filterFrame:''};
+        state.senbon = Array.isArray(state.senbon) ? state.senbon : [];
+        state.senbonHistory = Array.isArray(state.senbonHistory) ? state.senbonHistory : [];
+        state.senbonSession ||= {category:'',subject:'',frame:'',level:3,running:false,idx:0,order:[],results:[]};
+        state.senbonView ||= {mode:'subjects',subject:null,frameNo:null,tab:'list',weakSub:'weak'};
         state.studyPlans ||= {};
         state.planView ||= {date:null};
         state.cases ||= [];
@@ -7065,7 +7144,7 @@ function restoreBackup(){
           if(fa[k].current) inProgressCount++;
           completedCount += (fa[k].history||[]).length;
         }
-        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 事例問題: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
+        alert(`復元完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式問題: ${state.selectQuestions.length}問\n■ 事例問題: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 千本ノック: ${(state.senbon||[]).length}問\n■ 進行中のフレーム演習: ${inProgressCount}フレーム\n■ 完了済み演習: 合計${completedCount}回分\n■ 解答履歴: ${state.history.length}件`);
       }catch(err){alert('復元失敗: '+err.message)}
     };
     r.readAsText(f);
@@ -7951,7 +8030,7 @@ function applyFigurePicker(){
   // 現在のビューを再描画
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
   if(activeTab==='quiz') renderQuiz();
-  else if(activeTab==='weak') renderWeak();
+  else if(activeTab==='weak') renderWeakTab();
   else if(activeTab==='case') renderCase();
 }
 
@@ -8479,7 +8558,7 @@ function applyArticlePicker(){
   // 現在のビューも再描画(択一・弱点で表示中なら反映)
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
   if(activeTab==='quiz') renderQuiz();
-  else if(activeTab==='weak') renderWeak();
+  else if(activeTab==='weak') renderWeakTab();
 }
 
 /* ===== 改修11: 5whyピッカー — 条文ピッカーと同じ仕組み =====
@@ -8789,7 +8868,7 @@ function applyWhyPicker(){
   }
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
   if(activeTab==='quiz') renderQuiz();
-  else if(activeTab==='weak') renderWeak();
+  else if(activeTab==='weak') renderWeakTab();
 }
 
 /* 解答後の紐付けブロック表示(Phase 7) */
@@ -10308,7 +10387,7 @@ function switchTab(name){
     state.whyView.subFrameKey = null;
     renderWhys();
   }
-  if(name==='weak') renderWeak();
+  if(name==='weak') renderWeakTab();
   if(name==='figures') renderFigures();
   if(name==='progress'){
     // kindModeは引き継いで、modeとsubjectだけリセット
@@ -10377,6 +10456,10 @@ function getWeakPool(){
   // 科目フィルタ
   if(s.subject){
     pool = pool.filter(q=>lawToSubject(q.law)===s.subject);
+    // 改修04: 一般常識科目で中分類の法令が指定されていれば、さらにその法令に絞る
+    if(s.lawSub && SUBJECTS_WITH_SUBLAW.includes(s.subject)){
+      pool = pool.filter(q=>q.law===s.lawSub);
+    }
   }
   // ソート
   const sort = s.sortBy || 'count-desc';
@@ -10413,6 +10496,910 @@ function currentWeakQuestion(){
   if(!pool.length) return null;
   if(state.weakSession.currentIndex >= pool.length) state.weakSession.currentIndex = 0;
   return pool[state.weakSession.currentIndex];
+}
+
+/* =========================================================================
+   千本ノック (Senbon-knock) — 一問一答 高速演習
+   ・弱点タブ内のサブタブとして演習機能を実装
+   ・問題データは進捗タブ「千本ノック」サブタブで科目×フレームに配置
+   ========================================================================= */
+
+// レベル→制限秒数
+const SENBON_LEVELS = [
+  {lv:1, sec:8, label:'L1 かなり遅い'},
+  {lv:2, sec:6, label:'L2 やや遅い'},
+  {lv:3, sec:5, label:'L3 普通'},
+  {lv:4, sec:4, label:'L4 やや早い'},
+  {lv:5, sec:3, label:'L5 かなり早い'},
+];
+const SENBON_CATEGORIES = [
+  {key:'A', label:'A 基本・重要数字'},
+  {key:'B', label:'B 弱点(ミス問)'},
+  {key:'C', label:'C 罠問'},
+  {key:'D', label:'D 改正・予想'},
+  {key:'E', label:'E その他'},
+];
+// チェックマーク (D・Eだけでなく全カテゴリで付与可能)
+//   0=未設定 / 1=要チェック / 2=確認中 / 3=確認済
+// 1(要チェック)・2(確認中) の問題は演習対象から自動除外する
+const SENBON_MARKS = [
+  {v:0, label:'—',        short:'',     color:'#bbb'},
+  {v:1, label:'要チェック', short:'要',   color:'#e8a000'},
+  {v:2, label:'確認中',     short:'中',   color:'#2b8acb'},
+  {v:3, label:'確認済',     short:'済',   color:'#2e7d32'},
+];
+function senbonMarkInfo(v){ return SENBON_MARKS.find(m=>m.v===(v||0)) || SENBON_MARKS[0]; }
+// 演習対象に含めてよいか (要チェック/確認中は除外)
+function senbonPlayable(q){ const m = q.checkMark||0; return m!==1 && m!==2; }
+function senbonCatLabel(k){ const c=SENBON_CATEGORIES.find(x=>x.key===k); return c?c.label:(k||'未分類'); }
+function senbonLevelSec(lv){ const l=SENBON_LEVELS.find(x=>x.lv===lv); return l?l.sec:5; }
+
+let _senbonTimer = null;      // setInterval ハンドル
+let _senbonDeadline = 0;      // 現問の制限終了時刻(ms)
+let _senbonAnswered = false;  // 現問の解答済みフラグ
+
+// 弱点タブのサブタブ切替を含む統括描画
+function renderWeakTab(){
+  ensureSenbonState();
+  const sub = (state.senbonView && state.senbonView.weakSub) || 'weak';
+  // サブタブのactive表示
+  document.querySelectorAll('#weak-subtabs .prog-subtab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.weaktab===sub);
+  });
+  const weakC = document.getElementById('weak-content');
+  const senbonC = document.getElementById('senbon-content');
+  if(sub==='senbon'){
+    weakC.style.display='none'; senbonC.style.display='block';
+    renderSenbon();
+  }else{
+    weakC.style.display='block'; senbonC.style.display='none';
+    stopSenbonTimer();
+    renderWeak();
+  }
+}
+
+// 千本ノックで利用可能な問題プール(フィルタ適用前の全体)
+function senbonAllQuestions(){ return Array.isArray(state.senbon)?state.senbon:[]; }
+
+// 各問の出典(source)一覧を集める(検索窓の候補用)
+function senbonSources(){
+  const set = new Set();
+  senbonAllQuestions().forEach(q=>{ if(q.source) set.add(q.source); });
+  return Array.from(set).sort();
+}
+
+// フィルタを適用した出題プール (演習用: 要チェック/確認中は除外)
+function senbonPool(){
+  const s = state.senbonSession;
+  return senbonAllQuestions().filter(q=>{
+    if(!senbonPlayable(q)) return false; // 要チェック/確認中は演習から除外
+    if(s.category && q.category!==s.category) return false;
+    if(s.subject && q.subject!==s.subject) return false;
+    if(s.source && q.source!==s.source) return false;
+    if(s.frame){
+      // 中分類キー("2.1"形式)なら subFrameKey で照合、数値なら frameNo で照合
+      if(/\d+\.\d+/.test(s.frame)){
+        if(String(q.subFrameKey)!==String(s.frame)) return false;
+      }else{
+        if(String(q.frameNo)!==String(s.frame)) return false;
+      }
+    }
+    return true;
+  });
+}
+
+// 各問の誤答回数を集計(ミス順抽出用)
+function senbonMissCount(qid){
+  return state.senbonHistory.filter(h=>h.id===qid && !h.correct).length;
+}
+
+function ensureSenbonState(){
+  // 既存(旧バージョン)の state には senbon 系が無いため、描画の入口で必ず補う
+  if(!Array.isArray(state.senbon)) state.senbon = [];
+  if(!Array.isArray(state.senbonHistory)) state.senbonHistory = [];
+  if(!state.senbonSession || typeof state.senbonSession !== 'object'){
+    state.senbonSession = {};
+  }
+  const ss = state.senbonSession;
+  if(typeof ss.running !== 'boolean') ss.running = false;
+  if(typeof ss.idx !== 'number') ss.idx = 0;
+  if(!Array.isArray(ss.order)) ss.order = [];
+  if(!Array.isArray(ss.results)) ss.results = [];
+  if(!ss.level) ss.level = 3;
+  if(typeof ss.category !== 'string') ss.category = '';
+  if(typeof ss.subject !== 'string') ss.subject = '';
+  if(typeof ss.frame !== 'string') ss.frame = '';
+  if(typeof ss.source !== 'string') ss.source = '';     // 出典フィルタ
+  if(!ss.count) ss.count = 20;                           // 出題数(0=全問)
+  if(!ss.method) ss.method = 'random';                   // random|order|miss
+  if(typeof ss.paused !== 'boolean') ss.paused = false;  // 一時停止
+  if(typeof ss.remainMs !== 'number') ss.remainMs = 0;   // 一時停止時の残時間
+  if(typeof ss.lastWasRepeat !== 'boolean') ss.lastWasRepeat = false;
+  // 既存セッションデータの正規化漏れ対策
+  if(!state.senbonView || typeof state.senbonView !== 'object'){
+    state.senbonView = {mode:'subjects',subject:null,frameNo:null,subFrameKey:null,tab:'list',weakSub:'weak'};
+  }
+  if(!state.senbonView.weakSub) state.senbonView.weakSub = 'weak';
+  if(!state.senbonView.mode) state.senbonView.mode = 'subjects';
+  // 進捗タブの検索フィルタ状態
+  if(!state.senbonManageFilter || typeof state.senbonManageFilter !== 'object'){
+    state.senbonManageFilter = {category:'',source:'',mark:''};
+  }
+}
+
+function renderSenbon(){
+  const root = document.getElementById('senbon-content');
+  if(!root) return;
+  try{
+    ensureSenbonState();
+    const s = state.senbonSession;
+    if(s.running){ renderSenbonRun(root); }
+    else { renderSenbonSetup(root); }
+  }catch(e){
+    console.error('[senbon] render failed:', e);
+    root.innerHTML = `<div class="card" style="padding:24px;background:#FFF7E8;border-left:4px solid #C9472A">
+      <h3 style="color:#C9472A;margin:0 0 12px 0;font-size:16px">⚠ 千本ノックの描画でエラーが発生しました</h3>
+      <p style="font-size:13px">${escapeHtml(e&&e.message?e.message:String(e))}</p></div>`;
+  }
+}
+
+// ===== 設定画面 =====
+function renderSenbonSetup(root){
+  const s = state.senbonSession;
+  const all = senbonAllQuestions();
+  // 科目候補(問題が存在する科目)
+  const subjects = SUBJECTS_ORDER.filter(subj=>all.some(q=>q.subject===subj));
+  const subjOpts = '<option value="">すべての科目</option>' +
+    subjects.map(subj=>`<option value="${escapeHtml(subj)}" ${s.subject===subj?'selected':''}>${escapeHtml(subj)}</option>`).join('');
+  // フレーム候補(選択中科目に応じて。中分類があれば中分類も選べる)
+  let frameOpts = '<option value="">すべてのフレーム</option>';
+  if(s.subject){
+    const defs = FRAMES[s.subject] || [];
+    const usedFrames = new Set(all.filter(q=>q.subject===s.subject).map(q=>String(q.frameNo)));
+    defs.filter(d=>usedFrames.has(String(d.n))).forEach(d=>{
+      frameOpts += `<option value="${d.n}" ${String(s.frame)===String(d.n)?'selected':''}>F${d.n} ${escapeHtml(d.t)}</option>`;
+      // 中分類があれば、その配下も選択肢に出す
+      if(hasSubFrames(s.subject, d.n)){
+        getSubFrames(s.subject, d.n).forEach(sf=>{
+          const used = all.some(q=>q.subject===s.subject && String(q.subFrameKey)===String(sf.key));
+          if(used) frameOpts += `<option value="${sf.key}" ${String(s.frame)===String(sf.key)?'selected':''}>　└ F${d.n}_${sf.n} ${escapeHtml(sf.t)}</option>`;
+        });
+      }
+    });
+  }
+  // 出典フィルタ候補
+  const sources = senbonSources();
+  let srcOpts = '<option value="">すべての出典</option>' +
+    sources.map(src=>`<option value="${escapeHtml(src)}" ${s.source===src?'selected':''}>${escapeHtml(src)}</option>`).join('');
+  // カテゴリチップ
+  const catChips = `<button class="sb-cat-chip ${!s.category?'sel':''}" data-cat="">すべて</button>` +
+    SENBON_CATEGORIES.map(c=>`<button class="sb-cat-chip ${s.category===c.key?'sel':''}" data-cat="${c.key}">${escapeHtml(c.label)}</button>`).join('');
+  // レベルチップ
+  const lvChips = SENBON_LEVELS.map(l=>`<button class="sb-lv-chip ${s.level===l.lv?'sel':''}" data-lv="${l.lv}">${escapeHtml(l.label)}<span class="sb-lv-sec">${l.sec}秒/問</span></button>`).join('');
+  // 出題数チップ
+  const countOpts = [10,15,20,30,50,0];
+  const countChips = countOpts.map(n=>`<button class="sb-cnt-chip ${s.count===n?'sel':''}" data-cnt="${n}">${n===0?'全問':n+'問'}</button>`).join('');
+  // 抽出方法チップ
+  const methods = [{k:'random',t:'ランダム'},{k:'order',t:'科目順・フレーム順'},{k:'miss',t:'ミスの多い順'}];
+  const methodChips = methods.map(m=>`<button class="sb-mth-chip ${s.method===m.k?'sel':''}" data-mth="${m.k}">${escapeHtml(m.t)}</button>`).join('');
+  const pool = senbonPool();
+  const willAsk = (s.count===0||s.count>=pool.length) ? pool.length : s.count;
+
+  root.innerHTML = `
+  <style>
+    .sb-card{background:var(--surface,#fff);border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .sb-h2{font-size:18px;font-weight:700;margin:0 0 4px}
+    .sb-sub{font-size:12px;color:var(--ink-muted,#888);font-weight:400;margin-left:8px}
+    .sb-row{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap}
+    .sb-row>label{font-size:13px;min-width:64px;color:var(--ink-muted,#666)}
+    .sb-row select{padding:8px 10px;border:1px solid var(--line,#ddd);border-radius:8px;font-size:14px;background:#fff;max-width:100%}
+    .sb-cat-chip,.sb-lv-chip,.sb-cnt-chip,.sb-mth-chip{padding:7px 12px;border:1px solid var(--line,#ddd);border-radius:20px;background:#fff;font-size:12px;cursor:pointer;transition:.15s}
+    .sb-cat-chip.sel,.sb-cnt-chip.sel,.sb-mth-chip.sel{background:#2b5dc9;color:#fff;border-color:#2b5dc9}
+    .sb-lv-chip{border-radius:10px;display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:84px}
+    .sb-lv-chip.sel{background:#C9472A;color:#fff;border-color:#C9472A}
+    .sb-lv-sec{font-size:10px;opacity:.85}
+    .sb-start{margin-top:16px;width:100%;padding:16px;border:none;border-radius:12px;background:#C9472A;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+    .sb-start:disabled{background:#ccc;cursor:not-allowed}
+    .sb-poolinfo{font-size:13px;color:var(--ink-muted,#666);margin-top:10px;text-align:center}
+    .sb-empty{padding:30px;text-align:center;color:var(--ink-muted,#888);font-size:14px;line-height:1.7}
+  </style>
+  <div class="sb-card">
+    <h2 class="sb-h2">🔫 千本ノック <span class="sb-sub">瞬時に判断、瞬時に解答</span></h2>
+    ${all.length===0 ? `<div class="sb-empty">まだ千本ノック用の問題がありません。<br>「進捗」タブ →「🔫 千本ノック」から、科目・フレームごとに一問一答を追加してください。<br>(AIに「○○法F○の千本ノックを15問」と依頼してJSONを取り込む運用が便利です)</div>` : `
+    <div class="sb-row">
+      <label>カテゴリ</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${catChips}</div>
+    </div>
+    <div class="sb-row">
+      <label>科目</label>
+      <select id="sb-subject">${subjOpts}</select>
+      <select id="sb-frame">${frameOpts}</select>
+    </div>
+    <div class="sb-row">
+      <label>出典</label>
+      <select id="sb-source">${srcOpts}</select>
+    </div>
+    <div class="sb-row">
+      <label>出題数</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${countChips}</div>
+    </div>
+    <div class="sb-row">
+      <label>抽出方法</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${methodChips}</div>
+    </div>
+    <div class="sb-row">
+      <label>スピード</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${lvChips}</div>
+    </div>
+    <button class="sb-start" id="sb-start" ${pool.length===0?'disabled':''}>▶ ${willAsk}問でスタート</button>
+    <div class="sb-poolinfo">出題対象: ${pool.length}問中 ${willAsk}問を出題 / 登録総数 ${all.length}問<br><span style="font-size:11px">※「要チェック」「確認中」マークの問題は演習対象から自動除外されます</span></div>
+    `}
+  </div>`;
+
+  // ---- イベント結線 ----
+  root.querySelectorAll('.sb-cat-chip').forEach(b=>b.addEventListener('click',()=>{
+    state.senbonSession.category = b.dataset.cat; saveState(); renderSenbon();
+  }));
+  root.querySelectorAll('.sb-lv-chip').forEach(b=>b.addEventListener('click',()=>{
+    state.senbonSession.level = parseInt(b.dataset.lv,10); saveState(); renderSenbon();
+  }));
+  root.querySelectorAll('.sb-cnt-chip').forEach(b=>b.addEventListener('click',()=>{
+    state.senbonSession.count = parseInt(b.dataset.cnt,10); saveState(); renderSenbon();
+  }));
+  root.querySelectorAll('.sb-mth-chip').forEach(b=>b.addEventListener('click',()=>{
+    state.senbonSession.method = b.dataset.mth; saveState(); renderSenbon();
+  }));
+  const subjSel = document.getElementById('sb-subject');
+  if(subjSel) subjSel.addEventListener('change',()=>{
+    state.senbonSession.subject = subjSel.value; state.senbonSession.frame=''; saveState(); renderSenbon();
+  });
+  const frameSel = document.getElementById('sb-frame');
+  if(frameSel) frameSel.addEventListener('change',()=>{
+    state.senbonSession.frame = frameSel.value; saveState(); renderSenbon();
+  });
+  const srcSel = document.getElementById('sb-source');
+  if(srcSel) srcSel.addEventListener('change',()=>{
+    state.senbonSession.source = srcSel.value; saveState(); renderSenbon();
+  });
+  const startBtn = document.getElementById('sb-start');
+  if(startBtn) startBtn.addEventListener('click', startSenbonRun);
+}
+
+// ===== 演習開始 =====
+//   isRepeat: 「繰り返し」起動時は前回と同じ order を使い回す(order/method順序を維持)
+function startSenbonRun(isRepeat){
+  const s = state.senbonSession;
+  let order;
+  if(isRepeat===true && Array.isArray(s.order) && s.order.length){
+    // 繰り返し: 前回と同じ出題セット(順序も維持)。ランダムのみ再シャッフル
+    order = s.order.slice();
+    if(s.method==='random'){
+      for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+    }
+    s.lastWasRepeat = true;
+  }else{
+    const pool = senbonPool();
+    if(pool.length===0) return;
+    let arr = pool.slice();
+    if(s.method==='order'){
+      // 科目順・フレーム順(中分類も考慮)
+      arr.sort((a,b)=>{
+        const sa=SUBJECTS_ORDER.indexOf(a.subject), sb=SUBJECTS_ORDER.indexOf(b.subject);
+        if(sa!==sb) return (sa<0?999:sa)-(sb<0?999:sb);
+        const fa=a.frameNo==null?999:a.frameNo, fb=b.frameNo==null?999:b.frameNo;
+        if(fa!==fb) return fa-fb;
+        const ka=String(a.subFrameKey||''), kb=String(b.subFrameKey||'');
+        if(ka!==kb) return ka<kb?-1:1;
+        return (a.createdAt||0)-(b.createdAt||0);
+      });
+    }else if(s.method==='miss'){
+      // ミスの多い順。履歴ゼロなら全問ミス0となるため実質ランダムにフォールバック
+      const totalMiss = arr.reduce((sum,q)=>sum+senbonMissCount(q.id),0);
+      if(totalMiss===0){
+        for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+      }else{
+        arr.sort((a,b)=>senbonMissCount(b.id)-senbonMissCount(a.id));
+      }
+    }else{
+      // ランダム
+      for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    }
+    // 出題数で切り出し(0=全問)
+    const n = (s.count===0) ? arr.length : Math.min(s.count, arr.length);
+    order = arr.slice(0, n).map(q=>q.id);
+    s.lastWasRepeat = false;
+  }
+  s.running = true;
+  s.paused = false;
+  s.remainMs = 0;
+  s.idx = 0;
+  s.order = order;
+  s.results = [];
+  saveState();
+  renderSenbon();
+}
+
+// ===== 演習画面 =====
+function renderSenbonRun(root){
+  const s = state.senbonSession;
+  // 終了判定
+  if(s.idx >= s.order.length){ renderSenbonResult(root); return; }
+  const q = senbonAllQuestions().find(x=>x.id===s.order[s.idx]);
+  if(!q){ s.idx++; renderSenbonRun(root); return; }
+  const sec = senbonLevelSec(s.level);
+  _senbonAnswered = false;
+
+  root.innerHTML = `
+  <style>
+    .sbr-wrap{background:var(--surface,#fff);border-radius:14px;padding:0;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .sbr-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1f2a44;color:#fff}
+    .sbr-pos{font-size:14px;font-weight:700}
+    .sbr-meta{font-size:11px;opacity:.85}
+    .sbr-bar-track{height:6px;background:#33415c}
+    .sbr-bar{height:6px;background:#ffd166;width:100%;transition:width .1s linear}
+    .sbr-bar.danger{background:#ef476f}
+    .sbr-body{padding:26px 20px}
+    .sbr-cat{display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;background:#eef;color:#2b5dc9;margin-bottom:14px}
+    .sbr-q{font-size:20px;line-height:1.6;font-weight:600;margin:0 0 24px;min-height:64px}
+    .sbr-btns{display:flex;gap:14px}
+    .sbr-btn{flex:1;padding:22px;border:none;border-radius:12px;font-size:24px;font-weight:800;cursor:pointer;transition:.1s}
+    .sbr-o{background:#e8f5e9;color:#2e7d32;border:2px solid #2e7d32}
+    .sbr-x{background:#ffebee;color:#c62828;border:2px solid #c62828}
+    .sbr-btn:active{transform:scale(.96)}
+    .sbr-quit{margin-top:18px;width:100%;padding:10px;background:transparent;border:1px solid var(--line,#ddd);border-radius:8px;color:var(--ink-muted,#888);font-size:13px;cursor:pointer}
+    .sbr-pause{margin-top:10px;width:100%;padding:12px;background:#fff3e0;border:1px solid #f0a500;border-radius:8px;color:#b07400;font-size:14px;font-weight:700;cursor:pointer}
+    .sbr-paused-banner{padding:30px 20px;text-align:center}
+    .sbr-resume{margin-top:14px;padding:14px 28px;background:#2e7d32;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+    .sbr-judge{padding:30px 20px;text-align:center}
+    .sbr-judge-icon{font-size:56px;margin-bottom:8px}
+    .sbr-judge-txt{font-size:24px;font-weight:800;margin-bottom:10px}
+    .sbr-correct .sbr-judge-txt{color:#2e7d32}
+    .sbr-wrong .sbr-judge-txt{color:#c62828}
+    .sbr-ans{font-size:15px;margin:6px 0}
+    .sbr-note{font-size:14px;color:var(--ink-muted,#555);line-height:1.6;background:#f7f7f9;border-radius:8px;padding:12px;margin-top:12px;text-align:left}
+  </style>
+  <div class="sbr-wrap">
+    <div class="sbr-top">
+      <span class="sbr-pos">${s.idx+1} / ${s.order.length}</span>
+      <span class="sbr-meta">${escapeHtml(q.subject||'')} ${q.subFrameKey?('F'+q.subFrameKey):(q.frameNo!=null?('F'+q.frameNo):'')} ・ ${senbonCatLabel(q.category)} ・ ${sec}秒</span>
+    </div>
+    <div class="sbr-bar-track"><div class="sbr-bar" id="sbr-bar"></div></div>
+    <div class="sbr-body" id="sbr-body">
+      <span class="sbr-cat">${senbonCatLabel(q.category)}</span>
+      <p class="sbr-q">${escapeHtml(q.q)}</p>
+      <div class="sbr-btns">
+        <button class="sbr-btn sbr-o" data-ans="true">〇</button>
+        <button class="sbr-btn sbr-x" data-ans="false">✕</button>
+      </div>
+      <button class="sbr-pause" id="sbr-pause">⏸ 一時停止</button>
+      <button class="sbr-quit" id="sbr-quit">中断して設定に戻る</button>
+    </div>
+  </div>`;
+
+  root.querySelectorAll('.sbr-btn').forEach(b=>b.addEventListener('click',()=>{
+    senbonAnswer(q, b.dataset.ans==='true');
+  }));
+  document.getElementById('sbr-quit').addEventListener('click', quitSenbonRun);
+  document.getElementById('sbr-pause').addEventListener('click',()=>pauseSenbonRun(q));
+
+  // タイマー開始(一時停止からの再開なら残時間を引き継ぐ)
+  const startMs = (s.paused && s.remainMs>0) ? s.remainMs : sec*1000;
+  s.paused = false;
+  startSenbonTimer(startMs, sec*1000, ()=>{ if(!_senbonAnswered) senbonAnswer(q, null); });
+}
+
+// 一時停止: タイマーを止め残時間を保存し、再開ボタンを表示
+function pauseSenbonRun(q){
+  if(_senbonAnswered) return;
+  stopSenbonTimer();
+  const s = state.senbonSession;
+  s.paused = true;
+  s.remainMs = Math.max(0, _senbonDeadline - Date.now());
+  saveState();
+  const body = document.getElementById('sbr-body');
+  if(body){
+    body.innerHTML = `<div class="sbr-paused-banner">
+      <div style="font-size:48px">⏸</div>
+      <div style="font-size:18px;font-weight:700;margin-top:8px">一時停止中</div>
+      <div style="font-size:13px;color:#888;margin-top:6px">残り ${(s.remainMs/1000).toFixed(1)}秒</div>
+      <button class="sbr-resume" id="sbr-resume">▶ 再開</button>
+    </div>`;
+    document.getElementById('sbr-resume').addEventListener('click',()=>renderSenbon());
+  }
+}
+
+function startSenbonTimer(startMs, fullMs, onTimeout){
+  stopSenbonTimer();
+  _senbonDeadline = Date.now() + startMs;
+  const bar = document.getElementById('sbr-bar');
+  _senbonTimer = setInterval(()=>{
+    const remain = _senbonDeadline - Date.now();
+    const ratio = Math.max(0, remain/fullMs);
+    if(bar){ bar.style.width = (ratio*100)+'%'; bar.classList.toggle('danger', ratio<0.3); }
+    if(remain<=0){ stopSenbonTimer(); onTimeout(); }
+  }, 80);
+}
+function stopSenbonTimer(){ if(_senbonTimer){ clearInterval(_senbonTimer); _senbonTimer=null; } }
+
+// 解答処理 (userAns: true/false、null=時間切れ)
+function senbonAnswer(q, userAns){
+  if(_senbonAnswered) return;
+  _senbonAnswered = true;
+  stopSenbonTimer();
+  const s = state.senbonSession;
+  const timedOut = (userAns===null);
+  const correct = !timedOut && (userAns===q.a);
+  s.results.push({id:q.id, correct, timedOut});
+  // 履歴ログ
+  state.senbonHistory.push({
+    id:q.id, ts:Date.now(), correct, timedOut,
+    category:q.category, subject:q.subject, frameNo:q.frameNo, level:s.level
+  });
+  saveState();
+
+  // 判定を一瞬表示してから自動で次へ
+  const body = document.getElementById('sbr-body');
+  if(body){
+    const ansTxt = q.a ? '正解は 〇' : '正解は ✕';
+    body.parentElement.classList.add(correct?'sbr-correct':'sbr-wrong');
+    body.innerHTML = `<div class="sbr-judge ${correct?'sbr-correct':'sbr-wrong'}">
+      <div class="sbr-judge-icon">${correct?'⭕':(timedOut?'⏱':'❌')}</div>
+      <div class="sbr-judge-txt">${correct?'正解!':(timedOut?'時間切れ':'不正解')}</div>
+      <div class="sbr-ans">${ansTxt}</div>
+      ${q.note?`<div class="sbr-note">${escapeHtml(q.note)}</div>`:''}
+    </div>`;
+  }
+  // note がある不正解はやや長めに、それ以外は短く
+  const delay = (!correct && q.note) ? 2200 : (correct ? 750 : 1400);
+  setTimeout(()=>{
+    state.senbonSession.idx++;
+    saveState();
+    renderSenbon();
+  }, delay);
+}
+
+function quitSenbonRun(){
+  stopSenbonTimer();
+  state.senbonSession.running = false;
+  saveState();
+  renderSenbon();
+}
+
+// ===== 結果画面 =====
+function renderSenbonResult(root){
+  const s = state.senbonSession;
+  const res = s.results || [];
+  const total = res.length;
+  const correctN = res.filter(r=>r.correct).length;
+  const timeoutN = res.filter(r=>r.timedOut).length;
+  const wrongN = total - correctN;
+  const rate = total? Math.round(correctN/total*100):0;
+  // カテゴリ別集計
+  const byCat = {};
+  res.forEach(r=>{
+    const q = senbonAllQuestions().find(x=>x.id===r.id);
+    const c = q?q.category:'?';
+    byCat[c] ||= {t:0,ok:0};
+    byCat[c].t++; if(r.correct) byCat[c].ok++;
+  });
+  const catRows = Object.keys(byCat).map(c=>{
+    const o=byCat[c]; return `<div class="sbr-catrow"><span>${escapeHtml(senbonCatLabel(c))}</span><span>${o.ok}/${o.t} (${Math.round(o.ok/o.t*100)}%)</span></div>`;
+  }).join('');
+
+  root.innerHTML = `
+  <style>
+    .sbres{background:var(--surface,#fff);border-radius:14px;padding:28px 20px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .sbres-rate{font-size:52px;font-weight:800;color:${rate>=80?'#2e7d32':rate>=50?'#e8a000':'#c62828'};line-height:1}
+    .sbres-sub{font-size:14px;color:var(--ink-muted,#666);margin:8px 0 20px}
+    .sbr-catrow{display:flex;justify-content:space-between;padding:8px 14px;font-size:14px;border-bottom:1px solid var(--line,#eee)}
+    .sbres-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+    .sbres-btn{flex:1;min-width:130px;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+    .sbres-review{background:#1f2a44;color:#fff}
+    .sbres-repeat{background:#e8a000;color:#fff}
+    .sbres-again{background:#C9472A;color:#fff}
+    .sbres-back{background:#eef;color:#2b5dc9}
+  </style>
+  <div class="sbres">
+    <div class="sbres-rate">${rate}%</div>
+    <div class="sbres-sub">${correctN} / ${total} 問正解　(不正解 ${wrongN}問・うち時間切れ ${timeoutN}問)</div>
+    <div style="max-width:340px;margin:0 auto;text-align:left">${catRows}</div>
+    <div class="sbres-actions">
+      ${wrongN>0?`<button class="sbres-btn sbres-review" id="sbres-review">🔍 ミスした${wrongN}問を確認</button>`:''}
+      <button class="sbres-btn sbres-repeat" id="sbres-repeat">🔁 同じ${total}問を繰り返す</button>
+      <button class="sbres-btn sbres-again" id="sbres-again">🎲 新しく出題</button>
+      <button class="sbres-btn sbres-back" id="sbres-back">設定に戻る</button>
+    </div>
+  </div>`;
+
+  const reviewBtn = document.getElementById('sbres-review');
+  if(reviewBtn) reviewBtn.addEventListener('click', ()=>renderSenbonReview(root));
+  document.getElementById('sbres-repeat').addEventListener('click', ()=>startSenbonRun(true));
+  document.getElementById('sbres-again').addEventListener('click', ()=>startSenbonRun(false));
+  document.getElementById('sbres-back').addEventListener('click',()=>{
+    state.senbonSession.running=false; saveState(); renderSenbon();
+  });
+}
+
+// ===== ミス確認モード(振り返り) =====
+function renderSenbonReview(root){
+  const s = state.senbonSession;
+  const wrong = (s.results||[]).filter(r=>!r.correct)
+    .map(r=>({r, q: senbonAllQuestions().find(x=>x.id===r.id)}))
+    .filter(o=>o.q);
+  const items = wrong.map(({r,q})=>`
+    <div class="sbrv-item">
+      <div class="sbrv-meta">${escapeHtml(q.subject||'')} ${q.subFrameKey?('F'+q.subFrameKey):(q.frameNo!=null?('F'+q.frameNo):'')} ・ ${senbonCatLabel(q.category)}${q.source?(' ・ '+escapeHtml(q.source)):''}</div>
+      <div class="sbrv-q">${escapeHtml(q.q)}</div>
+      <div class="sbrv-ans ${q.a?'o':'x'}">正解: ${q.a?'〇 正しい':'✕ 誤り'}${r.timedOut?' (時間切れ)':''}</div>
+      ${q.note?`<div class="sbrv-note">${escapeHtml(q.note)}</div>`:''}
+    </div>`).join('');
+
+  root.innerHTML = `
+  <style>
+    .sbrv-card{background:var(--surface,#fff);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .sbrv-h{font-size:17px;font-weight:700;margin:0 0 4px}
+    .sbrv-sub{font-size:12px;color:#888;margin-bottom:14px}
+    .sbrv-item{border:1px solid var(--line,#eee);border-left:4px solid #c62828;border-radius:8px;padding:14px;margin-bottom:10px}
+    .sbrv-meta{font-size:11px;color:#999;margin-bottom:6px}
+    .sbrv-q{font-size:15px;line-height:1.6;margin-bottom:8px}
+    .sbrv-ans{font-size:14px;font-weight:700}
+    .sbrv-ans.o{color:#2e7d32}.sbrv-ans.x{color:#c62828}
+    .sbrv-note{font-size:13px;color:#555;background:#f7f7f9;border-radius:6px;padding:10px;margin-top:8px;line-height:1.6}
+    .sbrv-actions{display:flex;gap:10px;margin-top:16px}
+    .sbrv-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+    .sbrv-retry{background:#C9472A;color:#fff}
+    .sbrv-back{background:#eef;color:#2b5dc9}
+  </style>
+  <div class="sbrv-card">
+    <h3 class="sbrv-h">🔍 ミスした問題の振り返り</h3>
+    <div class="sbrv-sub">間違えた ${wrong.length}問。正解と補足を確認しましょう。</div>
+    ${items || '<div style="padding:20px;text-align:center;color:#888">ミスした問題はありませんでした 🎉</div>'}
+    <div class="sbrv-actions">
+      ${wrong.length>0?`<button class="sbrv-btn sbrv-retry" id="sbrv-retry">🔁 ミスした${wrong.length}問だけ解き直す</button>`:''}
+      <button class="sbrv-btn sbrv-back" id="sbrv-back">← 結果に戻る</button>
+    </div>
+  </div>`;
+
+  const retryBtn = document.getElementById('sbrv-retry');
+  if(retryBtn) retryBtn.addEventListener('click',()=>{
+    // ミスした問題だけで新セッションを組む
+    const ids = wrong.map(o=>o.q.id);
+    s.order = ids; s.idx = 0; s.results = []; s.running = true; s.paused = false; s.remainMs = 0;
+    saveState(); renderSenbon();
+  });
+  document.getElementById('sbrv-back').addEventListener('click',()=>renderSenbonResult(root));
+}
+
+/* =========================================================================
+   進捗タブ「🔫 千本ノック」: 一問一答の配置・追加・編集・削除・JSON取込
+   ========================================================================= */
+function renderSenbonManage(root){
+  ensureSenbonState();
+  state.senbonView ||= {mode:'subjects',subject:null,frameNo:null,subFrameKey:null};
+  const v = state.senbonView;
+  const subTabs = progressSubTabsHtml(state.progressView.kindMode);
+  let html = subTabs;
+
+  const all = senbonAllQuestions();
+  html += `<style>
+    .sbm-bar{display:flex;gap:8px;align-items:center;margin:14px 0;flex-wrap:wrap}
+    .sbm-back{padding:6px 12px;border:1px solid var(--line,#ddd);border-radius:8px;background:#fff;cursor:pointer;font-size:13px}
+    .sbm-crumb{font-size:14px;font-weight:700}
+    .sbm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+    .sbm-cell{padding:14px;border:1px solid var(--line,#e5e5e5);border-radius:10px;background:var(--surface,#fff);cursor:pointer;transition:.12s}
+    .sbm-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .sbm-cell-title{font-size:14px;font-weight:700;margin-bottom:4px}
+    .sbm-cell-count{font-size:12px;color:var(--ink-muted,#888)}
+    .sbm-add{margin:14px 0;padding:10px 16px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:pointer}
+    .sbm-import{margin:14px 0 14px 8px;padding:10px 16px;border:1px solid #2b5dc9;border-radius:8px;background:#fff;color:#2b5dc9;font-weight:700;cursor:pointer}
+    .sbm-item{border:1px solid var(--line,#e5e5e5);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--surface,#fff)}
+    .sbm-item-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px}
+    .sbm-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:#eef;color:#2b5dc9}
+    .sbm-ans{font-size:13px;font-weight:700;margin:4px 0}
+    .sbm-ans.o{color:#2e7d32}.sbm-ans.x{color:#c62828}
+    .sbm-note{font-size:12px;color:var(--ink-muted,#666);line-height:1.5}
+    .sbm-actions{display:flex;gap:8px;margin-top:8px}
+    .sbm-actions button{padding:5px 12px;border:1px solid var(--line,#ddd);border-radius:7px;background:#fff;cursor:pointer;font-size:12px}
+    .sbm-del{color:#c62828;border-color:#f0caca!important}
+    .sbm-empty{padding:24px;text-align:center;color:var(--ink-muted,#888);font-size:13px;line-height:1.7}
+    .sbm-filter{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap;padding:12px;background:#f7f7f9;border-radius:10px}
+    .sbm-filter label{font-size:12px;color:#666}
+    .sbm-filter select{padding:6px 8px;border:1px solid var(--line,#ddd);border-radius:7px;font-size:13px;background:#fff}
+    .sbm-mark{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;color:#fff}
+    .sbm-src{font-size:11px;padding:2px 8px;border-radius:10px;background:#f0ece4;color:#8a7a55}
+    .sbm-memo{font-size:12px;color:#8a6d00;background:#fffaf0;border-radius:6px;padding:8px;margin-top:6px;line-height:1.5}
+    .sbm-mark-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+    .sbm-mark-btn{padding:4px 10px;border:1px solid var(--line,#ddd);border-radius:7px;background:#fff;cursor:pointer;font-size:11px}
+    .sbm-mark-btn.on{color:#fff;border-color:transparent}
+  </style>`;
+
+  if(v.mode==='subjects'){
+    // 科目一覧(全科目を表示。択一とは別に独立配置できるよう全科目出す)
+    html += `<div class="sbm-bar"><span class="sbm-crumb">🔫 千本ノック — 科目を選択</span></div>`;
+    html += `<div class="sbm-grid">`;
+    SUBJECTS_ORDER.forEach(subj=>{
+      const cnt = all.filter(q=>q.subject===subj).length;
+      html += `<div class="sbm-cell" data-sbm-subject="${escapeHtml(subj)}">
+        <div class="sbm-cell-title">${escapeHtml(subj)}</div>
+        <div class="sbm-cell-count">${cnt}問</div></div>`;
+    });
+    html += `</div>`;
+  } else if(v.mode==='frames'){
+    const subj = v.subject;
+    const defs = FRAMES[subj] || [];
+    html += `<div class="sbm-bar"><button class="sbm-back" data-sbm-back="subjects">← 科目一覧</button>
+      <span class="sbm-crumb">${escapeHtml(subj)} — フレームを選択</span></div>`;
+    html += `<div class="sbm-grid">`;
+    defs.forEach(d=>{
+      const hasSub = hasSubFrames(subj, d.n);
+      // 中分類ありのフレームは配下問題数を合算
+      const cnt = all.filter(q=>q.subject===subj && String(q.frameNo)===String(d.n)).length;
+      html += `<div class="sbm-cell" data-sbm-frame="${d.n}" data-sbm-hassub="${hasSub?'1':'0'}">
+        <div class="sbm-cell-title">F${d.n} ${escapeHtml(d.t)}${hasSub?' ▸':''}</div>
+        <div class="sbm-cell-count">${cnt}問${hasSub?' (中分類あり)':''}</div></div>`;
+    });
+    html += `</div>`;
+  } else if(v.mode==='subframes'){
+    // 中分類選択(一般常識のF2等)
+    const subj=v.subject, fno=v.frameNo;
+    const def = (FRAMES[subj]||[]).find(d=>String(d.n)===String(fno));
+    const subs = getSubFrames(subj, fno);
+    html += `<div class="sbm-bar"><button class="sbm-back" data-sbm-back="frames">← フレーム一覧</button>
+      <span class="sbm-crumb">${escapeHtml(subj)} F${fno} ${def?escapeHtml(def.t):''} — 中分類を選択</span></div>`;
+    html += `<div class="sbm-grid">`;
+    subs.forEach(sf=>{
+      const cnt = all.filter(q=>q.subject===subj && String(q.subFrameKey)===String(sf.key)).length;
+      html += `<div class="sbm-cell" data-sbm-subframe="${escapeHtml(sf.key)}">
+        <div class="sbm-cell-title">F${fno}_${sf.n} ${escapeHtml(sf.t)}</div>
+        <div class="sbm-cell-count">${cnt}問</div></div>`;
+    });
+    html += `</div>`;
+  } else if(v.mode==='items'){
+    const subj=v.subject, fno=v.frameNo, sfKey=v.subFrameKey;
+    const def = (FRAMES[subj]||[]).find(d=>String(d.n)===String(fno));
+    const sf = sfKey ? getSubFrames(subj, fno).find(s=>String(s.key)===String(sfKey)) : null;
+    // このハコの問題(中分類が指定されていれば中分類で絞る)
+    let items = all.filter(q=>{
+      if(q.subject!==subj) return false;
+      if(sfKey) return String(q.subFrameKey)===String(sfKey);
+      return String(q.frameNo)===String(fno);
+    });
+    // 検索フィルタ適用
+    const f = state.senbonManageFilter;
+    const filtered = items.filter(q=>{
+      if(f.category && q.category!==f.category) return false;
+      if(f.source && (q.source||'')!==f.source) return false;
+      if(f.mark!=='' && String(q.checkMark||0)!==String(f.mark)) return false;
+      return true;
+    });
+    // 検索窓の候補
+    const usedCats = [...new Set(items.map(q=>q.category))];
+    const catFopt = '<option value="">全カテゴリ</option>' + SENBON_CATEGORIES.filter(c=>usedCats.includes(c.key)).map(c=>`<option value="${c.key}" ${f.category===c.key?'selected':''}>${escapeHtml(c.label)}</option>`).join('');
+    const usedSrcs = [...new Set(items.map(q=>q.source).filter(Boolean))];
+    const srcFopt = '<option value="">全出典</option>' + usedSrcs.map(s=>`<option value="${escapeHtml(s)}" ${f.source===s?'selected':''}>${escapeHtml(s)}</option>`).join('');
+    const markFopt = '<option value="">全マーク</option>' + SENBON_MARKS.map(m=>`<option value="${m.v}" ${String(f.mark)===String(m.v)?'selected':''}>${escapeHtml(m.label)}</option>`).join('');
+
+    const crumb = sf ? `${escapeHtml(subj)} F${fno}_${sf.n} ${escapeHtml(sf.t)}` : `${escapeHtml(subj)} F${fno} ${def?escapeHtml(def.t):''}`;
+    const backTo = sfKey ? 'subframes' : 'frames';
+    html += `<div class="sbm-bar"><button class="sbm-back" data-sbm-back="${backTo}">← ${sfKey?'中分類一覧':'フレーム一覧'}</button>
+      <span class="sbm-crumb">${crumb}</span></div>`;
+    html += `<div><button class="sbm-add" id="sbm-add">＋ 一問一答を追加</button>
+      <button class="sbm-import" id="sbm-import">📥 JSONで取込</button></div>`;
+    // 検索フィルタUI
+    html += `<div class="sbm-filter">
+      <label>🔍 絞り込み</label>
+      <select id="sbm-f-cat-filter">${catFopt}</select>
+      <select id="sbm-f-src-filter">${srcFopt}</select>
+      <select id="sbm-f-mark-filter">${markFopt}</select>
+      <span style="font-size:12px;color:#888;margin-left:auto">${filtered.length}/${items.length}問</span>
+    </div>`;
+    if(items.length===0){
+      html += `<div class="sbm-empty">このハコにはまだ一問一答がありません。<br>「＋追加」または「JSONで取込」で登録してください。</div>`;
+    }else if(filtered.length===0){
+      html += `<div class="sbm-empty">絞り込み条件に合う問題がありません。</div>`;
+    }else{
+      filtered.forEach(q=>{
+        const mk = senbonMarkInfo(q.checkMark);
+        const markBadge = mk.v ? `<span class="sbm-mark" style="background:${mk.color}">${escapeHtml(mk.label)}</span>` : '';
+        const srcBadge = q.source ? `<span class="sbm-src">${escapeHtml(q.source)}</span>` : '';
+        const markBtns = SENBON_MARKS.map(m=>`<button class="sbm-mark-btn ${(q.checkMark||0)===m.v?'on':''}" style="${(q.checkMark||0)===m.v?('background:'+m.color):''}" data-sbm-mark="${escapeHtml(q.id)}" data-mark-v="${m.v}">${escapeHtml(m.label)}</button>`).join('');
+        html += `<div class="sbm-item" data-sbm-id="${escapeHtml(q.id)}">
+          <div class="sbm-item-head"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="sbm-tag">${escapeHtml(senbonCatLabel(q.category))}</span>${srcBadge}${markBadge}</div></div>
+          <div>${escapeHtml(q.q)}</div>
+          <div class="sbm-ans ${q.a?'o':'x'}">正解: ${q.a?'〇':'✕'}</div>
+          ${q.note?`<div class="sbm-note">${escapeHtml(q.note)}</div>`:''}
+          ${q.checkMemo?`<div class="sbm-memo">📝 ${escapeHtml(q.checkMemo)}</div>`:''}
+          <div class="sbm-mark-btns">${markBtns}</div>
+          <div class="sbm-actions">
+            <button data-sbm-edit="${escapeHtml(q.id)}">編集</button>
+            <button class="sbm-del" data-sbm-delete="${escapeHtml(q.id)}">削除</button>
+          </div></div>`;
+      });
+    }
+  }
+
+  root.innerHTML = html;
+
+  // ---- イベント結線 ----
+  root.querySelectorAll('.prog-subtab').forEach(t=>t.addEventListener('click',()=>_handleProgSubTabClick(t)));
+  root.querySelectorAll('[data-sbm-subject]').forEach(c=>c.addEventListener('click',()=>{
+    v.mode='frames'; v.subject=c.dataset.sbmSubject; v.frameNo=null; v.subFrameKey=null; saveState(); renderProgress();
+  }));
+  root.querySelectorAll('[data-sbm-frame]').forEach(c=>c.addEventListener('click',()=>{
+    v.frameNo=c.dataset.sbmFrame; v.subFrameKey=null;
+    // 中分類ありなら中分類選択へ、なければ問題一覧へ
+    if(c.dataset.sbmHassub==='1'){ v.mode='subframes'; }
+    else { v.mode='items'; }
+    saveState(); renderProgress();
+  }));
+  root.querySelectorAll('[data-sbm-subframe]').forEach(c=>c.addEventListener('click',()=>{
+    v.mode='items'; v.subFrameKey=c.dataset.sbmSubframe; saveState(); renderProgress();
+  }));
+  root.querySelectorAll('[data-sbm-back]').forEach(b=>b.addEventListener('click',()=>{
+    const to=b.dataset.sbmBack;
+    if(to==='subjects'){ v.mode='subjects'; v.subject=null; v.frameNo=null; v.subFrameKey=null; }
+    else if(to==='frames'){ v.mode='frames'; v.frameNo=null; v.subFrameKey=null; }
+    else if(to==='subframes'){ v.mode='subframes'; v.subFrameKey=null; }
+    saveState(); renderProgress();
+  }));
+  // 検索フィルタ
+  const cf=document.getElementById('sbm-f-cat-filter');
+  if(cf) cf.addEventListener('change',()=>{ state.senbonManageFilter.category=cf.value; saveState(); renderProgress(); });
+  const sf2=document.getElementById('sbm-f-src-filter');
+  if(sf2) sf2.addEventListener('change',()=>{ state.senbonManageFilter.source=sf2.value; saveState(); renderProgress(); });
+  const mf=document.getElementById('sbm-f-mark-filter');
+  if(mf) mf.addEventListener('change',()=>{ state.senbonManageFilter.mark=mf.value; saveState(); renderProgress(); });
+  // チェックマーク変更
+  root.querySelectorAll('[data-sbm-mark]').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.sbmMark, mv=parseInt(b.dataset.markV,10);
+    const i=state.senbon.findIndex(q=>q.id===id);
+    if(i>=0){
+      state.senbon[i].checkMark = mv;
+      // 要チェック/確認中に変更した場合、メモ入力を促す(任意)
+      if(mv===1||mv===2){
+        const memo = prompt('チェックメモ(注意点など・任意):', state.senbon[i].checkMemo||'');
+        if(memo!==null) state.senbon[i].checkMemo = memo.trim();
+      }
+      saveState(); renderProgress();
+    }
+  }));
+  const addBtn=document.getElementById('sbm-add');
+  if(addBtn) addBtn.addEventListener('click',()=>openSenbonEditor(null));
+  const impBtn=document.getElementById('sbm-import');
+  if(impBtn) impBtn.addEventListener('click',openSenbonImport);
+  root.querySelectorAll('[data-sbm-edit]').forEach(b=>b.addEventListener('click',()=>openSenbonEditor(b.dataset.sbmEdit)));
+  root.querySelectorAll('[data-sbm-delete]').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.sbmDelete;
+    if(confirm('この一問一答を削除しますか?')){
+      state.senbon = state.senbon.filter(q=>q.id!==id);
+      saveState(); renderProgress();
+    }
+  }));
+}
+
+// 一問一答 追加/編集モーダル
+function openSenbonEditor(id){
+  const v = state.senbonView;
+  const editing = id ? senbonAllQuestions().find(q=>q.id===id) : null;
+  const cur = editing || {category:'A', q:'', a:true, note:'', source:'', checkMark:0, checkMemo:''};
+  const catOpts = SENBON_CATEGORIES.map(c=>`<option value="${c.key}" ${cur.category===c.key?'selected':''}>${escapeHtml(c.label)}</option>`).join('');
+  const markOpts = SENBON_MARKS.map(m=>`<option value="${m.v}" ${(cur.checkMark||0)===m.v?'selected':''}>${escapeHtml(m.label)}</option>`).join('');
+  // 既存の出典候補(データリスト用)
+  const srcList = senbonSources().map(s=>`<option value="${escapeHtml(s)}">`).join('');
+  // 配置先ラベル(中分類対応)
+  let placeLabel = `${escapeHtml(v.subject)} F${v.frameNo}`;
+  if(v.subFrameKey){
+    const sf = getSubFrames(v.subject, v.frameNo).find(s=>String(s.key)===String(v.subFrameKey));
+    if(sf) placeLabel += `_${sf.n} ${escapeHtml(sf.t)}`;
+  }
+  const overlay = document.createElement('div');
+  overlay.id = 'sbm-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:14px;max-width:480px;width:100%;padding:22px;max-height:90vh;overflow:auto">
+    <h3 style="margin:0 0 16px;font-size:17px">${editing?'一問一答を編集':'一問一答を追加'}</h3>
+    <div style="font-size:12px;color:#888;margin-bottom:12px">${placeLabel}</div>
+    <label style="font-size:13px;display:block;margin-bottom:4px">カテゴリ</label>
+    <select id="sbm-f-cat" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px">${catOpts}</select>
+    <label style="font-size:13px;display:block;margin-bottom:4px">問題文</label>
+    <textarea id="sbm-f-q" rows="3" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:14px;box-sizing:border-box">${escapeHtml(cur.q)}</textarea>
+    <label style="font-size:13px;display:block;margin-bottom:4px">正解</label>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <label style="flex:1;text-align:center;padding:10px;border:2px solid ${cur.a?'#2e7d32':'#ddd'};border-radius:8px;cursor:pointer"><input type="radio" name="sbm-a" value="true" ${cur.a?'checked':''}> 〇 正しい</label>
+      <label style="flex:1;text-align:center;padding:10px;border:2px solid ${!cur.a?'#c62828':'#ddd'};border-radius:8px;cursor:pointer"><input type="radio" name="sbm-a" value="false" ${!cur.a?'checked':''}> ✕ 誤り</label>
+    </div>
+    <label style="font-size:13px;display:block;margin-bottom:4px">補足(正確な数字など・任意)</label>
+    <textarea id="sbm-f-note" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:13px;box-sizing:border-box">${escapeHtml(cur.note||'')}</textarea>
+    <label style="font-size:13px;display:block;margin-bottom:4px">出典(任意・例: 2026_TAC予想問題集 / 東京有明LS_オリジナル)</label>
+    <input id="sbm-f-source" list="sbm-src-list" value="${escapeHtml(cur.source||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:13px;box-sizing:border-box">
+    <datalist id="sbm-src-list">${srcList}</datalist>
+    <label style="font-size:13px;display:block;margin-bottom:4px">チェック状態</label>
+    <select id="sbm-f-mark" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px">${markOpts}</select>
+    <label style="font-size:13px;display:block;margin-bottom:4px">チェックメモ(注意点など・任意)</label>
+    <textarea id="sbm-f-memo" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:18px;font-size:13px;box-sizing:border-box">${escapeHtml(cur.checkMemo||'')}</textarea>
+    <div style="display:flex;gap:10px">
+      <button id="sbm-cancel" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">キャンセル</button>
+      <button id="sbm-save" style="flex:1;padding:12px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:pointer">保存</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('sbm-cancel').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  document.getElementById('sbm-save').addEventListener('click',()=>{
+    const qText = document.getElementById('sbm-f-q').value.trim();
+    if(!qText){ alert('問題文を入力してください'); return; }
+    const aVal = overlay.querySelector('input[name="sbm-a"]:checked').value==='true';
+    const note = document.getElementById('sbm-f-note').value.trim();
+    const cat = document.getElementById('sbm-f-cat').value;
+    const source = document.getElementById('sbm-f-source').value.trim();
+    const checkMark = parseInt(document.getElementById('sbm-f-mark').value,10)||0;
+    const checkMemo = document.getElementById('sbm-f-memo').value.trim();
+    if(editing){
+      const i = state.senbon.findIndex(q=>q.id===id);
+      if(i>=0) state.senbon[i] = {...state.senbon[i], category:cat, q:qText, a:aVal, note, source, checkMark, checkMemo};
+    }else{
+      state.senbon.push({
+        id: 'sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+        subject: v.subject, frameNo: isNaN(parseInt(v.frameNo,10))?v.frameNo:parseInt(v.frameNo,10),
+        subFrameKey: v.subFrameKey || null,
+        category: cat, q:qText, a:aVal, note, source, checkMark, checkMemo, createdAt: Date.now()
+      });
+    }
+    saveState(); overlay.remove(); renderProgress();
+  });
+}
+
+// JSON一括取込
+function openSenbonImport(){
+  const v = state.senbonView;
+  // 配置先ラベル(中分類対応)
+  let placeLabel = `${escapeHtml(v.subject)} F${v.frameNo}`;
+  if(v.subFrameKey){
+    const sf = getSubFrames(v.subject, v.frameNo).find(s=>String(s.key)===String(v.subFrameKey));
+    if(sf) placeLabel += `_${sf.n} ${escapeHtml(sf.t)}`;
+  }
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:22px;max-height:90vh;overflow:auto">
+    <h3 style="margin:0 0 8px;font-size:17px">📥 千本ノック JSON取込</h3>
+    <div style="font-size:12px;color:#888;margin-bottom:12px">配置先: ${placeLabel}<br>subject/frameNo/subFrameKey は自動で配置先に設定されます(JSON内にあれば優先)。</div>
+    <div style="font-size:12px;background:#f7f7f9;border-radius:8px;padding:10px;margin-bottom:12px;line-height:1.6">配列形式の例(source=出典・任意):<br><code>[{"q":"…","a":false,"category":"D","note":"…","source":"2026_TAC予想問題集"}]</code></div>
+    <textarea id="sbm-imp-text" rows="10" placeholder='[{"q":"標準報酬月額の定時決定の届出期限は7月10日である。","a":false,"category":"A","note":"正しくは7月1日〜10日","source":"東京有明LS_オリジナル"}]' style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px"></textarea>
+    <div style="display:flex;gap:10px">
+      <button id="sbm-imp-cancel" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">キャンセル</button>
+      <button id="sbm-imp-go" style="flex:1;padding:12px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:pointer">取込</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('sbm-imp-cancel').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  document.getElementById('sbm-imp-go').addEventListener('click',()=>{
+    let arr;
+    try{ arr = JSON.parse(document.getElementById('sbm-imp-text').value); }
+    catch(e){ alert('JSONの解析に失敗しました: '+e.message); return; }
+    if(!Array.isArray(arr)){ alert('配列形式のJSONを入力してください'); return; }
+    let added=0;
+    const fno = isNaN(parseInt(v.frameNo,10))?v.frameNo:parseInt(v.frameNo,10);
+    arr.forEach(o=>{
+      if(!o || typeof o.q!=='string') return;
+      state.senbon.push({
+        id: o.id || ('sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)),
+        subject: o.subject || v.subject,
+        frameNo: (o.frameNo!=null)?o.frameNo:fno,
+        subFrameKey: o.subFrameKey || v.subFrameKey || null,
+        category: o.category || 'A',
+        q: o.q,
+        a: (typeof o.a==='boolean')?o.a:(o.a==='true'||o.a===1||o.a==='〇'||o.a==='○'),
+        note: o.note || '',
+        source: o.source || '',
+        checkMark: o.checkMark || 0,
+        checkMemo: o.checkMemo || '',
+        createdAt: Date.now()
+      });
+      added++;
+    });
+    saveState(); overlay.remove(); renderProgress();
+    alert(added+'問を取り込みました。');
+  });
 }
 
 function renderWeak(){
@@ -10481,6 +11468,18 @@ function _renderWeakInner(){
       <div class="weak-filter-row">
         <label>科目</label>
         <select id="w-subject">${subjectOptions}</select>
+        ${(() => {
+          // 改修04: 一般常識科目を選んでいる場合、中分類の法令プルダウンを表示
+          if(s.subject && SUBJECTS_WITH_SUBLAW.includes(s.subject)){
+            const subLaws = getSubLaws(s.subject);
+            if(subLaws.length){
+              const opts = '<option value="">(科目内すべて)</option>' +
+                subLaws.map(l=>`<option value="${escapeHtml(l)}" ${s.lawSub===l?'selected':''}>${escapeHtml(l)}</option>`).join('');
+              return `<label style="margin-left:8px">法令</label><select id="w-lawsub">${opts}</select>`;
+            }
+          }
+          return '';
+        })()}
       </div>
       <div class="weak-filter-row">
         <label>並び順</label>
@@ -10577,8 +11576,19 @@ function _renderWeakInner(){
       </button>
     </div>
     <div class="nav-row">
+      ${(() => {
+        const wstep = computeNavStep(pool.length);
+        if(wstep === null){
+          return `<button class="btn-nav" id="w-prev" ${idx===0?'disabled':''}>← 前へ</button>
+      <button class="btn-nav" id="w-next" ${idx===pool.length-1?'disabled':''}>次へ →</button>`;
+        }
+        return `<button class="btn-nav" id="w-first" ${idx===0?'disabled':''} title="最初の問題へ">⏮ 最初へ</button>
+      <button class="btn-nav btn-nav-step" id="w-jump-back" ${idx===0?'disabled':''} title="${wstep}問前へ">⟪ ${wstep}問前</button>
       <button class="btn-nav" id="w-prev" ${idx===0?'disabled':''}>← 前へ</button>
       <button class="btn-nav" id="w-next" ${idx===pool.length-1?'disabled':''}>次へ →</button>
+      <button class="btn-nav btn-nav-step" id="w-jump-fwd" ${idx===pool.length-1?'disabled':''} title="${wstep}問後へ">${wstep}問後 ⟫</button>
+      <button class="btn-nav" id="w-last" ${idx===pool.length-1?'disabled':''} title="最後の問題へ">最後へ ⏭</button>`;
+      })()}
     </div>
     ${answered?renderWeakResult(q,correct):''}
     <div class="bookmark-row">
@@ -10598,6 +11608,18 @@ function _renderWeakInner(){
   const next = document.getElementById('w-next');
   if(prev) prev.addEventListener('click',()=>navWeak(-1));
   if(next) next.addEventListener('click',()=>navWeak(1));
+  // 改修03: 弱点モードに「最初へ/最後へ/N問前/N問後」を追加
+  const wstep = computeNavStep(pool.length);
+  const wFirst = document.getElementById('w-first');
+  const wLast  = document.getElementById('w-last');
+  if(wFirst) wFirst.addEventListener('click',()=>navWeakTo(0));
+  if(wLast)  wLast.addEventListener('click',()=>navWeakTo(pool.length-1));
+  if(wstep !== null){
+    const wJB = document.getElementById('w-jump-back');
+    const wJF = document.getElementById('w-jump-fwd');
+    if(wJB) wJB.addEventListener('click',()=>navWeakJump(-wstep));
+    if(wJF) wJF.addEventListener('click',()=>navWeakJump(wstep));
+  }
   // ふせん
   root.querySelectorAll('.bm').forEach(b=>b.addEventListener('click',()=>toggleBmWeak(q.id,b.dataset.bm)));
   // 関連図表バッジクリック
@@ -10679,6 +11701,36 @@ function navWeak(dir){
   renderWeak();
 }
 
+/* 改修03: 弱点モード 指定インデックスへ直接ジャンプ(「最初へ」「最後へ」用) */
+function navWeakTo(idx){
+  const pool = getWeakPool();
+  if(!pool.length) return;
+  if(idx < 0) idx = 0;
+  if(idx > pool.length - 1) idx = pool.length - 1;
+  state.weakSession.currentIndex = idx;
+  state.weakSession.answered = false;
+  state.weakSession.userAnswer = null;
+  saveState();
+  renderWeak();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* 改修03: 弱点モード 相対ジャンプ(±N問) */
+function navWeakJump(delta){
+  const pool = getWeakPool();
+  if(!pool.length) return;
+  let target = state.weakSession.currentIndex + delta;
+  if(target < 0) target = 0;
+  if(target > pool.length - 1) target = pool.length - 1;
+  if(target === state.weakSession.currentIndex) return;
+  state.weakSession.currentIndex = target;
+  state.weakSession.answered = false;
+  state.weakSession.userAnswer = null;
+  saveState();
+  renderWeak();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
 function toggleBmWeak(qid,color){
   state.bookmarks[qid] ||= [];
   const i = state.bookmarks[qid].indexOf(color);
@@ -10701,7 +11753,16 @@ function wireWeakFilters(){
   const el2 = document.getElementById('w-miss-max'); if(el2) el2.addEventListener('change', onChange('missMax', v=>parseInt(v,10)||99));
   const el3 = document.getElementById('w-date-from'); if(el3) el3.addEventListener('change', onChange('dateFrom'));
   const el4 = document.getElementById('w-date-to'); if(el4) el4.addEventListener('change', onChange('dateTo'));
-  const el5 = document.getElementById('w-subject'); if(el5) el5.addEventListener('change', onChange('subject'));
+  const el5 = document.getElementById('w-subject'); if(el5) el5.addEventListener('change', e=>{
+    state.weakSession.subject = e.target.value;
+    state.weakSession.lawSub = '';   // 改修04: 科目を変えたら中分類の法令選択はリセット
+    state.weakSession.currentIndex = 0;
+    state.weakSession.answered = false;
+    saveState();
+    renderWeak();
+  });
+  // 改修04: 中分類の法令プルダウン
+  const elLawSub = document.getElementById('w-lawsub'); if(elLawSub) elLawSub.addEventListener('change', onChange('lawSub'));
   const el6 = document.getElementById('w-sort'); if(el6) el6.addEventListener('change', onChange('sortBy'));
   const el7 = document.getElementById('w-qtype'); if(el7) el7.addEventListener('change', onChange('questionType'));
   const el8 = document.getElementById('w-kindmode'); if(el8) el8.addEventListener('change', onChange('kindMode'));
@@ -10712,6 +11773,7 @@ function wireWeakFilters(){
     state.weakSession.dateFrom='';
     state.weakSession.dateTo='';
     state.weakSession.subject='';
+    state.weakSession.lawSub='';
     state.weakSession.sortBy='count-desc';
     state.weakSession.currentIndex=0;
     state.weakSession.answered=false;
@@ -10865,7 +11927,7 @@ function renderProgress(){
   // 改修28: tab(='gantt'|'kind')の初期化。既定は kind(従来動作)
   // 改修30: 'plan'(勉強の予定)を追加
   state.progressView.tab ||= 'kind';
-  if(!['gantt','kind','plan'].includes(state.progressView.tab)) state.progressView.tab = 'kind';
+  if(!['gantt','kind','plan','senbon'].includes(state.progressView.tab)) state.progressView.tab = 'kind';
   // ガントチャートタブが選択されていれば、そちらを描画して終了
   if(state.progressView.tab === 'gantt'){
     renderProgressGantt(root);
@@ -10874,6 +11936,11 @@ function renderProgress(){
   // 改修30: 予定タブが選択されていれば、そちらを描画して終了
   if(state.progressView.tab === 'plan'){
     renderProgressPlan(root);
+    return;
+  }
+  // 千本ノック配置タブが選択されていれば、そちらを描画して終了
+  if(state.progressView.tab === 'senbon'){
+    renderSenbonManage(root);
     return;
   }
   // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
@@ -11349,9 +12416,19 @@ function savePlanEdit(){
   const startDate = document.getElementById('plan-input-startdate').value;
   if(!startDate){ alert('学習を開始する日を指定してください'); return; }
   const startTime = document.getElementById('plan-input-starttime').value || '';
-  const endTime = document.getElementById('plan-input-endtime').value || '';
+  let endTime = document.getElementById('plan-input-endtime').value || '';
   const durRaw = document.getElementById('plan-input-duration').value;
-  const durationMin = (durRaw==='' || durRaw==null) ? null : Math.max(0, parseInt(durRaw,10) || 0);
+  let durationMin = (durRaw==='' || durRaw==null) ? null : Math.max(0, parseInt(durRaw,10) || 0);
+  // 改修06: 開始時刻と所要時間があれば終了時刻を自動補完。逆に終了時刻があれば所要時間を補完。
+  const _hmToMin = (hm)=>{ if(!hm||!/^\d{1,2}:\d{2}$/.test(hm)) return null; const [h,m]=hm.split(':').map(Number); return h*60+m; };
+  const _minToHm = (mn)=>{ mn=((Math.round(mn)%1440)+1440)%1440; return String(Math.floor(mn/60)).padStart(2,'0')+':'+String(mn%60).padStart(2,'0'); };
+  const _s = _hmToMin(startTime);
+  if(_s!=null && durationMin!=null && durationMin>0 && !endTime){
+    endTime = _minToHm(_s + durationMin);
+  } else if(_s!=null && endTime && (durationMin==null || durationMin===0)){
+    let _e = _hmToMin(endTime);
+    if(_e!=null){ let d=_e-_s; if(d<0)d+=1440; if(d>0) durationMin=d; }
+  }
   const offsets = [...document.querySelectorAll('#plan-review-grid .plan-review-chip.sel')]
     .map(c=>parseInt(c.dataset.off,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
   // 既存の done(完了履歴)は保持する
@@ -12363,6 +13440,7 @@ function progressSubTabsHtml(currentKind){
     <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastA'?'active':''}" data-tab="kind" data-kindmode="pastA">📚 過去問A <span class="pst-count">${pastACount}問</span></button>
     <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='pastB'?'active':''}" data-tab="kind" data-kindmode="pastB">📖 過去問B <span class="pst-count">${pastBCount}問</span></button>
     <button class="prog-subtab ${!ganttActive&&!planActive&&cur==='forecast'?'active':''}" data-tab="kind" data-kindmode="forecast">🎯 予想問 <span class="pst-count">${forecastCount}問</span></button>
+    <button class="prog-subtab ${currentTab==='senbon'?'active':''}" data-tab="senbon">🔫 千本ノック <span class="pst-count">${(state.senbon||[]).length}問</span></button>
   </div>`;
 }
 
@@ -12374,6 +13452,8 @@ function _handleProgSubTabClick(t){
     state.progressView.tab = 'gantt';
   }else if(t.dataset.tab === 'plan'){
     state.progressView.tab = 'plan';
+  }else if(t.dataset.tab === 'senbon'){
+    state.progressView.tab = 'senbon';
   }else{
     state.progressView.tab = 'kind';
     if(t.dataset.kindmode) state.progressView.kindMode = t.dataset.kindmode;
@@ -13366,9 +14446,11 @@ function renderTaipaTimetable(dateKey, plans, sessions){
     const col = statsSubjectColor(p.subject);
     const lbl = frameOrSubFrameLabel(p.subject, p.frameRef);
     const kindB = p.kind==='review' ? `<span class="taipa-mini-badge">復${p.offset}</span>` : `<span class="taipa-mini-badge first">初</span>`;
-    planBlocks += `<div class="taipa-block plan ${p.done?'done':''}" style="top:${top}px;height:${h-2}px;border-left-color:${col};background:${_taipaTint(col,0.10)}">
+    planBlocks += `<div class="taipa-block plan ${p.done?'done':''}" data-plan-key="${escapeHtml(p.key)}" data-plan-start="${escapeHtml(p.startTime)}" data-plan-dur="${e-s}" style="top:${top}px;height:${h-2}px;border-left-color:${col};background:${_taipaTint(col,0.10)}" title="ドラッグで時間帯を移動 / 上下の端で長さ変更">
+      <div class="taipa-resize top"></div>
       <div class="taipa-block-sub">${escapeHtml(shortSubject(p.subject))}${kindB}</div>
-      <div class="taipa-block-frame">${escapeHtml(_taipaFrameShort(p.subject,p.frameRef))}</div>
+      <div class="taipa-block-frame">${escapeHtml(_taipaFrameFull(p.subject,p.frameRef))}</div>
+      <div class="taipa-resize bottom"></div>
     </div>`;
   }
 
@@ -13389,7 +14471,7 @@ function renderTaipaTimetable(dateKey, plans, sessions){
     const outcomeTxt = isPartial ? ' / 一旦終了(途中)' : ' / 完了';
     actBlocks += `<div class="taipa-block act ${isPartial?'is-partial':''}" style="top:${top}px;height:${h-2}px;border-left-color:${col};background:${_taipaTint(col,0.20)}" title="${escapeHtml(ss.subject)} ${escapeHtml(frameOrSubFrameLabel(ss.subject,ss.frameRef))} / ${fmtHM(ss.startTs)}〜${fmtHM(ss.endTs)} / ${totMin}分 / 解答${ss.answered}問${outcomeTxt}">
       <div class="taipa-block-sub">${escapeHtml(shortSubject(ss.subject))}<span class="taipa-mini-badge act">${ss.answered}問</span>${outcomeBadge}</div>
-      <div class="taipa-block-frame">${escapeHtml(_taipaFrameShort(ss.subject,ss.frameRef))}</div>
+      <div class="taipa-block-frame">${escapeHtml(_taipaFrameFull(ss.subject,ss.frameRef))}</div>
     </div>`;
   }
 
@@ -13400,7 +14482,7 @@ function renderTaipaTimetable(dateKey, plans, sessions){
     </div>
     <div class="taipa-col taipa-col-plan">
       <div class="taipa-colhead">予定</div>
-      <div class="taipa-grid" style="height:${gridH}px">${hourLines}${planBlocks}</div>
+      <div class="taipa-grid" id="taipa-plan-grid" data-start-slot="${startSlot}" data-row-px="${TAIPA_ROW_PX}" data-slot-min="${TAIPA_SLOT_MIN}" data-n-slots="${nSlots}" style="height:${gridH}px">${hourLines}${planBlocks}</div>
     </div>
     <div class="taipa-col taipa-col-act">
       <div class="taipa-colhead">実績</div>
@@ -13431,6 +14513,15 @@ function _taipaFrameShort(subject, frameRef){
   if(r.isSubFrame && r.subFrameKey) return 'F'+r.subFrameKey.replace('.', '_');
   if(r.frameNo!=null) return 'F'+r.frameNo;
   return String(frameRef);
+}
+/* 改修05修正: フレーム番号 + 中分類名(例 "F3 適用事業所と被保険者")。
+   タイムテーブルの帯に表示。名前が長い場合は折り返し表示(CSS側で2行まで)。 */
+function _taipaFrameFull(subject, frameRef){
+  const short = _taipaFrameShort(subject, frameRef);
+  const full = frameOrSubFrameLabel(subject, frameRef); // 例 "F3 適用事業所と…"
+  // frameOrSubFrameLabel は "F3 名前" 形式。先頭の "F3 " を除いて名前部分を取り出す
+  const name = full.replace(/^F[\d_\.]+\s*/, '').trim();
+  return name ? `${short} ${name}` : short;
 }
 
 // タイパ集計サマリー(総合計・科目別・タイパ評価)
@@ -13549,6 +14640,154 @@ function _wireTaipaView(root){
   const pv = root.querySelector('#taipa-prev'); if(pv) pv.addEventListener('click', ()=>{ const d=_gParseKey(cur)||_gTodayDate(); setDate(_gDateKey(_gAddDays(d,-1))); });
   const nx = root.querySelector('#taipa-next'); if(nx) nx.addEventListener('click', ()=>{ const d=_gParseKey(cur)||_gTodayDate(); setDate(_gDateKey(_gAddDays(d,1))); });
   const pk = root.querySelector('#taipa-datepick'); if(pk) pk.addEventListener('change', ()=>{ if(pk.value) setDate(pk.value); });
+  // 改修05: 予定ハコのドラッグ移動・長さ変更
+  _wireTaipaDrag(root);
+}
+
+/* ============================================================
+   改修05: タイパ タイムテーブル上の予定ハコをドラッグで
+   - 本体ドラッグ → 開始時刻を移動(長さ維持)
+   - 上端/下端ドラッグ → 長さ(所要時間)を変更
+   5分(=1スロット)単位でスナップ。マウス/タッチ両対応(Pointer Events)。
+   確定時に studyPlans[key] の startTime/endTime を書き戻して保存。
+   ============================================================ */
+function _wireTaipaDrag(root){
+  const grid = root.querySelector('#taipa-plan-grid');
+  if(!grid) return;
+  const rowPx   = parseFloat(grid.dataset.rowPx) || TAIPA_ROW_PX;
+  const slotMin = parseInt(grid.dataset.slotMin,10) || TAIPA_SLOT_MIN;
+  const startSlot = parseInt(grid.dataset.startSlot,10) || 0;
+  const nSlots  = parseInt(grid.dataset.nSlots,10) || 0;
+
+  // 分(0時起点) → "HH:MM"
+  const minToHm = (mn)=>{
+    mn = Math.max(0, Math.min(24*60-1, Math.round(mn)));
+    return String(Math.floor(mn/60)).padStart(2,'0')+':'+String(mn%60).padStart(2,'0');
+  };
+
+  let drag = null; // {block, key, mode, startY, origTopPx, origHpx, durPx, label}
+
+  const onDown = (e, block, mode)=>{
+    // 改修05修正: 完了済み(done)でもドラッグ可能とする(予定の組み替えを優先)
+    e.preventDefault();
+    const key = block.dataset.planKey;
+    const topPx = parseFloat(block.style.top) || 0;
+    const hPx = parseFloat(block.style.height) || rowPx;
+    drag = {
+      block, key, mode,
+      startY: e.clientY,
+      origTopPx: topPx,
+      origHpx: hPx,
+      newTopPx: topPx,
+      newHpx: hPx
+    };
+    block.classList.add('dragging');
+    block.setPointerCapture && block.setPointerCapture(e.pointerId);
+    // ドラッグ中の時刻ラベルを表示
+    let lab = block.querySelector('.taipa-drag-time');
+    if(!lab){ lab = document.createElement('div'); lab.className='taipa-drag-time'; block.appendChild(lab); }
+    drag.label = lab;
+    updateLabel();
+  };
+
+  const slotsToMin = (px)=> (startSlot + px/rowPx) * slotMin;
+
+  const updateLabel = ()=>{
+    if(!drag) return;
+    const sMin = slotsToMin(drag.newTopPx);
+    const eMin = slotsToMin(drag.newTopPx + drag.newHpx + 2); // +2は height-2の補正
+    drag.label.textContent = minToHm(sMin)+'–'+minToHm(eMin);
+  };
+
+  const onMove = (e)=>{
+    if(!drag) return;
+    e.preventDefault();
+    const dy = e.clientY - drag.startY;
+    const maxPx = nSlots * rowPx;
+    if(drag.mode==='move'){
+      let t = drag.origTopPx + dy;
+      // スナップ
+      t = Math.round(t/rowPx)*rowPx;
+      t = Math.max(0, Math.min(maxPx - drag.origHpx - 2, t));
+      drag.newTopPx = t;
+      drag.block.style.top = t+'px';
+    }else if(drag.mode==='top'){
+      let t = drag.origTopPx + dy;
+      t = Math.round(t/rowPx)*rowPx;
+      const bottom = drag.origTopPx + drag.origHpx;
+      t = Math.max(0, Math.min(bottom - rowPx, t));
+      drag.newTopPx = t;
+      drag.newHpx = bottom - t;
+      drag.block.style.top = t+'px';
+      drag.block.style.height = drag.newHpx+'px';
+    }else if(drag.mode==='bottom'){
+      let h = drag.origHpx + dy;
+      h = Math.round(h/rowPx)*rowPx;
+      h = Math.max(rowPx, Math.min(maxPx - drag.origTopPx - 2, h));
+      drag.newHpx = h;
+      drag.block.style.height = h+'px';
+    }
+    updateLabel();
+  };
+
+  const onUp = (e)=>{
+    if(!drag) return;
+    e.preventDefault();
+    const sMin = Math.round(slotsToMin(drag.newTopPx));
+    const eMin = Math.round(slotsToMin(drag.newTopPx + drag.newHpx + 2));
+    const startTime = minToHm(sMin);
+    const endTime = minToHm(eMin);
+    const durationMin = Math.max(slotMin, eMin - sMin);
+    const key = drag.key;
+    const blockRef = drag.block;
+    if(drag.label && drag.label.parentNode) drag.label.parentNode.removeChild(drag.label);
+    drag.block.classList.remove('dragging');
+    drag = null;
+    // データ書き戻し(初回・復習共通の startTime/endTime を更新)
+    if(state.studyPlans && state.studyPlans[key]){
+      state.studyPlans[key].startTime = startTime;
+      state.studyPlans[key].endTime = endTime;
+      state.studyPlans[key].durationMin = durationMin;
+      saveState();
+      // 改修05修正: 全体を再描画するとスクロールが先頭へ飛ぶため、再描画しない。
+      // ハコは既にドラッグ後の位置に表示済み。data属性だけ最新化し、続けて他のハコも編集できるようにする。
+      if(blockRef){ blockRef.dataset.planStart = startTime; blockRef.dataset.planDur = String(eMin - sMin); }
+      // 同じ予定キーの他オカレンス(復習回など)が同じ画面にあれば、その位置も更新
+      _taipaSyncSameKeyBlocks(root, key, blockRef, sMin, eMin, startSlot, rowPx, slotMin);
+    }
+  };
+
+  // 各予定ブロックに配線
+  grid.querySelectorAll('.taipa-block.plan').forEach(block=>{
+    const top = block.querySelector('.taipa-resize.top');
+    const bottom = block.querySelector('.taipa-resize.bottom');
+    block.addEventListener('pointerdown', (e)=>{
+      // ハンドル上は除外(下で個別配線)
+      if(e.target.classList.contains('taipa-resize')) return;
+      onDown(e, block, 'move');
+    });
+    if(top) top.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'top'); });
+    if(bottom) bottom.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'bottom'); });
+    block.addEventListener('pointermove', onMove);
+    block.addEventListener('pointerup', onUp);
+    block.addEventListener('pointercancel', onUp);
+  });
+}
+
+/* 改修05修正: 同じ予定キーの他のハコ(同一画面内の復習回など)の表示位置も、
+   再描画せずにその場で更新する。startMin/endMin はドラッグ確定後の分。 */
+function _taipaSyncSameKeyBlocks(root, key, draggedBlock, startMin, endMin, startSlot, rowPx, slotMin){
+  const grid = root.querySelector('#taipa-plan-grid');
+  if(!grid) return;
+  const top = ((startMin/slotMin) - startSlot) * rowPx;
+  const h = Math.max(rowPx, ((endMin-startMin)/slotMin) * rowPx);
+  grid.querySelectorAll('.taipa-block.plan').forEach(b=>{
+    if(b === draggedBlock) return;
+    if(b.dataset.planKey !== key) return;
+    b.style.top = top + 'px';
+    b.style.height = (h-2) + 'px';
+    b.dataset.planStart = String(startMin/60|0).padStart(2,'0');
+  });
 }
 
 /* ============================================================
@@ -14046,8 +15285,46 @@ function init(){
   document.getElementById('plan-edit-save').addEventListener('click', savePlanEdit);
   document.getElementById('plan-edit-delete').addEventListener('click', deletePlanEdit);
 
+  // 改修06: 開始時刻+所要時間 → 終了時刻を自動計算(相互連動)
+  (function wirePlanTimeAutoCalc(){
+    const elStart = document.getElementById('plan-input-starttime');
+    const elEnd   = document.getElementById('plan-input-endtime');
+    const elDur   = document.getElementById('plan-input-duration');
+    if(!elStart || !elEnd || !elDur) return;
+    const hmToMin = (hm)=>{ if(!hm||!/^\d{1,2}:\d{2}$/.test(hm)) return null; const [h,m]=hm.split(':').map(Number); return h*60+m; };
+    const minToHm = (mn)=>{ mn=((Math.round(mn)%1440)+1440)%1440; return String(Math.floor(mn/60)).padStart(2,'0')+':'+String(mn%60).padStart(2,'0'); };
+    // 開始 + 所要 → 終了 を埋める
+    const calcEnd = ()=>{
+      const s = hmToMin(elStart.value);
+      const d = parseInt(elDur.value, 10);
+      if(s==null || isNaN(d) || d<=0) return;
+      elEnd.value = minToHm(s + d);
+    };
+    // 開始 + 終了 → 所要 を埋める(終了を手で動かした場合)
+    const calcDur = ()=>{
+      const s = hmToMin(elStart.value);
+      const e = hmToMin(elEnd.value);
+      if(s==null || e==null) return;
+      let diff = e - s;
+      if(diff < 0) diff += 1440; // 日跨ぎは想定しないが念のため
+      if(diff > 0) elDur.value = diff;
+    };
+    elStart.addEventListener('input', ()=>{ if(elDur.value) calcEnd(); else calcDur(); });
+    elDur.addEventListener('input', calcEnd);
+    elEnd.addEventListener('input', calcDur);
+  })();
+
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  // 弱点タブ内のサブタブ(弱点問題 / 千本ノック)
+  document.querySelectorAll('#weak-subtabs .prog-subtab').forEach(b=>b.addEventListener('click',()=>{
+    state.senbonView = state.senbonView || {};
+    state.senbonView.weakSub = b.dataset.weaktab;
+    if(b.dataset.weaktab!=='senbon'){ try{ stopSenbonTimer(); }catch(e){} }
+    saveState();
+    renderWeakTab();
+  }));
 
   // Mode buttons (択一のみ、選択式は別途処理)
   document.querySelectorAll('.mode-btn:not(.select-mode-btn)').forEach(b=>b.addEventListener('click',()=>{
