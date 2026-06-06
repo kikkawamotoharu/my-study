@@ -179,6 +179,11 @@
     font-variant-numeric:tabular-nums;letter-spacing:.02em;
   }
   .btn-nav.btn-nav-step:hover{color:var(--indigo);border-color:var(--indigo)}
+  /* 改修48_改修05: 未解答へジャンプ(目立たせる) */
+  .btn-nav.btn-nav-unanswered{
+    background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;
+  }
+  .btn-nav.btn-nav-unanswered:hover{filter:brightness(1.08);color:#fff}
 
   /* Result */
   .result{
@@ -236,8 +241,23 @@
   .bm.y{background:#E5B547}
   .bm.g{background:#5E8A6A}
   .bm.b{background:#4A6B8A}
+  .bm.w{background:#7E5AA2}   /* 改修01: why付箋(紫) */
+  .bm.s{background:#D9822B}  /* 改修01: 千本付箋(橙) */
+  /* 改修(付箋追加): 撃墜=ブラック / 修正=薄黄 / VS=青赤2色 */
+  .bm.k{background:#2B2B2B}                 /* 撃墜(ブラック) */
+  .bm.f{background:#F5E9A8}                 /* 修正(薄黄) */
+  .bm.f.active::after{color:#7A5A1A}        /* 薄黄は✓を濃色に */
+  .bm.v{                                    /* VS: 対角線(右上→左下)で左=赤/右=青 */
+    background:linear-gradient(to bottom right,#D14B3F 0%,#D14B3F 49.5%,#fff 49.5%,#fff 50.5%,#4A6B8A 50.5%,#4A6B8A 100%);
+  }
+  .bm.t{background:#8A8D91}                  /* 改修51/52/53: 罠問(灰・「死=灰」) */
   .bm.active{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg)}
   .bm.active::after{content:"✓";color:#fff;font-size:11px;font-weight:700}
+  /* 改修51: 絵文字マーク(💣/🪤)を四角の中央に重ねる。 */
+  .bm-mark{font-size:13px;line-height:1;pointer-events:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.55))}
+  /* 改修51: マーク付き付箋は active でも ✓ を出さず、マークを残す(アイコンで識別)。
+     選択状態は枠線(border)で判別できる。 */
+  .bm.y.active::after, .bm.t.active::after{content:""}
   /* 改修01: 付箋チップ(色の四角の下に種別ラベルを縦表示) */
   .bm-chip{display:flex;flex-direction:column;align-items:center;gap:3px}
   .bm-label{font-size:10px;color:var(--ink-muted);letter-spacing:.02em;line-height:1;white-space:nowrap}
@@ -260,6 +280,26 @@
   .mynote-save:hover{filter:brightness(1.08)}
   .mynote-cancel{font-size:13px;padding:6px 18px;border:1px solid var(--line);background:var(--paper);color:var(--ink-muted);border-radius:5px;cursor:pointer}
   .mynote-cancel:hover{background:var(--bg)}
+
+  /* 改修48_改修04: VS_識別_ロックwhy® メモ欄(薄紫テーマ) */
+  .vsnote-h{display:flex;align-items:center;gap:8px}
+  .vsnote-badge{font-size:10px;font-weight:700;color:#fff;background:#7E5AA2;border-radius:4px;padding:2px 7px;letter-spacing:.04em}
+  .vsnote-editbtn{margin-left:auto;font-size:12px;padding:3px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:5px;cursor:pointer}
+  .vsnote-editbtn:hover{background:var(--bg)}
+  .vsnote-body{border-left:3px solid #7E5AA2;padding-left:12px;background:rgba(126,90,162,.10);border-radius:0 6px 6px 0}
+  .vsnote-body .vsnote-ul{margin:4px 0;padding-left:1.4em}
+  .vsnote-body .vsnote-ul li{margin:2px 0}
+  .vsnote-edit{margin-top:6px}
+  .vsnote-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .vsnote-tool{font-size:12px;padding:4px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:5px;cursor:pointer}
+  .vsnote-tool:hover{background:var(--bg)}
+  .vsnote-hint{font-size:11px;color:var(--ink-muted)}
+  .vsnote-textarea{width:100%;min-height:120px;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:14px;line-height:1.7;resize:vertical;background:rgba(126,90,162,.05);color:var(--ink)}
+  .vsnote-actions{display:flex;gap:10px;margin-top:8px}
+  .vsnote-save{font-size:13px;padding:6px 20px;border:none;background:#7E5AA2;color:#fff;border-radius:5px;cursor:pointer;font-weight:600}
+  .vsnote-save:hover{filter:brightness(1.08)}
+  .vsnote-cancel{font-size:13px;padding:6px 18px;border:1px solid var(--line);background:var(--paper);color:var(--ink-muted);border-radius:5px;cursor:pointer}
+  .vsnote-cancel:hover{background:var(--bg)}
 
   /* Sidebar */
   aside{display:flex;flex-direction:column;gap:16px}
@@ -305,6 +345,44 @@
   select:focus,input:focus,textarea:focus{outline:none;border-color:var(--ink)}
   label.field{display:block;font-size:11px;color:var(--ink-muted);margin-bottom:4px;letter-spacing:.05em}
   .field-group+.field-group{margin-top:10px}
+
+  /* ===== 改修48_改修02: バックアップ通知設定 ===== */
+  .brs-mode-group{display:flex;gap:4px;margin-bottom:12px}
+  .brs-mode-btn{
+    flex:1;background:none;border:1px solid var(--line);cursor:pointer;
+    padding:8px 6px;border-radius:5px;font-family:inherit;
+    font-size:12px;color:var(--ink-soft);text-align:center;transition:all .12s;
+  }
+  .brs-mode-btn:hover{background:var(--line-soft);color:var(--ink)}
+  .brs-mode-btn.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .brs-count-group{display:flex;flex-wrap:wrap;gap:4px}
+  .brs-count-btn{
+    flex:1 1 calc(33% - 4px);min-width:48px;background:none;border:1px solid var(--line);
+    cursor:pointer;padding:8px 4px;border-radius:5px;font-family:inherit;
+    font-size:13px;color:var(--ink-soft);text-align:center;transition:all .12s;
+  }
+  .brs-count-btn:hover{background:var(--line-soft);color:var(--ink)}
+  .brs-count-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .brs-hint{font-size:11px;color:var(--ink-muted);line-height:1.6;margin:8px 0 0 0}
+  .brs-times-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+  .brs-time-item{
+    display:flex;align-items:center;gap:8px;padding:6px 10px;
+    background:var(--bg);border:1px solid var(--line);border-radius:5px;font-size:14px;
+  }
+  .brs-time-item .brs-time-val{flex:1;font-weight:600;color:var(--ink);letter-spacing:.05em}
+  .brs-time-item .brs-time-del{
+    background:none;border:none;cursor:pointer;color:var(--ink-muted);
+    font-size:16px;line-height:1;padding:2px 6px;border-radius:4px;
+  }
+  .brs-time-item .brs-time-del:hover{background:var(--accent-soft);color:var(--accent)}
+  .brs-time-add-row{display:flex;gap:6px;align-items:center}
+  .brs-time-input{flex:1;min-width:0}
+  .brs-time-add{
+    flex:0 0 auto;background:var(--ink);color:var(--bg);border:none;cursor:pointer;
+    padding:8px 12px;border-radius:5px;font-family:inherit;font-size:12px;white-space:nowrap;
+  }
+  .brs-time-add:hover{opacity:.9}
+  .brs-time-add:disabled{opacity:.4;cursor:not-allowed}
 
   /* Manage view */
   .manage-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -353,6 +431,79 @@
   .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
   textarea{font-family:'Shippori Mincho',serif;line-height:1.7;resize:vertical;min-height:80px}
+
+  /* ===== 改修46: バックアップ忘れ防止リマインダーバナー =====
+     - sticky でタブの下に常駐(必要時のみ表示)
+     - レベル別の色(soft=amber / warn=orange / urgent=accent)
+     - モバイルでは縦並びレイアウト */
+  .backup-reminder{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:8px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:12.5px;line-height:1.5;
+    position:sticky;top:0;z-index:50;
+    background:var(--amber-soft, #F8EFDA);
+    border-left:4px solid var(--amber, #C68A14);
+    color:var(--ink);
+    animation:brSlideDown .25s ease-out;
+  }
+  @keyframes brSlideDown{
+    from{transform:translateY(-100%);opacity:0}
+    to{transform:translateY(0);opacity:1}
+  }
+  .backup-reminder.level-warn{
+    background:#FBE9D7;
+    border-left-color:#D9802A;
+  }
+  .backup-reminder.level-urgent{
+    background:#F8DDD8;
+    border-left-color:var(--accent);
+    color:var(--ink);
+    font-weight:500;
+  }
+  .backup-reminder .br-icon{
+    font-size:14px;flex-shrink:0;
+  }
+  .backup-reminder.level-urgent .br-icon{
+    animation:brPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes brPulse{
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.15);opacity:0.7}
+  }
+  .backup-reminder .br-text{flex:1;min-width:160px}
+  .backup-reminder .br-text strong{color:var(--accent);font-weight:600}
+  .backup-reminder .br-actions{
+    display:flex;gap:6px;flex-shrink:0;
+  }
+  .backup-reminder .br-action{
+    background:var(--ink);color:#fff;
+    border:none;padding:5px 12px;border-radius:4px;
+    font-size:12px;font-family:inherit;font-weight:500;
+    cursor:pointer;letter-spacing:.04em;
+    transition:background .15s;
+  }
+  .backup-reminder.level-urgent .br-action{
+    background:var(--accent);
+  }
+  .backup-reminder .br-action:hover{background:#000}
+  .backup-reminder.level-urgent .br-action:hover{background:#9F2F25}
+  .backup-reminder .br-dismiss{
+    background:transparent;border:1px solid var(--line);
+    padding:5px 10px;border-radius:4px;font-size:11.5px;
+    color:var(--ink-soft);font-family:inherit;cursor:pointer;
+    transition:all .15s;
+  }
+  .backup-reminder .br-dismiss:hover{
+    background:rgba(255,255,255,.6);color:var(--ink);
+  }
+  @media(max-width:560px){
+    .backup-reminder{
+      flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px;
+    }
+    .backup-reminder .br-text{min-width:0}
+    .backup-reminder .br-actions{justify-content:flex-end}
+  }
 
   /* ===== 改修25: 差分マージ復元モーダル ===== */
   .merge-slot{
@@ -1754,6 +1905,50 @@
     font-size:13.5px;
   }
 
+  /* ===== 改修01: 出題根拠の条番号クリック → 条文表示 ===== */
+  .lb-chip{
+    display:inline-block;padding:1px 7px;margin:0 1px;border-radius:4px;
+    background:var(--accent-soft);color:var(--accent);
+    font-weight:600;cursor:pointer;text-decoration:none;
+    border:1px solid transparent;transition:border-color .12s,background .12s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .lb-chip:hover,.lb-chip:active{border-color:var(--accent);background:#F0D6D0}
+  .lb-chip::after{content:"📖";font-size:10px;margin-left:3px;opacity:.7}
+  .lb-art-panel{
+    margin-top:10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--bg);overflow:hidden;
+  }
+  .lb-art-panel-head{
+    display:flex;align-items:center;gap:8px;padding:8px 12px;
+    background:var(--line-soft);font-size:12px;color:var(--ink-muted);
+  }
+  .lb-art-panel-head .lb-close{
+    margin-left:auto;cursor:pointer;font-size:16px;line-height:1;
+    color:var(--ink-muted);padding:2px 6px;border-radius:4px;
+  }
+  .lb-art-panel-head .lb-close:hover{background:var(--paper);color:var(--ink)}
+  .lb-art-panel-body{padding:12px 14px}
+  .lb-art-item{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  .lb-art-item:last-child{border-bottom:none}
+  .lb-art-item .lb-art-kind{
+    display:inline-block;padding:1px 7px;border-radius:3px;
+    font-size:10px;font-weight:600;letter-spacing:.05em;margin-right:6px;
+  }
+  .lb-art-item .lb-art-kind.k-a{background:#FEE5E0;color:#8B2618}
+  .lb-art-item .lb-art-kind.k-b{background:#E3EEF6;color:#1F4F77}
+  .lb-art-item .lb-art-kind.k-c{background:#F3E9D7;color:#7A5A1A}
+  .lb-art-item .lb-art-ti{font-size:13px;font-weight:600;color:var(--ink)}
+  .lb-art-item .lb-art-loc{font-size:11px;color:var(--ink-muted);margin:3px 0 6px 0}
+  .lb-art-item .lb-art-text{font-size:14px;line-height:1.85;color:var(--ink);white-space:pre-wrap}
+  .lb-art-empty{font-size:13px;color:var(--ink-muted);line-height:1.7}
+  .lb-art-empty .lb-egov{
+    display:inline-block;margin-top:8px;padding:6px 12px;border-radius:6px;
+    background:var(--accent);color:#fff;text-decoration:none;font-size:12px;font-weight:600;
+  }
+  .lb-art-empty .lb-egov:hover{opacity:.9}
+  .sbm-art-num{color:#C9472A;font-weight:600}
+
   /* ===== 改修11: 5why タブ用スタイル ===== */
   /* 基本構造は条文・解説タブ(.art-*)と同じ。色味で区別する */
   .why-intro{padding:20px 24px}
@@ -2252,6 +2447,17 @@
   .plan-timer-btn.pausefinish{background:var(--paper);color:var(--indigo);border-color:var(--indigo);font-weight:600}
   .plan-timer-btn.cancel{color:var(--accent)}
   .plan-timer-btn:hover{opacity:.88}
+
+  /* 【改修42】択一画面(暗背景の frame-banner 内)に置くセッションタイマー */
+  .frame-banner .quiz-sess-timer{
+    width:100%;margin-top:10px;margin-bottom:2px;
+    background:rgba(245,242,236,.95);border-color:rgba(245,242,236,.5);
+  }
+  .frame-banner .quiz-sess-timer.is-running{background:rgba(212,237,218,.95);border-color:rgba(46,160,67,.5)}
+  .frame-banner .quiz-sess-timer.is-paused{background:rgba(247,233,200,.95);border-color:rgba(201,141,0,.55)}
+  .frame-banner .quiz-sess-timer.is-resting{background:rgba(228,228,232,.95);border-color:rgba(120,120,130,.55)}
+  .frame-banner .quiz-sess-timer .plan-timer-clock{color:#1B2942}
+  .frame-banner .quiz-sess-timer .plan-timer-state{color:#4a5568}
 
   /* ===== 改修31: タイパ タイムテーブル ===== */
   .taipa-summary-empty,.taipa-summary{margin:4px 0 14px 0}
@@ -2826,6 +3032,20 @@
     </nav>
   </header>
 
+  <!-- ===== 改修46: バックアップ忘れ防止リマインダーバナー =====
+       未バックアップの解答が一定数を超えると表示される。
+       ワンクリックでバックアップを実行可能。
+       「後で」ボタンで20分間非表示にできる(ただしレベルが上がれば自動再表示)。
+       本機能は改修25(差分マージ復元)の事前予防として機能する二重防御線。 -->
+  <div id="backup-reminder-banner" class="backup-reminder" style="display:none" role="status" aria-live="polite">
+    <span class="br-icon" aria-hidden="true">🔔</span>
+    <span class="br-text"><span id="br-count-text"></span></span>
+    <div class="br-actions">
+      <button type="button" class="br-action" id="br-backup-now">今すぐバックアップ</button>
+      <button type="button" class="br-dismiss" id="br-dismiss" title="20分間非表示(レベルが上がれば自動再表示)">後で</button>
+    </div>
+  </div>
+
   <!-- ===== QUIZ VIEW ===== -->
   <main id="view-quiz">
     <div class="card" id="quiz-card">
@@ -2903,9 +3123,15 @@
           <option value="">指定なし</option>
           <option value="r">赤(重要)</option>
           <option value="p">桃(事例)</option>
-          <option value="y">黄(注意)</option>
+          <option value="y">黄(地雷💣)</option>
+          <option value="t">灰(罠問☠)</option>
           <option value="g">緑(確認)</option>
           <option value="b">青(紐づけ)</option>
+          <option value="w">紫(why)</option>
+          <option value="s">橙(千本)</option>
+          <option value="k">黒(撃墜)</option>
+          <option value="f">薄黄(修正)</option>
+          <option value="v">青赤(VS)</option>
         </select>
       </div>
       <div class="field-group">
@@ -2915,6 +3141,56 @@
           <option value="has">追記あり</option>
           <option value="none">追記なし</option>
         </select>
+      </div>
+    </div>
+
+    <!-- ===== 改修48_改修02: 自動バックアップ通知の設定 ===== -->
+    <div class="stat-card" id="backup-reminder-settings-card">
+      <h3>バックアップ通知</h3>
+      <div class="brs-mode-group" role="radiogroup" aria-label="通知方式">
+        <button type="button" class="brs-mode-btn" data-brsmode="count">問題数ごと</button>
+        <button type="button" class="brs-mode-btn" data-brsmode="time">時刻で通知</button>
+        <button type="button" class="brs-mode-btn" data-brsmode="off">通知しない</button>
+      </div>
+
+      <!-- 問題数方式 -->
+      <div class="brs-panel" id="brs-panel-count">
+        <label class="field">何問ごとに通知するか</label>
+        <div class="brs-count-group">
+          <button type="button" class="brs-count-btn" data-brscount="10">10問</button>
+          <button type="button" class="brs-count-btn" data-brscount="20">20問</button>
+          <button type="button" class="brs-count-btn" data-brscount="30">30問</button>
+          <button type="button" class="brs-count-btn" data-brscount="40">40問</button>
+          <button type="button" class="brs-count-btn" data-brscount="50">50問</button>
+        </div>
+        <p class="brs-hint">未バックアップが指定問数に達したら通知します。</p>
+      </div>
+
+      <!-- 時間方式 -->
+      <div class="brs-panel" id="brs-panel-time" style="display:none">
+        <label class="field">通知する時刻(最大5件)</label>
+        <div id="brs-times-list" class="brs-times-list"></div>
+        <div class="brs-time-add-row">
+          <input type="time" id="brs-time-input" class="brs-time-input" value="07:00">
+          <button type="button" class="brs-time-add" id="brs-time-add-btn">＋追加</button>
+        </div>
+        <p class="brs-hint">設定例 — 通常日:07:00 / 12:00 / 17:00、休日:07:00 / 11:00 / 17:00 / 23:00。<br>その時刻を過ぎて未バックアップがあるときに通知します(「後で」でその枠は当日再表示しません)。</p>
+      </div>
+
+      <!-- 通知しない -->
+      <div class="brs-panel" id="brs-panel-off" style="display:none">
+        <p class="brs-hint">バックアップ通知バナーは表示されません。<br>(タブを閉じる際の確認ダイアログは安全のため残ります。)</p>
+      </div>
+
+      <!-- 改修50: 自動JSONダウンロード -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #d0d0d0">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+          <input type="checkbox" id="brs-autodl-toggle" style="margin-top:3px;flex:0 0 auto">
+          <span>
+            <strong>自動バックアップ(JSON自動保存)</strong><br>
+            <span class="brs-hint" style="margin:0">ONにすると、未バックアップが通知のしきい値に達したとき、および別アプリへ切替・タブを閉じる直前に、バックアップJSONを自動でダウンロードします(最短10分間隔)。<br>iPhoneでは保存先に「ファイル」アプリやGドライブを選べます。外出先での消失対策に有効です。</span>
+          </span>
+        </label>
       </div>
     </div>
   </aside>
@@ -2975,9 +3251,15 @@
           <option value="">指定なし</option>
           <option value="r">赤</option>
           <option value="p">桃</option>
-          <option value="y">黄</option>
+          <option value="y">黄(地雷💣)</option>
+          <option value="t">灰(罠問☠)</option>
           <option value="g">緑</option>
           <option value="b">青</option>
+          <option value="w">紫(why)</option>
+          <option value="s">橙(千本)</option>
+          <option value="k">黒(撃墜)</option>
+          <option value="f">薄黄(修正)</option>
+          <option value="v">青赤(VS)</option>
         </select>
       </div>
     </div>
@@ -4585,12 +4867,56 @@ async function initFigureStorage(){
 
 /* ===== State & Storage ===== */
 const STORAGE_KEY = 'sharoushi_kakomon_v1';
+
+/* 改修50: データ喪失防止のための保存凍結フラグ群。
+   ・_saveFrozen … 読み込みに「失敗の疑い」があるとき true。true の間は saveState を拒否し、
+                   空/壊れた state による localStorage 上書き(=全データ消失)を物理的に防ぐ。
+   ・_loadHadRawData … 起動時に localStorage に生データが存在したか。
+                       存在したのにフォールバック(空state)へ落ちたら、それは異常=凍結対象。
+   ・_lastGoodCounts … 直近の正常な件数。極端な目減りを検知して保存を止めるために使う。 */
+let _saveFrozen = false;
+let _loadHadRawData = false;
+let _lastGoodCounts = null;
+
 let state = loadState();
 
+/* 改修50: state の主要件数のスナップショットを取る(保存ガードの比較用)。 */
+function _snapshotCounts(s){
+  if(!s) return null;
+  return {
+    questions: Array.isArray(s.questions) ? s.questions.length : 0,
+    history: Array.isArray(s.history) ? s.history.length : 0,
+    selectQuestions: Array.isArray(s.selectQuestions) ? s.selectQuestions.length : 0,
+    cases: Array.isArray(s.cases) ? s.cases.length : 0,
+    senbon: Array.isArray(s.senbon) ? s.senbon.length : 0,
+    frameAttempts: s.frameAttempts ? Object.keys(s.frameAttempts).length : 0,
+    figures: Array.isArray(s.figures) ? s.figures.length : 0
+  };
+}
+
+/* 改修50: 読込失敗時の強い警告。誤って操作して保存されると上書きの危険があるため、
+   ユーザーに「いったんアプリを閉じて開き直す/バックアップから復元」を促す。 */
+function _showLoadFailureWarning(){
+  alert(
+    '⚠️ データの読み込みに問題が発生しました。\n\n'
+    + '安全のため、データの自動保存を一時停止しています。\n'
+    + '(この状態では新しい操作は保存されません — 既存データを守るためです)\n\n'
+    + '【対処】\n'
+    + '1. このページをいったん閉じて、開き直してください。\n'
+    + '   多くの場合これで正常に戻ります。\n'
+    + '2. それでも直らない場合は、保存済みの完全バックアップ(JSON)から\n'
+    + '   「バックアップ復元」を行ってください。\n\n'
+    + '※ この警告中に操作してもデータは上書きされません。ご安心ください。'
+  );
+}
+
 function loadState(){
+  let rawForGuard = null;
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
+    rawForGuard = raw;
     if(raw){
+      _loadHadRawData = true;
       const s = JSON.parse(raw);
       if(!s.questions || !s.questions.length){
         s.questions = SAMPLE_QUESTIONS.slice();
@@ -4598,7 +4924,10 @@ function loadState(){
       s.history ||= [];
       s.bookmarks ||= {};
       s.myNotes ||= {};
+      s.vsNotes ||= {};
       s.frameAttempts ||= {};
+      // 改修48_改修02: 自動バックアップ通知設定(後方互換)
+      s.backupReminderSettings = normalizeBackupReminderSettings(s.backupReminderSettings);
       s.session ||= {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterCat:'',filterFrame:''};
       s.session.answered ||= false;
       s.session.userAnswer ??= null;
@@ -4683,6 +5012,9 @@ function loadState(){
       if(typeof s.whyView.subFrameKey === 'undefined') s.whyView.subFrameKey = null;
       // 改修03: 5why タブのイントロ文(ユーザー編集可)
       if(typeof s.whyIntro === 'undefined' || s.whyIntro === null) s.whyIntro = DEFAULT_WHY_INTRO;
+      // 改修46: バックアップ忘れ防止リマインダー(後方互換)
+      // 既存ユーザーには「今現在」を最終バックアップ時刻として扱い、初回起動でいきなり警告が出るのを防ぐ
+      if(typeof s.lastBackupAt === 'undefined' || s.lastBackupAt === null) s.lastBackupAt = Date.now();
       // === Migration: 既存問題にframeNoを自動付与 ===
       let migrated = 0;
       // Phase 1: 文字列のframeNoを数値に変換
@@ -4800,14 +5132,27 @@ function loadState(){
         if(stashed>0) console.log(`Stashed ${stashed} figure images from localStorage to in-memory cache`);
       }
 
+      // 改修50: 正常に復元できた件数を記録(以後の保存ガードの基準値)
+      _lastGoodCounts = _snapshotCounts(s);
       return s;
     }
   }catch(e){console.warn('Load error',e)}
+  // 改修50: ここに来た=「生データが存在したのに解析/復元に失敗」または「生データが無い」。
+  //   生データが在ったのにフォールバックへ落ちた場合は、壊れた読込の可能性が高いので
+  //   保存を凍結し、空のサンプルデータで localStorage を上書きしてしまう事故を防ぐ。
+  //   (生データが無い=本当の初回起動なら凍結しない。)
+  if(rawForGuard){
+    _saveFrozen = true;
+    console.error('[改修50] 読込に失敗したため保存を凍結しました。データ上書きを防止します。');
+    // 起動直後の DOM 準備後に強い警告を出す(関数定義順の都合で遅延実行)
+    setTimeout(()=>{ try{ _showLoadFailureWarning(); }catch(_){ } }, 800);
+  }
   return {
     questions: SAMPLE_QUESTIONS.slice(),
     history: [],
     bookmarks: {},
     myNotes: {},
+    vsNotes: {},
     frameAttempts: {},
     session: {mode:'seq',currentIndex:0,filterLaw:'',filterYear:'',filterBm:'',filterMyNote:'',filterCat:'',filterFrame:'',frameMode:null,answered:false,userAnswer:null,kindMode:'both'},
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
@@ -4832,10 +5177,49 @@ function loadState(){
     articleView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
     whys: {},
     whyView: {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null},
-    whyIntro: DEFAULT_WHY_INTRO
+    whyIntro: DEFAULT_WHY_INTRO,
+    // 改修48_改修02: 自動バックアップ通知設定
+    //  mode: 'count'(問題数方式) / 'time'(時間方式) / 'off'(通知しない)
+    //  countN: 問題数方式のしきい値(10/20/30/40/50)
+    //  times: 時間方式の通知時刻(最大5件, "HH:MM" 文字列)
+    backupReminderSettings: {mode:'count', countN:30, times:['07:00','12:00','17:00']}
   };
 }
 function saveState(){
+  // 改修50: 保存凍結中は何も書き込まない。
+  //   読込失敗の疑いがある状態(空/壊れた state)で保存すると、localStorage の
+  //   正常データを空データで上書きして全消失する事故が起きる。これを物理的に防ぐ。
+  if(_saveFrozen){
+    console.warn('[改修50] 保存は凍結中のためスキップしました(データ保護)。');
+    return;
+  }
+  // 改修50: 急減ガード。直前の正常件数に比べて、問題・履歴・フレーム履歴が
+  //   「いきなりほぼ全部消えた」ように見える場合は、異常とみなして保存を止め、確認を取る。
+  //   ユーザーの正規操作(全削除等)を妨げないよう、確認を取ってから続行できるようにする。
+  if(_lastGoodCounts){
+    const now = _snapshotCounts(state);
+    const dangerous =
+      (_lastGoodCounts.questions >= 5 && now.questions === 0) ||
+      (_lastGoodCounts.history   >= 20 && now.history   === 0) ||
+      (_lastGoodCounts.frameAttempts >= 3 && now.frameAttempts === 0);
+    if(dangerous){
+      const msg = '⚠️ データが大幅に減っています。保存して上書きすると元に戻せません。\n\n'
+        + `問題: ${_lastGoodCounts.questions} → ${now.questions}\n`
+        + `解答履歴: ${_lastGoodCounts.history} → ${now.history}\n`
+        + `フレーム演習履歴: ${_lastGoodCounts.frameAttempts} → ${now.frameAttempts}\n\n`
+        + 'これは意図した操作ですか?\n'
+        + '[OK]=このまま保存する　[キャンセル]=保存せず守る(推奨)';
+      let proceed = false;
+      try{ proceed = confirm(msg); }catch(_){ proceed = false; }
+      if(!proceed){
+        // 保存を中止し、以後の誤上書きも防ぐため凍結する
+        _saveFrozen = true;
+        console.error('[改修50] 急減を検知し保存を中止・凍結しました。');
+        return;
+      }
+      // ユーザーが意図的に続行した場合は、新しい件数を基準に更新する
+    }
+  }
   // 改修6 防御層: 万一 state.figures に imageData が残っていたら、
   // 書き込み前に figureImageCache へ退避して state からは削除する。
   // これにより、どんな経路でも localStorage の 5MB 制限超過を未然に防ぐ。
@@ -4849,6 +5233,8 @@ function saveState(){
   }
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // 改修50: 書き込み成功時点の件数を「正常な基準値」として更新
+    _lastGoodCounts = _snapshotCounts(state);
   }catch(e){
     // ここに来るのは、画像以外のメタ情報だけで 5MB を超えた極端なケース。
     // 画像本体はすでに IndexedDB / キャッシュ側に分離済みなので、再試行しても
@@ -4856,6 +5242,11 @@ function saveState(){
     console.error('saveState failed', e);
     alert('保存に失敗しました: '+e.message+'\n\n画像本体は IndexedDB に分離済みです。\nブラウザのキャッシュ削除前に「データ」タブから完全バックアップを取得してください。');
   }
+  // 改修46: state の変更ごとにバナーを更新(未バックアップ件数の自動反映)
+  // updateBackupReminderBanner は DOM 未生成の起動初期にも呼ばれうるので try で防御
+  try{
+    if(typeof updateBackupReminderBanner === 'function') updateBackupReminderBanner();
+  }catch(_){}
 }
 
 /* ===== Question filter / current pool ===== */
@@ -5005,6 +5396,11 @@ function formatAnswerHistory(qid){
 
 /* ===== Render: quiz ===== */
 function renderQuiz(){
+  // 改修48_改修05: フレーム演習中に画面を描くたび、完了済みなら完了バナーへ移行させる。
+  //   (最終問で停止した既存の演習も、開き直し/再描画の瞬間に救済される。再入はガード済み)
+  if(state.session.frameMode && !state.session.frameCompleted && !_inCheckFrameComplete){
+    checkFrameComplete();
+  }
   const card = document.getElementById('quiz-card');
   const q = currentQuestion();
 
@@ -5051,12 +5447,19 @@ function renderQuiz(){
     const titleStr = fm.subFrameKey
       ? frameOrSubFrameLabel(subject, fm.subFrameKey)
       : frameTitle(subject, frameNo);
+    // 【改修42】進捗管理_予定_演習実施モードのボタンを択一画面にも表示する。
+    //   進行中の学習セッション(running/paused/resting)があれば、その状態に応じた
+    //   「中断/休憩/再開/完了/一旦終了/キャンセル」を frameMode バナー内に出す。
+    //   進捗管理タブの plan-timer と同一の状態遷移・ラベルにする。
+    const sessHtml = renderQuizSessionTimer(subject, fm.subFrameKey != null ? fm.subFrameKey : frameNo);
+
     return `<div class="frame-banner">
       <div class="fb-head">
         <span class="fb-mark">演習中</span>
         <span class="fb-title">${escapeHtml(subject)} ${escapeHtml(titleStr)}${kindLbl} <span class="fb-att">(${cur.attemptNo}回目)</span></span>
       </div>
       <div class="fb-prog"><div class="fb-bar"><div class="fb-fill" style="width:${pct}%"></div></div><span class="fb-pct">${done}/${tot}問 (${pct}%)</span></div>
+      ${sessHtml}
       <div class="fb-actions">
         <button class="btn ghost btn-sm" id="fm-abandon">演習を破棄</button>
         <button class="btn ghost btn-sm" id="fm-exit">中断して通常に戻る</button>
@@ -5068,6 +5471,7 @@ function renderQuiz(){
     card.innerHTML = fmBanner + `<div class="empty"><div class="ico">―</div>条件に合う問題がありません。<br>モードや絞り込みを変えてください。</div>`;
     const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
     const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
+    _wireQuizSessionButtons(card);  // 【改修42】進捗管理セッションボタンの配線
     return;
   }
 
@@ -5125,7 +5529,7 @@ function renderQuiz(){
 
     <div class="bookmark-row">
       <span class="lbl">FUSEN</span>
-      ${['r','p','y','g','b'].map(c=>renderBmChip(c, bms.includes(c))).join('')}
+      ${BM_COLORS_TANITSU.map(c=>renderBmChip(c, bms.includes(c))).join('')}
       <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
     </div>
   `;
@@ -5156,6 +5560,11 @@ function renderQuiz(){
   card.querySelectorAll('[data-note-save]').forEach(b=>b.addEventListener('click',()=>saveMyNote(b.dataset.noteSave)));
   card.querySelectorAll('[data-note-cancel]').forEach(b=>b.addEventListener('click',()=>cancelEditMyNote()));
   card.querySelectorAll('[data-note-syntax]').forEach(b=>b.addEventListener('click',()=>insertNoteSyntax(b.dataset.noteSyntax)));
+  // 改修48_改修04: VS_識別_ロックwhy® メモのボタン
+  card.querySelectorAll('[data-vsnote-edit]').forEach(b=>b.addEventListener('click',()=>startEditVsNote(b.dataset.vsnoteEdit)));
+  card.querySelectorAll('[data-vsnote-save]').forEach(b=>b.addEventListener('click',()=>saveVsNote(b.dataset.vsnoteSave)));
+  card.querySelectorAll('[data-vsnote-cancel]').forEach(b=>b.addEventListener('click',()=>cancelEditVsNote()));
+  card.querySelectorAll('[data-vsnote-syntax]').forEach(b=>b.addEventListener('click',()=>insertVsNoteSyntax(b.dataset.vsnoteSyntax)));
   card.querySelectorAll('.linked-fig-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
       const i = parseInt(chip.dataset.figidx, 10);
@@ -5175,6 +5584,8 @@ function renderQuiz(){
 
   // 条文・解説アコーディオン(Phase 7)
   wireLinkedArticlesAccordion(card);
+  // 改修01: 出題根拠の条番号チップ
+  try { wireLegalBasisChips(card, q); } catch(e){ console.error('[改修01] wireLegalBasisChips(quiz):', e); }
   const artLinkBtnQuiz = document.getElementById('art-link-btn-quiz');
   if(artLinkBtnQuiz) artLinkBtnQuiz.addEventListener('click', ()=>openArticlePicker(q.id));
 
@@ -5190,6 +5601,7 @@ function renderQuiz(){
   // フレーム演習バナーのボタン
   const ab = document.getElementById('fm-abandon'); if(ab) ab.addEventListener('click', abandonFrameAttempt);
   const ex = document.getElementById('fm-exit'); if(ex) ex.addEventListener('click', exitFrameMode);
+  _wireQuizSessionButtons(card);  // 【改修42】進捗管理セッションボタンの配線
   // フレーム完了バナーのボタン
   const fcBack = document.getElementById('fc-back-progress');
   if(fcBack) fcBack.addEventListener('click', ()=>{
@@ -5243,6 +5655,37 @@ function renderMyNoteSection(q){
       <button type="button" class="mynote-editbtn" data-note-edit="${q.id}">＋ 追記する</button></div>`;
 }
 
+/* 改修48_改修04: VS_識別_ロックwhy® メモ欄(表示/編集)。renderResult から ③5why の後に呼ばれる。 */
+function renderVsNoteSection(q){
+  const editing = state._editingVsNote === q.id;
+  const note = getVsNote(q.id);
+  if(editing){
+    return `
+      <div class="section-h vsnote-h">VS_識別_ロックwhy®</div>
+      <div class="vsnote-edit">
+        <div class="vsnote-toolbar">
+          <button type="button" class="vsnote-tool" data-vsnote-syntax="bold">太字</button>
+          <button type="button" class="vsnote-tool" data-vsnote-syntax="list">・箇条書き</button>
+          <span class="vsnote-hint">**で囲むと太字 / 行頭・で箇条書き</span>
+        </div>
+        <textarea id="vsnote-textarea" class="vsnote-textarea" placeholder="比較・識別のポイント(VS_識別_ロックwhy®)を入力します。似た論点の違い、引っかけの分かれ目、判断の決め手などを蓄積していきます。">${escapeHtml(note)}</textarea>
+        <div class="vsnote-actions">
+          <button type="button" class="vsnote-save" data-vsnote-save="${q.id}">保存</button>
+          <button type="button" class="vsnote-cancel" data-vsnote-cancel="1">キャンセル</button>
+        </div>
+      </div>`;
+  }
+  if(hasVsNote(q.id)){
+    return `
+      <div class="section-h vsnote-h">VS_識別_ロックwhy® <span class="vsnote-badge">記載あり</span>
+        <button type="button" class="vsnote-editbtn" data-vsnote-edit="${q.id}">編集</button></div>
+      <div class="section-body vsnote-body">${renderVsNoteHtml(note)}</div>`;
+  }
+  return `
+    <div class="section-h vsnote-h">VS_識別_ロックwhy®
+      <button type="button" class="vsnote-editbtn" data-vsnote-edit="${q.id}">＋ 記載する</button></div>`;
+}
+
 function renderResult(q,correct){
   // 紐付けブロックが1件でもあれば articleText はデフォルト折りたたみ(優先表示は紐付けブロック)
   // 紐付けが空なら従来通り articleText を展開表示
@@ -5262,10 +5705,11 @@ function renderResult(q,correct){
       ${renderMyNoteSection(q)}
       <div class="section-h">難易度・出題根拠</div>
       <div class="section-body dim">
-        レベル ${escapeHtml(q.difficulty||'—')}　／　${escapeHtml(q.legalBasis||'—')}
+        レベル ${escapeHtml(q.difficulty||'—')}　／　${renderLegalBasisInteractive(q)}
       </div>
       ${renderLinkedArticlesSection(q, 'quiz')}
       ${(() => { try { return renderLinkedWhysSection(q, 'quiz'); } catch(e) { console.error('[5why] renderLinkedWhysSection(quiz) error:', e); return ''; } })()}
+      ${(() => { try { return renderVsNoteSection(q); } catch(e) { console.error('[改修48_04] renderVsNoteSection(quiz) error:', e); return ''; } })()}
       ${q.articleText?`<div class="section-h">条文等(問題付属) <button class="article-toggle">${artBtnLbl}</button></div><div class="article-box"${artBoxStyle}>${escapeHtml(q.articleText).replace(/\n/g,'<br>')}</div>`:''}
     </div>
   `;
@@ -5298,8 +5742,9 @@ function answerQuestion(userAns){
     const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
     const k = frameKey(subj, keyN, fmKind);
     const fa = state.frameAttempts[k];
-    if(fa && fa.current && !fa.current.answeredIds.includes(q.id)){
-      fa.current.answeredIds.push(q.id);
+    if(fa && fa.current){
+      if(!Array.isArray(fa.current.answeredIds)) fa.current.answeredIds = [];
+      if(!fa.current.answeredIds.includes(q.id)) fa.current.answeredIds.push(q.id);
     }
   }
   saveState();
@@ -5356,16 +5801,99 @@ function computeNavStep(total){
   return null;
 }
 
+/* 改修48_改修05: フレーム演習で「まだ解答していない問題」のプール内インデックス一覧を返す。
+   現在のプール(getPool)順で、当該演習回の answeredIds に含まれない問題の位置を集める。
+   フレーム演習中でない、または進行中の演習が無い場合は空配列。 */
+function getFrameUnansweredIndices(){
+  const s = state.session;
+  if(!s.frameMode) return [];
+  const fm = s.frameMode;
+  const subject = fm.subject || fm.law;
+  let fmKind = fm.kind || 'pastA'; if(fmKind === 'past') fmKind = 'pastA';
+  const keyN = fm.subFrameKey ? fm.subFrameKey : fm.frameNo;
+  const k = frameKey(subject, keyN, fmKind);
+  const fa = state.frameAttempts[k];
+  if(!fa || !fa.current) return [];
+  const answered = new Set(Array.isArray(fa.current.answeredIds) ? fa.current.answeredIds : []);
+  const pool = getPool();
+  const out = [];
+  for(let i=0;i<pool.length;i++){
+    if(!answered.has(pool[i].id)) out.push(i);
+  }
+  return out;
+}
+
+/* 改修49: 軽量トースト(自己完結・他機能に影響なし)。
+   画面下部に短時間だけメッセージを出す。連打されても1つだけ表示する。 */
+function showQuizToast(msg){
+  try{
+    let el = document.getElementById('quiz-toast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'quiz-toast';
+      el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);'
+        + 'background:rgba(30,41,59,.96);color:#fff;padding:10px 18px;border-radius:10px;'
+        + 'font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.25);'
+        + 'z-index:99999;max-width:90vw;text-align:center;pointer-events:none;'
+        + 'opacity:0;transition:opacity .2s ease';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    // 強制リフロー後にフェードイン
+    void el.offsetWidth;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>{ el.style.opacity = '0'; }, 2200);
+  }catch(_){ /* トースト失敗は致命的でないので握りつぶす */ }
+}
+
+/* 改修48_改修05 / 改修49: 次の未解答問題へジャンプ(現在位置より後ろを優先、無ければ先頭から探す)。
+   最終問で「次へ」が無効でも、解き残した問題へ確実に移動できるようにするための導線。
+   改修49: 移動先の問題番号をトーストで明示し、「なぜ前に戻ったように見えるのか」の混乱を解消する。 */
+function navToNextUnanswered(){
+  const idxs = getFrameUnansweredIndices();
+  if(!idxs.length){
+    showQuizToast('未解答の問題はありません(すべて解答済みです)');
+    return;
+  }
+  const cur = state.session.currentIndex;
+  const after = idxs.find(i=>i>cur);
+  const target = (after != null) ? after : idxs[0];
+  navTo(target);
+  // 移動先の問題番号(1始まり)と残数を案内
+  const remain = idxs.length;
+  const posNo = target + 1;
+  const wentBack = (after == null); // 後ろに無く、先頭の未解答へ戻った場合
+  const dir = wentBack ? '前の方の' : '';
+  showQuizToast(`${dir}未解答の${posNo}問目へ移動しました(残り${remain}問)`);
+}
+
 /* ナビ行 HTML を組み立てる(択一タブ用) — 改修1 */
 function renderQuizNavRow(idx, total){
   const step = computeNavStep(total);
   const atFirst = idx === 0;
   const atLast  = idx === total - 1;
+  // 改修48_改修05 / 改修49: フレーム演習中で未解答が残っている場合の「未解答へ」導線。
+  //   特に最終問では「次へ」が無効になるため、解き残しがあると先に進めなくなる事象への対策。
+  //   改修49: 飛ぶ先の問題番号をラベルに明示し、「前に戻った?」という混乱を防ぐ。
+  const unanswered = getFrameUnansweredIndices();
+  const remain = unanswered.length;
+  // 現在表示中の問題「以外」に未解答が残っていれば導線を出す
+  const hasOtherUnanswered = unanswered.some(i=>i!==idx);
+  // ボタンを押したときに実際に飛ぶ先(現在位置より後ろ優先・無ければ先頭の未解答)を先読みしてラベルに出す
+  let jumpUnansweredBtn = '';
+  if(state.session.frameMode && hasOtherUnanswered){
+    const after = unanswered.find(i=>i>idx);
+    const target = (after != null) ? after : unanswered[0];
+    const posNo = target + 1;
+    jumpUnansweredBtn = `<button class="btn-nav btn-nav-unanswered" id="btn-next-unanswered" title="まだ解答していない問題(${posNo}問目)へ移動">未解答へ (残り${remain}問 → ${posNo}問目)</button>`;
+  }
   if(step === null){
     // 5問未満:シンプル
     return `<div class="nav-row">
       <button class="btn-nav" id="btn-prev" ${atFirst?'disabled':''}>← 前へ</button>
       <button class="btn-nav" id="btn-next" ${atLast?'disabled':''}>次へ →</button>
+      ${jumpUnansweredBtn}
     </div>`;
   }
   // 5問以上:ステップボタン付き
@@ -5378,6 +5906,7 @@ function renderQuizNavRow(idx, total){
     <button class="btn-nav" id="btn-next" ${atLast?'disabled':''}>次へ →</button>
     <button class="btn-nav btn-nav-step" id="btn-jump-fwd" ${stepDisableNext?'disabled':''} title="${step}問後へ">${step}問後 ⟫</button>
     <button class="btn-nav" id="btn-last" ${atLast?'disabled':''} title="最後の問題へ">最後へ ⏭</button>
+    ${jumpUnansweredBtn}
   </div>`;
 }
 
@@ -5398,15 +5927,29 @@ function wireQuizNavButtons(total){
     if(bJB) bJB.addEventListener('click', ()=>navJump(-step));
     if(bJF) bJF.addEventListener('click', ()=>navJump(step));
   }
+  // 改修48_改修05: 未解答へジャンプ
+  const bUn = document.getElementById('btn-next-unanswered');
+  if(bUn) bUn.addEventListener('click', ()=>navToNextUnanswered());
 }
 
-/* 改修01: 付箋の色と種別ラベルの対応(択一・選択・弱点 全モード共用)
-   r=重要 / p=事例 / y=注意 / g=確認 / b=紐づけ */
-const BM_LABELS = { r:'重要', p:'事例', y:'注意', g:'確認', b:'紐づけ' };
-/* 付箋1色分のHTMLを生成。activeなら✓付き表示。ラベルは色の四角の下に縦表示。 */
+/* 改修01 / 改修51: 付箋の色と種別ラベルの対応(択一・選択・弱点 全モード共用)
+   r=重要 / p=事例 / y=地雷 / g=確認 / b=紐づけ / w=why / s=千本
+   k=撃墜(黒) / f=修正(薄黄) / v=VS(青赤2色) / t=罠問(濃橙赤)
+   ※ 付箋追加改修により、択一・選択・弱点の全モードで全色を表示するように統一。
+   改修51: y「注意」→「地雷」に改称(💣マーク付与)。t「罠問」(🪤マーク)を新設。 */
+const BM_LABELS = { r:'重要', p:'事例', y:'地雷', g:'確認', b:'紐づけ', w:'why', s:'千本', k:'撃墜', f:'修正', v:'VS', t:'罠問' };
+/* 改修51: 付箋に絵文字マークを重ねる対応表(空なら無し)。
+   y(地雷)=💣 / t(罠問)=☠。マークでひと目で識別できるようにする。 */
+const BM_MARKS = { y:'💣', t:'☠' };
+/* 改修01 / 改修51: 択一モードで表示する付箋色の並び(既存 + 罠問 t を地雷 y の隣へ) */
+const BM_COLORS_TANITSU = ['r','p','y','t','g','b','w','s','k','f','v'];
+/* 付箋1色分のHTMLを生成。activeなら✓付き表示。ラベルは色の四角の下に縦表示。
+   改修51: BM_MARKS に該当する色には絵文字マークを四角の中央に重ねる。 */
 function renderBmChip(color, isActive){
+  const mark = BM_MARKS[color] || '';
+  const markHtml = mark ? `<span class="bm-mark">${mark}</span>` : '';
   return `<div class="bm-chip">`
-    + `<div class="bm ${color}${isActive?' active':''}" data-bm="${color}"></div>`
+    + `<div class="bm ${color}${isActive?' active':''}" data-bm="${color}">${markHtml}</div>`
     + `<span class="bm-label">${BM_LABELS[color]||''}</span>`
     + `</div>`;
 }
@@ -5502,6 +6045,79 @@ function insertNoteSyntax(kind){
   }
 }
 
+/* ===== 改修48_改修04: VS_識別_ロックwhy® メモ =====
+   TAC「比較認識法®」と同趣旨だが、オリジナル仕様として独自にデータを蓄積する。
+   ⑤5why の後に表示し、内容を state.vsNotes[qid] に保存する(択一の問題ID単位)。
+   記法・保存挙動は改修02(自分の追記メモ)と同等で、表示色は薄紫テーマ。 */
+function getVsNote(qid){
+  return (state.vsNotes && state.vsNotes[qid]) ? state.vsNotes[qid] : '';
+}
+function hasVsNote(qid){
+  return getVsNote(qid).trim().length > 0;
+}
+function setVsNote(qid, text){
+  state.vsNotes ||= {};
+  const t = (text||'').trim();
+  if(t) state.vsNotes[qid] = text;   // trim前の元テキストを保存
+  else delete state.vsNotes[qid];     // 空なら削除(=記載なし扱い)
+  saveState();
+}
+/* 簡易記法を安全にHTMLへ変換(追記メモと同仕様)。 */
+function renderVsNoteHtml(text){
+  if(!text) return '';
+  let safe = escapeHtml(text);
+  safe = safe.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  const lines = safe.split('\n');
+  let html = '';
+  let inList = false;
+  for(const ln of lines){
+    const m = ln.match(/^\s*(?:・|-\s)(.*)$/);
+    if(m){
+      if(!inList){ html += '<ul class="vsnote-ul">'; inList = true; }
+      html += '<li>' + m[1] + '</li>';
+    }else{
+      if(inList){ html += '</ul>'; inList = false; }
+      html += ln + '<br>';
+    }
+  }
+  if(inList) html += '</ul>';
+  html = html.replace(/<br>$/, '');
+  return html;
+}
+function startEditVsNote(qid){
+  state._editingVsNote = qid;
+  renderQuiz();
+}
+function cancelEditVsNote(){
+  state._editingVsNote = null;
+  renderQuiz();
+}
+function saveVsNote(qid){
+  const ta = document.getElementById('vsnote-textarea');
+  if(ta) setVsNote(qid, ta.value);
+  state._editingVsNote = null;
+  renderQuiz();
+}
+function insertVsNoteSyntax(kind){
+  const ta = document.getElementById('vsnote-textarea');
+  if(!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const before = ta.value.slice(0,s), sel = ta.value.slice(s,e), after = ta.value.slice(e);
+  if(kind==='bold'){
+    const inner = sel || '太字';
+    ta.value = before + '**' + inner + '**' + after;
+    ta.focus();
+    ta.selectionStart = before.length + 2;
+    ta.selectionEnd   = before.length + 2 + inner.length;
+  }else if(kind==='list'){
+    const needNl = (before.length>0 && !before.endsWith('\n')) ? '\n' : '';
+    ta.value = before + needNl + '・' + (sel||'') + after;
+    ta.focus();
+    const pos = before.length + needNl.length + 1 + (sel?sel.length:0);
+    ta.selectionStart = ta.selectionEnd = pos;
+  }
+}
+
 /* ===== Frame study mode (フレーム演習) ===== */
 /* 引数 subject: 試験科目名(章名)。例:"雇用保険法"、"社会保険に関する一般常識"
    引数 kind: 'pastA' | 'pastB' | 'forecast' (省略時は 'pastA')。
@@ -5586,6 +6202,138 @@ function enterFrameMode(subject, frameNo, kind, subFrameKey){
   }
   saveState();
   switchTab('quiz');
+  // 【改修41】既に全問解答済みなのに未完了のまま残った演習を、開き直した瞬間に救済する。
+  //   checkFrameComplete は従来「解答ボタンを押した直後」しか走らなかったため、
+  //   answeredIds 破損等で止まった演習はアプリを開き直しても完了しなかった。
+  //   入口で一度判定を走らせれば、履歴からの復元(checkFrameComplete内)で即完了できる。
+  checkFrameComplete();
+}
+
+/* ============================================================
+   【改修42】択一画面に「進捗管理_予定_演習実施モード」のボタンを表示
+   ------------------------------------------------------------
+   進捗管理タブに戻らずに、択一画面から直接
+   「中断 / 休憩 / 再開 / 完了 / 一旦終了 / キャンセル」を操作できるようにする。
+   状態遷移・ラベルは進捗管理タブの plan-timer (renderProgressPlan) と完全に同一。
+     - running  : [中断][休憩]
+     - paused   : [再開][休憩]
+     - resting  : [再開]
+   いずれの状態でも [✓完了][一旦終了][キャンセル] を併置。
+   既存のセッション操作関数(pause/rest/resume/finish/cancel StudySession)を
+   そのまま利用し、操作後に renderQuiz() で択一バナーを即時更新する。
+   ============================================================ */
+
+// 現在の frameMode に対応する進行中セッションを探す。
+//   frameRef は数値フレームNo または サブフレームキー("2.1")。
+//   進捗管理から「開始」したセッションは planKey = subject + '|' + frameRef で作られる。
+//   ただし frameMode と完全一致しない場合(別フレームの計測中など)でも、
+//   「進行中セッションがあれば」択一画面から操作できると煩雑さ解消に資するため、
+//   まず planKey 完全一致を優先し、無ければ進行中の activeSession を返す。
+function findQuizActiveSession(subject, frameRef){
+  const arr = state.studySessions || [];
+  const isActive = ss => ss && (ss.status==='running'||ss.status==='paused'||ss.status==='resting');
+  // 1) frameMode と planKey が一致する進行中セッション(最優先)
+  const wantKey = planKey(subject, frameRef);
+  let sess = arr.find(ss=> isActive(ss) && ss.planKey===wantKey);
+  if(sess) return sess;
+  // 2) フレーム番号のみ一致(サブフレーム指定で計測しているがバナーが親フレーム等のズレ吸収)
+  const wantKey2 = planKey(subject, String(frameRef));
+  sess = arr.find(ss=> isActive(ss) && ss.planKey===wantKey2);
+  if(sess) return sess;
+  // 3) それも無ければ、現在の activeSession(進行中)を返す。
+  //    予定演習実施モードでは通常セッションは1つだけ進行中なので、これで実用上問題ない。
+  return getActiveSession();
+}
+
+// frameMode バナー内に挿入するセッションタイマー&ボタンの HTML を返す。
+//   進行中セッションが無ければ空文字(=従来どおりバナーのみ)。
+function renderQuizSessionTimer(subject, frameRef){
+  const sess = findQuizActiveSession(subject, frameRef);
+  if(!sess) return '';
+  const status = sess.status; // 'running' | 'paused' | 'resting'
+  const stateCls = status==='running' ? 'is-running' : (status==='paused' ? 'is-paused' : 'is-resting');
+  const stateLabel = status==='running'
+    ? '計測中'
+    : (status==='paused' ? '中断中(ロックオン・学習時間に計上)' : '休憩中(学習時間に計上しません)');
+  let btns = '';
+  if(status==='running'){
+    btns = `<button class="plan-timer-btn pause" data-qsesspause="${sess.id}">中断</button>
+            <button class="plan-timer-btn rest" data-qsessrest="${sess.id}">休憩</button>`;
+  }else if(status==='paused'){
+    btns = `<button class="plan-timer-btn resume" data-qsessresume="${sess.id}">再開</button>
+            <button class="plan-timer-btn rest" data-qsessrest="${sess.id}">休憩</button>`;
+  }else{ // resting
+    btns = `<button class="plan-timer-btn resume" data-qsessresume="${sess.id}">再開</button>`;
+  }
+  // 進捗管理タブの plan-timer と同一構成。属性名は択一画面専用(data-qsess*)にして配線を分離。
+  return `<div class="plan-timer quiz-sess-timer ${stateCls}" data-qsessid="${sess.id}">
+    <span class="plan-timer-clock" data-qsessclock="${sess.id}">${fmtClockMs(sessionTotalMs(sess))}</span>
+    <span class="plan-timer-state">${stateLabel}</span>
+    ${btns}
+    <button class="plan-timer-btn finish" data-qsessfinish="${sess.id}" data-qoutcome="done">✓ 完了</button>
+    <button class="plan-timer-btn pausefinish" data-qsessfinish="${sess.id}" data-qoutcome="partial">一旦終了</button>
+    <button class="plan-timer-btn cancel" data-qsesscancel="${sess.id}">キャンセル</button>
+  </div>`;
+}
+
+// 択一画面のセッションボタンを配線する。card は quiz-card 要素。
+function _wireQuizSessionButtons(card){
+  if(!card) return;
+  // 中断(B): running/resting → paused
+  card.querySelectorAll('button[data-qsesspause]').forEach(b=>{
+    b.addEventListener('click', ()=>{ pauseStudySession(b.dataset.qsesspause); renderQuiz(); });
+  });
+  // 休憩(R): running/paused → resting
+  card.querySelectorAll('button[data-qsessrest]').forEach(b=>{
+    b.addEventListener('click', ()=>{ restStudySession(b.dataset.qsessrest); renderQuiz(); });
+  });
+  // 再開(A): paused/resting → running
+  card.querySelectorAll('button[data-qsessresume]').forEach(b=>{
+    b.addEventListener('click', ()=>{ resumeStudySession(b.dataset.qsessresume); renderQuiz(); });
+  });
+  // 完了 / 一旦終了
+  card.querySelectorAll('button[data-qsessfinish]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const outcome = (b.dataset.qoutcome === 'partial') ? 'partial' : 'done';
+      const msg = outcome==='partial'
+        ? 'このフレームを「一旦終了(途中)」にします。\n記録は残り、予定は未完のままです。続きは後で計測できます。\nよろしいですか?'
+        : 'このフレームを「完了(全問終了)」にします。\n予定が完了になります。よろしいですか?';
+      if(!confirm(msg)) return;
+      finishStudySession(b.dataset.qsessfinish, {outcome});
+      // セッションは終了。択一バナーを更新(タイマー部は消える)。
+      renderQuiz();
+    });
+  });
+  // キャンセル(計測破棄)
+  card.querySelectorAll('button[data-qsesscancel]').forEach(b=>{
+    b.addEventListener('click', ()=>{ cancelStudySession(b.dataset.qsesscancel); renderQuiz(); });
+  });
+  // 経過時間の毎秒更新
+  _startQuizClockTicker(card);
+}
+
+// 択一画面のセッションタイマーを毎秒更新(再レンダリングはしない)。
+let _quizClockTimer = null;
+function _startQuizClockTicker(card){
+  if(_quizClockTimer){ clearInterval(_quizClockTimer); _quizClockTimer = null; }
+  if(!card) return;
+  const clocks = card.querySelectorAll('[data-qsessclock]');
+  if(!clocks.length) return;
+  const tick = ()=>{
+    const els = card.querySelectorAll('[data-qsessclock]');
+    if(!els.length){ if(_quizClockTimer){ clearInterval(_quizClockTimer); _quizClockTimer = null; } return; }
+    let anyAlive = false;
+    els.forEach(el=>{
+      const id = el.getAttribute('data-qsessclock');
+      const sess = (state.studySessions||[]).find(x=>x.id===id);
+      if(sess && (sess.status==='running'||sess.status==='paused'||sess.status==='resting')){
+        el.textContent = fmtClockMs(sessionTotalMs(sess));
+        anyAlive = true;
+      }
+    });
+    if(!anyAlive && _quizClockTimer){ clearInterval(_quizClockTimer); _quizClockTimer = null; }
+  };
+  _quizClockTimer = setInterval(tick, 1000);
 }
 
 function exitFrameMode(){
@@ -5611,6 +6359,16 @@ function abandonFrameAttempt(){
 }
 
 function checkFrameComplete(){
+  if(_inCheckFrameComplete) return;   // 改修48_改修05: 再入防止
+  _inCheckFrameComplete = true;
+  try{
+    _checkFrameCompleteImpl();
+  } finally {
+    _inCheckFrameComplete = false;
+  }
+}
+let _inCheckFrameComplete = false;
+function _checkFrameCompleteImpl(){
   if(!state.session.frameMode) return;
   const fm = state.session.frameMode;
   const subject = fm.subject || fm.law;
@@ -5621,10 +6379,54 @@ function checkFrameComplete(){
   const fa = state.frameAttempts[k];
   if(!fa || !fa.current) return;
   // 全問解答済みかチェック
-  const required = new Set(fa.current.questionIds);
+  // 【改修41】幽霊ID対策 + answeredIds 破損対策:
+  //   fa.current.questionIds は「演習開始時点」のプールのスナップショット。
+  //   その後に問題の削除・kind変更・別端末からの復元などで state.questions の中身が変わると、
+  //   questionIds の中に「現在のプールにはもう存在せず、画面に二度と出てこない=解答不能な問題ID」が
+  //   残ることがある。この幽霊IDが required に居座ると allDone が永久に false になり、
+  //   最終問まで解いても「次へ」消化が完了せず、フレーム演習が終われない(報告された不具合)。
+  //   → 完了判定は「現在のプール(getPool相当)に実在する問題」だけを必須とする。
+  //   さらに、繰り返し演習で fa.current.answeredIds 自体が undefined / 非配列に壊れる事象も
+  //   確認された(診断で answeredIds:undefined)。この場合 answered が空集合になり永久未完了になる。
+  //   → answeredIds が壊れていたら、この演習(subject/frameNo/attemptNo)の解答履歴(history[].fm)から復元する。
+  const livePool = getPool();
+  const liveIds = new Set(livePool.map(q=>q.id));
+  // --- answeredIds の自己修復 ---
+  if(!Array.isArray(fa.current.answeredIds)) fa.current.answeredIds = [];
+  {
+    // この演習回(attemptNo)に属する解答履歴を集め、answeredIds を補完する
+    const attemptNo = fa.current.attemptNo;
+    const startedAt = fa.current.startedAt || 0;
+    const recovered = new Set(fa.current.answeredIds);
+    // この演習回の対象問題集合(questionIds)。時間窓フォールバックの誤混入を防ぐスコープ。
+    const scopeIds = new Set(fa.current.questionIds || []);
+    for(const h of state.history){
+      if(!h || !h.fm || !h.qid) continue;
+      let hk = h.fm.k || 'pastA'; if(hk==='past') hk='pastA';
+      // fm: {s:科目, f:フレーム参照(整数or"2.1"), k:kind, a:attemptNo}
+      const sameFrame = (h.fm.s===subject && String(h.fm.f)===String(keyN) && hk===fmKind);
+      if(!sameFrame) continue;
+      // ① attemptNo が一致(または未記録)なら採用
+      if(h.fm.a==null || h.fm.a===attemptNo){
+        recovered.add(h.qid);
+        continue;
+      }
+      // ② 改修48_改修05: attemptNo がズレていても、この演習開始後(時間窓内)に
+      //    当該フレームの対象問題を解答していれば採用する。
+      //    (attemptNo メタの取り違えで answeredIds が1問足りず永久未完了になる事象への保険)
+      if(startedAt && h.ts!=null && h.ts>=startedAt && scopeIds.has(h.qid)){
+        recovered.add(h.qid);
+      }
+    }
+    fa.current.answeredIds = [...recovered];
+  }
   const answered = new Set(fa.current.answeredIds);
-  let allDone = true;
-  for(const id of required){if(!answered.has(id)){allDone=false;break}}
+  // 必須 = 「開始時の必須問題」かつ「現在も実在する問題」(到達可能なものだけ)
+  const required = (fa.current.questionIds||[]).filter(id=>liveIds.has(id));
+  // 念のため、現在のプールに増えた問題も必須に含める(取込で問題が増えたケース)
+  for(const id of liveIds){ if(!required.includes(id)) required.push(id); }
+  let allDone = required.length>0;
+  for(const id of required){ if(!answered.has(id)){ allDone=false; break; } }
   if(allDone){
     fa.current.completedAt = Date.now();
     fa.history.push(fa.current);
@@ -5738,6 +6540,8 @@ function renderSidebar(){
   // 改修02: 自分の追記フィルタの値を復元
   const fMyNoteEl = document.getElementById('filter-mynote');
   if(fMyNoteEl) fMyNoteEl.value = state.session.filterMyNote || '';
+  // 改修48_改修02: バックアップ通知設定UIを現在値で再描画
+  try{ renderBackupReminderSettings(); }catch(_){}
 }
 function fillSelect(id,options,current){
   const sel = document.getElementById(id);
@@ -6343,7 +7147,365 @@ async function runStorageDiagnostic(){
   }
 }
 
-async function backupAll(){
+/* ============================================================
+   改修46: バックアップ忘れ防止リマインダー
+   ----------------------------------------------------------
+   改修25(差分マージ復元)が「忘れた後の救済」だったのに対し、本機能は
+   「そもそも忘れない」ための事前予防。二重の防御線で運用ミスを防ぐ:
+   - 防御線1: タブ群直下のバナー(未バックアップ件数を可視化、ワンクリックでバックアップ)
+   - 防御線2: タブ閉じ・リロード時の beforeunload 確認ダイアログ
+   ============================================================ */
+
+// しきい値定義(改修48_改修02 で「問題数方式」のしきい値はユーザー設定に移行。
+//  下記は時間経過による旧来の補助しきい値で、現在は beforeunload 判定にのみ間接利用)
+const BACKUP_REMINDER_THRESHOLDS = {
+  soft:    {count: 10, minutes:  30},  // 🟡 軽い注意
+  warn:    {count: 30, minutes:  90},  // 🟠 中程度
+  urgent:  {count: 60, minutes: 180}   // 🔴 強い警告
+};
+const BACKUP_REMINDER_DISMISS_MIN = 20; // 「後で」で何分間非表示にするか
+const BACKUP_BEFOREUNLOAD_THRESHOLD = 5; // この件数以上ならタブ閉じ時に確認
+
+// 改修48_改修02: 問題数方式で選べるしきい値
+const BACKUP_COUNT_OPTIONS = [10, 20, 30, 40, 50];
+const BACKUP_TIMES_MAX = 5; // 時間方式で設定できる時刻の最大数
+
+/** 通知設定を正規化(欠損・不正値を既定値で補完)。後方互換にも使う。 */
+function normalizeBackupReminderSettings(s){
+  s = (s && typeof s === 'object') ? s : {};
+  let mode = s.mode;
+  if(mode !== 'count' && mode !== 'time' && mode !== 'off') mode = 'count';
+  let countN = parseInt(s.countN, 10);
+  if(!BACKUP_COUNT_OPTIONS.includes(countN)) countN = 30;
+  let times = Array.isArray(s.times) ? s.times.slice(0, BACKUP_TIMES_MAX) : [];
+  times = times.filter(t => typeof t === 'string' && /^([01]?\d|2[0-3]):[0-5]\d$/.test(t.trim()))
+               .map(t => {
+                 // "7:0" 等を "07:00" に整える
+                 const m = t.trim().match(/^(\d{1,2}):(\d{1,2})$/);
+                 if(!m) return t.trim();
+                 return String(m[1]).padStart(2,'0') + ':' + String(m[2]).padStart(2,'0');
+               });
+  // 重複除去 + 昇順
+  times = Array.from(new Set(times)).sort();
+  if(!times.length) times = ['07:00','12:00','17:00'];
+  // 改修50: 自動JSONダウンロード設定(後方互換: 既定OFF)。
+  //   autoDownload … true で「閾値到達時」と「タブ離脱時」に自動でJSONを保存する。
+  const autoDownload = (s.autoDownload === true);
+  return {mode, countN, times, autoDownload};
+}
+
+// モジュール内変数(セッション中のみ保持。リロードでリセット)
+let _backupReminderDismissedUntil = 0;   // dismiss が効いている期限(timestamp)
+// 改修50: 自動JSONダウンロードの連続発火防止
+let _lastAutoBackupAt = 0;
+const _AUTO_BACKUP_MIN_INTERVAL_MS = 10 * 60 * 1000; // 自動保存は最短10分間隔
+// 改修48_改修02: 時間方式で「今日すでに発火した時刻」を記録(日付が変わるとリセット)
+let _backupTimeFiredDate = '';           // 'YYYY-MM-DD'
+let _backupTimeFired = {};               // { "07:00": true, ... }
+
+/** 現在のバックアップ未取得状況を計算
+ *  履歴系(択一/選択式/事例)+ 千本ノックの解答も合算する。
+ * @returns {{count:number, minutes:number, level:'none'|'soft'|'warn'|'urgent'}} */
+function getBackupStatus(){
+  const since = state.lastBackupAt || 0;
+  let count = 0;
+  for(const h of (state.history        || [])) if(h && h.ts && h.ts > since) count++;
+  for(const h of (state.selectHistory  || [])) if(h && h.ts && h.ts > since) count++;
+  for(const h of (state.caseHistory    || [])) if(h && h.ts && h.ts > since) count++;
+  // 改修38(千本ノック)の解答ログも未バックアップ件数に算入
+  for(const h of (state.senbonHistory  || [])) if(h && h.ts && h.ts > since) count++;
+  const minutes = since ? Math.max(0, Math.floor((Date.now() - since) / 60000)) : 0;
+  let level = 'none';
+  const T = BACKUP_REMINDER_THRESHOLDS;
+  if(count >= T.urgent.count || minutes >= T.urgent.minutes) level = 'urgent';
+  else if(count >= T.warn.count || minutes >= T.warn.minutes) level = 'warn';
+  else if(count >= T.soft.count || minutes >= T.soft.minutes) level = 'soft';
+  return {count, minutes, level};
+}
+
+/** 通知設定を取得(正規化済みを返す) */
+function getBackupReminderSettings(){
+  state.backupReminderSettings = normalizeBackupReminderSettings(state.backupReminderSettings);
+  return state.backupReminderSettings;
+}
+
+/** "HH:MM" を当日の分(0-1439)に変換 */
+function _hhmmToMinutes(t){
+  const m = /^(\d{1,2}):(\d{1,2})$/.exec(t||'');
+  if(!m) return null;
+  return parseInt(m[1],10)*60 + parseInt(m[2],10);
+}
+function _todayKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+/** 時間方式: 今この瞬間に通知を出すべきか判定。
+ *  今日の予定時刻のうち、現在時刻を過ぎていて、まだ「発火済み(=既に閉じた/バックアップした)」
+ *  になっていないものが1つでもあれば true。未バックアップ件数が0なら出さない。 */
+function _shouldShowTimeReminder(status){
+  if(status.count <= 0) return false;
+  const today = _todayKey();
+  if(_backupTimeFiredDate !== today){ _backupTimeFiredDate = today; _backupTimeFired = {}; }
+  const settings = getBackupReminderSettings();
+  const nowMin = (()=>{ const d=new Date(); return d.getHours()*60 + d.getMinutes(); })();
+  for(const t of settings.times){
+    const tm = _hhmmToMinutes(t);
+    if(tm == null) continue;
+    if(nowMin >= tm && !_backupTimeFired[t]) return true;
+  }
+  return false;
+}
+
+/** リマインダーバナーの表示・非表示を制御 */
+function updateBackupReminderBanner(){
+  const banner = document.getElementById('backup-reminder-banner');
+  if(!banner) return;
+  const status = getBackupStatus();
+  const settings = getBackupReminderSettings();
+
+  // 改修48_改修02: モードによる表示ゲート
+  let shouldShow = false;
+  if(settings.mode === 'off'){
+    shouldShow = false;
+  }else if(settings.mode === 'count'){
+    shouldShow = status.count >= settings.countN;
+  }else if(settings.mode === 'time'){
+    shouldShow = _shouldShowTimeReminder(status);
+  }
+
+  // dismiss 判定: 期限内なら一時的に非表示(モード共通)
+  const now = Date.now();
+  const dismissed = now < _backupReminderDismissedUntil;
+
+  // 改修50: 自動JSONダウンロード。
+  //   閾値に達して通知が出る状況(shouldShow)で、autoDownload が ON なら自動保存する。
+  //   連続発火を避けるため、前回自動保存から最低 _AUTO_BACKUP_MIN_INTERVAL_MS は空ける。
+  if(shouldShow && settings.autoDownload && !_saveFrozen){
+    if(now - _lastAutoBackupAt >= _AUTO_BACKUP_MIN_INTERVAL_MS){
+      _lastAutoBackupAt = now;
+      // backupAll は非同期。失敗してもバナー処理は続行する。
+      try{ backupAll({auto:true}); }catch(_){}
+    }
+  }
+
+  if(!shouldShow || dismissed){
+    banner.style.display = 'none';
+    return;
+  }
+
+  // バナーのレベル(色)は未バックアップ件数で簡易判定
+  let level = 'soft';
+  if(status.count >= BACKUP_REMINDER_THRESHOLDS.urgent.count) level = 'urgent';
+  else if(status.count >= BACKUP_REMINDER_THRESHOLDS.warn.count) level = 'warn';
+
+  banner.classList.remove('level-soft','level-warn','level-urgent');
+  banner.classList.add('level-' + level);
+  banner.style.display = 'flex';
+
+  const textEl = document.getElementById('br-count-text');
+  if(textEl){
+    let timeText = '';
+    if(status.minutes < 60){
+      timeText = status.minutes + '分前';
+    }else{
+      const h = Math.floor(status.minutes/60);
+      const m = status.minutes % 60;
+      timeText = h + '時間' + (m>0 ? m+'分' : '') + '前';
+    }
+    let msg = '';
+    if(level === 'urgent'){
+      msg = `<strong>未バックアップ ${status.count}問</strong> / 最終取得 ${escapeHtml(timeText)} — バックアップを取りましょう`;
+    }else if(level === 'warn'){
+      msg = `<strong>未バックアップ ${status.count}問</strong> / 最終取得 ${escapeHtml(timeText)}`;
+    }else{
+      msg = `未バックアップ <strong>${status.count}問</strong> / 最終取得 ${escapeHtml(timeText)}`;
+    }
+    textEl.innerHTML = msg;
+  }
+}
+
+/** 「後で」ボタンの handler */
+function _dismissBackupReminder(){
+  // 時間方式: 現在時刻までに到来済みの予定時刻を「本日発火済み」にして、同じ枠での再表示を止める
+  const settings = getBackupReminderSettings();
+  if(settings.mode === 'time'){
+    const today = _todayKey();
+    if(_backupTimeFiredDate !== today){ _backupTimeFiredDate = today; _backupTimeFired = {}; }
+    const nowMin = (()=>{ const d=new Date(); return d.getHours()*60 + d.getMinutes(); })();
+    for(const t of settings.times){
+      const tm = _hhmmToMinutes(t);
+      if(tm != null && nowMin >= tm) _backupTimeFired[t] = true;
+    }
+  }
+  _backupReminderDismissedUntil = Date.now() + BACKUP_REMINDER_DISMISS_MIN * 60 * 1000;
+  updateBackupReminderBanner();
+}
+
+/** beforeunload ハンドラ: 未バックアップ件数が一定以上なら確認ダイアログ */
+function _backupBeforeUnloadHandler(e){
+  const status = getBackupStatus();
+  if(status.count >= BACKUP_BEFOREUNLOAD_THRESHOLD){
+    // 最新ブラウザは独自メッセージを無視するが、preventDefault + returnValue で標準確認を出せる
+    e.preventDefault();
+    e.returnValue = `未バックアップの解答が ${status.count} 問あります。本当にこのページを閉じますか?`;
+    return e.returnValue;
+  }
+}
+
+/* 改修50: タブが隠れる(別アプリ切替・タブ閉じ前)タイミングでの自動保存。
+   iPhone Safari は beforeunload 中の非同期ダウンロードが間に合わないため、
+   より確実な visibilitychange(hidden) で自動バックアップを試みる。
+   autoDownload が ON かつ未バックアップが閾値以上のときのみ発火し、連続発火は抑制する。 */
+function _backupOnHideHandler(){
+  try{
+    if(document.visibilityState !== 'hidden') return;
+    const settings = getBackupReminderSettings();
+    if(!settings.autoDownload || _saveFrozen) return;
+    const status = getBackupStatus();
+    if(status.count < BACKUP_BEFOREUNLOAD_THRESHOLD) return;
+    const now = Date.now();
+    if(now - _lastAutoBackupAt < _AUTO_BACKUP_MIN_INTERVAL_MS) return;
+    _lastAutoBackupAt = now;
+    backupAll({auto:true});
+  }catch(_){}
+}
+
+// 1分ごとに「経過時間」の表示を自動更新(解答していなくても時間で表示が変わる)
+let _backupReminderInterval = null;
+function _startBackupReminderTicker(){
+  if(_backupReminderInterval) return;
+  _backupReminderInterval = setInterval(()=>{
+    try{ updateBackupReminderBanner() }catch(_){}
+  }, 60 * 1000);
+}
+
+/* ===== 改修48_改修02: バックアップ通知設定UI ===== */
+
+/** 設定カードを現在の state 値で再描画 */
+function renderBackupReminderSettings(){
+  const card = document.getElementById('backup-reminder-settings-card');
+  if(!card) return;
+  const s = getBackupReminderSettings();
+
+  // モードボタンの active
+  card.querySelectorAll('.brs-mode-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.brsmode === s.mode);
+  });
+  // パネルの表示切替
+  const pc = document.getElementById('brs-panel-count');
+  const pt = document.getElementById('brs-panel-time');
+  const po = document.getElementById('brs-panel-off');
+  if(pc) pc.style.display = (s.mode === 'count') ? '' : 'none';
+  if(pt) pt.style.display = (s.mode === 'time')  ? '' : 'none';
+  if(po) po.style.display = (s.mode === 'off')   ? '' : 'none';
+
+  // 問題数ボタンの active
+  card.querySelectorAll('.brs-count-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.brscount,10) === s.countN);
+  });
+  // 改修50: 自動ダウンロードトグルの状態反映
+  const autoDl = document.getElementById('brs-autodl-toggle');
+  if(autoDl) autoDl.checked = !!s.autoDownload;
+
+  // 時刻リスト
+  const list = document.getElementById('brs-times-list');
+  if(list){
+    if(!s.times.length){
+      list.innerHTML = '<p class="brs-hint" style="margin:0">時刻が未設定です。下の欄から追加してください。</p>';
+    }else{
+      list.innerHTML = s.times.map(t=>(
+        `<div class="brs-time-item"><span class="brs-time-val">${escapeHtml(t)}</span>`
+        + `<button type="button" class="brs-time-del" data-brstimedel="${escapeHtml(t)}" aria-label="${escapeHtml(t)} を削除" title="削除">×</button></div>`
+      )).join('');
+    }
+  }
+  // 追加ボタンの活性(最大数まで)
+  const addBtn = document.getElementById('brs-time-add-btn');
+  if(addBtn) addBtn.disabled = s.times.length >= BACKUP_TIMES_MAX;
+}
+
+/** 設定カードのイベント配線(初期化時に1回だけ呼ぶ。委譲方式で再描画後も有効) */
+function wireBackupReminderSettings(){
+  const card = document.getElementById('backup-reminder-settings-card');
+  if(!card || card.dataset.brsWired) return;
+  card.dataset.brsWired = '1';
+
+  // モード切替
+  card.querySelectorAll('.brs-mode-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const s = getBackupReminderSettings();
+      s.mode = b.dataset.brsmode;
+      saveState();
+      renderBackupReminderSettings();
+      // 「後で」抑制をリセットしてから即時反映
+      _backupReminderDismissedUntil = 0;
+      updateBackupReminderBanner();
+    });
+  });
+
+  // 問題数選択
+  card.querySelectorAll('.brs-count-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const s = getBackupReminderSettings();
+      s.countN = parseInt(b.dataset.brscount,10);
+      saveState();
+      renderBackupReminderSettings();
+      _backupReminderDismissedUntil = 0;
+      updateBackupReminderBanner();
+    });
+  });
+
+  // 時刻削除(委譲)
+  const list = document.getElementById('brs-times-list');
+  if(list){
+    list.addEventListener('click', (e)=>{
+      const del = e.target.closest('[data-brstimedel]');
+      if(!del) return;
+      const s = getBackupReminderSettings();
+      s.times = s.times.filter(t => t !== del.dataset.brstimedel);
+      delete _backupTimeFired[del.dataset.brstimedel];
+      saveState();
+      renderBackupReminderSettings();
+    });
+  }
+
+  // 時刻追加
+  const addBtn = document.getElementById('brs-time-add-btn');
+  const input = document.getElementById('brs-time-input');
+  if(addBtn && input){
+    addBtn.addEventListener('click', ()=>{
+      const s = getBackupReminderSettings();
+      let v = (input.value||'').trim();
+      const m = /^(\d{1,2}):(\d{1,2})$/.exec(v);
+      if(!m){ alert('時刻の形式が正しくありません(例: 07:30)。'); return; }
+      v = String(m[1]).padStart(2,'0') + ':' + String(m[2]).padStart(2,'0');
+      if(parseInt(m[1],10) > 23 || parseInt(m[2],10) > 59){ alert('時刻の値が範囲外です。'); return; }
+      if(s.times.includes(v)){ alert('その時刻はすでに設定されています。'); return; }
+      if(s.times.length >= BACKUP_TIMES_MAX){ alert('時刻は最大' + BACKUP_TIMES_MAX + '件までです。'); return; }
+      s.times = Array.from(new Set([...s.times, v])).sort();
+      saveState();
+      renderBackupReminderSettings();
+    });
+  }
+  // 改修50: 自動ダウンロードトグルの配線
+  const autoDl = document.getElementById('brs-autodl-toggle');
+  if(autoDl){
+    autoDl.addEventListener('change', ()=>{
+      const s = getBackupReminderSettings();
+      s.autoDownload = autoDl.checked;
+      saveState();
+      renderBackupReminderSettings();
+      if(autoDl.checked){
+        alert('自動バックアップをONにしました。\n\niPhoneでは、自動保存時に保存先を選ぶ画面が出ることがあります。\n「ファイル」アプリやGoogleドライブを選ぶと、端末外にも残せて安心です。');
+      }
+    });
+  }
+}
+
+async function backupAll(opts){
+  // 改修50: opts.auto=true のとき「自動バックアップ」。失敗時もダイアログを出さず静かに記録する。
+  const auto = !!(opts && opts.auto);
   try{
     // IndexedDB から全画像を取得し、メタとマージしてバックアップに含める
     const imageMap = new Map();
@@ -6367,9 +7529,18 @@ async function backupAll(){
       }
     }
     const blob = new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
-    download(blob,`sharoushi_backup_${Date.now()}.json`);
+    const prefix = auto ? 'sharoushi_AUTO_backup_' : 'sharoushi_backup_';
+    download(blob, `${prefix}${Date.now()}.json`);
+    // 改修46: バックアップ取得成功時に最終取得時刻を記録(リマインダーバナーが消える)
+    state.lastBackupAt = Date.now();
+    saveState();
+    if(typeof updateBackupReminderBanner === 'function') updateBackupReminderBanner();
+    if(auto){
+      try{ showQuizToast('自動バックアップを保存しました(ダウンロード)'); }catch(_){}
+    }
   }catch(err){
-    alert('バックアップ作成に失敗しました: '+err.message);
+    if(!auto) alert('バックアップ作成に失敗しました: '+err.message);
+    else console.warn('auto backup failed', err);
   }
 }
 
@@ -6463,7 +7634,10 @@ function _mergeBackupsCore(oldD, newD){
     whys:{addedPaths:0},
     studyPlans:{addedPaths:0},
     myNotes:{addedPaths:0},
+    vsNotes:{addedPaths:0},
     studySessions:{addedPaths:0},
+    senbon:{addedPaths:0},
+    senbonHistory:{addedPaths:0},
     conflicts:[]
   };
 
@@ -6628,6 +7802,9 @@ function _mergeBackupsCore(oldD, newD){
   // 改修(追記メモ): 自分の追記メモも add-only マージ(片方にしかないメモを失わない)
   result.myNotes = (result.myNotes && typeof result.myNotes==='object') ? result.myNotes : {};
   deepMergeAddOnly(oldD.myNotes||{}, result.myNotes, stats.myNotes);
+  // 改修48_改修04: VS_識別_ロックwhy® メモも add-only マージ
+  result.vsNotes = (result.vsNotes && typeof result.vsNotes==='object') ? result.vsNotes : {};
+  deepMergeAddOnly(oldD.vsNotes||{}, result.vsNotes, stats.vsNotes);
 
   // 改修31d: タイパの計測セッション(studySessions)も差分マージ対象にする。
   //   studySessions は配列のため deepMergeAddOnly(オブジェクト専用)では扱えない。
@@ -6646,6 +7823,33 @@ function _mergeBackupsCore(oldD, newD){
         stats.studySessions.addedPaths++;
       }
     }
+  }
+
+  // 改修38: 千本ノック(senbon / senbonHistory)も差分マージ対象にする。
+  //   senbon は一意 id を持つ配列なので id 基準 add-only。
+  //   senbonHistory はタイムスタンプ付きログなので id+ts で dedupe。
+  //   (studySessions と同じく、これを忘れると端末間の差分マージ復元で千本ノックの問題・履歴が失われる)
+  {
+    const oldArr = Array.isArray(oldD.senbon) ? oldD.senbon : [];
+    result.senbon = Array.isArray(result.senbon) ? result.senbon : [];
+    const seen = new Set(result.senbon.map(s=> s && s.id).filter(Boolean));
+    stats.senbon ||= {addedPaths:0};
+    for(const s of oldArr){
+      if(s && s.id && !seen.has(s.id)){
+        try{ result.senbon.push(JSON.parse(JSON.stringify(s))); }
+        catch(_){ result.senbon.push(s); }
+        seen.add(s.id);
+        stats.senbon.addedPaths++;
+      }
+    }
+  }
+  {
+    result.senbonHistory = Array.isArray(result.senbonHistory) ? result.senbonHistory : [];
+    stats.senbonHistory ||= {addedPaths:0};
+    stats.senbonHistory.addedPaths = mergeHistArr(
+      oldD.senbonHistory||[], result.senbonHistory,
+      h=>`${h&&h.id||''}|${h&&h.ts||''}`);
+    result.senbonHistory.sort((a,b)=>(a&&a.ts||0)-(b&&b.ts||0));
   }
 
   if(!result.whyIntro && oldD.whyIntro){
@@ -6804,6 +8008,7 @@ function renderMergePreview(){
     stats.bookmarks.added + stats.articles.addedPaths + stats.whys.addedPaths +
     (stats.studyPlans?stats.studyPlans.addedPaths:0) +
     (stats.myNotes?stats.myNotes.addedPaths:0) +
+    (stats.vsNotes?stats.vsNotes.addedPaths:0) +
     (stats.studySessions?stats.studySessions.addedPaths:0) +
     stats.figures.imageSupplemented;
 
@@ -6839,7 +8044,10 @@ function renderMergePreview(){
   if(stats.whys.addedPaths>0) subrow('5why(階層)', stats.whys.addedPaths);
   if(stats.studyPlans && stats.studyPlans.addedPaths>0) subrow('勉強の予定', stats.studyPlans.addedPaths);
   if(stats.myNotes && stats.myNotes.addedPaths>0) subrow('自分の追記メモ', stats.myNotes.addedPaths);
+  if(stats.vsNotes && stats.vsNotes.addedPaths>0) subrow('VS_識別_ロックwhy®', stats.vsNotes.addedPaths);
   if(stats.studySessions && stats.studySessions.addedPaths>0) subrow('タイパ計測セッション', stats.studySessions.addedPaths);
+  if(stats.senbon && stats.senbon.addedPaths>0) subrow('千本ノック(一問一答)', stats.senbon.addedPaths);
+  if(stats.senbonHistory && stats.senbonHistory.addedPaths>0) subrow('千本ノック解答ログ', stats.senbonHistory.addedPaths);
   html += '</tbody></table>';
 
   if(totalAdded === 0){
@@ -6986,6 +8194,12 @@ async function _applyMergeRestore(){
   state.whys ||= {};
   state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
   if(typeof state.whyIntro === 'undefined' || state.whyIntro === null) state.whyIntro = DEFAULT_WHY_INTRO;
+  // 改修46: マージ復元完了時点で「最終バックアップ取得済」とみなす
+  state.lastBackupAt = Date.now();
+
+  // 改修50: 正規のマージ復元操作なので、保存凍結と急減ガードの基準を解除・初期化する。
+  _saveFrozen = false;
+  _lastGoodCounts = null;
 
   saveState();
   closeMergeRestoreModal();
@@ -7049,11 +8263,16 @@ function restoreBackup(){
         }
 
         state = s;
+        // 改修50: 正規の復元操作なので、保存凍結と急減ガードの基準を解除・初期化する。
+        //   (復元はユーザーが意図的にデータを置き換える操作なので、保存を許可する)
+        _saveFrozen = false;
+        _lastGoodCounts = null;
         // 全フィールドの初期化を保証(後方互換)
         state.questions ||= [];
         state.history ||= [];
         state.bookmarks ||= {};
         state.myNotes ||= {};
+        state.vsNotes ||= {};
         state.frameAttempts ||= {};
         state.selectQuestions ||= [];
         state.selectHistory ||= [];
@@ -7090,6 +8309,8 @@ function restoreBackup(){
         state.whyView ||= {mode:'subjects', subject:null, frameNo:null, indexId:null, subFrameKey:null};
         // 改修03: 5why イントロ(ユーザー編集可)
         if(typeof state.whyIntro === 'undefined' || state.whyIntro === null) state.whyIntro = DEFAULT_WHY_INTRO;
+        // 改修46: バックアップ復元完了時点で「最終バックアップ取得済」とみなす
+        state.lastBackupAt = Date.now();
         // === Migration v3: 予想問対応 ===
         // (a) 既存問題のkind未設定 → 'past' とみなす
         for(const q of state.questions){if(q.kind == null) q.kind = 'past'}
@@ -7308,7 +8529,7 @@ function renderSelectQuiz(){
 
     <div class="bookmark-row">
       <span class="lbl">FUSEN</span>
-      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
+      ${BM_COLORS_TANITSU.map(c=>renderBmChip(c, bms.includes(c))).join('')}
       <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
     </div>
   `;
@@ -8084,6 +9305,176 @@ function articleKindMeta(kind){
   if(kind === 'explanation') return {lbl:'解説',     cls:'k-b'};
   if(kind === 'point')       return {lbl:'比較認識法®', cls:'k-c'};
   return                          {lbl:'条文',     cls:'k-a'};
+}
+
+/* ===== 改修01: 出題根拠(legalBasis)の条番号クリック → 条文表示 =====
+   legalBasis のテキスト内から「○条」「○条の○」「則○条」等の参照を検出し、
+   クリック可能チップにする。クリック時は当該科目(q.law)の登録条文を検索して
+   その場にアコーディオン展開。登録がなければ e-Gov 検索リンクを出す。 */
+
+/* 全角数字→半角に正規化 */
+function lbNormDigits(s){
+  return String(s||'').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+}
+
+/* 条番号の「コア」を抽出して比較用キーにする。
+   例「法10条の3、1項」→「10条の3」、「則17条の2 1項」→「則17条の2」、
+      「第10条第1項」→「10条」。法/則/施行令 等の種別接頭辞は保持する。 */
+function lbExtractCore(refRaw){
+  let s = lbNormDigits(refRaw).trim();
+  if(!s) return null;
+  // 接頭の種別(則=規則, 令=施行令, 法=法律)を拾う。明示がなければ '法' 扱い。
+  let kind = '法';
+  if(/則/.test(s.slice(0,4)))      kind = '則';
+  else if(/令/.test(s.slice(0,4))) kind = '令';
+  // 「(第)○条(の○)」を拾う
+  const m = s.match(/第?\s*(\d+)\s*条(?:\s*の\s*(\d+))?/);
+  if(!m) return null;
+  const core = m[2] ? `${m[1]}条の${m[2]}` : `${m[1]}条`;
+  return { kind, core, num: m[1], sub: m[2]||null };
+}
+
+/* 条文ブロックのテキスト/legalRef から、その条番号コア集合を求める */
+function lbBlockCores(blk){
+  const hay = lbNormDigits(((blk.legalRef||'') + ' ' + (blk.text||'')).slice(0, 400));
+  const cores = [];
+  const re = /(則|令|法)?\s*第?\s*(\d+)\s*条(?:\s*の\s*(\d+))?/g;
+  let m;
+  while((m = re.exec(hay)) !== null){
+    const kind = m[1] || '法';
+    const core = m[3] ? `${m[2]}条の${m[3]}` : `${m[2]}条`;
+    cores.push({ kind, core });
+  }
+  return cores;
+}
+
+/* q.law の登録条文から、参照 core にマッチするブロックを探す。
+   マッチ精度: 同一 core(○条 or ○条の○)で、kind(法/則/令)が一致すれば優先。
+   kind 情報が曖昧な場合は core 一致のみで採用(誤マッチを抑えるため core は必須)。*/
+function lbFindArticles(law, refCore){
+  const out = [];
+  if(!refCore || !law) return out;
+  const lawData = (state.articles && state.articles[law]) || {};
+  for(const [keyStr, frData] of Object.entries(lawData)){
+    const indices = (frData && frData.indices) || [];
+    for(let i=0;i<indices.length;i++){
+      const idx = indices[i];
+      for(const blk of (idx.blocks||[])){
+        if(!blk) continue;
+        // 条文系のみ対象(解説/ポイントも条番号を持てば拾う)
+        const cores = lbBlockCores(blk);
+        // core 一致(○条 or ○条の○)を確認
+        let hit = cores.find(c => c.core === refCore.core);
+        if(!hit) continue;
+        // kind が双方明示されていて食い違う場合は除外
+        if(refCore.kind && hit.kind && refCore.kind !== '法' && hit.kind !== '法'
+           && refCore.kind !== hit.kind) continue;
+        const info = findArticleBlock(blk.id);
+        if(info) out.push(info);
+      }
+    }
+  }
+  // 重複(同一ブロック)除去
+  const seen = new Set();
+  return out.filter(info => {
+    const id = info.block && info.block.id;
+    if(!id || seen.has(id)) return false;
+    seen.add(id); return true;
+  });
+}
+
+/* legalBasis 文字列を、条番号部分だけクリック可能チップにした HTML へ変換 */
+function renderLegalBasisInteractive(q){
+  const raw = q.legalBasis || '';
+  if(!raw.trim()) return escapeHtml('—');
+  const norm = lbNormDigits(raw);
+  // 参照トークン抽出: 「(法|則|令)?(第)?N条(の N)?(第 N 項)?」をまとめて1チップに
+  const re = /((?:法|則|令|施行令|施行規則)?\s*第?\s*\d+\s*条(?:\s*の\s*\d+)?(?:\s*第?\s*\d+\s*項)?(?:\s*第?\s*\d+\s*号)?)/g;
+  let html = '';
+  let last = 0; let m;
+  while((m = re.exec(norm)) !== null){
+    const before = norm.slice(last, m.index);
+    if(before) html += escapeHtml(before);
+    const token = m[1];
+    const core = lbExtractCore(token);
+    if(core){
+      html += `<a href="#" class="lb-chip" data-lb-ref="${escapeHtml(token.trim())}" data-lb-core="${escapeHtml(core.core)}" data-lb-kind="${escapeHtml(core.kind)}">${escapeHtml(token.trim())}</a>`;
+    } else {
+      html += escapeHtml(token);
+    }
+    last = m.index + m[0].length;
+  }
+  const tail = norm.slice(last);
+  if(tail) html += escapeHtml(tail);
+  return html;
+}
+
+/* チップ用 e-Gov URL(law=法令名 + 参照語) */
+function lbBuildEgovUrl(law, refText){
+  let kw = (law || '').trim();
+  const refNum = (refText||'').match(/第?\s*\d+\s*条(?:\s*の\s*\d+)?/);
+  if(kw && refNum) kw += ' ' + refNum[0].replace(/\s+/g,'');
+  else if(!kw) kw = (refText||'').trim();
+  if(!kw) return null;
+  return 'https://laws.e-gov.go.jp/search/elawsSearch/elaws_search/lsg0100/?searchType=keyword&keyword=' + encodeURIComponent(kw);
+}
+
+/* チップクリック時に表示するパネル HTML を生成 */
+function lbBuildPanelHtml(law, refText, refCore){
+  const found = lbFindArticles(law, refCore);
+  const head = `<div class="lb-art-panel-head"><span>📖 ${escapeHtml(refText)}</span><span class="lb-close" data-lb-close="1">×</span></div>`;
+  if(found.length){
+    const items = found.map(info=>{
+      const blk = info.block;
+      const meta = articleKindMeta(blk.kind);
+      const title = escapeHtml(blk.title || '(無題)');
+      const loc = escapeHtml(articleBlockLocationLabel(info) + (info.indexTitle ? ' / ' + info.indexTitle : ''));
+      const text = highlightArticleNumbers(escapeHtml(blk.text || ''));
+      return `<div class="lb-art-item">
+        <div><span class="lb-art-kind ${meta.cls}">${meta.lbl}</span><span class="lb-art-ti">${title}</span></div>
+        <div class="lb-art-loc">${loc}</div>
+        <div class="lb-art-text">${text}</div>
+      </div>`;
+    }).join('');
+    return `<div class="lb-art-panel">${head}<div class="lb-art-panel-body">${items}</div></div>`;
+  }
+  // 未登録 → e-Gov リンク
+  const url = lbBuildEgovUrl(law, refText);
+  const egov = url ? `<a class="lb-egov" href="${escapeHtml(url)}" target="_blank" rel="noopener">🌐 e-Govで「${escapeHtml(law||'')} ${escapeHtml((refText||'').replace(/\s+/g,''))}」を検索</a>` : '';
+  return `<div class="lb-art-panel">${head}<div class="lb-art-panel-body">
+    <div class="lb-art-empty">この条文はアプリに未登録です。「条文・解説」タブに登録すると、ここに本文が表示されます。${egov ? '<br>' + egov : ''}</div>
+  </div></div>`;
+}
+
+/* renderResult 内の出題根拠チップに対し、クリック挙動を wire する。
+   root 配下の .lb-chip を対象。トグル式(同じチップ再クリックで閉じる)。 */
+function wireLegalBasisChips(root, q){
+  if(!root) return;
+  root.querySelectorAll('.lb-chip').forEach(chip=>{
+    if(chip.dataset.lbWired) return;
+    chip.dataset.lbWired = '1';
+    chip.addEventListener('click', (e)=>{
+      e.preventDefault();
+      // 既存パネル(このチップ直後)があればトグルで閉じる
+      const holder = chip.closest('.section-body') || root;
+      const existing = holder.querySelector('.lb-art-panel[data-lb-owner]');
+      if(existing && existing.getAttribute('data-lb-owner') === (chip.dataset.lbRef||'')){
+        existing.remove(); return;
+      }
+      if(existing) existing.remove();
+      const refText = chip.dataset.lbRef || '';
+      const refCore = { core: chip.dataset.lbCore || '', kind: chip.dataset.lbKind || '法' };
+      const html = lbBuildPanelHtml(q.law, refText, refCore);
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const panel = tmp.firstElementChild;
+      panel.setAttribute('data-lb-owner', refText);
+      holder.appendChild(panel);
+      const closeBtn = panel.querySelector('[data-lb-close]');
+      if(closeBtn) closeBtn.addEventListener('click', ()=>panel.remove());
+      panel.scrollIntoView({block:'nearest', behavior:'smooth'});
+    });
+  });
 }
 
 /* ===== 改修11: 5whyブロック検索ヘルパー =====
@@ -10344,6 +11735,8 @@ function findWhyBlockByCtx(ctx){
 
 /* ===== Tabs ===== */
 function switchTab(name){
+  // 【改修42】択一タブを離れるときはセッションタイマーの毎秒更新を止める
+  if(name!=='quiz' && _quizClockTimer){ clearInterval(_quizClockTimer); _quizClockTimer = null; }
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   document.getElementById('view-quiz').style.display = name==='quiz'?'block':'none';
   document.getElementById('aside-quiz').style.display = name==='quiz'?'flex':'none';
@@ -11071,6 +12464,111 @@ function renderSenbonReview(root){
 }
 
 /* =========================================================================
+   改修: 千本ノック「条文」参照機能
+   各問に articleRef(条文番号) / articleText(条文本文) を持たせ、
+   「📜 条文」ボタンで登録済み条文をポップアップ表示する。
+   本文中の数値(○日・○箇月・分数・割合・期間 等)は朱色でハイライトする。
+   自動取得は行わず、登録済みデータのみを表示(未登録なら「未登録」と案内)。
+   ========================================================================= */
+
+// 条文本文を持っているか(空白のみは未登録扱い)
+function senbonHasArticle(q){
+  if(!q) return false;
+  return !!((q.articleText && q.articleText.trim()) || (q.articleRef && q.articleRef.trim()));
+}
+
+// 条文本文中の数値表現を朱色ハイライトする(HTMLエスケープ後に適用)。
+// 例: 「7日」「6箇月」「3分の2」「100分の50」「2週間」「14日間」「1年6月」など。
+function highlightArticleNumbers(escapedText){
+  // 改行は <br> に。エスケープ済み文字列に対して数値+単位をラップする。
+  // 全角・半角数字の両方に対応。
+  const numCls = 'sbm-art-num';
+  // 「分の」を含む割合表現(例 100分の50、3分の2)をまず処理
+  let html = escapedText.replace(
+    /([0-9０-９]+\s*分の\s*[0-9０-９]+)/g,
+    `<span class="${numCls}">$1</span>`
+  );
+  // 数値+単位(日/箇月/か月/ヶ月/月/年/週間/週/時間/日間/円/歳/回/人/割/％/%)
+  html = html.replace(
+    /([0-9０-９]+(?:\s*(?:箇月|か月|ヶ月|週間|日間|時間|日|月|年|週|円|歳|回|人|割|％|%)))/g,
+    function(m){
+      // 既にハイライト済みspan内の場合は二重ラップを避ける(簡易: 直前が">"でなければラップ)
+      return `<span class="${numCls}">${m}</span>`;
+    }
+  );
+  return html.replace(/\n/g, '<br>');
+}
+
+// e-Gov 法令検索のキーワード検索URLを組み立てる。
+// 検索語は articleRef(条文番号)優先、なければ subject(科目=法令名)。
+// 条文番号の「第○条」以降は検索ノイズになりやすいので法令名部分だけ抽出を試みる。
+function buildEgovSearchUrl(q){
+  let kw = '';
+  if(q.articleRef && q.articleRef.trim()){
+    // 「雇用保険法 第10条」→「雇用保険法」を優先抽出。"法"までで切る。
+    const m = q.articleRef.trim().match(/^(.*?法)(?:\s|第|\d|条|則|施行|附|$)/);
+    kw = m ? m[1] : q.articleRef.trim();
+  }
+  if(!kw && q.subject) kw = q.subject;
+  kw = (kw||'').trim();
+  if(!kw) return null;
+  // e-Gov 法令検索のキーワード検索ページ
+  return 'https://laws.e-gov.go.jp/search/elawsSearch/elaws_search/lsg0100/?searchType=keyword&keyword=' + encodeURIComponent(kw);
+}
+
+// 条文ポップアップを表示
+function showSenbonArticle(id){
+  const q = senbonAllQuestions().find(x=>x.id===id);
+  if(!q) return;
+  const has = senbonHasArticle(q);
+  const refLine = (q.articleRef && q.articleRef.trim())
+    ? `<div class="sbm-art-ref">${escapeHtml(q.articleRef.trim())}</div>` : '';
+  let bodyHtml;
+  if(q.articleText && q.articleText.trim()){
+    bodyHtml = `<div class="sbm-art-body">${highlightArticleNumbers(escapeHtml(q.articleText.trim()))}</div>`;
+  }else if(q.articleRef && q.articleRef.trim()){
+    bodyHtml = `<div class="sbm-art-empty">条文番号のみ登録されています。本文は未登録です。</div>`;
+  }else{
+    bodyHtml = `<div class="sbm-art-empty">この問題には条文が登録されていません。<br><span style="font-size:12px;color:#999">編集画面の「条文番号 / 条文本文」に入力すると、ここに表示されます。</span></div>`;
+  }
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.innerHTML = `<style>
+    .sbm-art-num{color:#c62828;font-weight:700}
+    .sbm-art-ref{font-size:13px;font-weight:700;color:#2b5dc9;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eee}
+    .sbm-art-body{font-size:14px;line-height:1.9;color:#222;white-space:normal}
+    .sbm-art-empty{font-size:14px;color:#888;line-height:1.7;padding:18px 0;text-align:center}
+  </style>
+  <div style="background:#fff;border-radius:14px;max-width:520px;width:100%;padding:22px;max-height:85vh;overflow:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="margin:0;font-size:16px">📜 条文</h3>
+      <button id="sbm-art-close" style="border:none;background:#f1f1f1;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:12px;line-height:1.6">${escapeHtml(q.subject||'')} ${q.subFrameKey?('F'+q.subFrameKey):(q.frameNo!=null?('F'+q.frameNo):'')} ・ ${escapeHtml(senbonCatLabel(q.category))}</div>
+    ${refLine}
+    ${bodyHtml}
+    <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button id="sbm-art-egov" style="padding:9px 16px;border:1px solid #2e7d32;border-radius:8px;background:#fff;color:#2e7d32;font-weight:700;cursor:pointer;font-size:13px">🌐 e-Govで開く</button>
+      <button id="sbm-art-edit" style="padding:9px 16px;border:1px solid #2b5dc9;border-radius:8px;background:#fff;color:#2b5dc9;font-weight:700;cursor:pointer;font-size:13px">${has?'条文を編集':'条文を登録'}</button>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-top:8px;text-align:right">e-Govは正確な原典確認用です(別タブで開きます)</div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const close = ()=>overlay.remove();
+  document.getElementById('sbm-art-close').addEventListener('click', close);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+  document.getElementById('sbm-art-edit').addEventListener('click', ()=>{ close(); openSenbonEditor(id); });
+  const egovBtn = document.getElementById('sbm-art-egov');
+  if(egovBtn){
+    egovBtn.addEventListener('click', ()=>{
+      const url = buildEgovSearchUrl(q);
+      if(!url){ alert('検索する法令名が特定できませんでした。条文番号または科目を確認してください。'); return; }
+      window.open(url, '_blank', 'noopener');
+    });
+  }
+}
+
+/* =========================================================================
    進捗タブ「🔫 千本ノック」: 一問一答の配置・追加・編集・削除・JSON取込
    ========================================================================= */
 function renderSenbonManage(root){
@@ -11101,6 +12599,8 @@ function renderSenbonManage(root){
     .sbm-actions{display:flex;gap:8px;margin-top:8px}
     .sbm-actions button{padding:5px 12px;border:1px solid var(--line,#ddd);border-radius:7px;background:#fff;cursor:pointer;font-size:12px}
     .sbm-del{color:#c62828;border-color:#f0caca!important}
+    .sbm-art.has{color:#2b5dc9;border-color:#bcd!important;font-weight:700}
+    .sbm-art.empty{color:#aaa}
     .sbm-empty{padding:24px;text-align:center;color:var(--ink-muted,#888);font-size:13px;line-height:1.7}
     .sbm-filter{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap;padding:12px;background:#f7f7f9;border-radius:10px}
     .sbm-filter label{font-size:12px;color:#666}
@@ -11211,6 +12711,7 @@ function renderSenbonManage(root){
           ${q.checkMemo?`<div class="sbm-memo">📝 ${escapeHtml(q.checkMemo)}</div>`:''}
           <div class="sbm-mark-btns">${markBtns}</div>
           <div class="sbm-actions">
+            <button class="sbm-art ${senbonHasArticle(q)?'has':'empty'}" data-sbm-article="${escapeHtml(q.id)}">📜 条文${senbonHasArticle(q)?'':' (未登録)'}</button>
             <button data-sbm-edit="${escapeHtml(q.id)}">編集</button>
             <button class="sbm-del" data-sbm-delete="${escapeHtml(q.id)}">削除</button>
           </div></div>`;
@@ -11268,6 +12769,7 @@ function renderSenbonManage(root){
   const impBtn=document.getElementById('sbm-import');
   if(impBtn) impBtn.addEventListener('click',openSenbonImport);
   root.querySelectorAll('[data-sbm-edit]').forEach(b=>b.addEventListener('click',()=>openSenbonEditor(b.dataset.sbmEdit)));
+  root.querySelectorAll('[data-sbm-article]').forEach(b=>b.addEventListener('click',()=>showSenbonArticle(b.dataset.sbmArticle)));
   root.querySelectorAll('[data-sbm-delete]').forEach(b=>b.addEventListener('click',()=>{
     const id=b.dataset.sbmDelete;
     if(confirm('この一問一答を削除しますか?')){
@@ -11281,7 +12783,7 @@ function renderSenbonManage(root){
 function openSenbonEditor(id){
   const v = state.senbonView;
   const editing = id ? senbonAllQuestions().find(q=>q.id===id) : null;
-  const cur = editing || {category:'A', q:'', a:true, note:'', source:'', checkMark:0, checkMemo:''};
+  const cur = editing || {category:'A', q:'', a:true, note:'', source:'', checkMark:0, checkMemo:'', articleRef:'', articleText:''};
   const catOpts = SENBON_CATEGORIES.map(c=>`<option value="${c.key}" ${cur.category===c.key?'selected':''}>${escapeHtml(c.label)}</option>`).join('');
   const markOpts = SENBON_MARKS.map(m=>`<option value="${m.v}" ${(cur.checkMark||0)===m.v?'selected':''}>${escapeHtml(m.label)}</option>`).join('');
   // 既存の出典候補(データリスト用)
@@ -11316,6 +12818,10 @@ function openSenbonEditor(id){
     <select id="sbm-f-mark" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px">${markOpts}</select>
     <label style="font-size:13px;display:block;margin-bottom:4px">チェックメモ(注意点など・任意)</label>
     <textarea id="sbm-f-memo" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:18px;font-size:13px;box-sizing:border-box">${escapeHtml(cur.checkMemo||'')}</textarea>
+    <label style="font-size:13px;display:block;margin-bottom:4px">📜 条文番号(任意・例: 雇用保険法 第10条)</label>
+    <input id="sbm-f-articleref" value="${escapeHtml(cur.articleRef||'')}" placeholder="雇用保険法 第10条" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:13px;box-sizing:border-box">
+    <label style="font-size:13px;display:block;margin-bottom:4px">📜 条文本文(任意・「条文」ボタンで表示。数値は朱色ハイライトされます)</label>
+    <textarea id="sbm-f-articletext" rows="4" placeholder="(失業等給付) 法10条…&#10;条文をそのまま貼り付けてください。" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;margin-bottom:18px;font-size:13px;box-sizing:border-box;line-height:1.7">${escapeHtml(cur.articleText||'')}</textarea>
     <div style="display:flex;gap:10px">
       <button id="sbm-cancel" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">キャンセル</button>
       <button id="sbm-save" style="flex:1;padding:12px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:pointer">保存</button>
@@ -11333,15 +12839,17 @@ function openSenbonEditor(id){
     const source = document.getElementById('sbm-f-source').value.trim();
     const checkMark = parseInt(document.getElementById('sbm-f-mark').value,10)||0;
     const checkMemo = document.getElementById('sbm-f-memo').value.trim();
+    const articleRef = document.getElementById('sbm-f-articleref').value.trim();
+    const articleText = document.getElementById('sbm-f-articletext').value.trim();
     if(editing){
       const i = state.senbon.findIndex(q=>q.id===id);
-      if(i>=0) state.senbon[i] = {...state.senbon[i], category:cat, q:qText, a:aVal, note, source, checkMark, checkMemo};
+      if(i>=0) state.senbon[i] = {...state.senbon[i], category:cat, q:qText, a:aVal, note, source, checkMark, checkMemo, articleRef, articleText};
     }else{
       state.senbon.push({
         id: 'sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
         subject: v.subject, frameNo: isNaN(parseInt(v.frameNo,10))?v.frameNo:parseInt(v.frameNo,10),
         subFrameKey: v.subFrameKey || null,
-        category: cat, q:qText, a:aVal, note, source, checkMark, checkMemo, createdAt: Date.now()
+        category: cat, q:qText, a:aVal, note, source, checkMark, checkMemo, articleRef, articleText, createdAt: Date.now()
       });
     }
     saveState(); overlay.remove(); renderProgress();
@@ -11361,9 +12869,16 @@ function openSenbonImport(){
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
   overlay.innerHTML = `<div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:22px;max-height:90vh;overflow:auto">
     <h3 style="margin:0 0 8px;font-size:17px">📥 千本ノック JSON取込</h3>
-    <div style="font-size:12px;color:#888;margin-bottom:12px">配置先: ${placeLabel}<br>subject/frameNo/subFrameKey は自動で配置先に設定されます(JSON内にあれば優先)。</div>
-    <div style="font-size:12px;background:#f7f7f9;border-radius:8px;padding:10px;margin-bottom:12px;line-height:1.6">配列形式の例(source=出典・任意):<br><code>[{"q":"…","a":false,"category":"D","note":"…","source":"2026_TAC予想問題集"}]</code></div>
-    <textarea id="sbm-imp-text" rows="10" placeholder='[{"q":"標準報酬月額の定時決定の届出期限は7月10日である。","a":false,"category":"A","note":"正しくは7月1日〜10日","source":"東京有明LS_オリジナル"}]' style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px"></textarea>
+    <div style="font-size:12px;color:#888;margin-bottom:12px">配置先: ${placeLabel}</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <label style="flex:1;display:flex;gap:6px;align-items:center;padding:10px;border:2px solid #2b5dc9;border-radius:8px;cursor:pointer;font-size:13px" id="sbm-imp-mode-add-l">
+        <input type="radio" name="sbm-imp-mode" value="add" checked> ＋ 新規追加</label>
+      <label style="flex:1;display:flex;gap:6px;align-items:center;padding:10px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px" id="sbm-imp-mode-upd-l">
+        <input type="radio" name="sbm-imp-mode" value="update"> 📜 条文だけ後付け(更新)</label>
+    </div>
+    <div id="sbm-imp-help-add" style="font-size:12px;background:#f7f7f9;border-radius:8px;padding:10px;margin-bottom:12px;line-height:1.6">配列形式の例(source/articleRef/articleText は任意):<br><code>[{"q":"…","a":false,"category":"D","note":"…","articleRef":"雇用保険法 第10条","articleText":"(失業等給付) 法10条…"}]</code></div>
+    <div id="sbm-imp-help-upd" style="display:none;font-size:12px;background:#eef6ee;border-radius:8px;padding:10px;margin-bottom:12px;line-height:1.6">既存の問題に<b>条文だけ</b>を後から追加します。新規問題は作りません。<br>各要素は <code>id</code> または <code>q</code>(問題文・完全一致)で既存問題を特定し、<code>articleRef</code>/<code>articleText</code> を埋めます。<br>例:<br><code>[{"q":"一般の受給資格者の…150日である。","articleRef":"雇用保険法 第22条","articleText":"…"}]</code><br><span style="font-size:11px;color:#789">※問題文は画面の文言と完全一致が必要です(空白・記号も含む)。一致しない場合はスキップされます。</span></div>
+    <textarea id="sbm-imp-text" rows="10" placeholder='[{"q":"…","a":false,"category":"A","note":"…"}]' style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px"></textarea>
     <div style="display:flex;gap:10px">
       <button id="sbm-imp-cancel" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer">キャンセル</button>
       <button id="sbm-imp-go" style="flex:1;padding:12px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:pointer">取込</button>
@@ -11372,13 +12887,50 @@ function openSenbonImport(){
   document.body.appendChild(overlay);
   document.getElementById('sbm-imp-cancel').addEventListener('click',()=>overlay.remove());
   overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  // モード切替UI
+  const getMode = ()=> overlay.querySelector('input[name="sbm-imp-mode"]:checked').value;
+  overlay.querySelectorAll('input[name="sbm-imp-mode"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      const m = getMode();
+      document.getElementById('sbm-imp-help-add').style.display = m==='add'?'block':'none';
+      document.getElementById('sbm-imp-help-upd').style.display = m==='update'?'block':'none';
+      document.getElementById('sbm-imp-mode-add-l').style.borderColor = m==='add'?'#2b5dc9':'#ddd';
+      document.getElementById('sbm-imp-mode-upd-l').style.borderColor = m==='update'?'#2e7d32':'#ddd';
+    });
+  });
   document.getElementById('sbm-imp-go').addEventListener('click',()=>{
     let arr;
     try{ arr = JSON.parse(document.getElementById('sbm-imp-text').value); }
     catch(e){ alert('JSONの解析に失敗しました: '+e.message); return; }
     if(!Array.isArray(arr)){ alert('配列形式のJSONを入力してください'); return; }
-    let added=0;
+    const mode = getMode();
     const fno = isNaN(parseInt(v.frameNo,10))?v.frameNo:parseInt(v.frameNo,10);
+
+    if(mode==='update'){
+      // === 条文だけ後付け(更新) ===
+      let updated=0, skipped=0;
+      const byId = new Map(state.senbon.map(q=>[q.id, q]));
+      // 問題文(正規化)→問題 の索引。同一文が複数あるとどれか1件に当たる点は許容。
+      const normQ = s => String(s||'').replace(/\s+/g,'').trim();
+      const byQ = new Map();
+      state.senbon.forEach(q=>{ const k=normQ(q.q); if(!byQ.has(k)) byQ.set(k, q); });
+      arr.forEach(o=>{
+        if(!o) return;
+        let target = null;
+        if(o.id && byId.has(o.id)) target = byId.get(o.id);
+        else if(typeof o.q==='string' && byQ.has(normQ(o.q))) target = byQ.get(normQ(o.q));
+        if(!target){ skipped++; return; }
+        if(typeof o.articleRef==='string') target.articleRef = o.articleRef;
+        if(typeof o.articleText==='string') target.articleText = o.articleText;
+        updated++;
+      });
+      saveState(); overlay.remove(); renderProgress();
+      alert(`条文を後付けしました。\n更新: ${updated}件 / 該当なし(スキップ): ${skipped}件`);
+      return;
+    }
+
+    // === 新規追加 ===
+    let added=0;
     arr.forEach(o=>{
       if(!o || typeof o.q!=='string') return;
       state.senbon.push({
@@ -11393,6 +12945,8 @@ function openSenbonImport(){
         source: o.source || '',
         checkMark: o.checkMark || 0,
         checkMemo: o.checkMemo || '',
+        articleRef: o.articleRef || '',
+        articleText: o.articleText || '',
         createdAt: Date.now()
       });
       added++;
@@ -11593,7 +13147,7 @@ function _renderWeakInner(){
     ${answered?renderWeakResult(q,correct):''}
     <div class="bookmark-row">
       <span class="lbl">FUSEN</span>
-      ${['r','p','y','g','b'].map(c=>`<div class="bm ${c} ${bms.includes(c)?'active':''}" data-bm="${c}"></div>`).join('')}
+      ${BM_COLORS_TANITSU.map(c=>renderBmChip(c, bms.includes(c))).join('')}
       <span style="font-size:11px;color:var(--ink-muted);margin-left:auto">クリックでつける/外す</span>
     </div>
   </div>`;
@@ -11642,6 +13196,8 @@ function _renderWeakInner(){
 
   // 条文・解説アコーディオン(Phase 7)
   wireLinkedArticlesAccordion(root);
+  // 改修01: 出題根拠の条番号チップ
+  try { wireLegalBasisChips(root, q); } catch(e){ console.error('[改修01] wireLegalBasisChips(weak):', e); }
   const artLinkBtnWeak = document.getElementById('art-link-btn-weak');
   if(artLinkBtnWeak) artLinkBtnWeak.addEventListener('click', ()=>openArticlePicker(q.id));
 
@@ -12248,8 +13804,24 @@ function sessionAnswerStats(sess, nowTs){
 }
 
 // 新規セッション開始(予定ボックスから)。既存の進行中があれば自動で終了確定。
+// 改修: 「▶開始」一発で、計測セッション開始と同時に「択一」タブの該当フレーム演習(過去問A)を自動起動する。
+//   タブ移動や「演習開始」ボタンの二度押しを不要にする。
+//   (択一画面側にも計測バーが出るため、中断・休憩・完了はそのまま操作できる)
 function startStudySession(subject, frameRef, dateKey){
-  // 既存の進行中セッションがあれば、まず確定(終了)する
+  // ① まず、この予定フレームに過去問A が登録されているかを事前確認する。
+  //    0問なら計測セッションを開始せずに中止する(計測だけ始まる空振りを防ぐ)。
+  const fref0 = resolveFrameRef(subject, frameRef);
+  if(fref0.frameNo == null){ alert('フレーム参照が不正です: ' + frameRef); return; }
+  let qPre = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref0.frameNo && getKind(q)==='pastA');
+  if(fref0.isSubFrame && fref0.subFrame){
+    qPre = qPre.filter(q=>questionMatchesSubFrame(q.law, fref0.subFrame));
+  }
+  if(qPre.length === 0){
+    alert('このフレームには過去問Aが登録されていないため、演習を開始できません。\n(「過去問A」タブで問題を追加してください)');
+    return;
+  }
+
+  // ② 既存の進行中セッションがあれば、まず確定(終了)する
   const prev = getActiveSession();
   if(prev){
     if(!confirm('別の学習セッションが進行中です。\nそれを「終了」して新しいセッションを開始しますか?')) return;
@@ -12270,7 +13842,12 @@ function startStudySession(subject, frameRef, dateKey){
   state.studySessions.push(sess);
   state.activeSessionId = sess.id;
   saveState();
-  renderProgress();
+
+  // ③ そのまま「択一」タブの該当フレーム演習(過去問A)を起動する。
+  //    startFrameAttempt 内部で enterFrameMode → switchTab('quiz') まで実行され、
+  //    予定していた科目・フレームの問題演習がすぐ始まる。
+  //    既に同フレームの進行中演習がある場合は「継続/新規」の確認が出る(従来挙動)。
+  startFrameAttempt(subject, frameRef, 'pastA');
 }
 
 // 改修31b: 現在のセグメントを閉じ、新しいモードのセグメントを開く共通処理
@@ -12372,9 +13949,23 @@ function fmtHM(ts){
   return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
+// 改修48_改修03: セッションが「実際に行われた日」のキーを返す。
+//   従来は予定日(dateKey)で実績を表示していたため、前日に予定したフレームを
+//   翌日に実施しても前日のタイムテーブルに計上されてしまっていた。
+//   実績(タイムテーブル/学習時間集計)は startTs(=実施開始時刻)から導いた
+//   「実施日」で計上する。startTs が無い古いデータは dateKey にフォールバック。
+//   ※ plan.done[dateKey](予定の完了フラグ)は予定日基準のまま維持する。
+function sessionActualDateKey(s){
+  if(s && s.startTs != null){
+    try{ return _gDateKey(new Date(s.startTs)); }catch(_){}
+  }
+  return s ? s.dateKey : null;
+}
+
 // 指定日 dateKey の「完了したセッション」を返す(タイムテーブル/集計用)
+//   改修48_改修03: 予定日ではなく「実施日」で絞り込む。
 function getSessionsForDate(dateKey){
-  return (state.studySessions||[]).filter(s=> s.dateKey===dateKey && s.status==='done' && s.startTs!=null && s.endTs!=null);
+  return (state.studySessions||[]).filter(s=> s.status==='done' && s.startTs!=null && s.endTs!=null && sessionActualDateKey(s)===dateKey);
 }
 
 /* ===== 予定編集モーダル ===== */
@@ -14134,6 +15725,10 @@ function statsKindLabel(km){
   return '過去問A';
 }
 
+// レゴ見出し用アイコン。環境により絵文字 🧱(U+1F9F1)が表示されない端末があるため、
+// インラインSVGのレンガアイコンで確実に表示する。currentColor で周囲の文字色になじむ。
+const LEGO_ICON_SVG = `<svg class="lego-ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" focusable="false" style="vertical-align:-0.14em;display:inline-block"><rect x="2.5" y="5" width="19" height="14" rx="1.5" fill="#C0392B"/><g stroke="#fff" stroke-width="1.4" stroke-linecap="round"><line x1="2.5" y1="9.7" x2="21.5" y2="9.7"/><line x1="2.5" y1="14.3" x2="21.5" y2="14.3"/><line x1="9" y1="5" x2="9" y2="9.7"/><line x1="15" y1="5" x2="15" y2="9.7"/><line x1="6" y1="9.7" x2="6" y2="14.3"/><line x1="12" y1="9.7" x2="12" y2="14.3"/><line x1="18" y1="9.7" x2="18" y2="14.3"/><line x1="9" y1="14.3" x2="9" y2="19"/><line x1="15" y1="14.3" x2="15" y2="19"/></g></svg>`;
+
 // メインレンダリング
 function renderStats(){
   const root = document.getElementById('stats-content');
@@ -14147,7 +15742,7 @@ function renderStats(){
   // 改修31: サブタブ(レゴ / タイパ)
   const subTab = state.statsView.subTab;
   const subTabsHtml = `<div class="stats-subtabs">
-    <button class="stats-subtab ${subTab==='lego'?'active':''}" data-statssub="lego">🧱 レゴ</button>
+    <button class="stats-subtab ${subTab==='lego'?'active':''}" data-statssub="lego">${LEGO_ICON_SVG} レゴ</button>
     <button class="stats-subtab ${subTab==='taipa'?'active':''}" data-statssub="taipa">⏱ タイパ</button>
     <button class="stats-subtab ${subTab==='time'?'active':''}" data-statssub="time">📈 学習時間</button>
   </div>`;
@@ -14199,7 +15794,7 @@ function renderStats(){
   // イントロ + サブタブ + 期間切替
   html += `<div class="card stats-intro">
     ${subTabsHtml}
-    <h2 class="stats-h2">🧱 レゴ <span class="stats-sub">フレーム演習(進捗管理モード)の日別解答数</span></h2>
+    <h2 class="stats-h2">${LEGO_ICON_SVG} レゴ <span class="stats-sub">フレーム演習(進捗管理モード)の日別解答数</span></h2>
     <p class="stats-desc">科目の積み上がり具合を「レゴ」に見立てた日別の解答数グラフです。トップページの「今日の実績」は単発の択一演習も含みますが、こちらは<strong>進捗管理モードのフレーム演習のみ</strong>を集計しています。</p>
   </div>`;
 
@@ -14799,7 +16394,8 @@ function renderStudyTimeView(){
   const byDay = {}; // dateKey -> {totalMs, activeMs}
   for(const s of (state.studySessions||[])){
     if(s.status!=='done') continue;
-    const dk = s.dateKey;
+    // 改修48_改修03: 予定日ではなく実施日で日別集計する
+    const dk = sessionActualDateKey(s);
     if(!dk) continue;
     byDay[dk] ||= {totalMs:0, activeMs:0};
     byDay[dk].totalMs += sessionTotalMs(s);
@@ -15442,7 +17038,7 @@ function init(){
   document.getElementById('import-do').addEventListener('click',doImport);
 
   // Data tab
-  document.getElementById('btn-backup').addEventListener('click',backupAll);
+  document.getElementById('btn-backup').addEventListener('click', ()=>backupAll());
   document.getElementById('btn-restore').addEventListener('click',restoreBackup);
   // 改修: ストレージ診断ボタン
   const btnDiag = document.getElementById('btn-storage-diag');
@@ -15464,6 +17060,24 @@ function init(){
   if(mergeModal) mergeModal.addEventListener('click', e=>{
     if(e.target === mergeModal) closeMergeRestoreModal();
   });
+
+  // 改修46: バックアップ忘れ防止リマインダー
+  const brBackupNow = document.getElementById('br-backup-now');
+  if(brBackupNow) brBackupNow.addEventListener('click', ()=>{
+    // バックアップ実行(成功時に backupAll 内で banner が消える)
+    backupAll();
+  });
+  const brDismiss = document.getElementById('br-dismiss');
+  if(brDismiss) brDismiss.addEventListener('click', _dismissBackupReminder);
+  // タブ閉じ/リロード時の確認(防御線2)
+  window.addEventListener('beforeunload', _backupBeforeUnloadHandler);
+  // 改修50: タブが隠れるタイミングでの自動バックアップ(iPhone Safari 対策の確実な経路)
+  document.addEventListener('visibilitychange', _backupOnHideHandler);
+  // 起動時に1回バナー状態を計算 + 1分ごとの自動更新を開始
+  updateBackupReminderBanner();
+  _startBackupReminderTicker();
+  // 改修48_改修02: バックアップ通知設定UIの配線 + 初期描画
+  try{ wireBackupReminderSettings(); renderBackupReminderSettings(); }catch(e){ console.error('[改修48_02] backup reminder settings init:', e); }
 
   // Keyboard shortcuts
   document.addEventListener('keydown',e=>{
