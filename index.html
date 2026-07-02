@@ -704,9 +704,11 @@
     display:inline-block;margin-left:4px;letter-spacing:.02em;
   }
   .pf-slots{
-    display:grid;grid-template-columns:repeat(10,1fr);gap:4px;
+    display:grid;grid-template-columns:repeat(var(--pf-n,10),1fr);gap:4px;
     margin-bottom:8px;max-width:420px;
   }
+  /* 改修V02_09: 11回以上は10列で複数段に折り返す(1マスの大きさを保つ) */
+  .pf-slots.multi{grid-template-columns:repeat(10,1fr);max-width:420px}
   .slot{
     aspect-ratio:1;border-radius:4px;display:flex;flex-direction:column;
     align-items:center;justify-content:center;font-size:10px;
@@ -1481,6 +1483,15 @@
   }
   .plan-badge.first{background:var(--indigo-soft);color:var(--indigo)}
   .plan-badge.review{background:#FBEFD3;color:#8A6308}
+  /* 改修V02_13: 演習回数バッジ・遅延バッジ */
+  .plan-badge.attempt{background:#E8EAF6;color:#3949AB}
+  .plan-badge.attempt.prog{background:#E3F2FD;color:#1565C0}
+  .plan-badge.attempt.none{background:var(--line);color:var(--ink-muted)}
+  .plan-badge.delay.overdue{background:#F8D7DA;color:#B02A37}
+  .plan-badge.delay.warn{background:#FFF3CD;color:#8A6D00}
+  /* 改修V02_17: 予定の種別(過去問A/予想問)タグ */
+  .plan-badge.kindtag.forecast{background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7}
+  .plan-badge.kindtag.pasta{background:#EEF0F6;color:#4A5578;border:1px solid #C7CEE0}
   .plan-subj-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0}
   .plan-box-title{font-size:13px;font-weight:600;color:var(--ink);margin:1px 0 1px;line-height:1.35;display:flex;align-items:center;gap:6px}
   .plan-box-items{font-size:11px;color:var(--ink-muted);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2531,7 +2542,11 @@
   .taipa-resize{position:absolute;left:0;right:0;height:8px;cursor:ns-resize;z-index:2}
   .taipa-resize.top{top:0}
   .taipa-resize.bottom{bottom:0}
-  .taipa-block.dragging{opacity:.85;box-shadow:0 3px 10px rgba(0,0,0,.25);z-index:10}
+  .taipa-block.dragging{opacity:.9;box-shadow:0 4px 14px rgba(0,0,0,.30);z-index:30}
+  /* 改修V02_11: 左右セット間移動の操作ヒント */
+  .taipa-move-hint{margin:8px 2px 0;padding:8px 12px;font-size:12px;line-height:1.6;
+    color:var(--ink-soft);background:rgba(75,85,180,.06);border:1px solid var(--line);
+    border-radius:8px}
   .taipa-block.dragging .taipa-block-sub{color:var(--indigo)}
   .taipa-drag-time{position:absolute;right:3px;top:1px;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(255,255,255,.9);border-radius:2px;padding:0 3px;pointer-events:none;z-index:11}
   .taipa-block-sub{font-weight:700;color:var(--ink);display:flex;align-items:center;gap:3px;font-size:12px}
@@ -2540,6 +2555,9 @@
   .taipa-mini-badge.first{background:var(--green)}
   .taipa-mini-badge.act{background:var(--indigo)}
   .taipa-mini-badge.partial{background:#c98d00}
+  .taipa-mini-badge.forecast{background:#2E7D32}
+  .taipa-kind-mix{font-size:10px;color:var(--ink-muted);margin-left:4px;white-space:nowrap}
+  .taipa-kind-mix.forecast{color:#2E7D32;font-weight:600}
   .taipa-block.act.is-partial{border-left-style:dashed}
   .taipa-state-badge{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:600;color:#fff}
   .taipa-state-badge.done{background:#2ea043}
@@ -2573,6 +2591,7 @@
   .taipa-fix-seg-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;color:#fff}
   .taipa-fix-seg-badge.b{background:#7a6cc9}
   .taipa-fix-seg-badge.r{background:#5a9aa8}
+  .taipa-fix-seg-badge.a{background:#c0683a}
   .taipa-fix-seg-time{font-feature-settings:"tnum";color:var(--ink-soft)}
   .taipa-fix-seg-raw{color:var(--ink-muted);font-feature-settings:"tnum"}
   .taipa-fix-long{color:#d9820b;font-weight:700;margin-left:2px}
@@ -2582,6 +2601,16 @@
   .taipa-fix-suggest:hover,.taipa-fix-reset:hover{background:var(--card)}
   .taipa-fix-reset{border-color:#c98d00;color:#9a6c00}
   .taipa-fix-none{font-size:11px;color:var(--ink-muted);padding:4px 2px}
+  /* 改修V02_16: 休憩中の解答計上(解答漏れ救済) */
+  .taipa-rest-mark{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:#fff;background:#c0392b;border-radius:8px;padding:1px 7px;vertical-align:middle}
+  .taipa-fix-restnote{margin-top:8px;padding:8px 10px;border:1px solid #e2a3a0;background:#fdf1f0;border-radius:8px;font-size:12px;color:#8a2a24;line-height:1.6}
+  .taipa-fix-seg.has-restans{border-color:#d06a5f;background:#fdf3f2}
+  .taipa-fix-restrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:6px 8px;margin:2px 0 4px;border-radius:6px;background:#fbeceb;border:1px dashed #d9a29c}
+  .taipa-fix-restrow.on{background:#eaf5ec;border-color:#8fbf9a}
+  .taipa-fix-restlabel{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer}
+  .taipa-fix-restlabel input{width:16px;height:16px;cursor:pointer}
+  .taipa-fix-restcnt{font-size:11px;color:var(--ink-muted);font-feature-settings:"tnum"}
+  .taipa-fix-restwarn{color:#c0392b;font-weight:700;margin-left:2px}
   /* 改修V02_05: 集中特訓フレーム */
   .prog-tokkun-divider{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:18px 2px 10px;padding-top:14px;border-top:2px dashed var(--line)}
   .prog-tokkun-divider>span:first-child{font-weight:700;font-size:14px;color:#c0392b}
@@ -2593,6 +2622,8 @@
     /* 改修57_01②-2: 狭い画面では2セット目を隠し、従来どおり1セットだけ表示する */
     .taipa-tt-2col{grid-template-columns:1fr}
     .taipa-tt-2col .taipa-tt-set2{display:none}
+    /* 改修V02_11: 2セット目が無い狭い画面では左右間移動ヒントは出さない */
+    .taipa-move-hint{display:none}
   }
 
   .stats-h2{margin:0 0 6px 0;font-size:20px;font-weight:600;display:flex;align-items:center;gap:8px}
@@ -2883,7 +2914,7 @@
     padding:4px 6px;
   }
   .gantt-row-slots .gs-grid{
-    display:grid;grid-template-columns:repeat(10,1fr);gap:2px;
+    display:grid;grid-template-columns:repeat(var(--gs-n,10),1fr);gap:2px;
     width:100%;
   }
   .gantt-row-slots .gs-slot{
@@ -2896,6 +2927,21 @@
   .gantt-row-slots .gs-slot.done.warn{background:#E8B923;color:#3a2a00}
   .gantt-row-slots .gs-slot.done.overdue{background:#D9534F;color:#fff}
   .gantt-row-slots .gs-slot.prog{background:var(--amber);color:#fff;border:none}
+  /* 改修V02_07: 千本ノック表示(濃紺) */
+  .gantt-row-slots .gs-slot.senbon-done{background:#1f2a5a;color:#fff;border:none}
+  /* 改修V02_07b: 付随表示(＋α)では、択一ハコ列の「真下」に独立した千本ノック帯を1段追加する。
+     緑のハコと物理的に分離するため重なりがなく、上段=択一/下段=千本 と読める。 */
+  /* 改修V02_07b: ハコ列と千本帯を縦に積むラッパー(.gantt-row-slots が flex 横並びのため必要) */
+  .gantt-row-slots .gs-stack{display:flex;flex-direction:column;width:100%}
+  .gantt-row-slots .gs-senbon-grid{
+    display:grid;grid-template-columns:repeat(var(--gs-n,10),1fr);gap:2px;
+    width:100%;margin-top:3px;
+  }
+  .gantt-row-slots .gs-senbon-cell{
+    height:4px;border-radius:2px;background:transparent;
+  }
+  .gantt-row-slots .gs-senbon-cell.on{background:#1f2a5a}
+  .gantt-legend .leg-dot.senbon{background:#1f2a5a}
 
   /* 日付セル(grid 直接子) — 改修28-2: grid破綻の修正 */
   .gantt-day-cell{
@@ -2922,6 +2968,9 @@
   .gantt-point.warn{background:#E8B923}
   .gantt-point.overdue{background:#D9534F}
   .gantt-point.prog{background:var(--amber)}
+  /* 改修V02_07: 千本ノックの点(濃紺)。付随表示では小さめ・縁取りで区別 */
+  .gantt-point.senbon{background:#1f2a5a}
+  .gantt-point.senbon-sub{background:#1f2a5a;width:8px;height:8px;border:1.5px solid #fff;box-shadow:0 0 0 1px #1f2a5a}
 
   /* 「今」を示す縦ライン */
   .gantt-now-line{
@@ -3975,7 +4024,7 @@ const FRAMES = {
   ],
   "労務管理その他の労働に関する一般常識":[
     {n:1,t:"集団的労使関係法"},{n:2,t:"個別的労働関係法"},{n:3,t:"労働市場法"},
-    {n:4,t:"労務管理"},{n:5,t:"統計、労働経済"}
+    {n:4,t:"労務管理"},{n:5,t:"統計、労働経済"},{n:6,t:"白書"}
   ],
   "健康保険法":[
     {n:1,t:"目的等、保険者"},{n:2,t:"適用事業所、被保険者等"},{n:3,t:"保険医療機関等"},
@@ -3996,7 +4045,8 @@ const FRAMES = {
     {n:10,t:"不服申立て、雑則、基金等"}
   ],
   "社会保険に関する一般常識":[
-    {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"}
+    {n:1,t:"社会保険労務士法"},{n:2,t:"社会保険法規等"},{n:3,t:"企業年金制度"},
+    {n:4,t:"統計"},{n:5,t:"白書"},{n:6,t:"社会保障制度"}
   ]
 };
 
@@ -4018,6 +4068,17 @@ function isTokkunRef(frameRef){
 function getTokkunDef(frameRef){
   return TOKKUN_FRAMES.find(f=>f.key===frameRef) || null;
 }
+/* 改修V02_12: 付箋(bookmarks[id])を安全に「配列」で取得するヘルパー。
+   本来 bookmarks[id] は色(付箋種別)の配列だが、過去の不具合や旧データ由来で
+   true / 文字列 等の非配列が混入すると、(x||[]).includes(...) が
+   "includes is not a function" 例外を起こし、その科目の進捗管理タブが
+   無反応になる(集中特訓フレーム描画 getTokkunQuestions で発生)。
+   ここで「配列でなければ空配列」に正規化して、例外を根本から防ぐ。 */
+function _bmList(id){
+  const v = state.bookmarks ? state.bookmarks[id] : null;
+  return Array.isArray(v) ? v : [];
+}
+
 /* 特訓フレームの対象問題を動的抽出して返す(科目横断・過去問A限定)。
    - subject: 科目名
    - frameRef: 'T1'/'T2'/'T3'
@@ -4039,7 +4100,7 @@ function getTokkunQuestions(subject, frameRef){
     });
   }
   // 撃墜/罠問: 付箋色を持つ問題
-  return pool.filter(q=> (state.bookmarks[q.id]||[]).includes(def.bm));
+  return pool.filter(q=> _bmList(q.id).includes(def.bm));
 }
 
 /* ===== 改修: フレーム中分類項目(表示用) =====
@@ -4227,9 +4288,10 @@ const FRAME_ITEMS = {
          "社会保険労務士会及び全国社会保険労務士会連合会","罰則"],
     2:  ["国民健康保険法","船員保険法","高齢者医療確保法","介護保険法","児童手当法","その他の法律"],
     3:  ["確定拠出年金法","確定給付企業年金法"],
-    4:  ["社会保障制度の発展","平成の30年間の社会保障制度等の改革",
-         "社会保障制度を支える人材の確保"],
-    5:  ["医療(介護)保険制度の沿革","年金制度の沿革"]
+    4:  ["社会保険統計"],
+    5:  ["社会保障白書"],
+    6:  ["社会保障制度の発展","平成の30年間の社会保障制度等の改革",
+         "社会保障制度を支える人材の確保","医療(介護)保険制度の沿革","年金制度の沿革"]
   }
 };
 
@@ -4425,6 +4487,25 @@ function statsSubjectColor(subject){
    ここの数字を変えると、択一タブの「弱点」モードと解答履歴バッジの判定が連動して変わる。 */
 const WEAK_THRESHOLD = 3;
 
+/* 改修V02_09: フレーム演習の最大保持回数。
+   従来は 10 回までしか履歴を保持できず、11 回目を「予定」から開始すると
+   確認ダイアログ→キャンセル相当で fa.current が作られず、択一画面の
+   タイマー(演習中バナー)が出ない・実績が計上されない不具合があった。
+   基本 20 回まで 10 回までと同様に演習できるよう上限を引き上げる。
+   進捗ドット表示は max(10, 完了数+1) を本定数でクランプして動的に並べる。 */
+const MAX_FRAME_ATTEMPTS = 20;
+
+/* 改修V02_09: 進捗ドット(スロット)の表示個数を決める。
+   10 回までは従来どおり 10 個。11 回以上は「完了数(＋進行中の1)」だけ
+   並べ、MAX_FRAME_ATTEMPTS(20) でクランプする。これでガント図が
+   無駄に横長にならず、かつ 11〜20 回も表示できる。 */
+function frameSlotCount(completed, hasCurrent){
+  let n = (completed || 0) + (hasCurrent ? 1 : 0);
+  if(n < 10) n = 10;
+  if(n > MAX_FRAME_ATTEMPTS) n = MAX_FRAME_ATTEMPTS;
+  return n;
+}
+
 /* 改修03: 5why タブのトップ画面のイントロ文(デフォルト値)。
    ユーザーが編集すると state.whyIntro に保存され、こちらの値より優先される。
    「デフォルトに戻す」操作でこの値に戻る。 */
@@ -4502,6 +4583,10 @@ const LAW_TO_SUBJECT = {
   /* F5 統計、労働経済 */
   "統計":"労務管理その他の労働に関する一般常識",
   "労働経済":"労務管理その他の労働に関する一般常識",
+  /* F6 白書(改修V02_10) — 労働経済白書・厚生労働白書(労働分野) */
+  "労働経済白書":"労務管理その他の労働に関する一般常識",
+  "厚生労働白書":"労務管理その他の労働に関する一般常識",
+  "白書":"労務管理その他の労働に関する一般常識",
   /* === 社会保険に関する一般常識(社一) === */
   "社会保険労務士法":"社会保険に関する一般常識",
   "国民健康保険法":"社会保険に関する一般常識",
@@ -4514,7 +4599,14 @@ const LAW_TO_SUBJECT = {
   "確定拠出年金法":"社会保険に関する一般常識",
   "確定給付企業年金法":"社会保険に関する一般常識",
   "社会保険審査官及び社会保険審査会法":"社会保険に関する一般常識",
-  "子ども・子育て支援法":"社会保険に関する一般常識"
+  "子ども・子育て支援法":"社会保険に関する一般常識",
+  /* F4 統計・F5 白書(改修V02_10) — 社会保険分野の統計・白書 */
+  "社会保険統計":"社会保険に関する一般常識",
+  "社会保障白書":"社会保険に関する一般常識",
+  /* F6 社会保障制度(改修V02_16) — 社会保障制度・社会保障の沿革等(法律ではなくテーマ) */
+  "社会保障制度":"社会保険に関する一般常識",
+  "社会保障の沿革":"社会保険に関する一般常識",
+  "社会保険制度の沿革":"社会保険に関する一般常識"
 };
 
 function lawToSubject(law){
@@ -4582,18 +4674,23 @@ function questionMatchesKindMode(q, kindMode){
   return true;
 }
 
-/* ===== 予想問の15問しきい値判定 =====
-   進捗管理タブで表示するフレームを決定する。15問以上ある予想問フレームのみ表示対象。
-   過去問は問題数に関係なく常に表示対象。 */
-const FORECAST_FRAME_THRESHOLD = 15;
+/* ===== フレーム起動しきい値判定 =====
+   改修V02_15: 過去問B・予想問のフレーム起動条件を「15問以上」→「1問以上」に変更。
+     問題数が少なくてもフレーム学習を始められるようにする(過去問A同様に1問でも対象)。
+     0問(問題が1問も無い)フレームは始められないので引き続き非表示=対象外とする。
+     ※ 過去問B/予想問は問題を追加するたびに各回の登録問題数が変わり得るが、
+        各演習はスタート時点の登録問題数ベースで記録する(現行どおり)。
+   進捗管理タブで表示するフレームを決定する。1問以上ある B/予想問フレームのみ表示対象。
+   過去問A は問題数に関係なく常に表示対象(全フレーム表示)。 */
+const FORECAST_FRAME_THRESHOLD = 1;   // 改修V02_15: 15 → 1
 function isFrameInProgressManagement(subject, frameNo, kind){
-  // 改修8 Step 1: 仕様書⑤に従い、 pastB も「予想問同様に 15問以上」を進捗管理対象とする。
-  //   pastA(比較認識法問題集ベース)       → 全フレーム表示
-  //   pastB(個別追加の過去問)/forecast(予想問) → 15問以上のフレームのみ表示
+  // 改修8 Step 1 / 改修V02_15:
+  //   pastA(比較認識法問題集ベース)        → 全フレーム表示(問題数不問)
+  //   pastB(個別追加の過去問)/forecast(予想問) → 1問以上のフレームを表示対象
   let k = kind || 'pastA';
   if(k === 'past') k = 'pastA';
   if(k === 'pastA') return true; // 過去問A は閾値なし
-  // pastB と forecast は同一 kind の問題数で 15問しきい値を判定
+  // pastB と forecast は同一 kind の問題数で「1問以上」を判定
   const count = state.questions.filter(q=>
     lawToSubject(q.law)===subject &&
     q.frameNo===frameNo &&
@@ -4616,7 +4713,7 @@ function progressKindLabel(km){
   if(k === 'pastB') return '過去問B';
   return '過去問A';
 }
-/* kindMode で「15問しきい値なし=全フレーム表示」かどうか(pastA のみ true) */
+/* kindMode で「しきい値なし=全フレーム表示」かどうか(pastA のみ true) */
 function progressKindShowAll(km){
   return normalizeProgressKindMode(km) === 'pastA';
 }
@@ -4628,8 +4725,9 @@ function progressKindBadge(km){
   return ''; // pastA はバッジなし(従来動作)
 }
 
-/* 確認④c: 15問しきい値到達時、既存の解答履歴を「初回演習」として自動取り込み
-   - 対象 kind(forecast / pastB)フレームで 15問以上に達した
+/* 確認④c / 改修V02_15: フレームに問題が登録された時(1問以上)、既存の解答履歴を
+   「初回演習」として自動取り込み
+   - 対象 kind(forecast / pastB)フレームに問題が1問以上ある
    - frameAttempts[subject|N|kind] がまだない
    - 該当する問題たちに既存の解答履歴がある
    → その「最新解答」を初回演習履歴として保存(全問解答済なら history[0] に completed、部分解答なら current に進行中)
@@ -4648,7 +4746,7 @@ function ensureKindFrameAutoInit(kind){
         q.frameNo===fr.n &&
         getKind(q)===targetKind
       );
-      if(qs.length < FORECAST_FRAME_THRESHOLD) continue; // 15問未満 → スキップ
+      if(qs.length < FORECAST_FRAME_THRESHOLD) continue; // 改修V02_15: 0問(問題なし) → スキップ
 
       // しきい値達成。既存履歴を確認
       const qids = qs.map(q=>q.id);
@@ -4683,7 +4781,7 @@ function ensureKindFrameAutoInit(kind){
           answeredIds: answeredQids
         };
       }
-      // 解答ゼロでも空のframeAttemptsを作っておく(15問達成のマーカー)
+      // 解答ゼロでも空のframeAttemptsを作っておく(問題登録済みフレームのマーカー)
       initialized++;
     }
   }
@@ -5441,6 +5539,102 @@ function _dedupNenkinF9(s, opts){
   return removed;
 }
 
+/* === 改修58_01: 厚生年金保険法フレーム8(離婚時の年金分割)の択一問題
+   「合意分割の請求前に甲が死亡 → 死亡日から起算15日目に公正証書を添えて請求」
+   の正誤判定の誤り(本来「○(正)」のはずが answer:false として登録されている)を是正する。
+
+   背景:
+     当事者の一方が死亡した日から起算して「1月以内」に、当事者の他方が公正証書等を
+     添えて標準報酬改定請求(合意分割の請求)を行った場合、その一方が死亡した日の前日に
+     請求があったものとみなされる(法78条の2第3項、令3条の12の7、則78条の4第1項1号イ他)。
+     本問は死亡日から15日目(=1月以内)であるため、当該請求があったものとみなされる。
+     したがって正しい(○)。よって answer は true が正。
+
+   方針:
+     ・端末に既に登録済みの当該問題を「問題文の正規化一致」で特定する(ID は端末ごとに
+       異なり得るため、ID では特定しない)。これにより、どの端末のデータでも是正できる。
+     ・該当問題の answer が true でなければ true に直す(冪等)。
+     ・解答履歴(history)は実績なので一切書き換えない。本是正で過去の「×と判定された」
+       履歴の正誤表示が変わるのは、判定の基準(answer)が正しくなった結果として妥当。
+     ・誤是正に備え、初回のみ localStorage に直前バックアップを取る。
+     ・読込時/復元時に一度だけ実行(_fixKoseiF8AnswerDone フラグで端末ごとに管理)。
+   引数 s は state(またはそれ相当)。s を破壊的に編集し、是正件数を返す。 */
+function _fixKoseiF8GoiBunkatuAnswer(s, opts){
+  opts = opts || {};
+  if(!s || !Array.isArray(s.questions)) return 0;
+
+  // 厚生年金保険法フレーム8 判定(法名の表記ゆれに配慮)
+  const isKoseiF8 = (q)=>{
+    if(!q) return false;
+    const law = (q.law||'').trim();
+    const isKosei = (law === '厚生年金保険法' || law === '厚年法' || law === '厚年');
+    return isKosei && Number(q.frameNo) === 8;
+  };
+
+  // 問題文の正規化(空白・改行・全角空白・強調用の【】記号を除去して比較する)
+  const normKey = (t)=>{
+    if(t==null) return '';
+    return String(t)
+      .replace(/[【】]/g, '')
+      .replace(/\s+/g, '')
+      .replace(/\u3000/g, '')
+      .trim();
+  };
+
+  // 是正対象の問題文(本文)。設問本体の文言で照合する。
+  // 「甲が死亡した日から起算し(て)15日目に…公正証書を添えて合意分割の請求」が骨子。
+  const targetNorm = normKey(
+    '甲と乙は離婚したが、合意分割(厚生年金保険法第78条の2に規定する離婚等をした場合における標準報酬の改定の特例をいう。)の請求前に甲が死亡した。その後、乙は、甲の死亡した日から起算し15日目に、所定の事項が記載された公正証書を添えて合意分割の請求を行った。この場合、甲が死亡した日の前日に当該請求があったものとみなされる。'
+  );
+
+  // 照合の頑健性確保のため、ID断片(R7-2A)＋特徴的フレーズでも拾えるようにする。
+  // (問題文の句読点・括弧の全半角揺れに備えた緩い一致)
+  const looksLikeTarget = (q)=>{
+    const n = normKey(q.text);
+    if(!n) return false;
+    if(n === targetNorm) return true;
+    // 緩い一致: 設問を一意に特定できる特徴的フレーズの同時出現で判定
+    return n.includes('甲の死亡した日から起算')
+        && n.includes('15日目')
+        && n.includes('公正証書')
+        && n.includes('合意分割の請求')
+        && n.includes('死亡した日の前日に');
+  };
+
+  const candidates = s.questions.filter(q => isKoseiF8(q) && looksLikeTarget(q));
+  // フレーム情報が欠落している端末向けのフォールバック(法名・フレーム不問で本文一致のみ)
+  const fallback = candidates.length ? [] : s.questions.filter(q => looksLikeTarget(q));
+  const targets = candidates.length ? candidates : fallback;
+
+  if(!targets.length) return 0;
+
+  // 既に正(true)なら是正不要(冪等)
+  const needFix = targets.filter(q => q.answer !== true);
+  if(!needFix.length) return 0;
+
+  // --- 是正前バックアップ(localStorage に1回限り退避) ---
+  if(opts.takeBackup){
+    try{
+      const bkey = 'sharoushi_fix58_01_backup';
+      if(!localStorage.getItem(bkey)){
+        localStorage.setItem(bkey, JSON.stringify({
+          ts: Date.now(),
+          reason: '改修58_01 厚生年金F8 合意分割問題 正誤是正の直前バックアップ',
+          // 該当問題のみを退避(全件は容量を圧迫しうるため対象だけ保存)
+          targets: needFix.map(q => ({id:q.id, law:q.law, frameNo:q.frameNo, qno:q.qno, answer:q.answer, text:q.text}))
+        }));
+      }
+    }catch(_){ /* 退避失敗は致命的でないため握りつぶす */ }
+  }
+
+  let fixed = 0;
+  for(const q of needFix){ q.answer = true; fixed++; }
+
+  console.log(`[改修58_01] 厚生年金F8 合意分割問題の正誤を是正: ${fixed}件(answer:false → true)`);
+  s._fixKoseiF8AnswerFixed = fixed; // 起動後/復元後の通知用
+  return fixed;
+}
+
 function loadState(){
   let rawForGuard = null;
   try{
@@ -5455,6 +5649,24 @@ function loadState(){
       s.questions ||= [];
       s.history ||= [];
       s.bookmarks ||= {};
+      // 改修V02_12: 付箋データの自己修復。
+      //   bookmarks[id] は本来「付箋色の配列」だが、過去の不具合や旧データで
+      //   true 等の非配列が混入すると、進捗管理タブ(集中特訓フレーム)で
+      //   "includes is not a function" 例外が起き、その科目が無反応になる。
+      //   ここで非配列エントリを安全に正規化する(true 等は「付箋あり」の痕跡
+      //   とは扱わず、空配列=付箋なしに片付ける。色情報が無く復元不能なため)。
+      {
+        let _bmFixed = 0;
+        for(const _id in s.bookmarks){
+          const _v = s.bookmarks[_id];
+          if(!Array.isArray(_v)){
+            // 配列でないものは付箋色を特定できないので削除(=付箋なし)に正規化
+            delete s.bookmarks[_id];
+            _bmFixed++;
+          }
+        }
+        if(_bmFixed>0) console.info('[改修V02_12] 破損していた付箋データを修復しました:', _bmFixed, '件');
+      }
       s.myNotes ||= {};
       s.vsNotes ||= {};
       s.frameAttempts ||= {};
@@ -5482,6 +5694,7 @@ function loadState(){
       s.weakSession.userAnswer ??= null;
       s.weakSession.questionType ||= 'takuitsu';
       s.weakSession.kindMode ||= 'both'; // 'past' | 'forecast' | 'both'
+      s.weakSession.frameNo ??= ''; // 改修V02_18: 科目内フレーム絞り込み(未定義=すべて)
       // 図表機能の追加 (後方互換)
       s.figures ||= [];
       s.figuresView ||= {filterSubject:'',filterFrame:''};
@@ -5491,6 +5704,11 @@ function loadState(){
       //   senbonHistory: 解答ログ { id, ts, correct, category, subject, frameNo, level }
       s.senbon = Array.isArray(s.senbon) ? s.senbon : [];
       s.senbonHistory = Array.isArray(s.senbonHistory) ? s.senbonHistory : [];
+      // 改修V02_07: 千本ノックの「完走した実施回」記録(ガントチャート用)
+      //   要素: { id, subject, frameNo, subFrameKey, ts(完走時刻), total(出題数), correct(正答数) }
+      //   1回の完走 = そのフレームの千本ノックを最初から最後まで解き切ったもの。
+      //   科目・フレームをまたぐ演習では、結果を subject+frameNo 単位に分けて複数記録する。
+      s.senbonRuns = Array.isArray(s.senbonRuns) ? s.senbonRuns : [];
       // 改修V02_06: 千本ノック自動登録の「加工待ち下書き」
       //   要素: { id, qid, subject, frameNo, subFrameKey, kind, text, explanation, answer(bool), createdAt, status('pending'|'done'), category }
       //   フレーム完了時に「千本」付箋の付いた択一問題のスナップショットを溜める。
@@ -5648,6 +5866,16 @@ function loadState(){
         }
       }catch(e){ console.warn('[改修57_05] 重複削除中にエラー', e); }
 
+      // === 改修58_01: 厚生年金F8 合意分割問題の正誤是正(answer:false → true)===
+      // 読込時に一度だけ実行(端末ごとに _fixKoseiF8AnswerDone フラグで管理)。
+      // 詳細ロジックは _fixKoseiF8GoiBunkatuAnswer() に集約(復元時にも再利用)。
+      try{
+        if(!s._fixKoseiF8AnswerDone){
+          _fixKoseiF8GoiBunkatuAnswer(s, {takeBackup:true});
+          s._fixKoseiF8AnswerDone = true; // 端末ごとに一度だけ実行
+        }
+      }catch(e){ console.warn('[改修58_01] 厚生年金F8 正誤是正中にエラー', e); }
+
       // frameAttempts キーの '|past' を '|pastA' に変換
       let faKindMigrated = 0;
       for(const k of Object.keys(s.frameAttempts)){
@@ -5752,7 +5980,7 @@ function loadState(){
     selectQuestions: SAMPLE_SELECT_QUESTIONS.slice(),
     selectHistory: [],
     selectSession: {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null,kindMode:'both'},
-    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'},
+    weakSession: {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',frameNo:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'},
     figures: [],
     figuresView: {filterSubject:'',filterFrame:''},
     studyPlans: {},
@@ -5925,7 +6153,7 @@ function getPool(){
   }
   if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
   if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
-  if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
+  if(s.filterBm) pool = pool.filter(q=>_bmList(q.id).includes(s.filterBm));
   // 改修02: 自分の追記メモの有無で絞り込み
   if(s.filterMyNote==='has')  pool = pool.filter(q=>hasMyNote(q.id));
   if(s.filterMyNote==='none') pool = pool.filter(q=>!hasMyNote(q.id));
@@ -5942,7 +6170,7 @@ function getPool(){
   }else if(s.mode==='unseen'){
     pool = pool.filter(q=>!state.history.some(h=>h.qid===q.id));
   }else if(s.mode==='bm'){
-    pool = pool.filter(q=>(state.bookmarks[q.id]||[]).length>0);
+    pool = pool.filter(q=>_bmList(q.id).length>0);
   }else if(s.mode==='rand'){
     // shuffle once, but cache order so 次へ progresses
     if(!s._randOrder || s._randOrderPoolSig!==poolSignature(pool)){
@@ -6079,7 +6307,13 @@ function renderQuiz(){
     // 改修8: fmKind を 'pastA'|'pastB'|'forecast' に正規化(旧'past'→'pastA')
     let fmKind = fm.kind || 'pastA';
     if(fmKind === 'past') fmKind = 'pastA';
-    const keyN = fm.subFrameKey ? fm.subFrameKey : frameNo;
+    // 改修V02_08: 特訓フレーム(tokkunKey)を frameAttempts 参照キーへ反映する。
+    //   これが抜けていたため、進捗管理「予定」→集中特訓を「開始」した際に
+    //   frameAttempts のキーが startFrameAttempt 側(tokkunKey)と食い違い、
+    //   fa(=cur)が取れず演習中バナー自体が描画されず、セッションタイマーも
+    //   出現しなかった(=「タイマーが表示されない」不具合)。
+    //   enterFrameMode と同じ優先順位 tokkunKey → subFrameKey → frameNo で揃える。
+    const keyN = fm.tokkunKey ? fm.tokkunKey : (fm.subFrameKey ? fm.subFrameKey : frameNo);
     const k = frameKey(subject, keyN, fmKind);
     const fa = state.frameAttempts[k];
     const cur = fa && fa.current;
@@ -6088,15 +6322,20 @@ function renderQuiz(){
     const tot = cur.questionIds.length;
     const pct = tot ? Math.round(done/tot*100) : 0;
     const kindLbl = (fmKind==='forecast') ? '<span class="kind-badge" style="font-size:9px;margin-left:6px">予想</span>' : '';
-    // サブフレーム名を含めたタイトル
-    const titleStr = fm.subFrameKey
-      ? frameOrSubFrameLabel(subject, fm.subFrameKey)
-      : frameTitle(subject, frameNo);
+    // サブフレーム名(または特訓名)を含めたタイトル
+    // 改修V02_08: 特訓フレームは frameNo=null のため frameTitle では空になる。
+    //   tokkunKey があれば frameOrSubFrameLabel で「F_T2 集中特訓_罠問」等を出す。
+    const titleStr = fm.tokkunKey
+      ? frameOrSubFrameLabel(subject, fm.tokkunKey)
+      : (fm.subFrameKey
+          ? frameOrSubFrameLabel(subject, fm.subFrameKey)
+          : frameTitle(subject, frameNo));
     // 【改修42】進捗管理_予定_演習実施モードのボタンを択一画面にも表示する。
     //   進行中の学習セッション(running/paused/resting)があれば、その状態に応じた
     //   「中断/休憩/再開/完了/一旦終了/キャンセル」を frameMode バナー内に出す。
     //   進捗管理タブの plan-timer と同一の状態遷移・ラベルにする。
-    const sessHtml = renderQuizSessionTimer(subject, fm.subFrameKey != null ? fm.subFrameKey : frameNo);
+    // 改修V02_08: 特訓フレームでも planKey が一致するよう keyN(tokkunKey含む)を渡す。
+    const sessHtml = renderQuizSessionTimer(subject, keyN);
 
     return `<div class="frame-banner">
       <div class="fb-head">
@@ -6123,7 +6362,7 @@ function renderQuiz(){
   const pool = getPool();
   const idx = state.session.currentIndex;
   const qs = questionStats(q.id);
-  const bms = state.bookmarks[q.id]||[];
+  const bms = _bmList(q.id);
   const answered = state.session.answered;
   const userAns = state.session.userAnswer;
   const correct = answered && userAns===q.answer;
@@ -6634,7 +6873,8 @@ function renderBmChip(color, isActive){
 }
 
 function toggleBm(qid,color){
-  state.bookmarks[qid] ||= [];
+  // 改修V02_12: true等の非配列が入っていても配列へ正規化(indexOf例外を防ぐ)
+  if(!Array.isArray(state.bookmarks[qid])) state.bookmarks[qid] = [];
   const i = state.bookmarks[qid].indexOf(color);
   if(i>=0) state.bookmarks[qid].splice(i,1);
   else state.bookmarks[qid].push(color);
@@ -6875,7 +7115,7 @@ function startFrameAttempt(subject, frameRef, kind){
     if(fa.current){
       if(!confirm(`この特訓(${tlbl})には進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)){
         enterFrameMode(subject, null, kind, null, fref.tokkunKey);
-        return;
+        return true; // 既存演習を継続(演習画面に入る)
       }
       fa.current = null;
     }
@@ -6883,7 +7123,7 @@ function startFrameAttempt(subject, frameRef, kind){
     if(!qTok.length){
       const how = def && def.weak ? `${WEAK_THRESHOLD}回以上ミスした問題` : `付箋「${def?def.short:''}」が付いた問題`;
       alert(`この特訓フレームの対象問題がありません。\n(${subject}で${how}が対象です)\n問題演習で付箋を付ける、または弱点になると、ここに自動で集まります。`);
-      return;
+      return false;
     }
     fa.current = {
       attemptNo: fa.history.length + 1,
@@ -6893,10 +7133,10 @@ function startFrameAttempt(subject, frameRef, kind){
     };
     saveState();
     enterFrameMode(subject, null, kind, null, fref.tokkunKey);
-    return;
+    return true;
   }
 
-  if(fref.frameNo == null){alert('フレーム参照が不正です: '+frameRef);return}
+  if(fref.frameNo == null){alert('フレーム参照が不正です: '+frameRef);return false}
   // frameAttempts のキーは subFrameKey があれば "2.1" 文字列、無ければ整数
   const keyN = fref.isSubFrame ? fref.subFrameKey : fref.frameNo;
   const k = frameKey(subject, keyN, kind);
@@ -6909,13 +7149,13 @@ function startFrameAttempt(subject, frameRef, kind){
     if(!confirm(`このフレーム(${kindLbl})には進行中の演習(${fa.current.answeredIds.length}/${fa.current.questionIds.length}問解答済)があります。\n中止して新しい演習を始めますか?\n(OKで新規開始、キャンセルで現在の演習を継続)`)) {
       // 継続
       enterFrameMode(subject, fref.frameNo, kind, fref.subFrameKey);
-      return;
+      return true; // 既存演習を継続(演習画面に入る)
     }
     // 中止して新規
     fa.current = null;
   }
-  if(fa.history.length >= 10){
-    if(!confirm(`このフレーム(${kindLbl})は既に10回完了しています。さらに演習を始めますか?\n(履歴は最新10件まで保持されます)`)) return;
+  if(fa.history.length >= MAX_FRAME_ATTEMPTS){
+    if(!confirm(`このフレーム(${kindLbl})は既に${MAX_FRAME_ATTEMPTS}回完了しています。さらに演習を始めますか?\n(履歴は最新${MAX_FRAME_ATTEMPTS}件まで保持されます)`)) return false;
   }
   // 該当フレームに属する問題のIDを取得(科目=章 + kind + サブフレーム法律でフィルタ)
   // 改修8: getKind(q) で q.kind を 'pastA'|'pastB'|'forecast' に正規化したものと比較
@@ -6924,7 +7164,7 @@ function startFrameAttempt(subject, frameRef, kind){
     qFiltered = qFiltered.filter(q=>questionMatchesSubFrame(q.law, fref.subFrame));
   }
   const qids = qFiltered.map(q=>q.id);
-  if(!qids.length){alert(`このフレームには${kindLbl}が登録されていません。`);return}
+  if(!qids.length){alert(`このフレームには${kindLbl}が登録されていません。`);return false}
   fa.current = {
     attemptNo: fa.history.length + 1,
     startedAt: Date.now(),
@@ -6933,6 +7173,7 @@ function startFrameAttempt(subject, frameRef, kind){
   };
   saveState();
   enterFrameMode(subject, fref.frameNo, kind, fref.subFrameKey);
+  return true;
 }
 
 function enterFrameMode(subject, frameNo, kind, subFrameKey, tokkunKey){
@@ -7138,7 +7379,7 @@ function collectSenbonDraftsFromFrame(questionIds, subject, frameNo, subFrameKey
   let added = 0;
   for(const qid of questionIds){
     if(seenQids.has(qid)) continue;
-    const bms = state.bookmarks[qid] || [];
+    const bms = _bmList(qid);
     if(!bms.includes('s')) continue;          // 「千本」付箋が付いていない問題は対象外
     const q = (state.questions||[]).find(x=>x && x.id===qid);
     if(!q) continue;                           // 実在しない問題はスキップ
@@ -7240,7 +7481,7 @@ function _checkFrameCompleteImpl(){
       collectSenbonDraftsFromFrame(required, subject, frameNo, fm.subFrameKey || null, fmKind);
     }catch(e){ /* 収集失敗は完了処理を妨げない */ }
     fa.history.push(fa.current);
-    if(fa.history.length > 10) fa.history.shift(); // 最新10件保持
+    if(fa.history.length > MAX_FRAME_ATTEMPTS) fa.history.shift(); // 最新N件保持(改修V02_09: 10→20)
     fa.current = null;
     // フレーム完了フラグを設定(frameModeはまだ維持 → 最終問の解説を引き続き表示)
     state.session.frameCompleted = {
@@ -8514,6 +8755,7 @@ function _mergeBackupsCore(oldD, newD){
     senbon:{addedPaths:0},
     senbonHistory:{addedPaths:0},
     senbonDrafts:{addedPaths:0},
+    senbonRuns:{addedPaths:0},
     conflicts:[]
   };
 
@@ -8741,6 +8983,22 @@ function _mergeBackupsCore(oldD, newD){
         stats.senbonDrafts.addedPaths++;
       }
     }
+  }
+  // 改修V02_07: 千本ノックの完走実施回(senbonRuns)も id 基準 add-only マージ
+  {
+    const oldArr = Array.isArray(oldD.senbonRuns) ? oldD.senbonRuns : [];
+    result.senbonRuns = Array.isArray(result.senbonRuns) ? result.senbonRuns : [];
+    const seen = new Set(result.senbonRuns.map(s=> s && s.id).filter(Boolean));
+    stats.senbonRuns ||= {addedPaths:0};
+    for(const s of oldArr){
+      if(s && s.id && !seen.has(s.id)){
+        try{ result.senbonRuns.push(JSON.parse(JSON.stringify(s))); }
+        catch(_){ result.senbonRuns.push(s); }
+        seen.add(s.id);
+        stats.senbonRuns.addedPaths++;
+      }
+    }
+    result.senbonRuns.sort((a,b)=>(a&&a.ts||0)-(b&&b.ts||0));
   }
 
   if(!result.whyIntro && oldD.whyIntro){
@@ -9066,12 +9324,13 @@ async function _applyMergeRestore(){
   state.session.kindMode ||= 'both';
   state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null,kindMode:'both'}; state.selectSession.kindMode ||= 'both';
   state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
-  state.weakSession.kindMode ||= 'both';
+  state.weakSession.kindMode ||= 'both'; state.weakSession.frameNo ??= ''; /* 改修V02_18 */
   state.figures ||= [];
   state.figuresView ||= {filterSubject:'',filterFrame:''};
   state.senbon = Array.isArray(state.senbon) ? state.senbon : [];
   state.senbonHistory = Array.isArray(state.senbonHistory) ? state.senbonHistory : [];
   state.senbonDrafts = Array.isArray(state.senbonDrafts) ? state.senbonDrafts : [];
+  state.senbonRuns = Array.isArray(state.senbonRuns) ? state.senbonRuns : [];
   state.senbonSession ||= {category:'',subject:'',frame:'',level:3,running:false,idx:0,order:[],results:[]};
   state.senbonView ||= {mode:'subjects',subject:null,frameNo:null,tab:'list',weakSub:'weak'};
   state.cases ||= [];
@@ -9102,6 +9361,14 @@ async function _applyMergeRestore(){
     delete state._dedupNenkinF9Removed;
   }catch(_){ }
 
+  // 改修58_01: マージ後に厚生年金F8 合意分割問題の正誤誤りが再混入していれば是正する。
+  let _fixKoseiF8Merged = 0;
+  try{
+    _fixKoseiF8Merged = _fixKoseiF8GoiBunkatuAnswer(state, {takeBackup:true}) || 0;
+    state._fixKoseiF8AnswerDone = true;
+    delete state._fixKoseiF8AnswerFixed;
+  }catch(_){ }
+
   // 改修V2_02: 復元データも saveState 経由で IndexedDB へ保存されるため、移行済みフラグを再設定
   state._extMigrated = true;
 
@@ -9112,7 +9379,8 @@ async function _applyMergeRestore(){
   // (renderMergePreview の stats を表示済なので、ここでは件数サマリを alert で出す)
   const a = _analyzeForMerge(state);
   alert(`マージ復元が完了しました。\n\n■ 択一問題: ${state.questions.length}問\n■ 選択式: ${state.selectQuestions.length}問\n■ 事例: ${state.cases.length}件\n■ 図表: ${state.figures.length}件\n■ 千本ノック: ${(state.senbon||[]).length}問\n■ 解答履歴: ${state.history.length}件\n■ フレーム履歴: ${Object.keys(state.frameAttempts).length}件`
-    + (_dedupMerged>0 ? `\n\n※ 国民年金法F9の重複問題 ${_dedupMerged}件を自動削除しました。` : ''));
+    + (_dedupMerged>0 ? `\n\n※ 国民年金法F9の重複問題 ${_dedupMerged}件を自動削除しました。` : '')
+    + (_fixKoseiF8Merged>0 ? `\n\n※ 厚生年金法F8 合意分割問題の正誤(○)を ${_fixKoseiF8Merged}件 是正しました。` : ''));
 
   // 画面再描画
   try{ renderQuiz() }catch(_){}
@@ -9185,12 +9453,13 @@ function restoreBackup(){
         state.session.kindMode ||= 'both';
         state.selectSession ||= {mode:'seq',currentIndex:0,filterLaw:'',filterCat:'',filterYear:'',filterBm:'',answered:false,userChoice:null,kindMode:'both'}; state.selectSession.kindMode ||= 'both';
         state.weakSession ||= {missMin:1,missMax:99,dateFrom:'',dateTo:'',subject:'',lawSub:'',sortBy:'count-desc',currentIndex:0,answered:false,userAnswer:null,questionType:'takuitsu',kindMode:'both'};
-        state.weakSession.kindMode ||= 'both';
+        state.weakSession.kindMode ||= 'both'; state.weakSession.frameNo ??= ''; /* 改修V02_18 */
         state.figures ||= [];
         state.figuresView ||= {filterSubject:'',filterFrame:''};
         state.senbon = Array.isArray(state.senbon) ? state.senbon : [];
         state.senbonHistory = Array.isArray(state.senbonHistory) ? state.senbonHistory : [];
         state.senbonDrafts = Array.isArray(state.senbonDrafts) ? state.senbonDrafts : [];
+        state.senbonRuns = Array.isArray(state.senbonRuns) ? state.senbonRuns : [];
         state.senbonSession ||= {category:'',subject:'',frame:'',level:3,running:false,idx:0,order:[],results:[]};
         state.senbonView ||= {mode:'subjects',subject:null,frameNo:null,tab:'list',weakSub:'weak'};
         state.studyPlans ||= {};
@@ -9313,7 +9582,7 @@ function getSelectPool(){
   if(s.filterLaw) pool = pool.filter(q=>q.law===s.filterLaw);
   if(s.filterCat) pool = pool.filter(q=>q.category===s.filterCat);
   if(s.filterYear) pool = pool.filter(q=>q.year===s.filterYear);
-  if(s.filterBm) pool = pool.filter(q=>(state.bookmarks[q.id]||[]).includes(s.filterBm));
+  if(s.filterBm) pool = pool.filter(q=>_bmList(q.id).includes(s.filterBm));
 
   if(s.mode==='weak'){
     pool = pool.filter(q=>{
@@ -9324,7 +9593,7 @@ function getSelectPool(){
   }else if(s.mode==='unseen'){
     pool = pool.filter(q=>!state.selectHistory.some(h=>h.qid===q.id));
   }else if(s.mode==='bm'){
-    pool = pool.filter(q=>(state.bookmarks[q.id]||[]).length>0);
+    pool = pool.filter(q=>_bmList(q.id).length>0);
   }else if(s.mode==='rand'){
     if(!s._randOrder || s._randOrderPoolSig!==poolSignature(pool)){
       pool = shuffle(pool);
@@ -9392,7 +9661,7 @@ function renderSelectQuiz(){
   const pool = getSelectPool();
   const idx = state.selectSession.currentIndex;
   const qs = selectQuestionStats(q.id);
-  const bms = state.bookmarks[q.id]||[];
+  const bms = _bmList(q.id);
   const answered = state.selectSession.answered;
   const userChoice = state.selectSession.userChoice;
   const isCorrect = answered && userChoice===q.correctIndex;
@@ -9570,7 +9839,8 @@ function renderSelectNavRow(idx, total){
 }
 
 function toggleBmSelect(qid, color){
-  state.bookmarks[qid] ||= [];
+  // 改修V02_12: true等の非配列が入っていても配列へ正規化(indexOf例外を防ぐ)
+  if(!Array.isArray(state.bookmarks[qid])) state.bookmarks[qid] = [];
   const i = state.bookmarks[qid].indexOf(color);
   if(i>=0) state.bookmarks[qid].splice(i,1);
   else state.bookmarks[qid].push(color);
@@ -12856,6 +13126,14 @@ function getWeakPool(){
     if(s.lawSub && SUBJECTS_WITH_SUBLAW.includes(s.subject)){
       pool = pool.filter(q=>q.law===s.lawSub);
     }
+    // 改修V02_18: 科目内の「フレーム」でさらに絞り込む(フレーム単位の弱点抽出)。
+    //   s.frameNo は数値文字列。空("")なら科目内すべて。
+    if(s.frameNo!=null && s.frameNo!==''){
+      const wantF = parseInt(s.frameNo, 10);
+      if(!isNaN(wantF)){
+        pool = pool.filter(q=> q.frameNo===wantF);
+      }
+    }
   }
   // ソート
   const sort = s.sortBy || 'count-desc';
@@ -13211,6 +13489,7 @@ function startSenbonRun(isRepeat){
   s.idx = 0;
   s.order = order;
   s.results = [];
+  s._runsRecorded = false;   // 改修V02_07: 新しい演習なので実施回の記録フラグをリセット
   saveState();
   renderSenbon();
 }
@@ -13362,9 +13641,56 @@ function quitSenbonRun(){
 }
 
 // ===== 結果画面 =====
+// 改修V02_07: 完走した千本演習の結果を、科目+フレーム単位で senbonRuns に記録する。
+//   - 同一セッションで二重記録しないよう、senbonSession._runsRecorded で一度きりに制御。
+//   - 「繰り返し(同じ問題をもう一度)」で再度完走した場合は、新しいセッション扱いで別途記録される
+//     (startSenbonRun が _runsRecorded をリセットするため)。
+function recordSenbonRunsFromResults(results){
+  if(!Array.isArray(results) || !results.length) return 0;
+  const s = state.senbonSession;
+  if(s && s._runsRecorded) return 0;   // このセッションは記録済み
+  if(!Array.isArray(state.senbonRuns)) state.senbonRuns = [];
+  // 結果問題を subject + frameNo + subFrameKey 単位に集計
+  const groups = new Map(); // key -> {subject, frameNo, subFrameKey, total, correct}
+  for(const r of results){
+    const q = senbonAllQuestions().find(x=>x.id===r.id);
+    if(!q) continue;
+    const subject = q.subject || '';
+    const frameNo = (q.frameNo!=null) ? q.frameNo : null;
+    const subFrameKey = q.subFrameKey || null;
+    const key = `${subject}|${frameNo}|${subFrameKey||''}`;
+    if(!groups.has(key)) groups.set(key, {subject, frameNo, subFrameKey, total:0, correct:0});
+    const g = groups.get(key);
+    g.total++;
+    if(r.correct) g.correct++;
+  }
+  const now = Date.now();
+  let recorded = 0;
+  for(const g of groups.values()){
+    if(!g.subject || g.frameNo==null) continue;   // 配置先不明の問題は記録しない
+    state.senbonRuns.push({
+      id: 'sr_'+now+'_'+Math.random().toString(36).slice(2,7),
+      subject: g.subject,
+      frameNo: g.frameNo,
+      subFrameKey: g.subFrameKey,
+      ts: now,
+      total: g.total,
+      correct: g.correct
+    });
+    recorded++;
+  }
+  if(s) s._runsRecorded = true;
+  saveState();
+  return recorded;
+}
+
 function renderSenbonResult(root){
   const s = state.senbonSession;
   const res = s.results || [];
+  // 改修V02_07: 完走(最初から最後まで解き切った)ので、千本ノックの実施回を記録する。
+  //   科目・フレームをまたぐ演習に対応するため、結果を subject+frameNo 単位に分けて記録。
+  //   重複記録防止のため、このセッションでまだ記録していない場合のみ実行する。
+  try{ recordSenbonRunsFromResults(res); }catch(e){ /* 記録失敗は結果表示を妨げない */ }
   const total = res.length;
   const correctN = res.filter(r=>r.correct).length;
   const timeoutN = res.filter(r=>r.timedOut).length;
@@ -13460,7 +13786,7 @@ function renderSenbonReview(root){
   if(retryBtn) retryBtn.addEventListener('click',()=>{
     // ミスした問題だけで新セッションを組む
     const ids = wrong.map(o=>o.q.id);
-    s.order = ids; s.idx = 0; s.results = []; s.running = true; s.paused = false; s.remainMs = 0;
+    s.order = ids; s.idx = 0; s.results = []; s.running = true; s.paused = false; s.remainMs = 0; s._runsRecorded = false;
     saveState(); renderSenbon();
   });
   document.getElementById('sbrv-back').addEventListener('click',()=>renderSenbonResult(root));
@@ -13823,6 +14149,7 @@ function openSenbonDraftManager(){
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       <button id="sd-export" ${pending.length?'':'disabled'} style="padding:9px 14px;border:none;border-radius:8px;background:#2b5dc9;color:#fff;font-weight:700;cursor:${pending.length?'pointer':'not-allowed'};opacity:${pending.length?'1':'.5'};font-size:13px">📋 AI加工用に書き出し(コピー)</button>
       <button id="sd-import" style="padding:9px 14px;border:1px solid #2e7d32;border-radius:8px;background:#fff;color:#2e7d32;font-weight:700;cursor:pointer;font-size:13px">📥 加工済みを取込</button>
+      <button id="sd-dedupe" style="padding:9px 14px;border:1px solid #b8860b;border-radius:8px;background:#fff;color:#b8860b;font-weight:700;cursor:pointer;font-size:13px">🧹 重複を整理</button>
       ${pending.length?`<button id="sd-clear" style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#c62828;cursor:pointer;font-size:13px;margin-left:auto">全下書きを削除</button>`:''}
     </div>
     <div id="sd-list">${listHtml}</div>
@@ -13865,6 +14192,17 @@ function openSenbonDraftManager(){
   // 加工済みを取込
   const impBtn=document.getElementById('sd-import');
   if(impBtn) impBtn.addEventListener('click',()=>{ close(); openProcessedDraftImport(); });
+  // 重複を整理(問題文が同一の千本ノック問題を、最古1件を残して削除)
+  const dedBtn=document.getElementById('sd-dedupe');
+  if(dedBtn) dedBtn.addEventListener('click',()=>{
+    const res = dedupeSenbonQuestions();
+    if(res.removed){
+      alert(`重複を整理しました。\n削除: ${res.removed}問(重複していた問題文: ${res.groups}種類)\n各問題文につき最も古い1件を残しました。`);
+      close(); renderProgress(); openSenbonDraftManager();
+    } else {
+      alert('問題文が同一の重複は見つかりませんでした。');
+    }
+  });
 }
 
 // クリップボードが使えない環境向け: 書き出しJSONをテキストエリアで表示(手動コピー)
@@ -13909,7 +14247,7 @@ function openProcessedDraftImport(){
     if(!Array.isArray(arr)){ alert('配列形式のJSONを入力してください'); return; }
     const res = importProcessedSenbonDrafts(arr);
     overlay.remove();
-    alert(`取り込みました。\n登録: ${res.added}問 / 下書きを登録済みに更新: ${res.matched}件` + (res.skipped?`\nスキップ(q が無い等): ${res.skipped}件`:''));
+    alert(`取り込みました。\n登録: ${res.added}問 / 下書きを登録済みに更新: ${res.matched}件` + (res.dup?`\n重複スキップ(既に登録済み): ${res.dup}件`:'') + (res.skipped?`\nスキップ(q が無い等): ${res.skipped}件`:''));
     renderProgress();
   });
 }
@@ -13919,16 +14257,30 @@ function importProcessedSenbonDrafts(arr){
   if(!Array.isArray(state.senbon)) state.senbon = [];
   if(!Array.isArray(state.senbonDrafts)) state.senbonDrafts = [];
   const draftById = new Map(state.senbonDrafts.map(d=>[d.id, d]));
-  let added=0, matched=0, skipped=0;
+  // 重複対策: 既存の千本問題id集合・問題文の正規化キー集合
+  const existingIds = new Set(state.senbon.map(q=>q && q.id).filter(Boolean));
+  const normQ = s => String(s||'').replace(/\s+/g,'').trim();
+  const existingQkeys = new Set(state.senbon.map(q=>normQ(q && q.q)));
+  let added=0, matched=0, skipped=0, dup=0;
   arr.forEach(o=>{
     if(!o || typeof o.q!=='string' || !o.q.trim()){ skipped++; return; }
     const d = o.draftId ? draftById.get(o.draftId) : null;
+    // ① 下書きが既に登録済み(done)で、登録先の千本問題が実在するなら再登録しない
+    if(d && d.status==='done' && d.senbonId && existingIds.has(d.senbonId)){ dup++; return; }
+    // ② 同じ問題文(正規化後)が既に千本ノックに存在するなら登録しない
+    if(existingQkeys.has(normQ(o.q))){
+      dup++;
+      // 下書きがまだ pending のままなら、実質登録済みなので done にしておく
+      if(d && d.status!=='done'){ d.status='done'; d.doneAt=Date.now(); matched++; }
+      return;
+    }
     // 配置先: draftId があればその下書きから、無ければ JSON 内の値
     const subject = (d && d.subject) || o.subject || '';
     const frameNo = (d && d.frameNo!=null) ? d.frameNo : (o.frameNo!=null?o.frameNo:null);
     const subFrameKey = (d && d.subFrameKey) || o.subFrameKey || null;
+    const newId = 'sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
     state.senbon.push({
-      id: 'sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      id: newId,
       subject: subject,
       frameNo: frameNo,
       subFrameKey: subFrameKey,
@@ -13943,11 +14295,45 @@ function importProcessedSenbonDrafts(arr){
       articleText: o.articleText || '',
       createdAt: Date.now()
     });
+    existingIds.add(newId);
+    existingQkeys.add(normQ(o.q));
     added++;
-    if(d && d.status==='pending'){ d.status='done'; d.doneAt=Date.now(); matched++; }
+    if(d){ d.status='done'; d.doneAt=Date.now(); d.senbonId=newId; matched++; }
   });
   saveState();
-  return {added, matched, skipped};
+  return {added, matched, skipped, dup};
+}
+
+// 改修V02_06(重複対策): 既存の千本ノック問題から、問題文が同一の重複を整理する。
+//   各問題文(正規化キー)について最も古い createdAt の1件を残し、残りを削除。
+//   返り値: {removed, groups} removed=削除件数, groups=重複していた問題文の種類数
+function dedupeSenbonQuestions(){
+  if(!Array.isArray(state.senbon)) return {removed:0, groups:0};
+  const normQ = s => String(s||'').replace(/\s+/g,'').trim();
+  // 問題文キー → 同一問題の配列
+  const byKey = new Map();
+  for(const q of state.senbon){
+    if(!q) continue;
+    const k = normQ(q.q);
+    if(!k) continue;
+    if(!byKey.has(k)) byKey.set(k, []);
+    byKey.get(k).push(q);
+  }
+  const removeIds = new Set();
+  let groups = 0;
+  for(const [k, arr] of byKey){
+    if(arr.length <= 1) continue;
+    groups++;
+    // createdAt 昇順(古い順)。createdAt 欠落は 0 扱いで最古とみなす
+    arr.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    // 先頭(最古)を残し、残りを削除対象に
+    for(let i=1;i<arr.length;i++){ removeIds.add(arr[i].id); }
+  }
+  if(removeIds.size){
+    state.senbon = state.senbon.filter(q=> q && !removeIds.has(q.id));
+    saveState();
+  }
+  return {removed:removeIds.size, groups};
 }
 
 // 一問一答 追加/編集モーダル
@@ -14205,6 +14591,30 @@ function _renderWeakInner(){
           }
           return '';
         })()}
+        ${(() => {
+          // 改修V02_18: 科目を選んでいる場合、その科目の「フレーム」プルダウンを表示。
+          //   ミスのある問題が属するフレームのみを、ミス問題数つきで列挙する。
+          //   フレーム絞り込みは択一問題のみ対応(事例モードは対象外)。
+          if(!s.subject) return '';
+          if(s.questionType === 'case') return '';
+          const frames = FRAMES[s.subject] || [];
+          // この科目のミス問題プール(フレーム絞り込み前)を作り、フレーム別にミス問題数を数える
+          const missQs = state.questions.filter(q=>
+            getMistakeCount(q.id)>0 &&
+            lawToSubject(q.law)===s.subject &&
+            questionMatchesKindMode(q, s.kindMode||'both')
+          );
+          const cntByFrame = {};
+          for(const q of missQs){ const f=(q.frameNo==null?0:q.frameNo); cntByFrame[f]=(cntByFrame[f]||0)+1; }
+          // フレーム定義順に、ミス問題が1問以上あるフレームだけ出す
+          let frameOpts = '<option value="">(科目内すべて)</option>';
+          for(const fr of frames){
+            const c = cntByFrame[fr.n] || 0;
+            if(c<=0) continue;
+            frameOpts += `<option value="${fr.n}" ${String(s.frameNo)===String(fr.n)?'selected':''}>F${fr.n} ${escapeHtml(fr.t)} (${c}問)</option>`;
+          }
+          return `<label style="margin-left:8px">フレーム</label><select id="w-frame">${frameOpts}</select>`;
+        })()}
       </div>
       <div class="weak-filter-row">
         <label>並び順</label>
@@ -14256,7 +14666,7 @@ function _renderWeakInner(){
 
   // 問題詳細(択一と同じ形式)
   const qs = questionStats(q.id);
-  const bms = state.bookmarks[q.id]||[];
+  const bms = _bmList(q.id);
   const answered = state.weakSession.answered;
   const userAns = state.weakSession.userAnswer;
   const correct = answered && userAns===q.answer;
@@ -14459,7 +14869,8 @@ function navWeakJump(delta){
 }
 
 function toggleBmWeak(qid,color){
-  state.bookmarks[qid] ||= [];
+  // 改修V02_12: true等の非配列が入っていても配列へ正規化(indexOf例外を防ぐ)
+  if(!Array.isArray(state.bookmarks[qid])) state.bookmarks[qid] = [];
   const i = state.bookmarks[qid].indexOf(color);
   if(i>=0) state.bookmarks[qid].splice(i,1);
   else state.bookmarks[qid].push(color);
@@ -14483,6 +14894,7 @@ function wireWeakFilters(){
   const el5 = document.getElementById('w-subject'); if(el5) el5.addEventListener('change', e=>{
     state.weakSession.subject = e.target.value;
     state.weakSession.lawSub = '';   // 改修04: 科目を変えたら中分類の法令選択はリセット
+    state.weakSession.frameNo = '';  // 改修V02_18: 科目を変えたらフレーム選択もリセット
     state.weakSession.currentIndex = 0;
     state.weakSession.answered = false;
     saveState();
@@ -14490,6 +14902,8 @@ function wireWeakFilters(){
   });
   // 改修04: 中分類の法令プルダウン
   const elLawSub = document.getElementById('w-lawsub'); if(elLawSub) elLawSub.addEventListener('change', onChange('lawSub'));
+  // 改修V02_18: 科目内フレームプルダウン
+  const elFrame = document.getElementById('w-frame'); if(elFrame) elFrame.addEventListener('change', onChange('frameNo'));
   const el6 = document.getElementById('w-sort'); if(el6) el6.addEventListener('change', onChange('sortBy'));
   const el7 = document.getElementById('w-qtype'); if(el7) el7.addEventListener('change', onChange('questionType'));
   const el8 = document.getElementById('w-kindmode'); if(el8) el8.addEventListener('change', onChange('kindMode'));
@@ -14501,6 +14915,7 @@ function wireWeakFilters(){
     state.weakSession.dateTo='';
     state.weakSession.subject='';
     state.weakSession.lawSub='';
+    state.weakSession.frameNo='';   // 改修V02_18
     state.weakSession.sortBy='count-desc';
     state.weakSession.currentIndex=0;
     state.weakSession.answered=false;
@@ -14670,7 +15085,7 @@ function renderProgress(){
     renderSenbonManage(root);
     return;
   }
-  // 予想問の15問しきい値を満たすフレームの自動取り込み(動的判定)
+  // 改修V02_15: 過去問B/予想問は1問以上のフレームを自動取り込み(動的判定)
   ensureForecastFrameAutoInit();
   const kindMode = state.progressView.kindMode;
   // === データ概要(診断) ===
@@ -14693,9 +15108,9 @@ function renderProgress(){
   let summary = `<div class="diag-line">${kindLabel}の登録総数 <b>${total}問</b>`;
   if(noFrame>0) summary += ` <span class="diag-warn">⚠ フレーム番号未設定: ${noFrame}問</span>`;
   if(unknownLaws.size>0) summary += ` <span class="diag-warn">⚠ 未登録の法律: ${[...unknownLaws].join('、')}</span>`;
-  // 15問しきい値の説明: pastB / forecast の場合に表示(pastA はしきい値なし)
+  // 改修V02_15: しきい値が1問になったため「1問以上(=問題があるフレーム)を表示」と案内
   if(!progressKindShowAll(kindMode)){
-    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ ${kindLabel}は1フレーム${FORECAST_FRAME_THRESHOLD}問以上のみ表示</span>`;
+    summary += ` <span style="color:var(--ink-muted);font-size:11px;margin-left:8px">※ ${kindLabel}は問題が登録されたフレーム(1問以上)を表示</span>`;
   }
   summary += `</div>`;
 
@@ -14761,14 +15176,31 @@ function _gTodayDate(){
 // 復習タイミングの選択肢(日後)
 const PLAN_REVIEW_OPTIONS = [1,2,3,4,5,6,7,10,14,30];
 
-// 予定キー: "科目|フレーム参照"。フレーム参照は数値文字列("4")または中分類キー("2.1")。
-function planKey(subject, frameRef){ return subject + '|' + frameRef; }
+// 予定キー: "科目|フレーム参照" (過去問A・後方互換) または "科目|フレーム参照|kind"。
+//   改修V02_17: 予想問の予定に対応するため、kind を第3要素として付与できるようにした。
+//   - kind 省略 or 'pastA' … 従来どおり接尾辞なし("科目|4")。既存データと完全互換。
+//   - kind==='forecast'     … "科目|4|forecast" のように接尾辞を付ける。
+//   フレーム参照は数値文字列("4")または中分類キー("2.1")。
+function planKey(subject, frameRef, kind){
+  const base = subject + '|' + frameRef;
+  return (kind && kind==='forecast') ? (base + '|forecast') : base;
+}
 
-// 予定キーを {subject, frameRef} に分解
+// 予定キーを {subject, frameRef, kind} に分解
+//   改修V02_17: 末尾が "|forecast" のときは kind='forecast'、それ以外は 'pastA'。
+//   科目名・フレーム参照自体に "|" は含まれない前提(科目=先頭、frameRef=中間)。
 function splitPlanKey(key){
-  const sep = key.indexOf('|');
-  if(sep<0) return null;
-  return {subject: key.slice(0,sep), frameRef: key.slice(sep+1)};
+  const parts = String(key).split('|');
+  if(parts.length < 2) return null;
+  let kind = 'pastA';
+  let frameRef;
+  if(parts.length >= 3 && parts[parts.length-1]==='forecast'){
+    kind = 'forecast';
+    frameRef = parts.slice(1, parts.length-1).join('|'); // 中間(通常は1要素だが念のため結合)
+  }else{
+    frameRef = parts.slice(1).join('|');
+  }
+  return {subject: parts[0], frameRef, kind};
 }
 
 // 並び順用: 親フレーム番号と中分類番号(なければ0)を返す
@@ -14821,21 +15253,63 @@ function planLearningContent(subject, frameRef){
   return fr ? fr.t : '';
 }
 
-/* 改修57_04: 予定タブ表示用 — 指定の科目・フレームに属する「過去問A」の問題数を返す。
+/* 改修57_04: 予定タブ表示用 — 指定の科目・フレームに属する問題数を返す。
    進捗管理「予定」タブで、各フレームの解答すべき問題数(=学習ボリュームの目安)を
-   表示するために使う。kind は予定タブの標準基準である 'pastA' に固定。
+   表示するために使う。
+   改修V02_17: kind を受け取り、過去問A('pastA')・予想問('forecast')を切り替える。
+     省略時は従来どおり 'pastA'。
    サブフレーム指定がある場合はサブフレームでも絞り込む。 */
-function planFrameQuestionCount(subject, frameRef){
+function planFrameQuestionCount(subject, frameRef, kind){
+  const k = (kind==='forecast') ? 'forecast' : 'pastA';
   try{
     const r = resolveFrameRef(subject, frameRef);
     if(r.frameNo == null) return 0;
     let qs = state.questions.filter(q=>
-      lawToSubject(q.law)===subject && q.frameNo===r.frameNo && getKind(q)==='pastA');
+      lawToSubject(q.law)===subject && q.frameNo===r.frameNo && getKind(q)===k);
     if(r.isSubFrame && r.subFrame){
       qs = qs.filter(q=>questionMatchesSubFrame(q.law, r.subFrame));
     }
     return qs.length;
   }catch(_){ return 0; }
+}
+
+/* 改修V02_13: 予定タブ表示用 — 指定の科目・フレーム(過去問A)の「演習回数」と
+   「遅延ステータス」を、ガントチャート(_gBuildRowData/_gReviewStatus)と同一基準で返す。
+   進捗管理「予定」タブの各ボックスに、何回目の演習か・遅延(赤/黄)かを出して、
+   当日の学習優先度をその場で判断できるようにする(ガントを見に行く手間の削減)。
+   返り値: {
+     attemptNo,        // 次に行うべき演習が何回目か(完了0回→1, 1回完了→2 …)。演習中はその回。
+     completedCount,   // 完了済み回数
+     inProgress,       // 現在演習中(current)か
+     status,           // 'ok' | 'warn' | 'overdue' (最終完了回の復習遅延。未完了/演習中は 'ok')
+     hasAttempt        // frameAttempts に記録があるか
+   } */
+function _planFrameStatus(subject, frameRef, kind){
+  const kd = (kind==='forecast') ? 'forecast' : 'pastA';
+  try{
+    const r = resolveFrameRef(subject, frameRef);
+    if(r.frameNo == null) return {attemptNo:1, completedCount:0, inProgress:false, status:'ok', hasAttempt:false};
+    const k = frameKey(subject, r.frameNo, kd);
+    const fa = state.frameAttempts ? state.frameAttempts[k] : null;
+    if(!fa) return {attemptNo:1, completedCount:0, inProgress:false, status:'ok', hasAttempt:false};
+    const completedCount = Array.isArray(fa.history) ? fa.history.length : 0;
+    const inProgress = !!(fa.current && fa.current.startedAt);
+    const refTs = Date.now(); // ガントと同一基準(_gBuildRowData と一致)
+    let status = 'ok';
+    let attemptNo;
+    if(inProgress){
+      attemptNo = completedCount + 1; // 演習中はその回
+    }else if(completedCount > 0){
+      const lastAtt = fa.history[completedCount - 1];
+      status = _gReviewStatus(lastAtt, completedCount, refTs); // 'ok'|'warn'|'overdue'
+      attemptNo = completedCount + 1; // 次にやるべき回(復習回)
+    }else{
+      attemptNo = 1;
+    }
+    return {attemptNo, completedCount, inProgress, status, hasAttempt:true};
+  }catch(_){
+    return {attemptNo:1, completedCount:0, inProgress:false, status:'ok', hasAttempt:false};
+  }
 }
 
 // 指定日(dateKey)に発生する予定オカレンスを、開始時刻順 → 科目/フレーム順 で返す
@@ -14850,11 +15324,11 @@ function getPlanOccurrencesForDate(dateKey){
     for(const occ of enumeratePlanOccurrences(plan)){
       if(occ.dateKey !== dateKey) continue;
       list.push({
-        key, subject: sp.subject, frameRef: sp.frameRef,
+        key, subject: sp.subject, frameRef: sp.frameRef, kind: sp.kind,
         startTime: plan.startTime || '',
         endTime: plan.endTime || '',
         durationMin: (plan.durationMin!=null ? plan.durationMin : null),
-        kind: occ.kind,
+        kindOcc: occ.kind,
         offset: occ.offset,
         done: !!(plan.done && plan.done[dateKey])
       });
@@ -14888,7 +15362,7 @@ function getOverduePlanOccurrences(beforeDateKey){
       if(occ.dateKey >= beforeDateKey) continue; // 当日以降は遅れではない
       const done = !!(plan.done && plan.done[occ.dateKey]);
       if(done) continue;
-      out.push({key, subject: sp.subject, frameRef: sp.frameRef, dateKey:occ.dateKey, kind:occ.kind, offset:occ.offset, startTime: plan.startTime||''});
+      out.push({key, subject: sp.subject, frameRef: sp.frameRef, kind: sp.kind, dateKey:occ.dateKey, kindOcc:occ.kind, offset:occ.offset, startTime: plan.startTime||''});
     }
   }
   out.sort((a,b)=> a.dateKey < b.dateKey ? 1 : (a.dateKey > b.dateKey ? -1 : 0));
@@ -14960,27 +15434,44 @@ function segEffectiveEnd(sg, nowTs){
 // V02_04_01: あるセッションに「補正すべき長時間の中断/休憩」があるかを判定。
 //   既定しきい値(LONG_GAP_MS)を超える B/R 区間があり、まだ capMs 未設定のものを返す。
 const LONG_GAP_MS = 30*60*1000; // 30分超の中断/休憩を「要確認」とみなす
+// 改修V02_08: 「休憩/一旦停止のし忘れ」で解答(A)区間が丸ごと巨大化した
+//   セッションも補正対象に含める。A区間は正常でも数十分かかり得るため、
+//   B/R より高いしきい値(LONG_A_MS)を超えたものだけを「異常な長時間解答」とみなす。
+const LONG_A_MS = 2*60*60*1000; // 2時間超の連続「解答」区間は放置(し忘れ)の疑い
 function sessionLongGaps(sess){
   const segs = Array.isArray(sess.segments) ? sess.segments : [];
   const out = [];
   for(let i=0;i<segs.length;i++){
     const sg = segs[i];
-    if(sg.mode!=='B' && sg.mode!=='R') continue;
     if(sg.end==null) continue;
     if(sg.capMs!=null) continue; // 既に補正済み
     const raw = (sg.end>sg.start) ? (sg.end-sg.start) : 0;
-    if(raw > LONG_GAP_MS) out.push({index:i, seg:sg, rawMs:raw});
+    if(sg.mode==='B' || sg.mode==='R'){
+      if(raw > LONG_GAP_MS) out.push({index:i, seg:sg, rawMs:raw});
+    }else if(sg.mode==='A'){
+      // 改修V02_08: 異常に長い解答区間(し忘れ放置)も要補正として検出する。
+      if(raw > LONG_A_MS) out.push({index:i, seg:sg, rawMs:raw});
+    }
   }
   return out;
 }
 
+// 改修V02_16: 「学習(解答)として計上する休憩区間」かどうか。
+//   休憩(R)中に実際は問題演習していた場合、補正モーダルで countAsStudy=true に
+//   すると、その区間を A(解答)と同等に「解答時間・学習時間・解答数」へ計上する。
+//   本来 R は学習離脱だが、「休憩ボタンを押したまま解答してしまった」ケースの救済。
+function segCountsAsAnswer(sg){
+  // A 区間は常に解答時間。R でも countAsStudy が立っていれば解答時間として扱う。
+  return sg.mode==='A' || (sg.mode==='R' && sg.countAsStudy===true);
+}
 // セッションの「Aモード(通常演習)実時間」をミリ秒で返す(タイパ計算用 = 解答時間)
 //   改修V02_04: 補正値(capMs)を反映する(segDurationMs 経由)。
+//   改修V02_16: countAsStudy=true の休憩(R)区間も解答時間に含める。
 function sessionActiveMs(sess, nowTs){
   let ms = 0;
   const segs = Array.isArray(sess.segments) ? sess.segments : [];
   for(const sg of segs){
-    if(sg.mode!=='A') continue;
+    if(!segCountsAsAnswer(sg)) continue;
     ms += segDurationMs(sg, nowTs);
   }
   return ms;
@@ -14998,22 +15489,26 @@ function sessionPauseMs(sess, nowTs){
 // セッションの「トータル学習時間」をミリ秒で返す
 //   改修31b: A(演習)+B(中断/ロックオン)を計上。R(休憩)は学習から離脱しているため計上しない。
 //   改修V02_04: 補正値(capMs)を反映する(segDurationMs 経由)。
-//   = 解答時間(A) + 中断時間(B)。
+//   改修V02_16: countAsStudy=true の休憩(R)区間は「解答していた休憩」として学習時間に計上する。
+//   = 解答時間(A + 計上する休憩R) + 中断時間(B)。
 function sessionTotalMs(sess, nowTs){
   let ms = 0;
   const segs = Array.isArray(sess.segments) ? sess.segments : [];
   for(const sg of segs){
-    if(sg.mode==='R') continue; // 休憩は学習時間に含めない
+    // 通常の休憩(R)は学習時間に含めない。ただし countAsStudy の R は含める。
+    if(sg.mode==='R' && sg.countAsStudy!==true) continue;
     ms += segDurationMs(sg, nowTs);
   }
   return ms;
 }
 // 改修31b: R(休憩)の合計ミリ秒(参考表示用)。改修V02_04: 補正反映。
+//   改修V02_16: countAsStudy=true の R は「学習として計上済み」なので純粋な休憩には数えない。
 function sessionRestMs(sess, nowTs){
   let ms = 0;
   const segs = Array.isArray(sess.segments) ? sess.segments : [];
   for(const sg of segs){
     if(sg.mode!=='R') continue;
+    if(sg.countAsStudy===true) continue; // 学習計上した休憩は除外
     ms += segDurationMs(sg, nowTs);
   }
   return ms;
@@ -15021,14 +15516,17 @@ function sessionRestMs(sess, nowTs){
 
 // セッション中に解答した問題数を集計して {answered, correct} を返す。
 //   改修31b: R(休憩)区間は学習から離脱しているため、その時間帯の解答は除外する。
+//   改修V02_16: ただし countAsStudy=true の休憩(R)区間は「解答していた休憩」として
+//     集計対象に含める(休憩ボタンを押したまま演習した実績の救済)。
 //   endTs が未確定(進行中)の場合は現在時刻まで。
 function sessionAnswerStats(sess, nowTs){
   const now = (nowTs!=null ? nowTs : Date.now());
   const segs = Array.isArray(sess.segments) ? sess.segments : [];
-  // 休憩以外(A/B)の時間区間を作る。改修V02_04: 補正(capMs)で短縮された分は実効endまで。
+  // 集計対象の時間区間を作る。A/B は従来どおり、R は countAsStudy のものだけ。
+  //   改修V02_04: 補正(capMs)で短縮された分は実効endまで。
   const intervals = [];
   for(const sg of segs){
-    if(sg.mode==='R') continue;
+    if(sg.mode==='R' && sg.countAsStudy!==true) continue; // 通常の休憩のみ除外
     const end = segEffectiveEnd(sg, now);
     if(end>sg.start) intervals.push([sg.start, end]);
   }
@@ -15046,12 +15544,43 @@ function sessionAnswerStats(sess, nowTs){
   return {answered, correct};
 }
 
+/* 改修V02_16: セッションの休憩(R)区間のうち「その時間帯に解答履歴があるのに
+   まだ学習計上されていない(countAsStudy でない)」ものを検出する。
+   → タイパ画面・補正モーダルで「休憩中に解答があります」と注意喚起するために使う。
+   返り値: [{index, seg, rawMs, answered}] (該当が無ければ空配列)。 */
+function sessionRestWithAnswers(sess){
+  const segs = Array.isArray(sess.segments) ? sess.segments : [];
+  const hist = state.history || [];
+  const out = [];
+  for(let i=0;i<segs.length;i++){
+    const sg = segs[i];
+    if(sg.mode!=='R') continue;
+    if(sg.countAsStudy===true) continue; // 既に学習計上済みは対象外
+    if(sg.end==null) continue;
+    if(!(sg.end>sg.start)) continue;
+    let cnt = 0;
+    for(const h of hist){ if(h.ts>=sg.start && h.ts<=sg.end) cnt++; }
+    if(cnt>0){
+      const raw = sg.end - sg.start;
+      out.push({index:i, seg:sg, rawMs:raw, answered:cnt});
+    }
+  }
+  return out;
+}
+// セッションに「解答があるのに休憩扱いの区間」が1つでもあるか。
+function sessionHasRestAnswers(sess){
+  return sessionRestWithAnswers(sess).length>0;
+}
+
 // 新規セッション開始(予定ボックスから)。既存の進行中があれば自動で終了確定。
-// 改修: 「▶開始」一発で、計測セッション開始と同時に「択一」タブの該当フレーム演習(過去問A)を自動起動する。
+// 改修: 「▶開始」一発で、計測セッション開始と同時に「択一」タブの該当フレーム演習を自動起動する。
 //   タブ移動や「演習開始」ボタンの二度押しを不要にする。
 //   (択一画面側にも計測バーが出るため、中断・休憩・完了はそのまま操作できる)
-function startStudySession(subject, frameRef, dateKey){
-  // ① まず、この予定フレームに過去問A が登録されているかを事前確認する。
+// 改修V02_17: kind('pastA'|'forecast')に対応。予想問の予定からも演習を開始できる。
+function startStudySession(subject, frameRef, dateKey, kind){
+  const kd = (kind==='forecast') ? 'forecast' : 'pastA';
+  const kindLabel = (kd==='forecast') ? '予想問' : '過去問A';
+  // ① まず、この予定フレームに対象kindの問題が登録されているかを事前確認する。
   //    0問なら計測セッションを開始せずに中止する(計測だけ始まる空振りを防ぐ)。
   const fref0 = resolveFrameRef(subject, frameRef);
   // 改修V02_05: 特訓フレームは付箋・弱点から動的抽出。対象0問なら開始しない。
@@ -15065,12 +15594,12 @@ function startStudySession(subject, frameRef, dateKey){
     }
   }else{
     if(fref0.frameNo == null){ alert('フレーム参照が不正です: ' + frameRef); return; }
-    let qPre = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref0.frameNo && getKind(q)==='pastA');
+    let qPre = state.questions.filter(q=>lawToSubject(q.law)===subject && q.frameNo===fref0.frameNo && getKind(q)===kd);
     if(fref0.isSubFrame && fref0.subFrame){
       qPre = qPre.filter(q=>questionMatchesSubFrame(q.law, fref0.subFrame));
     }
     if(qPre.length === 0){
-      alert('このフレームには過去問Aが登録されていないため、演習を開始できません。\n(「過去問A」タブで問題を追加してください)');
+      alert(`このフレームには${kindLabel}が登録されていないため、演習を開始できません。\n(「${kindLabel}」タブで問題を追加してください)`);
       return;
     }
   }
@@ -15084,8 +15613,9 @@ function startStudySession(subject, frameRef, dateKey){
   const now = Date.now();
   const sess = {
     id: 'ss_' + now + '_' + Math.random().toString(36).slice(2,7),
-    planKey: planKey(subject, frameRef),
+    planKey: planKey(subject, frameRef, kd),
     subject, frameRef, dateKey,
+    kind: kd,                       // 改修V02_17: セッションの kind(実績集計・完了フラグで使用)
     startTs: now,
     endTs: null,
     segments: [{start: now, end: null, mode:'A'}],
@@ -15097,11 +15627,19 @@ function startStudySession(subject, frameRef, dateKey){
   state.activeSessionId = sess.id;
   saveState();
 
-  // ③ そのまま「択一」タブの該当フレーム演習(過去問A)を起動する。
+  // ③ そのまま「択一」タブの該当フレーム演習(該当kind)を起動する。
   //    startFrameAttempt 内部で enterFrameMode → switchTab('quiz') まで実行され、
   //    予定していた科目・フレームの問題演習がすぐ始まる。
-  //    既に同フレームの進行中演習がある場合は「継続/新規」の確認が出る(従来挙動)。
-  startFrameAttempt(subject, frameRef, 'pastA');
+  // 改修V02_09: startFrameAttempt が演習を開始できなかった場合、②で先に作った計測
+  //    セッションだけが宙に浮くため、開始失敗時はセッションを破棄して状態を戻す。
+  const started = startFrameAttempt(subject, frameRef, kd);
+  if(started === false){
+    const arr = state.studySessions || [];
+    const idx = arr.findIndex(x=>x.id===sess.id);
+    if(idx>=0) arr.splice(idx,1);
+    if(state.activeSessionId===sess.id) state.activeSessionId = null;
+    saveState();
+  }
 }
 
 // 改修31b: 現在のセグメントを閉じ、新しいモードのセグメントを開く共通処理
@@ -15224,14 +15762,17 @@ function getSessionsForDate(dateKey){
 
 /* ===== 予定編集モーダル ===== */
 let _planEditKey = null;
-function openPlanEditModal(subject, frameRef){
+// 改修V02_17: kind('pastA'|'forecast')を受けて、過去問A/予想問それぞれの予定を編集できる。
+function openPlanEditModal(subject, frameRef, kind){
   // frameRef は数値・数字文字列("4")または中分類キー("2.1")
-  _planEditKey = planKey(subject, frameRef);
+  const kd = (kind==='forecast') ? 'forecast' : 'pastA';
+  _planEditKey = planKey(subject, frameRef, kd);
   const plan = (state.studyPlans && state.studyPlans[_planEditKey]) || {};
   const titleEl = document.getElementById('plan-edit-title');
   const descEl = document.getElementById('plan-edit-desc');
-  if(titleEl) titleEl.textContent = '学習予定の設定';
-  if(descEl) descEl.textContent = `${subject}　${frameOrSubFrameLabel(subject, frameRef)}`;
+  const kindLabel = (kd==='forecast') ? '🎯 予想問' : '過去問A';
+  if(titleEl) titleEl.textContent = `学習予定の設定（${kindLabel}）`;
+  if(descEl) descEl.textContent = `${subject}　${frameOrSubFrameLabel(subject, frameRef)}（${kindLabel}）`;
   // 既存値を流し込み(なければ初期値: 開始日=明日)
   const def = _gDateKey(_gAddDays(_gTodayDate(), 1));
   document.getElementById('plan-input-startdate').value = plan.startDate || def;
@@ -15278,10 +15819,13 @@ function savePlanEdit(){
     .map(c=>parseInt(c.dataset.off,10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
   // 既存の done(完了履歴)は保持する
   const prev = (state.studyPlans && state.studyPlans[_planEditKey]) || {};
+  // 改修V02_17: キーから kind を復元して plan にも保存(冗長だが参照時に安全)
+  const spEdit = splitPlanKey(_planEditKey);
   state.studyPlans ||= {};
   state.studyPlans[_planEditKey] = {
     startDate, startTime, endTime, durationMin,
     reviewOffsets: offsets,
+    kind: (spEdit ? spEdit.kind : 'pastA'),
     done: prev.done || {}
   };
   saveState();
@@ -15341,13 +15885,14 @@ function renderProgressPlan(root){
     html += `<div class="plan-overdue-summary">
       <div class="pos-title">⚠ 遅れている予定: ${overdue.length}件(今日より前で未完了)</div>`;
     for(const o of shown){
-      const lbl = o.kind==='review' ? `復習(${o.offset}日後)` : '初回';
+      const lbl = o.kindOcc==='review' ? `復習(${o.offset}日後)` : '初回';
       const col = statsSubjectColor(o.subject);
+      const kindTag = o.kind==='forecast' ? `<span class="plan-badge kindtag forecast">予想問</span>` : '';
       html += `<div class="plan-overdue-item">
         <span style="color:var(--accent);font-weight:600">${planDateLabel(o.dateKey)}</span>
         <span class="plan-subj-dot" style="background:${col}"></span>
-        ${escapeHtml(o.subject)}　${escapeHtml(frameOrSubFrameLabel(o.subject, o.frameRef))}
-        <span class="plan-badge ${o.kind==='review'?'review':'first'}">${lbl}</span>
+        ${escapeHtml(o.subject)}　${escapeHtml(frameOrSubFrameLabel(o.subject, o.frameRef))}${kindTag}
+        <span class="plan-badge ${o.kindOcc==='review'?'review':'first'}">${lbl}</span>
       </div>`;
     }
     if(overdue.length>shown.length){
@@ -15370,12 +15915,33 @@ function renderProgressPlan(root){
       const subjCol = statsSubjectColor(o.subject);  // 改修30b: 科目カラー
       const timeStr = o.startTime ? (o.endTime ? `${o.startTime}〜${o.endTime}` : `${o.startTime}〜`) : '時刻未設定';
       const durStr = (o.durationMin!=null && o.durationMin>0) ? `<span class="plan-box-dur">(見込み ${o.durationMin}分)</span>` : '';
-      // 改修57_04: 解答すべき問題数(過去問A基準)を表示。学習ボリュームの見立てに使う。
-      const qCount = planFrameQuestionCount(o.subject, o.frameRef);
+      // 改修57_04 / 改修V02_17: 解答すべき問題数を表示。予定の kind(過去問A/予想問)基準。
+      const qCount = planFrameQuestionCount(o.subject, o.frameRef, o.kind);
       const qcountStr = qCount>0 ? `<span class="plan-box-qcount">📝 ${qCount}問</span>` : '';
-      const badge = o.kind==='review'
+      const badge = o.kindOcc==='review'
         ? `<span class="plan-badge review">復習 ${o.offset}日後</span>`
         : `<span class="plan-badge first">初回</span>`;
+      // 改修V02_17: 予想問の予定であることを示すタグ(過去問Aと同じ表に並ぶため区別する)
+      const kindTag = o.kind==='forecast'
+        ? `<span class="plan-badge kindtag forecast" title="予想問の予定">🎯 予想問</span>`
+        : `<span class="plan-badge kindtag pasta" title="過去問Aの予定">過去問A</span>`;
+      // 改修V02_13 / 改修V02_17: ガントと同基準の「演習回数」「遅延」バッジ。予定の kind 基準。
+      const pst = _planFrameStatus(o.subject, o.frameRef, o.kind);
+      let attemptBadge = '';
+      if(pst.inProgress){
+        attemptBadge = `<span class="plan-badge attempt prog" title="現在 ${pst.attemptNo}回目を演習中">${pst.attemptNo}回目 演習中</span>`;
+      }else if(pst.completedCount > 0){
+        attemptBadge = `<span class="plan-badge attempt" title="${pst.completedCount}回完了 / 次は${pst.attemptNo}回目">${pst.completedCount}回完了→${pst.attemptNo}回目</span>`;
+      }else{
+        attemptBadge = `<span class="plan-badge attempt none" title="まだ着手していません">未着手(1回目)</span>`;
+      }
+      // 遅延バッジ(最終完了回の復習が遅れている場合のみ)。ガントの色基準と一致。
+      let delayBadge = '';
+      if(pst.status==='overdue'){
+        delayBadge = `<span class="plan-badge delay overdue" title="復習が大幅に遅れています(要復習)">🔴 遅延</span>`;
+      }else if(pst.status==='warn'){
+        delayBadge = `<span class="plan-badge delay warn" title="復習時期が近づいています/やや遅れ">🟡 やや遅れ</span>`;
+      }
       // 中分類名は label に含まれるため、content が label 末尾と重複する場合は省略
       const showContent = content && !label.endsWith(content);
       const itemsHtml = showContent ? `<div class="plan-box-items">${escapeHtml(content)}</div>` : '';
@@ -15419,14 +15985,14 @@ function renderProgressPlan(root){
           ? 'このフレームは「一旦終了(途中)」の記録があります。続きを計測できます'
           : '学習を始めるときに押すと、時間と解答数を自動で計測します';
         timerHtml = `<div class="plan-timer is-idle">
-          <button class="plan-timer-btn start" data-sessstart-subj="${escapeHtml(o.subject)}" data-sessstart-fref="${escapeHtml(String(o.frameRef))}" data-sessstart-date="${dateKey}">${startLabel}</button>
+          <button class="plan-timer-btn start" data-sessstart-subj="${escapeHtml(o.subject)}" data-sessstart-fref="${escapeHtml(String(o.frameRef))}" data-sessstart-date="${dateKey}" data-sessstart-kind="${escapeHtml(o.kind||'pastA')}">${startLabel}</button>
           <span class="plan-timer-hint">${hint}</span>
         </div>`;
       }
       html += `<div class="plan-box ${o.done?'done':''}" style="border-left-color:${subjCol}">
         <div class="plan-box-main">
           <div class="plan-box-top">
-            <span class="plan-box-time">🕒 ${timeStr}</span>${durStr}${qcountStr}${badge}
+            <span class="plan-box-time">🕒 ${timeStr}</span>${durStr}${qcountStr}${kindTag}${attemptBadge}${delayBadge}${badge}
           </div>
           <div class="plan-box-title"><span class="plan-subj-dot" style="background:${subjCol}"></span>${escapeHtml(o.subject)}　${escapeHtml(label)}</div>
           ${itemsHtml}
@@ -15434,7 +16000,7 @@ function renderProgressPlan(root){
         </div>
         <div class="plan-box-action">
           ${o.done?'<span class="plan-done-mark">✓ 完了</span>':''}
-          <button class="plan-edit-inline" data-planedit="1" data-subj="${escapeHtml(o.subject)}" data-fref="${escapeHtml(String(o.frameRef))}">編集</button>
+          <button class="plan-edit-inline" data-planedit="1" data-subj="${escapeHtml(o.subject)}" data-fref="${escapeHtml(String(o.frameRef))}" data-kind="${escapeHtml(o.kind||'pastA')}">編集</button>
           <button class="plan-done-btn ${o.done?'is-done':''}" data-plankey="${escapeHtml(o.key)}" data-date="${dateKey}">${o.done?'完了を取消':'完了にする'}</button>
         </div>
       </div>`;
@@ -15454,12 +16020,13 @@ function renderProgressPlan(root){
       e.stopPropagation();
       const subj = b.dataset.subj;
       const ref = b.dataset.fref;
-      if(subj && ref) openPlanEditModal(subj, ref);
+      const kind = b.dataset.kind || 'pastA'; // 改修V02_17
+      if(subj && ref) openPlanEditModal(subj, ref, kind);
     });
   });
-  // 改修31: 計測ボタンの配線
+  // 改修31 / 改修V02_17: 計測ボタンの配線(kind を渡す)
   root.querySelectorAll('button[data-sessstart-subj]').forEach(b=>{
-    b.addEventListener('click', ()=> startStudySession(b.dataset.sessstartSubj, b.dataset.sessstartFref, b.dataset.sessstartDate));
+    b.addEventListener('click', ()=> startStudySession(b.dataset.sessstartSubj, b.dataset.sessstartFref, b.dataset.sessstartDate, b.dataset.sessstartKind || 'pastA'));
   });
   root.querySelectorAll('button[data-sesspause]').forEach(b=>{
     b.addEventListener('click', ()=> pauseStudySession(b.dataset.sesspause));
@@ -15700,8 +16267,8 @@ function _gBuildRowData(subject, fr, kindMode, snap){
   // スロット(10ハコ)。既存 buildProgressFrameRow と同じ形式だが「%」非表示。
   const completed = fa ? (fa.history||[]).length : 0;
   const cur = fa ? fa.current : null;
-  let slotsHtml = '<div class="gs-grid">';
-  for(let i=0;i<10;i++){
+  let slotsHtml = '<div class="gs-grid" style="--gs-n:'+frameSlotCount(completed, !!cur)+'">';
+  for(let i=0;i<frameSlotCount(completed, !!cur);i++){
     if(fa && i < completed){
       const isLatest = (i === completed - 1);
       const st = isLatest ? _gReviewStatus(fa.history[i], completed, refTs) : 'ok';
@@ -15738,7 +16305,7 @@ function _gBuildSubFrameRowData(subject, parentFr, subFrame, kindMode, snap){
     questionMatchesKindMode(q, kindMode) &&
     questionMatchesSubFrame(q.law, subFrame)
   ).length;
-  // 進捗管理の対象かどうか(過去問A/B は全フレーム対象、予想問は15問しきい値)
+  // 進捗管理の対象かどうか(過去問A は全フレーム、過去問B/予想問は1問以上)
   const eligible = (typeof isFrameInProgressManagement === 'function')
     ? isFrameInProgressManagement(subject, subFrame.key, kindMode)
     : (progressKindShowAll(kindMode) || totalQs >= FORECAST_FRAME_THRESHOLD);
@@ -15772,8 +16339,8 @@ function _gBuildSubFrameRowData(subject, parentFr, subFrame, kindMode, snap){
   // スロット(10ハコ)
   const completed = fa ? (fa.history||[]).length : 0;
   const cur = fa ? fa.current : null;
-  let slotsHtml = '<div class="gs-grid">';
-  for(let i=0;i<10;i++){
+  let slotsHtml = '<div class="gs-grid" style="--gs-n:'+frameSlotCount(completed, !!cur)+'">';
+  for(let i=0;i<frameSlotCount(completed, !!cur);i++){
     if(fa && i < completed){
       const isLatest = (i === completed - 1);
       const st = isLatest ? _gReviewStatus(fa.history[i], completed, refTs) : 'ok';
@@ -15804,20 +16371,117 @@ function _gBuildSubFrameRowData(subject, parentFr, subFrame, kindMode, snap){
   };
 }
 
+/* ===== 改修V02_07: 千本ノックのガントチャート対応 ===== */
+
+// 指定科目・フレーム(中分類含む)の千本ノック「完走実施回」を、古い順の配列で返す。
+//   返り値: [{ts, total, correct}, ...] (ts昇順)
+function _gSenbonRunsFor(subject, frameNo, subFrameKey){
+  const runs = Array.isArray(state.senbonRuns) ? state.senbonRuns : [];
+  const fnoStr = String(frameNo);
+  const sfk = subFrameKey || null;
+  const out = runs.filter(r=>{
+    if(!r) return false;
+    if(r.subject !== subject) return false;
+    if(String(r.frameNo) !== fnoStr) return false;
+    // subFrameKey は両方 null/同値のときのみ一致(中分類単位で区別)
+    const rsfk = r.subFrameKey || null;
+    return rsfk === sfk;
+  }).map(r=>({ts:r.ts, total:r.total, correct:r.correct}));
+  out.sort((a,b)=>(a.ts||0)-(b.ts||0));
+  return out;
+}
+
+// 千本ノック単独表示用の行データ。過去問Aの _gBuildRowData と同じ形を、senbonRuns から作る。
+//   slot は完走回数ぶん濃紺で塗り、point は最終完走日に置く。
+function _gBuildSenbonRowData(subject, frameNo, subFrameKey, frameForDisplay){
+  const runs = _gSenbonRunsFor(subject, frameNo, subFrameKey);
+  // そのフレームに千本問題が登録されているか
+  const totalQs = senbonAllQuestions().filter(q=>
+    q.subject===subject && String(q.frameNo)===String(frameNo) &&
+    ((q.subFrameKey||null)===(subFrameKey||null))
+  ).length;
+  const completed = runs.length;
+  let pointDate = null, pointStatus = 'empty', attemptNo = 0, statusText = '未着手';
+  if(completed > 0){
+    const last = runs[completed-1];
+    pointDate = last.ts ? new Date(last.ts) : null;
+    pointStatus = 'senbon';            // 千本専用ステータス(濃紺)
+    attemptNo = completed;
+    statusText = `千本${completed}回完了`;
+  }
+  // スロット(10ハコ)。完走ぶんを濃紺(gs-slot senbon)で塗る。改修V02_09: 11回以上に対応。
+  let slotsHtml = '<div class="gs-grid" style="--gs-n:'+frameSlotCount(completed, false)+'">';
+  for(let i=0;i<frameSlotCount(completed, false);i++){
+    if(i < completed){
+      slotsHtml += `<div class="gs-slot senbon-done" title="千本${i+1}回目完了 (${runs[i].correct}/${runs[i].total}問正解)">${i+1}</div>`;
+    }else{
+      slotsHtml += `<div class="gs-slot">${i+1}</div>`;
+    }
+  }
+  slotsHtml += '</div>';
+  return {
+    subject,
+    frame: frameForDisplay,
+    totalQs,
+    eligible: totalQs > 0,
+    pointDate, pointStatus, attemptNo, slotsHtml, statusText,
+    hasNoQ: totalQs === 0,
+    isSenbon: true,
+    senbonRuns: runs
+  };
+}
+
+// 付随表示(＋α)用: 過去問Aの行データに、同一フレームの千本ノック実施情報を付与する。
+//   rowData.senbonRuns に完走回(ts昇順)を持たせ、描画側がオーバーレイ(濃紺の点・線)を追加できるようにする。
+//   さらに、択一ハコ列の真下に独立した千本ノック帯(10列)を1段追加する(緑ハコと重ならない)。
+function _gAttachSenbonInfo(rowData){
+  if(!rowData || !rowData.frame) return rowData;
+  const fr = rowData.frame;
+  const frameNo = fr._isSubFrame ? fr._parentN : fr.n;
+  const subFrameKey = fr._isSubFrame ? fr.n : null;
+  const runs = _gSenbonRunsFor(rowData.subject, frameNo, subFrameKey);
+  rowData.senbonRuns = runs;
+  // 択一ハコ列(gs-grid)の下に、千本完走回数ぶんを点灯させた帯を1段追加する。
+  //   .gantt-row-slots は display:flex(横並び)なので、ハコ列と帯を縦積みラッパーで囲んで
+  //   「上=ハコ / 下=帯」に並べる(囲まないと帯が右隣に並んで潰れて見えなくなる)。
+  if(runs.length){
+    // 改修V02_09: 上段(択一ハコ gs-grid)の列数に帯を合わせる。
+    //   上段 slotsHtml には既に style="--gs-n:N" が埋め込まれているので、それを読む。
+    let nSlots = 10;
+    const mm = /--gs-n:\s*(\d+)/.exec(rowData.slotsHtml || '');
+    if(mm) nSlots = parseInt(mm[1],10);
+    nSlots = Math.max(nSlots, frameSlotCount(runs.length, false));
+    const sCount = Math.min(runs.length, nSlots);
+    let strip = '<div class="gs-senbon-grid" style="--gs-n:'+nSlots+'" title="千本ノック完走 '+runs.length+'回">';
+    for(let i=0;i<nSlots;i++){
+      strip += `<div class="gs-senbon-cell${i<sCount?' on':''}"></div>`;
+    }
+    strip += '</div>';
+    rowData.slotsHtml = `<div class="gs-stack">${rowData.slotsHtml}${strip}</div>`;
+  }
+  return rowData;
+}
+
 /* ガントチャート本体の描画 */
 function renderProgressGantt(root){
   const snap = _gGetSnapshot();
   // ガントチャート用のサブ状態
-  state.progressView.ganttMode    ||= 'all';      // 'all' | 'subject'
+  state.progressView.ganttMode    ||= 'all';      // 'all' | 'all_plus' | 'subject' | 'subject_plus'
   state.progressView.ganttSubject ||= SUBJECTS_ORDER[0];
-  state.progressView.ganttKindMode ||= 'pastA';  // 'pastA' | 'pastB' | 'forecast'
+  state.progressView.ganttKindMode ||= 'pastA';  // 'pastA' | 'pastB' | 'forecast' | 'senbon'
   const ganttMode = state.progressView.ganttMode;
   const ganttSubject = state.progressView.ganttSubject;
   const ganttKindMode = state.progressView.ganttKindMode;
+  // 改修V02_07: 表示モードの「+α(千本ノック付随表示)」かどうか
+  const withSenbon = (ganttMode === 'all_plus' || ganttMode === 'subject_plus');
+  // 単一科目系かどうか
+  const isSingle = (ganttMode === 'subject' || ganttMode === 'subject_plus');
+  // 問題区分が「千本ノック」単独表示か
+  const isSenbonKind = (ganttKindMode === 'senbon');
 
   // 対象科目リスト
   let subjects;
-  if(ganttMode === 'subject'){
+  if(isSingle){
     subjects = [ganttSubject];
   }else{
     subjects = SUBJECTS_ORDER.slice();
@@ -15831,26 +16495,31 @@ function renderProgressGantt(root){
     const frames = FRAMES[subject] || [];
     const rows = [];
     for(const fr of frames){
-      // 改修28-5: サブフレームを持つ親フレームの場合、サブフレームを1つずつ個別の行として展開する。
-      // (旧仕様では親フレーム集約で1行にしていたが、社一・労一など中分類が多い科目で
-      //  進捗が見えなくなる問題があったため、個別表示に切り替え)
-      // 改修28-7: 問題未登録(hasNoQ)のフレームも除外しない。
-      //  俯瞰用ガントチャートの目的(=全体を見る)を満たすため、未登録フレームは
-      //  メタ列を薄く(dim+pending)表示するのみで、行自体は残す。
-      //  これにより労働基準法・労一・社一など問題が少ない科目でも全フレームが見える。
       if(typeof hasSubFrames === 'function' && hasSubFrames(subject, fr.n)){
         const subs = getSubFrames(subject, fr.n) || [];
         for(const sf of subs){
-          const subRow = _gBuildSubFrameRowData(subject, fr, sf, ganttKindMode, snap);
+          let subRow;
+          if(isSenbonKind){
+            // 千本ノック単独表示
+            subRow = _gBuildSenbonRowData(subject, fr.n, sf.key, {n:sf.key, t:sf.t, _parentN:fr.n, _isSubFrame:true});
+          }else{
+            subRow = _gBuildSubFrameRowData(subject, fr, sf, ganttKindMode, snap);
+            if(withSenbon && ganttKindMode==='pastA') _gAttachSenbonInfo(subRow);
+          }
           rows.push(subRow);
         }
       }else{
-        // サブフレームを持たない通常フレーム
-        const rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
+        let rowData;
+        if(isSenbonKind){
+          rowData = _gBuildSenbonRowData(subject, fr.n, null, fr);
+        }else{
+          rowData = _gBuildRowData(subject, fr, ganttKindMode, snap);
+          if(withSenbon && ganttKindMode==='pastA') _gAttachSenbonInfo(rowData);
+        }
         rows.push(rowData);
       }
     }
-    if(rows.length > 0 || ganttMode === 'subject'){
+    if(rows.length > 0 || isSingle){
       groups.push({subject, rows});
     }
   }
@@ -15886,9 +16555,11 @@ function renderProgressGantt(root){
       <label>表示モード</label>
       <select id="gantt-mode-sel">
         <option value="all"${ganttMode==='all'?' selected':''}>全体(全科目)</option>
+        <option value="all_plus"${ganttMode==='all_plus'?' selected':''}>全体(全科目)＋α(千本)</option>
         <option value="subject"${ganttMode==='subject'?' selected':''}>単一科目</option>
+        <option value="subject_plus"${ganttMode==='subject_plus'?' selected':''}>単一科目＋α(千本)</option>
       </select>
-      <span id="gantt-subj-wrap" style="${ganttMode==='subject'?'':'display:none'}">
+      <span id="gantt-subj-wrap" style="${isSingle?'':'display:none'}">
         <label>科目</label>
         <select id="gantt-subject-sel">${subjectOptions}</select>
       </span>
@@ -15897,6 +16568,7 @@ function renderProgressGantt(root){
         <option value="pastA"${ganttKindMode==='pastA'?' selected':''}>過去問A</option>
         <option value="pastB"${ganttKindMode==='pastB'?' selected':''}>過去問B</option>
         <option value="forecast"${ganttKindMode==='forecast'?' selected':''}>予想問</option>
+        <option value="senbon"${ganttKindMode==='senbon'?' selected':''}>千本ノック</option>
       </select>
       <button id="gantt-refresh-btn" class="btn ghost btn-sm" style="margin-left:8px" title="起点(左端)を「今日-7日」にリセットします">🔄 起点リセット</button>
       <div class="gantt-base-info">${baseInfo}</div>
@@ -15906,6 +16578,7 @@ function renderProgressGantt(root){
       <span class="leg"><span class="leg-dot warn"></span> 復習推奨(黄)</span>
       <span class="leg"><span class="leg-dot overdue"></span> 要復習(赤)</span>
       <span class="leg"><span class="leg-dot prog"></span> 演習中</span>
+      <span class="leg"><span class="leg-dot senbon"></span> 千本ノック(完走)</span>
       <span class="leg" style="color:var(--ink-muted)">フレーム名がグレー = 未着手</span>
       <span style="margin-left:auto;font-size:10.5px;color:var(--ink-muted)">縦の黄色ライン = 基準日(=「今」)</span>
     </div>
@@ -16046,8 +16719,8 @@ function _gBuildParentFrameRowData(subject, fr, kindMode, snap){
   else if(maxCompleted>0)   statusText = `${maxCompleted}回完了(中分類最大)`;
 
   // スロット(集約: 最大完了回数を done で埋める)
-  let slotsHtml = '<div class="gs-grid">';
-  for(let i=0;i<10;i++){
+  let slotsHtml = '<div class="gs-grid" style="--gs-n:'+frameSlotCount(maxCompleted, inProgress)+'">';
+  for(let i=0;i<frameSlotCount(maxCompleted, inProgress);i++){
     if(i < maxCompleted){
       const isLatest = (i === maxCompleted - 1);
       const cls = isLatest ? (bestStatus === 'overdue' ? ' overdue' : (bestStatus === 'warn' ? ' warn' : '')) : '';
@@ -16089,7 +16762,7 @@ function _gBuildGanttTableHtml(groups, dayDates, snap, ganttMode){
 
   // ヘッダ行(grid の最初の N+2 要素)
   html += `<div class="gantt-h-meta">科目 / フレーム</div>`;
-  html += `<div class="gantt-h-slots">進捗(10回分)</div>`;
+  html += `<div class="gantt-h-slots">進捗(最大${MAX_FRAME_ATTEMPTS}回)</div>`;
   for(const d of dayDates){
     const dow = d.getDay(); // 0=Sun, 6=Sat
     const dowClass = dow===0 ? ' sun weekend' : (dow===6 ? ' sat weekend' : '');
@@ -16213,6 +16886,54 @@ function _gPaintOverlays(groups, dayDates, snap, ganttMode){
     pl.setAttribute('points', coords.join(' '));
     svg.appendChild(pl);
   }
+
+  // 改修V02_07: 千本ノックの点(濃紺)と線。
+  //   - 千本単独表示(行が isSenbon): 各行の最終完走日に濃紺の点を置き、濃紺線で結ぶ。
+  //   - 付随表示(行に senbonRuns あり): 過去問Aの点とは別に、最終完走日へ濃紺サブ点を置き結ぶ。
+  {
+    const senbonCoords = [];
+    let rIdx = 0;
+    for(let gi=0; gi<groups.length; gi++){
+      for(let ri=0; ri<groups[gi].rows.length; ri++){
+        const row = groups[gi].rows[ri];
+        const runs = row.senbonRuns;
+        const isSenbonRow = !!row.isSenbon;
+        if(Array.isArray(runs) && runs.length){
+          const lastTs = runs[runs.length-1].ts;
+          const dayIdx = _gDayDiff(new Date(lastTs), snap.startDate);
+          if(dayIdx >= 0 && dayIdx < dayDates.length){
+            const cell = table.querySelector(`.gantt-day-cell[data-row-idx="${rIdx}"][data-day-idx="${dayIdx}"]`);
+            if(cell){
+              // 単独表示で既に point があるなら座標だけ取得(点は既設)。付随表示なら濃紺サブ点を追加。
+              let dot = isSenbonRow ? cell.querySelector('.gantt-point') : null;
+              if(!isSenbonRow){
+                dot = document.createElement('div');
+                dot.className = 'gantt-point senbon-sub';
+                dot.title = `千本ノック ${runs.length}回完走`;
+                cell.appendChild(dot);
+              }
+              const dRect = (dot || cell).getBoundingClientRect();
+              const x = (dRect.left + dRect.width/2) - tableRect.left + table.scrollLeft;
+              const y = (dRect.top  + dRect.height/2) - tableRect.top  + table.scrollTop;
+              senbonCoords.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+            }
+          }
+        }
+        rIdx++;
+      }
+    }
+    if(senbonCoords.length >= 2){
+      const spl = document.createElementNS(svgNS,'polyline');
+      spl.setAttribute('points', senbonCoords.join(' '));
+      spl.setAttribute('fill','none');
+      spl.setAttribute('stroke','#1f2a5a');
+      spl.setAttribute('stroke-width','2');
+      spl.setAttribute('stroke-dasharray','4 3');
+      spl.setAttribute('opacity','0.85');
+      svg.appendChild(spl);
+    }
+  }
+
   table.appendChild(svg);
 
   // === 基準日(=「今」)の縦ライン ===
@@ -16332,7 +17053,7 @@ function renderProgressSubjects(root, summary, kindMode){
         for(const sf of subs){
           const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
           const cnt = sfQs.length;
-          // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+          // 改修8 Step 3 / 改修V02_15: pastA は全表示、 pastB/forecast は1問以上で表示
           const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
           if(!eligible){
             qTotal += cnt;
@@ -16352,7 +17073,7 @@ function renderProgressSubjects(root, summary, kindMode){
       // 通常(サブフレームなし)フレーム
       const qs = allFrameQs;
       const cnt = qs.length;
-      // 表示対象判定: pastA は全フレーム、 pastB/forecast は15問以上
+      // 表示対象判定: pastA は全フレーム、 pastB/forecast は1問以上
       const eligible = isFrameInProgressManagement(subject, fr.n, kindMode);
       if(!eligible){
         // フレーム自体は表示対象外。問題数のみ集計
@@ -16382,7 +17103,7 @@ function renderProgressSubjects(root, summary, kindMode){
       <div class="sc-stats">
         <span class="sc-stat">${qTotal}問 / ${totalFrames}フレーム${eligibleNote}</span>
         ${qTotal===0 ? `<span class="sc-stat empty">${emptyLbl}</span>` :
-          (totalFrames===0 ? `<span class="sc-stat empty">15問以上のフレームなし</span>` :
+          (totalFrames===0 ? `<span class="sc-stat empty">対象フレームなし</span>` :
             `<span class="sc-stat">完了 ${completedFrames}/${totalFrames}</span>` +
             (inProgressFrames>0 ? `<span class="sc-stat inprog">演習中 ${inProgressFrames}</span>` : '')
           )
@@ -16485,7 +17206,8 @@ function buildProgressFrameRow(opts){
     latestReviewStatus = getReviewStatus(latestAttempt, completed);
   }
   let slots = '';
-  for(let i=0;i<10;i++){
+  const slotN = frameSlotCount(completed, !!cur); // 改修V02_09: 11〜20回対応
+  for(let i=0;i<slotN;i++){
     if(i < fa.history.length){
       const att = fa.history[i];
       const isLatest = (i === fa.history.length - 1);
@@ -16550,20 +17272,21 @@ function buildProgressFrameRow(opts){
   const kindIcon = progressKindBadge(kindModeVal);
   // 改修: フレーム中分類項目の併記
   const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
-  // 改修30: 過去問A のフレーム/中分類には「予定_編集」ボタンを表示
+  // 改修30 / 改修V02_17: 過去問A・予想問のフレーム/中分類には「予定_編集」ボタンを表示
   let planBtn = '';
   if(opts.planTarget){
     const ref = opts.planTarget.frameRef;
-    const pk = planKey(opts.planTarget.subject, ref);
+    const pkKind = opts.planTarget.kind || 'pastA';
+    const pk = planKey(opts.planTarget.subject, ref, pkKind);
     const hasPlan = !!(state.studyPlans && state.studyPlans[pk]);
-    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(opts.planTarget.subject)}" data-fref="${escapeHtml(String(ref))}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
+    planBtn = `<button class="plan-edit-btn ${hasPlan?'has-plan':''}" data-planedit="1" data-subj="${escapeHtml(opts.planTarget.subject)}" data-fref="${escapeHtml(String(ref))}" data-kind="${escapeHtml(pkKind)}">📅 予定${hasPlan?'✓':'_編集'}</button>`;
   }
   return `<div class="prog-frame">
     <div class="pf-head">
       <div class="pf-title"><span class="pf-n">F${displayN}</span> ${escapeHtml(title)}${kindIcon} <span class="pf-q">(${totalCount}問)</span>${lawBreakdown}${itemsHtml}</div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${btn}${planBtn}</div>
     </div>
-    <div class="pf-slots">${slots}</div>
+    <div class="pf-slots${slotN>10?' multi':''}">${slots}</div>
     <div class="pf-status">${status}</div>
   </div>`;
 }
@@ -16577,7 +17300,7 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   for(const sf of subs){
     const cnt = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf)).length;
     totalQ += cnt;
-    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+    // 改修8 Step 3 / 改修V02_15: pastA は全表示、 pastB/forecast は1問以上で表示
     const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible) continue;
     eligibleSubs++;
@@ -16595,7 +17318,7 @@ function buildParentFrameSummaryCard(subject, fr, kindMode){
   const itemsHtml = itemsLabel ? `<div class="pf-items">（${escapeHtml(itemsLabel)}）</div>` : '';
   const progressLine = (eligibleSubs > 0)
     ? `完了 ${completedSubs}/${eligibleSubs}` + (inProgressSubs > 0 ? `　演習中 ${inProgressSubs}` : '') + `　未着手 ${eligibleSubs - completedSubs - inProgressSubs}`
-    : (!progressKindShowAll(kindMode) ? `${FORECAST_FRAME_THRESHOLD}問以上の中分類なし` : '');
+    : (!progressKindShowAll(kindMode) ? `問題のある中分類なし` : '');
   // 改修30: 中分類を持つ親フレーム自体には予定ボタンを置かない(予定は中分類側で設定)
   return `<div class="prog-frame prog-frame-summary" data-parent-frame="${fr.n}" style="cursor:pointer">
     <div class="pf-head">
@@ -16638,9 +17361,9 @@ function renderProgressFrames(root, summary, subject, kindMode){
       html += `<div class="prog-frame" style="opacity:.55">
         <div class="pf-head">
           <div class="pf-title"><span class="pf-n">F${fr.n}</span> ${escapeHtml(fr.t)} <span class="pf-q">(${total}問)</span>${frItemsHtml}</div>
-          <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
+          <span class="prog-status empty" style="font-size:11px">問題なし</span>
         </div>
-        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「予想問のみ」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - total}問追加されると進捗管理対象になります。</div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ このフレームにはまだ問題が登録されていません。択一タブで「予想問のみ」を選べば出題され、1問でも追加すると進捗管理の対象になります。</div>
       </div>`;
       continue;
     }
@@ -16658,7 +17381,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
       lawBreakdown: lawBreakdown,
       dataFno: fr.n,
       itemsLabel: frItemsLabel,  // 改修
-      planTarget: (kindMode==='pastA') ? {subject:subject, frameRef:fr.n} : null  // 改修30: 過去問A のみ予定ボタン
+      planTarget: (kindMode==='pastA' || kindMode==='forecast') ? {subject:subject, frameRef:fr.n, kind:kindMode} : null  // 改修30/V02_17: 過去問A・予想問に予定ボタン
     });
   }
   // 改修V02_05: 集中特訓フレーム(F_T1/T2/T3)を、通常フレームの後ろに追加表示。
@@ -16681,7 +17404,7 @@ function renderProgressFrames(root, summary, subject, kindMode){
         lawBreakdown: '',
         dataFno: def.key,                // 演習開始ボタンの data-fno に特訓キーを渡す
         itemsLabel: itemsLabel,
-        planTarget: {subject:subject, frameRef:def.key},
+        planTarget: {subject:subject, frameRef:def.key, kind:'pastA'},
         isTokkun: true
       });
     }
@@ -16690,8 +17413,8 @@ function renderProgressFrames(root, summary, subject, kindMode){
   if(shownFrames===0 && !progressKindShowAll(kindMode)){
     const lbl = progressKindLabel(kindMode);
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      この科目の${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上のフレームがありません。<br>
-      問題を追加すると、達成したフレームから自動的にここに表示されます。
+      この科目の${lbl}は、まだ問題が登録されたフレームがありません。<br>
+      問題を追加すると、そのフレームから自動的にここに表示されます(1問でも対象)。
     </div>`;
   }
   html += `</div></div>`;
@@ -16728,13 +17451,14 @@ function renderProgressFrames(root, summary, subject, kindMode){
       startFrameAttempt(subj, fno, km);
     });
   });
-  // 改修30: 「予定_編集」ボタンクリック(サマリーカードのドリルダウンは抑止)
+  // 改修30 / 改修V02_17: 「予定_編集」ボタンクリック(kind を渡す。サマリーカードのドリルダウンは抑止)
   root.querySelectorAll('button[data-planedit]').forEach(b=>{
     b.addEventListener('click', (e)=>{
       e.stopPropagation();
       const subj = b.dataset.subj;
       const ref = b.dataset.fref;  // "4" または "2.1"
-      if(subj && ref) openPlanEditModal(subj, ref);
+      const kind = b.dataset.kind || 'pastA';
+      if(subj && ref) openPlanEditModal(subj, ref, kind);
     });
   });
 }
@@ -16766,16 +17490,16 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
   for(const sf of subs){
     const sfQs = allFrameQs.filter(q=>questionMatchesSubFrame(q.law, sf));
     const cnt = sfQs.length;
-    // 改修8 Step 3: pastA は全表示、 pastB/forecast は15問以上
+    // 改修8 Step 3 / 改修V02_15: pastA は全表示、 pastB/forecast は1問以上で表示
     const eligible = progressKindShowAll(kindMode) || (cnt >= FORECAST_FRAME_THRESHOLD);
     if(!eligible){
       const lbl = progressKindLabel(kindMode);
       html += `<div class="prog-frame" style="opacity:.55">
         <div class="pf-head">
           <div class="pf-title"><span class="pf-n">F${parentFrameNo}_${sf.n}</span> ${escapeHtml(sf.t)} <span class="pf-q">(${cnt}問)</span></div>
-          <span class="prog-status empty" style="font-size:11px">対象外 (${FORECAST_FRAME_THRESHOLD}問未満)</span>
+          <span class="prog-status empty" style="font-size:11px">問題なし</span>
         </div>
-        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ 択一タブで「${lbl}」を選べば出題されます。${FORECAST_FRAME_THRESHOLD - cnt}問追加されると進捗管理対象になります。</div>
+        <div class="pf-status" style="font-size:11px;color:var(--ink-muted)">※ この中分類にはまだ問題が登録されていません。択一タブで「${lbl}」を選べば出題され、1問でも追加すると進捗管理の対象になります。</div>
       </div>`;
       continue;
     }
@@ -16789,13 +17513,13 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       kindModeVal: kindMode,
       lawBreakdown: '',
       dataFno: sf.key,
-      planTarget: (kindMode==='pastA') ? {subject:subject, frameRef:sf.key} : null  // 改修30: 中分類単位で予定設定(過去問Aのみ)
+      planTarget: (kindMode==='pastA' || kindMode==='forecast') ? {subject:subject, frameRef:sf.key, kind:kindMode} : null  // 改修30/V02_17: 中分類単位で予定設定(過去問A・予想問)
     });
   }
   if(shownSubs===0 && !progressKindShowAll(kindMode)){
     const lbl = progressKindLabel(kindMode);
     html += `<div class="prog-frame" style="text-align:center;color:var(--ink-muted);padding:30px">
-      このフレームの${lbl}は、まだ${FORECAST_FRAME_THRESHOLD}問以上の中分類がありません。
+      このフレームの${lbl}は、まだ問題が登録された中分類がありません(1問でも対象)。
     </div>`;
   }
   html += `</div></div>`;
@@ -16819,13 +17543,14 @@ function renderProgressSubFrames(root, summary, subject, parentFrameNo, kindMode
       startFrameAttempt(subj, fno, km);
     });
   });
-  // 改修30: 中分類の「予定_編集」ボタン
+  // 改修30 / 改修V02_17: 中分類の「予定_編集」ボタン(kind を渡す)
   root.querySelectorAll('button[data-planedit]').forEach(b=>{
     b.addEventListener('click', (e)=>{
       e.stopPropagation();
       const subj = b.dataset.subj;
       const ref = b.dataset.fref;
-      if(subj && ref) openPlanEditModal(subj, ref);
+      const kind = b.dataset.kind || 'pastA';
+      if(subj && ref) openPlanEditModal(subj, ref, kind);
     });
   });
 }
@@ -16996,7 +17721,7 @@ function statsRangeDateKeys(range, daysWithData){
     }
     return out;
   }
-  const n = range === '30d' ? 30 : 7;
+  const n = range === '30d' ? 30 : (range === '14d' ? 14 : 7);
   const out = [];
   for(let i=n-1;i>=0;i--){
     out.push(statsDateKeyMinusDays(i));
@@ -17073,7 +17798,7 @@ function renderStats(){
   for(const dk in byDay){ allTotal += byDay[dk].total; allCorrect += byDay[dk].correct; }
 
   const pctStr = (n,d)=> d>0 ? Math.round(n/d*100)+'%' : '—';
-  const rangeLbl = range==='7d' ? '直近7日' : (range==='30d' ? '直近30日' : '全期間');
+  const rangeLbl = range==='7d' ? '直近7日' : (range==='14d' ? '直近14日' : (range==='30d' ? '直近30日' : '全期間'));
 
   let html = '';
 
@@ -17092,6 +17817,7 @@ function renderStats(){
     <span style="flex:1"></span>
     <span class="stats-control-label">期間</span>
     <button class="stats-range-btn ${range==='7d'?'active':''}" data-range="7d">7日</button>
+    <button class="stats-range-btn ${range==='14d'?'active':''}" data-range="14d">14日</button>
     <button class="stats-range-btn ${range==='30d'?'active':''}" data-range="30d">30日</button>
     <button class="stats-range-btn ${range==='all'?'active':''}" data-range="all">全期間</button>
   </div>`;
@@ -17175,10 +17901,9 @@ function renderStats(){
   });
   _wireStatsSubTabs(root);
 
-  // 改修57_08: 30日間/全期間の表示では、横スクロールの初期位置を「今日」(右端)中心にする。
-  //   従来は左端(=最も古い日)が表示され、今日を見るのにスクロールが必要だった。
-  //   日別グラフと日別詳細の両方のスクロール領域を右端へ寄せる。
-  if(range === '30d' || range === 'all'){
+  // 改修57_08 / 改修V02_14: 期間が広く一画面に収まらず横スクロールになる場合は、
+  //   初期表示位置を「今日」(右端)中心にする。収まる場合は scrollWidth≈clientWidth で無害。
+  if(range === '14d' || range === '30d' || range === 'all'){
     requestAnimationFrame(()=>{
       root.querySelectorAll('.stats-chart-svg-wrap').forEach(wrap=>{
         try{ wrap.scrollLeft = wrap.scrollWidth; }catch(_){}
@@ -17267,6 +17992,7 @@ function renderTaipaView(){
   //   (同じ全時間帯を2セット表示。狭い画面=iPhoneでは2セット目をCSSで非表示にし従来の1セット表示)
   //   2セットの予定ハコは data-plan-key が同じだが、確定時は studyPlans を更新して全体を
   //   再描画するため、どちらのセットでドラッグしても正しく反映される。
+  html += `<p class="taipa-move-hint">💡 予定ハコは<strong>左右のタイムテーブル間でもドラッグ移動できます</strong>。例えば右側を朝の時間帯までスクロールしておけば、左側の夜の予定をそのまま右側の朝へドロップして時間帯を変更できます(大きく離れた時間帯への移動でも長距離スクロール不要)。</p>`;
   html += `<div class="taipa-tt-2col">
     <div class="taipa-tt-wrap taipa-tt-set1">${renderTaipaTimetable(dateKey, plans, sessions, 1)}</div>
     <div class="taipa-tt-wrap taipa-tt-set2">${renderTaipaTimetable(dateKey, plans, sessions, 2)}</div>
@@ -17319,6 +18045,11 @@ function sessionDisplayBands(sess){
     const effEnd = segEffectiveEnd(sg);
     if(effEnd<=sg.start) continue;
     if(sg.mode==='R'){
+      // 改修V02_16: 「解答していた休憩(countAsStudy)」は学習帯として連続させる。
+      if(sg.countAsStudy===true){
+        if(cur){ cur.endMs = effEnd; } else { cur = {startMs: sg.start, endMs: effEnd}; }
+        continue;
+      }
       const restMs = effEnd - sg.start;
       if(restMs > REST_HIDE_MS){
         if(cur){ bands.push(cur); cur=null; }
@@ -17384,14 +18115,16 @@ function renderTaipaTimetable(dateKey, plans, sessions, set){
     const h = Math.max(TAIPA_ROW_PX, ((e-s)/TAIPA_SLOT_MIN) * TAIPA_ROW_PX);
     const col = statsSubjectColor(p.subject);
     const lbl = frameOrSubFrameLabel(p.subject, p.frameRef);
-    const kindB = p.kind==='review' ? `<span class="taipa-mini-badge">復${p.offset}</span>` : `<span class="taipa-mini-badge first">初</span>`;
+    const kindB = p.kindOcc==='review' ? `<span class="taipa-mini-badge">復${p.offset}</span>` : `<span class="taipa-mini-badge first">初</span>`;
+    // 改修V02_17: 予想問の予定は小タグで区別
+    const kindTag = p.kind==='forecast' ? `<span class="taipa-mini-badge forecast">予</span>` : '';
     // 改修57_01②-3: 完了済みの予定には右端に【済】(黒・太字)を表示。
     //   従来の「薄く表示(.done)」は維持しつつ、完了を明確に分かるようにする。
     const doneB = p.done ? `<span class="taipa-done-badge">【済】</span>` : '';
-    planBlocks += `<div class="taipa-block plan ${p.done?'done':''}" data-plan-key="${escapeHtml(p.key)}" data-plan-start="${escapeHtml(p.startTime)}" data-plan-dur="${e-s}" style="top:${top}px;height:${h-2}px;border-left-color:${col};background:${_taipaTint(col,0.10)}" title="ドラッグで時間帯を移動 / 上下の端で長さ変更">
+    planBlocks += `<div class="taipa-block plan ${p.done?'done':''}" data-plan-key="${escapeHtml(p.key)}" data-plan-start="${escapeHtml(p.startTime)}" data-plan-dur="${e-s}" style="top:${top}px;height:${h-2}px;border-left-color:${col};background:${_taipaTint(col,0.10)}" title="ドラッグで時間帯を移動(左右のタイムテーブル間でも移動可) / 上下の端で長さ変更">
       <div class="taipa-resize top"></div>
       ${doneB}
-      <div class="taipa-block-sub">${escapeHtml(shortSubject(p.subject))}${kindB}</div>
+      <div class="taipa-block-sub">${escapeHtml(shortSubject(p.subject))}${kindB}${kindTag}</div>
       <div class="taipa-block-frame">${escapeHtml(_taipaFrameFull(p.subject,p.frameRef))}</div>
       <div class="taipa-resize bottom"></div>
     </div>`;
@@ -17505,12 +18238,17 @@ function renderTaipaSummary(dateKey, sessions){
     bySubject[subj].ans += s.answered; bySubject[subj].correct += s.correct;
     bySubject[subj].frames.add(String(s.frameRef));
     const fk = s.subject+'|'+s.frameRef;
-    byFrame[fk] ||= {subject:s.subject, frameRef:s.frameRef, totalMs:0, activeMs:0, pauseMs:0, ans:0, correct:0, anyDone:false, partialCnt:0, sessCnt:0, sessIds:[], hasLongGap:false};
+    byFrame[fk] ||= {subject:s.subject, frameRef:s.frameRef, totalMs:0, activeMs:0, pauseMs:0, ans:0, correct:0, anyDone:false, partialCnt:0, sessCnt:0, sessIds:[], hasLongGap:false, hasRestAnswers:false, kindAns:{pastA:0, forecast:0}};
     byFrame[fk].totalMs += tMs; byFrame[fk].activeMs += aMs; byFrame[fk].pauseMs += bMs;
     byFrame[fk].ans += s.answered; byFrame[fk].correct += s.correct;
     byFrame[fk].sessCnt++;
     byFrame[fk].sessIds.push(s.id);
+    // 改修V02_17: 過去問A/予想問の内訳(解答数)を保持。合算は維持しつつ内訳をバッジ表示する。
+    const sKind = (s.kind==='forecast') ? 'forecast' : 'pastA';
+    byFrame[fk].kindAns[sKind] += (s.answered||0);
     if(sessionLongGaps(s).length>0) byFrame[fk].hasLongGap = true;
+    // 改修V02_16: 休憩(R)中に解答したのに未計上の区間があれば警告フラグを立てる。
+    if(sessionHasRestAnswers(s)) byFrame[fk].hasRestAnswers = true;
     if(s.outcome==='partial') byFrame[fk].partialCnt++; else byFrame[fk].anyDone = true; // 旧データ(outcome無し)は完了扱い
   }
 
@@ -17585,21 +18323,29 @@ function renderTaipaSummary(dateKey, sessions){
     const cntNote = d.sessCnt>1 ? `<span class="taipa-state-cnt">${d.sessCnt}回</span>` : '';
     // 改修V02_04_01: 長時間の中断/休憩が含まれるフレームには補正を促す警告マーク
     const warnMark = d.hasLongGap ? `<span class="taipa-warn-mark" title="長時間の中断/休憩が含まれています。学習時間が実態より長い可能性があります。「補正」で調整できます。">⚠</span>` : '';
+    // 改修V02_16: 休憩中に解答した実績が未計上のフレームには「計上漏れ」警告を出す
+    const restMark = d.hasRestAnswers ? `<span class="taipa-rest-mark" title="「休憩中」に解答した記録があります。この解答時間・問題数は集計に含まれていません。「補正」から『休憩中の解答を学習に計上』できます。">🔴解答漏れ</span>` : '';
     // 補正ボタン(このフレームの該当セッション群を開く)
-    const fixBtn = `<button class="taipa-fix-btn${d.hasLongGap?' need':''}" data-taipafix="${escapeHtml(fk)}" data-taipafix-date="${escapeHtml(dateKey)}" title="このフレームの学習時間を補正する">✏️補正</button>`;
+    const needFix = d.hasLongGap || d.hasRestAnswers;
+    const fixBtn = `<button class="taipa-fix-btn${needFix?' need':''}" data-taipafix="${escapeHtml(fk)}" data-taipafix-date="${escapeHtml(dateKey)}" title="このフレームの学習時間を補正する">✏️補正</button>`;
+    // 改修V02_17: 過去問A・予想問の両方を解いたフレームは、解答数の内訳を小さく併記する。
+    const ka = d.kindAns || {pastA:0, forecast:0};
+    const mixNote = (ka.pastA>0 && ka.forecast>0)
+      ? `<span class="taipa-kind-mix" title="内訳: 過去問A ${ka.pastA}問 / 予想問 ${ka.forecast}問">（過去A ${ka.pastA}・予想 ${ka.forecast}）</span>`
+      : (ka.forecast>0 ? `<span class="taipa-kind-mix forecast" title="予想問">🎯予想</span>` : '');
     html += `<tr>
-      <td><span class="plan-subj-dot" style="background:${col}"></span>${escapeHtml(shortSubject(d.subject))} ${escapeHtml(frameOrSubFrameLabel(d.subject,d.frameRef))}</td>
+      <td><span class="plan-subj-dot" style="background:${col}"></span>${escapeHtml(shortSubject(d.subject))} ${escapeHtml(frameOrSubFrameLabel(d.subject,d.frameRef))}${restMark}</td>
       <td>${stateBadge}${cntNote}</td>
       <td>${warnMark}${fmtDurationMs(d.totalMs)}</td>
       <td class="taipa-col-answ">${fmtDurationMs(d.activeMs)}</td>
-      <td>${d.ans} / ${d.correct}</td>
+      <td>${d.ans} / ${d.correct}${mixNote}</td>
       <td>${pct(d.correct,d.ans)}</td>
       <td>${fmtPerQ(perQ(d.activeMs,d.ans))}</td>
       <td>${fixBtn}</td>
     </tr>`;
   }
   html += `</tbody></table></div>`;
-  html += `<div class="taipa-tbl-note">「学習時間」=解答時間(A)+中断/ロックオン時間(B)。「解答時間」=実際に問題を解いていた時間(A)。<br>⚠ が付くフレームは長時間の中断/休憩が含まれています。<b>✏️補正</b>で実態に合わせて調整できます。</div>`;
+  html += `<div class="taipa-tbl-note">「学習時間」=解答時間(A)+中断/ロックオン時間(B)。「解答時間」=実際に問題を解いていた時間(A)。<br>⚠ が付くフレームは長時間の中断/休憩が含まれています。<b>✏️補正</b>で実態に合わせて調整できます。<br>🔴解答漏れ が付くフレームは<b>「休憩中」に解答した記録があるのに集計に含まれていません</b>。<b>✏️補正</b>から「休憩中の解答を学習に計上」できます。</div>`;
   html += `</div>`;
   return html;
 }
@@ -17624,9 +18370,16 @@ function openTaipaFixModal(fk, dateKey){
   _taipaFixCtx = {fk, dateKey, subject, frameRef};
   const desc = document.getElementById('taipa-fix-desc');
   if(desc){
+    // 改修V02_16: このフレームに「休憩中の解答(未計上)」があるか事前確認
+    const restAnsSessions = sessions.filter(s=> sessionHasRestAnswers(s));
+    let restNote = '';
+    if(restAnsSessions.length){
+      restNote = `<div class="taipa-fix-restnote">🔴 <b>「休憩中」に解答した記録があります。</b>下の「休憩」区間で <b>「この休憩を学習(解答)に計上する」</b> をオンにすると、その時間・解答数が実績に反映されます。</div>`;
+    }
     desc.innerHTML = `<b>${escapeHtml(shortSubject(subject))} ${escapeHtml(frameOrSubFrameLabel(subject, frameRef))}</b>(${escapeHtml(planDateLabel(dateKey))})<br>
       各「中断」「休憩」の時間を実際に合わせて補正できます。長時間放置してしまった区間は、ここで実際の分数に直してください。<br>
-      <span style="color:var(--ink-muted)">※「解答」区間は実測のまま保持されます。補正しても解答数・正答数は変わりません。</span>`;
+      <span style="color:var(--ink-muted)">※「休憩/一旦停止のし忘れ」などで「解答」区間が異常に長くなった場合(2時間超)も補正できます。補正すると、その実態時間外に紛れ込んだ解答は集計から除外されます。</span>
+      ${restNote}`;
   }
   _renderTaipaFixBody();
   const m = document.getElementById('taipa-fix-modal');
@@ -17659,29 +18412,63 @@ function _renderTaipaFixBody(){
     let hasEditable = false;
     for(let i=0;i<segs.length;i++){
       const sg = segs[i];
-      if(sg.mode==='A') continue; // 解答区間は補正対象外
       if(sg.end==null) continue;
-      hasEditable = true;
       const rawMs = (sg.end>sg.start)?(sg.end-sg.start):0;
-      const isLong = rawMs > LONG_GAP_MS;
+      // 改修V02_08: 解答(A)区間は原則補正対象外。ただし「休憩/一旦停止のし忘れ」で
+      //   異常に長くなった区間(LONG_A_MS超)、または既に補正済みの区間は編集を許可し、
+      //   8時間級の異常値を実態に直せるようにする。
+      const isAnswer = (sg.mode==='A');
+      const isLongA = isAnswer && rawMs > LONG_A_MS;
+      const cappedSeg = (sg.capMs!=null);
+      const isRest = (sg.mode==='R');
+      // 改修V02_16: 休憩(R)区間に解答履歴があるか(未計上・計上済とも表示対象にする)
+      let restAnsCnt = 0;
+      if(isRest){
+        for(const h of (state.history||[])){ if(h.ts>=sg.start && h.ts<=sg.end) restAnsCnt++; }
+      }
+      const restHasAns = isRest && restAnsCnt>0;
+      const restCounted = isRest && sg.countAsStudy===true;
+      // 表示するかどうかの判定:
+      //   ・解答(A)区間 … 従来どおり(長時間 or 補正済のみ)
+      //   ・休憩(R)区間 … 従来は「30分超 or 補正済」のみだが、改修V02_16 で
+      //     「解答履歴がある or 既に学習計上している」休憩も必ず表示する。
+      if(isAnswer && !isLongA && !cappedSeg) continue; // 通常の解答区間はスキップ
+      if(isRest && !(rawMs > LONG_GAP_MS) && !cappedSeg && !restHasAns && !restCounted) continue; // 短い&解答なしの休憩はスキップ
+      hasEditable = true;
+      const isLong = isAnswer ? isLongA : (rawMs > LONG_GAP_MS);
       const curMs = (sg.capMs!=null) ? sg.capMs : rawMs;
-      const label = sg.mode==='B' ? '中断(ロックオン)' : '休憩';
-      const capped = (sg.capMs!=null);
-      html += `<div class="taipa-fix-seg ${isLong?'is-long':''}" data-seg-index="${i}">
+      const label = isAnswer ? '解答(長時間)' : (sg.mode==='B' ? '中断(ロックオン)' : (restCounted ? '休憩→解答に計上中' : '休憩'));
+      const badgeCls = isAnswer ? 'a' : (sg.mode==='B' ? 'b' : (restCounted ? 'a' : 'r'));
+      const capped = cappedSeg;
+      // 改修V02_16: 休憩区間に解答がある場合の「学習計上」トグル行
+      let restToggleHtml = '';
+      if(restHasAns || restCounted){
+        restToggleHtml = `<div class="taipa-fix-restrow ${restCounted?'on':''}">
+          <label class="taipa-fix-restlabel">
+            <input type="checkbox" class="taipa-fix-countas" data-seg-index="${i}" ${restCounted?'checked':''}>
+            この休憩を<b>解答(学習)に計上する</b>
+          </label>
+          <span class="taipa-fix-restcnt">この時間帯に解答 ${restAnsCnt}問${restCounted?'(計上中)':'(現在は未計上)'}</span>
+        </div>`;
+      }
+      html += `<div class="taipa-fix-seg ${isLong?'is-long':''} ${restHasAns&&!restCounted?'has-restans':''}" data-seg-index="${i}">
         <div class="taipa-fix-seg-info">
-          <span class="taipa-fix-seg-badge ${sg.mode==='B'?'b':'r'}">${label}</span>
+          <span class="taipa-fix-seg-badge ${badgeCls}">${label}</span>
           <span class="taipa-fix-seg-time">${fmtHM(sg.start)}〜${fmtHM(sg.end)}</span>
-          <span class="taipa-fix-seg-raw">実測 ${fmtDurationMs(rawMs)}${isLong?' <span class=\"taipa-fix-long\">⚠長時間</span>':''}</span>
+          <span class="taipa-fix-seg-raw">実測 ${fmtDurationMs(rawMs)}${isLong?' <span class=\"taipa-fix-long\">⚠長時間</span>':''}${restHasAns&&!restCounted?' <span class=\"taipa-fix-restwarn\">🔴解答あり</span>':''}</span>
         </div>
+        ${restToggleHtml}
         <div class="taipa-fix-seg-edit">
           <label>実際の時間：<input type="number" class="taipa-fix-input" min="0" step="1" value="${_fmtGapInput(curMs)}" data-seg-index="${i}"> 分</label>
           ${capped?`<button class="taipa-fix-reset" data-seg-index="${i}">補正解除</button>`:''}
-          ${isLong&&!capped?`<button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="5">5分に</button><button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="0">0分に</button>`:''}
+          ${isLong&&!capped?(isAnswer
+              ? `<button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="30">30分に</button><button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="15">15分に</button>`
+              : `<button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="5">5分に</button><button class="taipa-fix-suggest" data-seg-index="${i}" data-suggest="0">0分に</button>`):''}
         </div>
       </div>`;
     }
     if(!hasEditable){
-      html += `<div class="taipa-fix-none">このセッションには補正できる中断・休憩がありません。</div>`;
+      html += `<div class="taipa-fix-none">このセッションには補正できる区間がありません。</div>`;
     }
     html += `</div>`;
   }
@@ -17706,6 +18493,27 @@ function _renderTaipaFixBody(){
         saveState();
         _renderTaipaFixBody();
       }
+    });
+  });
+  // 改修V02_16: 「この休憩を解答(学習)に計上する」トグル。
+  //   即座に countAsStudy を反映し、解答数・正答数を再集計してから再描画する。
+  body.querySelectorAll('.taipa-fix-countas').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const sessEl = cb.closest('[data-fix-sess]');
+      const sessId = sessEl.dataset.fixSess;
+      const idx = parseInt(cb.dataset.segIndex,10);
+      const sess = (state.studySessions||[]).find(x=>x.id===sessId);
+      if(!sess || !Array.isArray(sess.segments) || !sess.segments[idx]) return;
+      if(cb.checked){ sess.segments[idx].countAsStudy = true; }
+      else { delete sess.segments[idx].countAsStudy; }
+      // 解答数・正答数を再集計(計上区間が増減するため)
+      try{
+        const st = sessionAnswerStats(sess);
+        sess.answered = st.answered;
+        sess.correct = st.correct;
+      }catch(_){}
+      saveState();
+      _renderTaipaFixBody();
     });
   });
 }
@@ -17772,83 +18580,144 @@ function _wireTaipaView(root){
    ============================================================ */
 function _wireTaipaDrag(root){
   // 改修57_01②-2: 2セット(taipa-plan-grid-1 / -2)それぞれに配線する。
-  const grids = root.querySelectorAll('[id^="taipa-plan-grid"]');
-  grids.forEach(g => _wireTaipaDragGrid(root, g));
+  // 改修V02_11: 左右セット間でのブロック移動に対応するため、全グリッドを1つの
+  //   コントローラで束ねて配線する(grid単体ではなく root 全体を見る)。
+  const grids = Array.from(root.querySelectorAll('[id^="taipa-plan-grid"]'));
+  if(!grids.length) return;
+  _wireTaipaDragMulti(root, grids);
 }
 
-// 1つのグリッド要素に対してドラッグ配線を行う(改修05のロジックを踏襲)
-function _wireTaipaDragGrid(root, grid){
-  if(!grid) return;
-  const rowPx   = parseFloat(grid.dataset.rowPx) || TAIPA_ROW_PX;
-  const slotMin = parseInt(grid.dataset.slotMin,10) || TAIPA_SLOT_MIN;
-  const startSlot = parseInt(grid.dataset.startSlot,10) || 0;
-  const nSlots  = parseInt(grid.dataset.nSlots,10) || 0;
-
+/* 改修V02_11: 複数グリッド(左右セット)をまたいだ予定ブロックのドラッグ移動。
+   - 本体ドラッグ(move): ポインタが乗っているグリッドを判定し、そのグリッドの
+     時間軸(startSlot)基準で開始時刻を算出。別セットへ運べば、落とした位置の
+     時刻に変更される(例: 右セットの朝7時へドロップ → 22時の予定が7時へ)。
+     これにより、夜→朝のような大移動でも長距離スクロールが不要になる。
+   - 上端/下端ドラッグ(top/bottom): 従来どおり同一グリッド内で長さ(所要時間)変更。
+   5分(=1スロット)単位スナップ。Pointer Events でマウス/タッチ両対応。
+   ※ 狭い画面(≤640px)では2セット目が CSS で非表示のため、実質1グリッドで
+      従来と同じ縦移動になる(後方互換)。 */
+function _wireTaipaDragMulti(root, grids){
   // 分(0時起点) → "HH:MM"
   const minToHm = (mn)=>{
     mn = Math.max(0, Math.min(24*60-1, Math.round(mn)));
     return String(Math.floor(mn/60)).padStart(2,'0')+':'+String(mn%60).padStart(2,'0');
   };
+  // グリッドのレイアウト情報を取得(rowPx/slotMin/startSlot/nSlots)
+  const gridInfo = (grid)=>({
+    grid,
+    rowPx:   parseFloat(grid.dataset.rowPx) || TAIPA_ROW_PX,
+    slotMin: parseInt(grid.dataset.slotMin,10) || TAIPA_SLOT_MIN,
+    startSlot: parseInt(grid.dataset.startSlot,10) || 0,
+    nSlots:  parseInt(grid.dataset.nSlots,10) || 0
+  });
+  // 画面上に実際に表示されているグリッドのみ対象(2セット目が display:none の端末を除外)
+  const visibleGrids = ()=> grids.filter(g => g.offsetParent !== null);
 
-  let drag = null; // {block, key, mode, startY, origTopPx, origHpx, durPx, label}
+  // ポインタ座標(clientX/Y)が乗っているグリッドを返す(複数表示時のドロップ先判定)。
+  //   水平方向は rect 内、垂直方向は上下に余裕(=外れても最寄り)を持たせて拾う。
+  const gridAtPoint = (cx, cy, fallback)=>{
+    const vis = visibleGrids();
+    // まず水平範囲に収まるグリッドを優先
+    for(const g of vis){
+      const r = g.getBoundingClientRect();
+      if(cx >= r.left && cx <= r.right) return g;
+    }
+    // 横方向に外れた場合は、中心が最も近いグリッド
+    let best = fallback, bestDist = Infinity;
+    for(const g of vis){
+      const r = g.getBoundingClientRect();
+      const mid = (r.left + r.right)/2;
+      const d = Math.abs(cx - mid);
+      if(d < bestDist){ bestDist = d; best = g; }
+    }
+    return best || fallback;
+  };
+
+  let drag = null;
+  // drag = { block, key, mode, startY, origTopPx, origHpx, newTopPx, newHpx,
+  //          homeGrid, homeInfo, curGrid, curInfo, label }
 
   const onDown = (e, block, mode)=>{
     // 改修05修正: 完了済み(done)でもドラッグ可能とする(予定の組み替えを優先)
     e.preventDefault();
-    const key = block.dataset.planKey;
+    const homeGrid = block.closest('[id^="taipa-plan-grid"]');
+    const homeInfo = gridInfo(homeGrid);
     const topPx = parseFloat(block.style.top) || 0;
-    const hPx = parseFloat(block.style.height) || rowPx;
+    const hPx = parseFloat(block.style.height) || homeInfo.rowPx;
     drag = {
-      block, key, mode,
-      startY: e.clientY,
-      origTopPx: topPx,
-      origHpx: hPx,
-      newTopPx: topPx,
-      newHpx: hPx
+      block, key: block.dataset.planKey, mode,
+      startX: e.clientX, startY: e.clientY,
+      origTopPx: topPx, origHpx: hPx,
+      newTopPx: topPx, newHpx: hPx,
+      homeGrid, homeInfo,
+      curGrid: homeGrid, curInfo: homeInfo
     };
     block.classList.add('dragging');
     block.setPointerCapture && block.setPointerCapture(e.pointerId);
-    // ドラッグ中の時刻ラベルを表示
     let lab = block.querySelector('.taipa-drag-time');
     if(!lab){ lab = document.createElement('div'); lab.className='taipa-drag-time'; block.appendChild(lab); }
     drag.label = lab;
     updateLabel();
   };
 
-  const slotsToMin = (px)=> (startSlot + px/rowPx) * slotMin;
+  // px(curGrid基準のtop) → 分。curInfo を使う。
+  const slotsToMin = (px, info)=> (info.startSlot + px/info.rowPx) * info.slotMin;
 
   const updateLabel = ()=>{
     if(!drag) return;
-    const sMin = slotsToMin(drag.newTopPx);
-    const eMin = slotsToMin(drag.newTopPx + drag.newHpx + 2); // +2は height-2の補正
-    drag.label.textContent = minToHm(sMin)+'–'+minToHm(eMin);
+    const sMin = slotsToMin(drag.newTopPx, drag.curInfo);
+    const eMin = slotsToMin(drag.newTopPx + drag.newHpx + 2, drag.curInfo);
+    const crossed = drag.curGrid !== drag.homeGrid;
+    drag.label.textContent = (crossed?'→ ':'') + minToHm(sMin)+'–'+minToHm(eMin);
   };
 
   const onMove = (e)=>{
     if(!drag) return;
     e.preventDefault();
     const dy = e.clientY - drag.startY;
-    const maxPx = nSlots * rowPx;
+
     if(drag.mode==='move'){
-      let t = drag.origTopPx + dy;
-      // スナップ
-      t = Math.round(t/rowPx)*rowPx;
-      t = Math.max(0, Math.min(maxPx - drag.origHpx - 2, t));
+      // 改修V02_11: ポインタが乗っているグリッドを判定。別セットなら移籍。
+      const overGrid = gridAtPoint(e.clientX, e.clientY, drag.curGrid);
+      if(overGrid && overGrid !== drag.curGrid){
+        // 別グリッドへ移籍: ブロックをそのグリッドへ移動して追従表示。
+        drag.curGrid = overGrid;
+        drag.curInfo = gridInfo(overGrid);
+        if(drag.block.parentNode !== overGrid) overGrid.appendChild(drag.block);
+      }
+      const info = drag.curInfo;
+      const maxPx = info.nSlots * info.rowPx;
+      // 移籍先グリッド上でのポインタY(rect基準)から top を直接決める。
+      //   ブロックの掴んだ位置オフセットを保つため、開始時のブロック内オフセットを反映。
+      const rect = drag.curGrid.getBoundingClientRect();
+      // 掴んだ点のブロック内オフセット(初回 down 時の relativeY)を維持
+      if(drag._grabOffset==null){
+        // 初回 move 時に算出: down 時点のポインタY - ブロックtopの画面Y
+        drag._grabOffset = Math.max(0, Math.min(drag.origHpx, (drag.startY - (drag.homeGrid.getBoundingClientRect().top + drag.origTopPx))));
+      }
+      let t = (e.clientY - rect.top) - drag._grabOffset;
+      t = Math.round(t/info.rowPx)*info.rowPx;
+      t = Math.max(0, Math.min(Math.max(0, maxPx - drag.origHpx - 2), t));
       drag.newTopPx = t;
+      drag.newHpx = drag.origHpx;
       drag.block.style.top = t+'px';
     }else if(drag.mode==='top'){
+      // 長さ変更は同一グリッド内(home)のまま
+      const info = drag.homeInfo;
       let t = drag.origTopPx + dy;
-      t = Math.round(t/rowPx)*rowPx;
+      t = Math.round(t/info.rowPx)*info.rowPx;
       const bottom = drag.origTopPx + drag.origHpx;
-      t = Math.max(0, Math.min(bottom - rowPx, t));
+      t = Math.max(0, Math.min(bottom - info.rowPx, t));
       drag.newTopPx = t;
       drag.newHpx = bottom - t;
       drag.block.style.top = t+'px';
       drag.block.style.height = drag.newHpx+'px';
     }else if(drag.mode==='bottom'){
+      const info = drag.homeInfo;
+      const maxPx = info.nSlots * info.rowPx;
       let h = drag.origHpx + dy;
-      h = Math.round(h/rowPx)*rowPx;
-      h = Math.max(rowPx, Math.min(maxPx - drag.origTopPx - 2, h));
+      h = Math.round(h/info.rowPx)*info.rowPx;
+      h = Math.max(info.rowPx, Math.min(maxPx - drag.origTopPx - 2, h));
       drag.newHpx = h;
       drag.block.style.height = h+'px';
     }
@@ -17858,61 +18727,95 @@ function _wireTaipaDragGrid(root, grid){
   const onUp = (e)=>{
     if(!drag) return;
     e.preventDefault();
-    const sMin = Math.round(slotsToMin(drag.newTopPx));
-    const eMin = Math.round(slotsToMin(drag.newTopPx + drag.newHpx + 2));
+    try{ drag.block.releasePointerCapture && drag.block.releasePointerCapture(e.pointerId); }catch(_){}
+    // 確定時はドロップ先(move時はcurInfo、長さ変更時はhomeInfo)の時間軸で算出
+    const info = (drag.mode==='move') ? drag.curInfo : drag.homeInfo;
+    const sMin = Math.round(slotsToMin(drag.newTopPx, info));
+    const eMin = Math.round(slotsToMin(drag.newTopPx + drag.newHpx + 2, info));
     const startTime = minToHm(sMin);
     const endTime = minToHm(eMin);
-    const durationMin = Math.max(slotMin, eMin - sMin);
+    const durationMin = Math.max(info.slotMin, eMin - sMin);
     const key = drag.key;
     const blockRef = drag.block;
+    const crossed = (drag.mode==='move') && (drag.curGrid !== drag.homeGrid);
     if(drag.label && drag.label.parentNode) drag.label.parentNode.removeChild(drag.label);
     drag.block.classList.remove('dragging');
     drag = null;
-    // データ書き戻し(初回・復習共通の startTime/endTime を更新)
     if(state.studyPlans && state.studyPlans[key]){
       state.studyPlans[key].startTime = startTime;
       state.studyPlans[key].endTime = endTime;
       state.studyPlans[key].durationMin = durationMin;
       saveState();
-      // 改修05修正: 全体を再描画するとスクロールが先頭へ飛ぶため、再描画しない。
-      // ハコは既にドラッグ後の位置に表示済み。data属性だけ最新化し、続けて他のハコも編集できるようにする。
-      if(blockRef){ blockRef.dataset.planStart = startTime; blockRef.dataset.planDur = String(eMin - sMin); }
-      // 同じ予定キーの他オカレンス(復習回など)が同じ画面にあれば、その位置も更新
-      _taipaSyncSameKeyBlocks(root, key, blockRef, sMin, eMin, startSlot, rowPx, slotMin);
+      if(crossed){
+        // 改修V02_11: 左右セット間を移籍した場合は、両グリッドの時間軸が異なり
+        //   オカレンスの整合も必要なため、タイパビューだけを再描画して配線し直す。
+        //   再描画でのスクロール飛びを防ぐため、両セットのスクロール位置を保存→復元。
+        _taipaRerenderPreserveScroll(root);
+      }else{
+        // 同一セット内の移動/長さ変更: 再描画せず、その場で確定(スクロール維持・連続編集可)。
+        if(blockRef){ blockRef.dataset.planStart = startTime; blockRef.dataset.planDur = String(eMin - sMin); }
+        _taipaSyncSameKeyBlocksAll(root, key, sMin, eMin);
+      }
     }
   };
 
-  // 各予定ブロックに配線
-  grid.querySelectorAll('.taipa-block.plan').forEach(block=>{
-    const top = block.querySelector('.taipa-resize.top');
-    const bottom = block.querySelector('.taipa-resize.bottom');
-    block.addEventListener('pointerdown', (e)=>{
-      // ハンドル上は除外(下で個別配線)
-      if(e.target.classList.contains('taipa-resize')) return;
-      onDown(e, block, 'move');
+  // 各予定ブロックに配線(全グリッド分をまとめて)
+  grids.forEach(grid=>{
+    grid.querySelectorAll('.taipa-block.plan').forEach(block=>{
+      const top = block.querySelector('.taipa-resize.top');
+      const bottom = block.querySelector('.taipa-resize.bottom');
+      block.addEventListener('pointerdown', (e)=>{
+        if(e.target.classList.contains('taipa-resize')) return;
+        onDown(e, block, 'move');
+      });
+      if(top) top.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'top'); });
+      if(bottom) bottom.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'bottom'); });
+      block.addEventListener('pointermove', onMove);
+      block.addEventListener('pointerup', onUp);
+      block.addEventListener('pointercancel', onUp);
     });
-    if(top) top.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'top'); });
-    if(bottom) bottom.addEventListener('pointerdown', (e)=>{ e.stopPropagation(); onDown(e, block, 'bottom'); });
-    block.addEventListener('pointermove', onMove);
-    block.addEventListener('pointerup', onUp);
-    block.addEventListener('pointercancel', onUp);
   });
 }
 
-/* 改修05修正: 同じ予定キーの他のハコ(同一画面内の復習回など)の表示位置も、
-   再描画せずにその場で更新する。startMin/endMin はドラッグ確定後の分。 */
-function _taipaSyncSameKeyBlocks(root, key, draggedBlock, startMin, endMin, startSlot, rowPx, slotMin){
-  // 改修57_01②-2: 2セット表示のため、root 内の全グリッドにある同一キーのハコを同期する。
-  const top = ((startMin/slotMin) - startSlot) * rowPx;
-  const h = Math.max(rowPx, ((endMin-startMin)/slotMin) * rowPx);
-  root.querySelectorAll('.taipa-block.plan').forEach(b=>{
-    if(b === draggedBlock) return;
-    if(b.dataset.planKey !== key) return;
-    b.style.top = top + 'px';
-    b.style.height = (h-2) + 'px';
-    b.dataset.planStart = String(startMin/60|0).padStart(2,'0');
+/* 改修V02_11: 同一予定キーのハコを「全グリッド」で再同期する(同一セット内移動時)。
+   各グリッドは時間軸(startSlot)が異なり得るため、グリッドごとに自前で top/height
+   を算出して配置する。移籍を伴わない移動・長さ変更で使用(再描画なし=スクロール維持)。
+   startMin/endMin はドラッグ確定後の分(0時起点)。 */
+function _taipaSyncSameKeyBlocksAll(root, key, startMin, endMin){
+  const grids = Array.from(root.querySelectorAll('[id^="taipa-plan-grid"]'));
+  const hm = String(Math.floor(startMin/60)).padStart(2,'0')+':'+String(startMin%60).padStart(2,'0');
+  grids.forEach(grid=>{
+    const rowPx   = parseFloat(grid.dataset.rowPx) || TAIPA_ROW_PX;
+    const slotMin = parseInt(grid.dataset.slotMin,10) || TAIPA_SLOT_MIN;
+    const startSlot = parseInt(grid.dataset.startSlot,10) || 0;
+    const top = ((startMin/slotMin) - startSlot) * rowPx;
+    const h = Math.max(rowPx, ((endMin-startMin)/slotMin) * rowPx);
+    grid.querySelectorAll('.taipa-block.plan').forEach(b=>{
+      if(b.dataset.planKey !== key) return;
+      b.style.top = top + 'px';
+      b.style.height = (h-2) + 'px';
+      b.dataset.planStart = hm;
+      b.dataset.planDur = String(endMin - startMin);
+    });
   });
 }
+
+/* 改修V02_11: タイパビューだけを再描画し、両セットのスクロール位置を復元する。
+   左右セット間の移籍後、両グリッドの時間軸ずれとオカレンス整合を正しく反映するため、
+   renderStats() で再構築する。スクロール飛びを防ぐため wrap のスクロール量を保存→復元。 */
+function _taipaRerenderPreserveScroll(root){
+  // 各タイムテーブル wrap(独立スクロール領域)の scrollTop/Left を保存
+  const wraps = Array.from(document.querySelectorAll('.taipa-tt-wrap'));
+  const saved = wraps.map(w=>({top:w.scrollTop, left:w.scrollLeft}));
+  renderStats();
+  // 再描画後、同順の wrap に復元(DOMが作り直されるため取得し直す)
+  requestAnimationFrame(()=>{
+    const after = Array.from(document.querySelectorAll('.taipa-tt-wrap'));
+    after.forEach((w,i)=>{ if(saved[i]){ w.scrollTop = saved[i].top; w.scrollLeft = saved[i].left; } });
+  });
+}
+
+/* 改修V02_11: 旧 _taipaSyncSameKeyBlocks は _taipaSyncSameKeyBlocksAll に統合・置換済み。 */
 
 /* ============================================================
    改修31: 学習時間サブタブ — 日別トータル学習時間の棒グラフ
@@ -17933,7 +18836,7 @@ function renderStudyTimeView(){
   const allKeys = Object.keys(byDay).sort();
   const targetKeys = statsRangeDateKeys(range, allKeys);
 
-  const rangeLbl = range==='7d' ? '直近7日' : (range==='30d' ? '直近30日' : '全期間');
+  const rangeLbl = range==='7d' ? '直近7日' : (range==='14d' ? '直近14日' : (range==='30d' ? '直近30日' : '全期間'));
   let html = `<div class="card stats-intro">
     <h2 class="stats-h2">📈 学習時間 <span class="stats-sub">日別トータル学習時間</span></h2>
     <p class="stats-desc">計測した学習セッションの<strong>トータル学習時間</strong>(解答A+中断/ロックオンB。休憩Rは除く)を日別に集計した棒グラフです。濃い部分が解答時間(Aモード)です。<br><span style="color:var(--ink-muted)">※「タイパ」タブの<b>✏️補正</b>で中断時間を直すと、この集計にも反映されます。</span></p>
@@ -17942,6 +18845,7 @@ function renderStudyTimeView(){
     <span style="flex:1"></span>
     <span class="stats-control-label">期間</span>
     <button class="stats-range-btn ${range==='7d'?'active':''}" data-range="7d">7日</button>
+    <button class="stats-range-btn ${range==='14d'?'active':''}" data-range="14d">14日</button>
     <button class="stats-range-btn ${range==='30d'?'active':''}" data-range="30d">30日</button>
     <button class="stats-range-btn ${range==='all'?'active':''}" data-range="all">全期間</button>
   </div>`;
@@ -18016,13 +18920,31 @@ function renderStatsChart(byDay, dateKeys){
     return `<div class="stats-chart-empty">この期間にフレーム演習の記録はまだありません。<br><span style="font-size:11px">進捗管理タブからフレームを選んで演習を始めると、ここに表示されます。</span></div>`;
   }
   // レイアウト
+  // 改修V02_14: 期間(7d/14d/30d/all)に応じてバー幅を可変にし、選んだ期間が
+  //   できるだけ一画面に収まるようにする。従来は固定48px/本だったため、30日でも
+  //   画面に約22日しか入らず、全期間も30日と見分けがつかなかった。
+  //   コンテナの実幅を基準に「全日数が収まる1本あたり幅」を算出する。
+  //   ただし視認できる下限(最小幅)を設け、それを下回る(=日数が多すぎる)場合だけ
+  //   横スクロールにフォールバックする(全期間で何百日もあるケース)。
   const isMobile = window.innerWidth < 600;
-  const W_PER_BAR = isMobile ? 38 : 48;
   const margin = {top:20, right:50, bottom:50, left:42};
-  const innerW = dateKeys.length * W_PER_BAR;
+  // 描画コンテナ(.stats-chart-svg-wrap)の利用可能幅を推定。
+  //   renderStatsChart は innerHTML 構築中に呼ばれ実DOM幅が取れないため、
+  //   ビューポート幅からカード余白等を差し引いて近似する。
+  const approxWrapW = Math.max(280, Math.min(window.innerWidth, 980) - (isMobile?56:96));
+  const availInner = approxWrapW - margin.left - margin.right;
+  const n = dateKeys.length;
+  // 1本あたりの理想幅(全日が収まる幅) と 下限/上限
+  const MIN_PER_BAR = isMobile ? 14 : 18;   // これ未満なら横スクロールに切替
+  const MAX_PER_BAR = isMobile ? 38 : 48;   // 7日など少数日で間延びしすぎない上限
+  let W_PER_BAR = Math.floor(availInner / Math.max(1, n));
+  W_PER_BAR = Math.max(MIN_PER_BAR, Math.min(MAX_PER_BAR, W_PER_BAR));
+  const innerW = n * W_PER_BAR;
   const innerH = isMobile ? 220 : 260;
   const W = innerW + margin.left + margin.right;
   const H = innerH + margin.top + margin.bottom;
+  // この期間が一画面に収まるか(収まるなら親側で横スクロール不要)
+  const fitsOneScreen = (W <= approxWrapW + 1);
 
   // Y軸スケール(解答数の最大)
   let maxTotal = 0;
@@ -18045,7 +18967,8 @@ function renderStatsChart(byDay, dateKeys){
   const segments = []; // {x, y, w, h, fill, opacity, patternId?, frame, attempt}
 
   // 各日の棒を構築
-  const barWidth = Math.min(W_PER_BAR - 10, 30);
+  // 改修V02_14: 可変 W_PER_BAR に追従。バー間の余白を確保しつつ最小2pxは確保。
+  const barWidth = Math.max(2, Math.min(W_PER_BAR - (isMobile?6:10), 30));
   dateKeys.forEach((dk, di)=>{
     const day = byDay[dk];
     const xBase = margin.left + di * W_PER_BAR;
@@ -18094,7 +19017,13 @@ function renderStatsChart(byDay, dateKeys){
   });
 
   // SVG 構築
-  let svg = `<svg class="stats-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  // 改修V02_14: 一画面に収まる期間は width:100% でコンテナにフィットさせ、
+  //   全日数を一望できるようにする。収まらない(=日数過多)場合のみ実px幅にして
+  //   親 .stats-chart-svg-wrap の横スクロールに委ねる。
+  //   ※高さは固定pxのまま(縦は不変)。viewBox により比率は保たれる。
+  const svgWidthAttr = fitsOneScreen ? `width="100%"` : `width="${W}"`;
+  const svgStyleAttr = fitsOneScreen ? `style="max-width:${W}px"` : '';
+  let svg = `<svg class="stats-chart-svg" viewBox="0 0 ${W} ${H}" ${svgWidthAttr} height="${H}" ${svgStyleAttr} preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`;
 
   // <defs> パターン
   svg += '<defs>';
@@ -18142,14 +19071,25 @@ function renderStatsChart(byDay, dateKeys){
   }
 
   // X軸ラベル(日付)
+  // 改修V02_14: バーが細い(=日数が多い)ときはラベルが重なるため間引く。
+  //   1ラベルに必要な最小幅 ≒ 24px を基準に、何本おきに描くかを決める。
+  //   ただし「今日」と「月初(1日)」は必ず表示して時間の見当をつけやすくする。
+  const labelEvery = Math.max(1, Math.ceil(24 / Math.max(1, W_PER_BAR)));
+  const xLabelFont = W_PER_BAR < 22 ? 9 : 10;
+  const todayKeyForLbl = statsTodayKey();
   dateKeys.forEach((dk, di)=>{
     const xCenter = margin.left + di * W_PER_BAR + W_PER_BAR/2;
     const [y,m,d] = dk.split('-').map(Number);
+    const isToday = (dk === todayKeyForLbl);
+    const isMonthStart = (d === 1);
+    // 間引き判定: 既定間隔の位置・今日・月初・両端のみ描画
+    const isEdge = (di === 0 || di === dateKeys.length-1);
+    if(!(di % labelEvery === 0 || isToday || isMonthStart || isEdge)) return;
+    // 月初は「M/D」、それ以外で月をまたいで分かりやすくするため今日も「M/D」
     const lbl = `${m}/${d}`;
-    const isToday = (dk === statsTodayKey());
     const fontWeight = isToday ? '600' : '400';
     const color = isToday ? '#B83A2E' : '#5C5852';
-    svg += `<text x="${xCenter}" y="${margin.top + innerH + 14}" text-anchor="middle" font-size="10" fill="${color}" font-weight="${fontWeight}" font-family="-apple-system,sans-serif">${lbl}</text>`;
+    svg += `<text x="${xCenter}" y="${margin.top + innerH + 14}" text-anchor="middle" font-size="${xLabelFont}" fill="${color}" font-weight="${fontWeight}" font-family="-apple-system,sans-serif">${lbl}</text>`;
   });
   // X軸線
   svg += `<line x1="${margin.left}" y1="${margin.top+innerH}" x2="${margin.left+innerW}" y2="${margin.top+innerH}" stroke="#8B867E" stroke-width="1"/>`;
